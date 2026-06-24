@@ -138,7 +138,7 @@ while IFS=$'\t' read -r ip user pass win_path wsl_path_extra; do
   sync_remote_scripts "$user" "$ip" "$pass" "$scp_win"
   sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$RUNNER_LOCAL" "${user}@${ip}:${remote_runner_win}"
   sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${user}@${ip}" \
-    "wsl.exe -e bash -lc \"chmod +x '${remote_runner_wsl}' && bash '${remote_runner_wsl}'\""
+    "wsl.exe bash -lc \"chmod +x '${remote_runner_wsl}' && bash '${remote_runner_wsl}'\""
 done < "$HOSTS_FILE"
 
 echo "远程任务已提交。WSL 内查看: tail -f <项目>/logs/*.log"

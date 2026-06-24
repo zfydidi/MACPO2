@@ -87,7 +87,7 @@ while IFS=$'\t' read -r ip user pass win_path wsl_path_extra; do
   sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$ARCHIVE_PATH" "${user}@${ip}:${remote_tgz}"
 
   sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${user}@${ip}" \
-    "wsl.exe -e bash -lc \"set -e; mkdir -p '${wsl_root}'; tar xzf '${wsl_tgz}' -C '${wsl_root}'; echo UNPACK_OK\""
+    "wsl.exe bash -lc \"set -e; mkdir -p '${wsl_root}'; tar xzf '${wsl_tgz}' -C '${wsl_root}'; echo UNPACK_OK\""
 
   echo "    完成: ${ip}"
 done < "$HOSTS_FILE"
