@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  MACPO2 每 12 小时自动 git 备份
+  安装: cp 此文件到 ~/Library/LaunchAgents/
+  加载: launchctl load ~/Library/LaunchAgents/com.zhang.macpo2.autocommit.plist
+  卸载: launchctl unload ~/Library/LaunchAgents/com.zhang.macpo2.autocommit.plist
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.zhang.macpo2.autocommit</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/zhangyingjie/Project/MACPO2/scripts/auto_commit.sh</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/zhangyingjie/Project/MACPO2</string>
+
+    <!-- 每 12 小时（43200 秒）执行一次 -->
+    <key>StartInterval</key>
+    <integer>43200</integer>
+
+    <!-- 首次加载后立即执行一次 -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- 日志输出 -->
+    <key>StandardOutPath</key>
+    <string>/Users/zhangyingjie/Project/MACPO2/scripts/auto_commit.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/zhangyingjie/Project/MACPO2/scripts/auto_commit.stderr.log</string>
+</dict>
+</plist>

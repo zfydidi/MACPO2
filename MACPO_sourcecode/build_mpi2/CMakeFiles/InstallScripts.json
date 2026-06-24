@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/zhangyingjie/Project/MACPO2/MACPO_sourcecode/build_mpi2/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -1,0 +1,48 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/aarch64/ninja -G Ninja -S /Users/zhangyingjie/CLionProjects/MACPO_sourcecode -B /Users/zhangyingjie/CLionProjects/MACPO_sourcecode/cmake-build-debug
+CMake Warning at /Applications/CLion.app/Contents/bin/cmake/mac/aarch64/share/cmake-3.31/Modules/Platform/Darwin-Initialize.cmake:311 (message):
+  Ignoring CMAKE_OSX_SYSROOT value:
+
+   /Library/Developer/CommandLineTools/SDKs/MacOSX15.2.sdk
+
+  because the directory does not exist.
+Call Stack (most recent call first):
+  /Applications/CLion.app/Contents/bin/cmake/mac/aarch64/share/cmake-3.31/Modules/CMakeSystemSpecificInitialize.cmake:34 (include)
+  CMakeLists.txt:2 (project)
+
+
+-- The C compiler identification is AppleClang 17.0.0.17000013
+-- The CXX compiler identification is AppleClang 17.0.0.17000013
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - failed
+-- Check for working C compiler: /Library/Developer/CommandLineTools/usr/bin/cc
+-- Check for working C compiler: /Library/Developer/CommandLineTools/usr/bin/cc - broken
+CMake Error at /Applications/CLion.app/Contents/bin/cmake/mac/aarch64/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:67 (message):
+  The C compiler
+
+    "/Library/Developer/CommandLineTools/usr/bin/cc"
+
+  is not able to compile a simple test program.
+
+  It fails with the following output:
+
+    Change Dir: '/Users/zhangyingjie/CLionProjects/MACPO_sourcecode/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-9stvb4'
+    
+    Run Build Command(s): /Applications/CLion.app/Contents/bin/ninja/mac/aarch64/ninja -v cmTC_2906a
+    [1/2] /Library/Developer/CommandLineTools/usr/bin/cc   -arch arm64 -fcolor-diagnostics -MD -MT CMakeFiles/cmTC_2906a.dir/testCCompiler.c.o -MF CMakeFiles/cmTC_2906a.dir/testCCompiler.c.o.d -o CMakeFiles/cmTC_2906a.dir/testCCompiler.c.o -c /Users/zhangyingjie/CLionProjects/MACPO_sourcecode/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-9stvb4/testCCompiler.c
+    [2/2] : && /Library/Developer/CommandLineTools/usr/bin/cc -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/cmTC_2906a.dir/testCCompiler.c.o -o cmTC_2906a   && :
+    FAILED: cmTC_2906a 
+    : && /Library/Developer/CommandLineTools/usr/bin/cc -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/cmTC_2906a.dir/testCCompiler.c.o -o cmTC_2906a   && :
+    ld: library 'System' not found
+    cc: error: linker command failed with exit code 1 (use -v to see invocation)
+    ninja: build stopped: subcommand failed.
+    
+    
+
+  
+
+  CMake will not be able to correctly generate this project.
+Call Stack (most recent call first):
+  CMakeLists.txt:2 (project)
+
+
+-- Configuring incomplete, errors occurred!
