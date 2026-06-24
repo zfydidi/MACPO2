@@ -7,6 +7,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=lan_hosts_lib.sh
+source "$(dirname "$0")/lan_hosts_lib.sh"
 HOSTS_FILE="$ROOT/scripts/lan_hosts.local.tsv"
 TASK="${TASK:-comm_f13_f18}"
 FUNCS="${FUNCS:-F13,F14,F15,F16,F17,F18}"
@@ -57,6 +59,8 @@ sleep 1'
 set -euo pipefail
 cd "$proj"
 export OMP_NUM_THREADS=1
+export OMPI_ALLOW_RUN_AS_ROOT=1
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 mkdir -p logs
 ${stop_block}
 if [[ ! -x RL-MACPO/build/MACPO_simplified ]]; then
@@ -69,15 +73,17 @@ nohup bash -lc 'FUNCS=${FUNCS} RUNS=25 bash scripts/run_comm_rate_f1_f18.sh' >"\
 echo "STARTED comm funcs=${FUNCS} pid=\$! log=\$LOG"
 SCRIPT
   elif [[ "$TASK" == "baselines_dpso" || "$TASK" == "baselines_gfpdo" ]]; then
-    local algo out_sub log_tag
+    local algo out_sub log_tag need_bin
     if [[ "$TASK" == "baselines_dpso" ]]; then
       algo="dpso"
       out_sub="output_baselines_dpso_5runs"
       log_tag="baselines_dpso"
+      need_bin="MACPO_sourcecode/build/DPSO1"
     else
       algo="gfpdo"
       out_sub="output_baselines_gfpdo_5runs"
       log_tag="baselines_gfpdo"
+      need_bin="MACPO_sourcecode/build/GFPDO_overlap"
     fi
     cat > "$out" <<SCRIPT
 #!/usr/bin/env bash
@@ -85,13 +91,16 @@ set -euo pipefail
 cd "$proj"
 mkdir -p logs
 ${stop_block}
-if [[ ! -x MACPO_sourcecode/build/DPSO1 ]] || [[ ! -x MACPO_sourcecode/build/GFPDO_overlap ]]; then
-  echo "==> compile MACPO_sourcecode"
+if [[ ! -x ${need_bin} ]]; then
+  echo "==> compile MACPO_sourcecode (${algo})"
   cmake -S MACPO_sourcecode -B MACPO_sourcecode/build -DCMAKE_BUILD_TYPE=Release
-  cmake --build MACPO_sourcecode/build -j"\$(nproc)"
+  cmake --build MACPO_sourcecode/build -j"\$(nproc)" --target $([[ "$algo" == "dpso" ]] && echo DPSO1 || echo GFPDO_overlap)
 fi
 LOG="logs/${log_tag}_\$(date +%Y%m%d_%H%M%S).log"
-nohup bash -lc 'cd MACPO_sourcecode && ALGO=${algo} RUNS=${BASELINE_RUNS} OUT=./${out_sub} bash run_baselines_f1_f6_batch.sh' >"\$LOG" 2>&1 &
+pushd MACPO_sourcecode >/dev/null
+export OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+nohup env ALGO=${algo} RUNS=${BASELINE_RUNS} OUT=./${out_sub} bash run_baselines_f1_f6_batch.sh >"../\$LOG" 2>&1 &
+popd >/dev/null
 echo "STARTED ${log_tag} pid=\$! log=\$LOG"
 SCRIPT
   else
@@ -106,23 +115,26 @@ if [[ "$RUN_ALL" != true && -z "$FILTER_HOST" ]]; then
   exit 1
 fi
 
-RUNNER_LOCAL="/tmp/macpo_lan_remote_run.sh"
-
 sync_remote_scripts() {
-  local user=$1 ip=$2 pass=$3 scp_win=$4
+  local ip=$1 pass=$2 scp_win=$3 wsl_root=$4
   if [[ "$TASK" == comm_f13_f18 ]]; then
     sshpass -p "$pass" scp "${SSH_OPTS[@]}" \
       "$ROOT/scripts/run_comm_rate_f1_f18.sh" \
       "${user}@${ip}:${scp_win}/scripts/run_comm_rate_f1_f18.sh" 2>/dev/null || true
   elif [[ "$TASK" == baselines_dpso || "$TASK" == baselines_gfpdo ]]; then
-    sshpass -p "$pass" scp "${SSH_OPTS[@]}" \
-      "$ROOT/MACPO_sourcecode/run_baselines_f1_f6_batch.sh" \
-      "${user}@${ip}:${scp_win}/MACPO_sourcecode/run_baselines_f1_f6_batch.sh"
+    for rel in MACPO_sourcecode/run_baselines_f1_f6_batch.sh \
+               MACPO_sourcecode/GFPDO_overlap.cpp \
+               MACPO_sourcecode/DPSO1.cpp; do
+      if ! sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$ROOT/$rel" "${ssh_user}@${ip}:${scp_win}/$rel" 2>/dev/null; then
+        echo "    scp $rel 失败，改用 wsl tee..."
+        cat "$ROOT/$rel" | sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
+          "wsl.exe bash -lc \"tee '${wsl_root}/$rel' > /dev/null\""
+      fi
+    done
   fi
 }
 
-while IFS=$'\t' read -r ip user pass win_path wsl_path_extra; do
-  [[ -z "${ip:-}" || "$ip" =~ ^# ]] && continue
+while read_lan_host_row; do
   if [[ "$RUN_ALL" != true && "$ip" != "$FILTER_HOST" ]]; then
     continue
   fi
@@ -132,12 +144,13 @@ while IFS=$'\t' read -r ip user pass win_path wsl_path_extra; do
   remote_runner_win="${scp_win}/_lan_remote_run.sh"
   remote_runner_wsl="${wsl_root}/_lan_remote_run.sh"
 
-  write_remote_runner "$wsl_root" "$RUNNER_LOCAL"
+  write_remote_runner "$wsl_root" "/tmp/macpo_lan_remote_run_${ip}.sh"
+  RUNNER_LOCAL="/tmp/macpo_lan_remote_run_${ip}.sh"
 
-  echo "==> [$ip] 同步脚本并启动 $TASK ${FUNCS:+funcs=$FUNCS}"
-  sync_remote_scripts "$user" "$ip" "$pass" "$scp_win"
-  sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$RUNNER_LOCAL" "${user}@${ip}:${remote_runner_win}"
-  sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${user}@${ip}" \
+  echo "==> [$ip] ${ssh_user} 同步脚本并启动 $TASK ${FUNCS:+funcs=$FUNCS}"
+  sync_remote_scripts "$ip" "$pass" "$scp_win" "$wsl_root"
+  sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$RUNNER_LOCAL" "${ssh_user}@${ip}:${remote_runner_win}"
+  sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
     "wsl.exe bash -lc \"chmod +x '${remote_runner_wsl}' && bash '${remote_runner_wsl}'\""
 done < "$HOSTS_FILE"
 

@@ -38,7 +38,7 @@ for func in "${FUNC_ARR[@]}"; do
     exid="comm_$(printf '%02d' "$i")"
     t0=$(date +%s)
     echo "[$k/$total] $func $cfg run $i/$RUNS"
-    (cd "$RLMACPO" && mpirun -np "$NP" --oversubscribe ./build/MACPO_simplified \
+    (cd "$RLMACPO" && mpirun --allow-run-as-root -np "$NP" --oversubscribe ./build/MACPO_simplified \
       "$func" "$exid" "$cfg" "$outdir") >/dev/null 2>&1 || {
         echo "FAILED $func run $i" >&2
         continue

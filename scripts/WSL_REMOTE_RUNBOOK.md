@@ -20,7 +20,7 @@ bash scripts/lan_dispatch_all.sh
 
 # 分工（scripts/lan_dispatch_plan.tsv）:
 #   F13→.48  F14→.50  F15→.47  F16→.23  F17→.61  F18→.49
-#   GFPDO→.27  DPSO→.25   （.24 需管理员装 WSL，代码可 git clone 到 D:\\zyj\\MACPO2）
+#   GFPDO→.27 (C:\zyj\MACPO2)  DPSO→.25   .24 备用
 
 # 注意: .25/.27 可能 ping 不通但 SSH 可用；已 git clone 的机器无需 lan_distribute，直接:
 #   TASK=baselines_dpso  bash scripts/lan_run_remote.sh --host 10.21.51.25

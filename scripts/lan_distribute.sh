@@ -7,6 +7,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=lan_hosts_lib.sh
+source "$(dirname "$0")/lan_hosts_lib.sh"
 HOSTS_FILE="$ROOT/scripts/lan_hosts.local.tsv"
 ARCHIVE_NAME="MACPO2-src.tgz"
 ARCHIVE_PATH="/tmp/${ARCHIVE_NAME}"
@@ -60,8 +62,7 @@ win_to_wsl_root() {
   echo "/mnt/${drive}${rest}"
 }
 
-while IFS=$'\t' read -r ip user pass win_path wsl_path_extra; do
-  [[ -z "${ip:-}" || "$ip" =~ ^# ]] && continue
+while read_lan_host_row; do
   if [[ -n "$FILTER_HOST" && "$ip" != "$FILTER_HOST" ]]; then
     continue
   fi
@@ -72,7 +73,7 @@ while IFS=$'\t' read -r ip user pass win_path wsl_path_extra; do
   wsl_tgz="${wsl_root}/${ARCHIVE_NAME}"
 
   echo ""
-  echo "==> [$ip] $user -> $win_path (WSL: $wsl_root)"
+  echo "==> [$ip] ${ssh_user} -> $win_path (WSL: $wsl_root)"
   if ! nc -z -G 3 "$ip" 22 2>/dev/null; then
     echo "    跳过: 22 端口未开"
     continue
@@ -81,15 +82,22 @@ while IFS=$'\t' read -r ip user pass win_path wsl_path_extra; do
     echo "    注意: ping 不通，但 22 端口可达，继续尝试 SSH"
   fi
 
-  sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${user}@${ip}" \
+  sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
     "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force -Path '${scp_win}' | Out-Null\""
 
-  sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$ARCHIVE_PATH" "${user}@${ip}:${remote_tgz}"
+  sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$ARCHIVE_PATH" "${ssh_user}@${ip}:${remote_tgz}"
 
-  sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${user}@${ip}" \
-    "wsl.exe bash -lc \"set -e; mkdir -p '${wsl_root}'; tar xzf '${wsl_tgz}' -C '${wsl_root}'; echo UNPACK_OK\""
-
-  echo "    完成: ${ip}"
+  if sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
+    "wsl.exe bash -lc \"set -e; mkdir -p '${wsl_root}'; tar xzf '${wsl_tgz}' -C '${wsl_root}'; echo UNPACK_OK\"" 2>/dev/null | grep -q UNPACK_OK; then
+    echo "    完成(WSL): ${ip}"
+  elif sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
+    "powershell -NoProfile -Command \"tar -xzf '${scp_win}/${ARCHIVE_NAME}' -C '${scp_win}'; Write-Output UNPACK_OK\"" 2>/dev/null | grep -q UNPACK_OK; then
+    echo "    完成(Windows tar，WSL 远程不可用): ${ip}"
+    echo "    请在本机 WSL 进入 ${wsl_root} 后编译运行"
+  else
+    echo "    失败: ${ip} 解压未成功"
+    continue
+  fi
 done < "$HOSTS_FILE"
 
 echo ""

@@ -7,6 +7,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=lan_hosts_lib.sh
+source "$(dirname "$0")/lan_hosts_lib.sh"
 HOSTS_FILE="$ROOT/scripts/lan_hosts.local.tsv"
 PLAN="$ROOT/scripts/lan_dispatch_plan.tsv"
 LOCAL_COMM="$ROOT/ablation_experiments/results/comm_rate_f1_f18/F7_F18"
@@ -40,11 +42,10 @@ win_to_wsl_root() {
 }
 
 lookup_host() {
-  local ip="$1"
-  while IFS=$'\t' read -r hip huser hpass hpath hextra; do
-    [[ -z "${hip:-}" || "$hip" =~ ^# ]] && continue
-    if [[ "$hip" == "$ip" ]]; then
-      echo "$hip	$huser	$hpass	$hpath	$hextra"
+  local want_ip="$1"
+  while read_lan_host_row; do
+    if [[ "$ip" == "$want_ip" ]]; then
+      echo "$ip	$user	$pass	$win_path	$wsl_path_extra	$ssh_user"
       return 0
     fi
   done < "$HOSTS_FILE"
@@ -52,7 +53,7 @@ lookup_host() {
 }
 
 fetch_comm_func() {
-  local ip="$1" user="$2" pass="$3" win_path="$4" func="$5"
+  local ip="$1" pass="$2" win_path="$3" func="$4"
   local wsl_root
   wsl_root=$(win_to_wsl_root "$win_path" "")
   local rel="ablation_experiments/results/comm_rate_f1_f18/F7_F18/${func}"
@@ -64,8 +65,8 @@ fetch_comm_func() {
 
   echo "==> [$ip] 拉取 $func"
   pack_cmd="wsl.exe bash -lc \"cd '${wsl_root}' && tar czf /tmp/${tgz_name} '${rel}' 2>/dev/null || true\""
-  sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${user}@${ip}" "$pack_cmd"
-  sshpass -p "$pass" scp "${SSH_OPTS[@]}" "${user}@${ip}:${scp_tgz}" "/tmp/${tgz_name}" 2>/dev/null || {
+  sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" "$pack_cmd"
+  sshpass -p "$pass" scp "${SSH_OPTS[@]}" "${ssh_user}@${ip}:${scp_tgz}" "/tmp/${tgz_name}" 2>/dev/null || {
     echo "    跳过: 无 ${func} 数据"
     return 0
   }
@@ -75,7 +76,7 @@ fetch_comm_func() {
 }
 
 fetch_baselines() {
-  local ip="$1" user="$2" pass="$3" win_path="$4" algo="$5"
+  local ip="$1" pass="$2" win_path="$3" algo="$4"
   local wsl_root out_sub
   wsl_root=$(win_to_wsl_root "$win_path" "")
   if [[ "$algo" == "dpso" ]]; then
@@ -90,8 +91,8 @@ fetch_baselines() {
 
   echo "==> [$ip] 拉取 ${algo} 基线"
   pack_cmd="wsl.exe bash -lc \"cd '${wsl_root}' && tar czf /tmp/${tgz_name} '${out_sub}' 2>/dev/null || true\""
-  sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${user}@${ip}" "$pack_cmd"
-  sshpass -p "$pass" scp "${SSH_OPTS[@]}" "${user}@${ip}:${scp_tgz}" "/tmp/${tgz_name}" 2>/dev/null || {
+  sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" "$pack_cmd"
+  sshpass -p "$pass" scp "${SSH_OPTS[@]}" "${ssh_user}@${ip}:${scp_tgz}" "/tmp/${tgz_name}" 2>/dev/null || {
     echo "    跳过: 无 ${algo} 数据"
     return 0
   }
@@ -107,9 +108,10 @@ if [[ "$FETCH_BASELINES" == true ]]; then
     [[ -z "${ip:-}" || "$ip" =~ ^# ]] && continue
     [[ "$kind" == baselines_dpso || "$kind" == baselines_gfpdo ]] || continue
     line=$(lookup_host "$ip") || continue
-    IFS=$'\t' read -r hip user pass win_path hextra <<< "$line"
+    IFS=$'\t' read -r hip user pass win_path hextra hssh <<< "$line"
+    ssh_user="${hssh:-$user}"
     algo="${kind#baselines_}"
-    fetch_baselines "$ip" "$user" "$pass" "$win_path" "$algo"
+    fetch_baselines "$ip" "$pass" "$win_path" "$algo"
   done < <(grep -v '^#' "$PLAN" | grep -v '^$')
   echo "基线拉回完成。"
   exit 0
@@ -120,8 +122,9 @@ if [[ "$FETCH_ALL" == true ]]; then
     [[ -z "${ip:-}" || "$ip" =~ ^# ]] && continue
     [[ "$kind" == comm ]] || continue
     line=$(lookup_host "$ip") || continue
-    IFS=$'\t' read -r hip user pass win_path hextra <<< "$line"
-    fetch_comm_func "$ip" "$user" "$pass" "$win_path" "$payload"
+    IFS=$'\t' read -r hip user pass win_path hextra hssh <<< "$line"
+    ssh_user="${hssh:-$user}"
+    fetch_comm_func "$ip" "$pass" "$win_path" "$payload"
   done < <(grep -v '^#' "$PLAN" | grep -v '^$')
 else
   if [[ -z "$FILTER_HOST" ]]; then
@@ -129,16 +132,17 @@ else
     exit 1
   fi
   line=$(lookup_host "$FILTER_HOST") || { echo "未在 lan_hosts.local.tsv 找到 $FILTER_HOST"; exit 1; }
-  IFS=$'\t' read -r hip user pass win_path hextra <<< "$line"
+  IFS=$'\t' read -r hip user pass win_path hextra hssh <<< "$line"
+  ssh_user="${hssh:-$user}"
   func=""
   while IFS=$'\t' read -r pip pkind ppayload; do
     [[ "$pip" == "$FILTER_HOST" && "$pkind" == comm ]] && func="$ppayload"
   done < <(grep -v '^#' "$PLAN" | grep -v '^$')
   if [[ -n "$func" ]]; then
-    fetch_comm_func "$FILTER_HOST" "$user" "$pass" "$win_path" "$func"
+    fetch_comm_func "$FILTER_HOST" "$pass" "$win_path" "$func"
   else
     for f in F13 F14 F15 F16 F17 F18; do
-      fetch_comm_func "$FILTER_HOST" "$user" "$pass" "$win_path" "$f"
+      fetch_comm_func "$FILTER_HOST" "$pass" "$win_path" "$f"
     done
   fi
 fi

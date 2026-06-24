@@ -16,7 +16,7 @@ cd "$ROOT"
 BUILD="${BUILD:-$ROOT/build}"
 OUT="${OUT:-$ROOT/output_baselines}"
 RUNS="${RUNS:-25}"
-MPIRUN="${MPIRUN:-mpirun}"
+MPIRUN="${MPIRUN:-mpirun --allow-run-as-root}"
 NPROCS="${NPROCS:-20}"
 ALGO="${ALGO:-both}"
 
