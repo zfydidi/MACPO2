@@ -1,0 +1,1641 @@
+\documentclass[11pt,a3paper]{ctexart}
+
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2cm}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
+
+
+\title{MACPO：基于强化学习的多智能体协同并行优化}
+\begin{document}
+
+\maketitle
+
+\section{算法流程图}
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=0.7cm,
+    box/.style={rectangle, draw, minimum width=2cm, minimum height=0.6cm, font=\scriptsize},
+    round/.style={rectangle, rounded corners, draw, fill=red!20, minimum width=2cm, minimum height=0.6cm, font=\scriptsize},
+    proc/.style={box, fill=blue!15},
+    deci/.style={diamond, draw, fill=green!15, aspect=2.5, minimum width=1.5cm, font=\scriptsize},
+    comm/.style={box, fill=orange!15},
+    outbox/.style={box, fill=yellow!15, minimum width=1.5cm, minimum height=0.5cm},
+    arrow/.style={->, >=stealth, thick}
+]
+
+% Main flow
+\node[round] (start) {Init: $\alpha=0$};
+\node[deci, below=of start] (loop) {iter$<$max?};
+\node[proc, below=of loop] (pso) {1:局部优化};
+\node[proc, below=of pso] (best) {2:localBest};
+\node[proc, below=of best] (conf) {3:conflict};
+\node[deci, below=of conf] (gate) {4:CI$>$T?};
+
+% Right branch
+\node[comm, right=2cm of gate] (nego) {5:Exchange};
+\node[comm, below=of nego] (nash) {6:Nash};
+\node[comm, below=of nash] (grad) {7:Gradient};
+
+% Left branch
+\node[proc, left=1.5cm of gate] (skip) {8:Skip};
+
+% Merge
+\node[proc, below=1.2cm of gate] (merge) {9:globalBest};
+\node[proc, below=of merge] (eval) {10:Evaluate};
+\node[proc, below=of eval] (mpi) {11:MPI};
+
+% Right output
+\node[outbox, right=0.5cm of mpi] (fp) {$f_{\text{pure}}$};
+\node[outbox, below=0.2cm of fp] (fpen) {$f_{\text{penalty}}$};
+
+% Continue
+\node[proc, below=0.8cm of mpi] (imp) {12:improve};
+\node[proc, below=of imp] (rew) {13:reward};
+\node[proc, below=of rew] (rl) {14:RL-$\alpha$};
+\node[proc, below=of rl] (outp) {15:Output};
+\node[deci, below=of outp] (check) {16:End?};
+\node[round, below=of check] (end) {End};
+
+% Arrows
+\draw[arrow] (start) -- (loop);
+\draw[arrow] (loop) -- node[right,font=\tiny]{Y} (pso);
+\draw[arrow] (pso) -- (best);
+\draw[arrow] (best) -- (conf);
+\draw[arrow] (conf) -- (gate);
+\draw[arrow] (gate) -- node[above,font=\tiny]{Y} (nego);
+\draw[arrow] (nego) -- (nash);
+\draw[arrow] (nash) -- (grad);
+\draw[arrow] (grad) -| (merge);
+\draw[arrow] (gate) -- node[above,font=\tiny]{N} (skip);
+\draw[arrow] (skip) |- (merge);
+\draw[arrow] (merge) -- (eval);
+\draw[arrow] (eval) -- (mpi);
+\draw[arrow, dashed] (mpi) -- (fp);
+\draw[arrow] (fp) -- (fpen);
+\draw[arrow] (mpi) -- (imp);
+\draw[arrow] (imp) -- (rew);
+\draw[arrow] (rew) -- (rl);
+\draw[arrow] (rl) -- (outp);
+\draw[arrow] (outp) -- (check);
+\draw[arrow] (check) -- node[right,font=\tiny]{Y} (end);
+\draw[arrow] (check.west) -| ++(-4,0) |- node[near end,above,font=\tiny]{N} (loop.west);
+
+
+\end{tikzpicture}
+\end{center}
+
+
+
+
+\section{算法伪代码}
+\noindent\textbf{算法 1：MACPO：基于多智能体共识的粒子群优化算法}
+\begin{algorithmic}[1]
+\Require 全局目标函数 $F(x) = \sum_{i=1}^N f_i(x_i)$, 智能体数量 $N$, 最大评估次数 $E_{\max}$, 重叠集合 $\theta_i$
+\Ensure 最优解 $x^*$, 最优值 $F(x^*)$
+
+\State \textbf{初始化:}
+\State  在每个智能体 $i \in \{1, \ldots, N\}$ 上初始化：
+\State \quad 种群 $\mathcal{P}_i$ 包含 $M=300$ 个粒子，每个粒子 $x_k \in \mathbb{R}^{D}$
+\State \quad 优化器: 种群规模 $M=300$, 问题维度 $D$
+\State \quad 共识参考解: $x_{i,\text{con}} \gets \text{随机初始化}$
+\State \quad RL策略: $\theta = \{w_1, w_2, b\}$ 随机初始化, $\eta=0.01$
+\State \quad 惩罚系数: $\alpha_i(0) \gets 0$ \Comment{从零开始，RL将进行调整}
+\State \quad 通信间隔: $T_{\min}=10$, 上次通信迭代 $\text{iter}_{\text{last\_comm}} \gets 0$
+\State \quad 强化学习策略网络 $\pi_\theta$：权重 $W \in \mathbb{R}^{1 \times 2}$，偏置项 $b \in \mathbb{R}$（随机初始化）
+\State \quad 冲突历史缓冲区: $\text{CH}_i \gets \emptyset$ (最大容量10)
+\State \quad 经验回放池: $\mathcal{B} \gets \emptyset$, 批量大小 $|\mathcal{B}|=32$
+\State \quad 全局评估计数器: $\text{eval\_count} \gets 0$
+\State \quad 阶段检测器: $\text{Phase} \gets \text{EARLY}$
+\State \quad 先前适应度 $f_{\text{prev}} \gets \infty$
+
+\While{$\text{eval\_count} < E_{\max}$}
+    \State \textbf{// 步骤1: 带惩罚的局部优化}
+   \For{$g = 1$ to $\text{gen\_times}$}
+     \For{每个粒子 $k \in [1, M]$}
+       \State \quad 计算冲突：$\text{conflict}_i(x_k) \gets \sum_{d=1}^{D} \mathbb{I}[d \in \theta_i] \cdot \frac{|x_k^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}$
+       \State \quad 评估惩罚适应度: $h_i(x_k) \gets f_i(x_k) + \alpha_i \cdot \text{conflict}_i(x_k)$ \Comment{调用$f_i$，eval\_count自增}
+        \EndFor
+        \State 使用局部优化器更新所有粒子的速度和位置
+    \EndFor
+    
+    \State \textbf{// 步骤2: 获取局部最优}
+    \State $\text{bestIndex} \gets \arg\min_{k \in [1,M]} h_i(x_k)$
+    \State $x_{i,\text{best}} \gets x_{\text{bestIndex}}$ \Comment{完整解向量}
+    
+    \State \textbf{// 步骤3: 计算原始冲突指数}
+    \State $\text{conflict}_i \gets \sum_{d=1}^{D} \mathbb{I}[d \in \theta_i] \cdot \frac{|x_{i,\text{best}}^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}$
+    \State 存储 $S_1 \gets \text{conflict}_i$ \Comment{RL状态分量}
+    
+     \State \textbf{/* 阶段4：通信决策（代码实现） */}
+    \State 平滑冲突：$\text{CI}_{\text{smooth}} \gets 0.7 \cdot \text{CI}_{\text{smooth}} + 0.3 \cdot \text{conflict}_i$
+    \State 检查条件：
+    \State \quad $\text{cond}_1 \gets (\text{iter} - \text{iter}_{\text{last\_comm}} \geq T_{\min})$ \Comment{最小间隔}
+    \State \quad $\text{cond}_2 \gets (\text{CI}_{\text{smooth}} > \text{threshold})$ \Comment{自适应阈值}
+    \State \quad $\text{cond}_3 \gets (\text{rand}() < f_{\text{phase}})$ \Comment{阶段频率采样}
+    \State $\text{should\_comm}_i \gets \text{cond}_1 \land \text{cond}_2 \land \text{cond}_3$
+    \State 全局决策：$\text{do\_comm} \gets \text{MPI\_Allreduce}(\text{should\_comm}_i, \text{MAX})$
+    
+    \If{$\text{do\_comm} = \text{true}$}
+        \State \textbf{/* 阶段5-7：协商 */}
+        \State \textit{步骤5：} 通过MPI\_Isend/Recv与邻居交换解
+        \State \textit{步骤6：} 在重叠变量上进行纳什议价
+        \State \quad 初始化 $x_{i,\text{temp}} \gets x_{i,\text{best}}$
+        \For{每个邻居 $j$ 和共享维度 $d \in \theta_i \cap \theta_j$}
+            \State 评估交叉影响：$f_{ii} \gets f_i(x_{i,\text{best}})$, $f_{ij} \gets f_j(x_{i,\text{best}})$
+            \State \quad\quad\quad\quad\quad\quad\quad $f_{ji} \gets f_i(x_{j,\text{best}})$, $f_{jj} \gets f_j(x_{j,\text{best}})$
+            \If{$f_{ii} + f_{ji} > f_{ij} + f_{jj}$}
+                \State $x_{i,\text{temp}}^d \gets x_{j,\text{best}}^d$ \Comment{采用邻居的值}
+            \EndIf
+        \EndFor
+        \State \textit{步骤7：} 基于双侧扰动符号一致性的冲突检测（代码中执行）
+        \State 更新共识：$x_{i,\text{con}} \gets x_{i,\text{temp}}$
+        \State $\text{iter}_{\text{last\_comm}} \gets \text{iter}$
+    \Else
+        \State \textbf{/* 阶段8：跳过协商 */}
+        \State $x_{i,\text{con}} \gets x_{i,\text{best}}$ \Comment{直接使用局部最优}
+    \EndIf
+    
+    \State \textbf{/* 阶段9：更新优化器状态 */}
+    \State 在优化器中设置全局最优为 $x_{i,\text{con}}$
+    \State 使用更新后的 $x_{i,\text{con}}$ 重新评估 $\mathcal{P}_i$ 中的所有粒子
+    \State 按惩罚适应度 $h_i$ 对 $\mathcal{P}_i$ 排序
+    
+    \State \textbf{/* 阶段10：计算全局指标 */}
+    \State 局部纯适应度：$f_i^{\text{local}} \gets f_i(x_{i,\text{con}})$
+    \State 局部惩罚适应度：$h_i^{\text{local}} \gets h_i(x_{i,\text{con}})$
+    \State 全局纯适应度：$f^{\text{pure}} \gets \text{MPI\_Allreduce}(f_i^{\text{local}}, \text{SUM}) / N$
+    \State 全局惩罚适应度：$h^{\text{penalty}} \gets \text{global\_average}(h_i^{\text{local}}, \mathcal{N}_i)\times N$
+    \State 惩罚项：$\text{penalty} \gets h^{\text{penalty}} - f^{\text{pure}}$
+    
+    \State \textbf{/* 阶段11：RL更新惩罚系数 */}
+    \State 计算改进量：$\text{improv} \gets (f_{\text{prev}} - f^{\text{pure}}) / \max(|f_{\text{prev}}|, \epsilon)$ \Comment{$\epsilon=10^{-8}$防止除零}
+    \State 计算奖励：$r \gets \tanh\!\left(-\Delta\text{conflict}_{\text{rate}} \cdot \Delta f_{\text{pure,rate}} \cdot 100\right)$
+    \State 更新冲突历史：$\text{CH}_i \gets \text{CH}_i \cup \{\text{conflict}_i\}$，若满则移除最旧元素
+    \State 构建状态：$s \gets [S_1, S_2]^T$，其中 $S_1 = \text{conflict}_i$, $S_2 = \text{CH}_i[\text{end}] - \text{CH}_i[\text{end}-1]$
+    \State 策略前向：$a \gets \pi_\theta(s) = \tanh(W \cdot s + b)$ \Comment{$W \in \mathbb{R}^{1 \times 2}$, $b \in \mathbb{R}$}
+    \State 更新权重比例：$\text{ratio}_i \gets \text{clip}(\text{ratio}_i + 0.1 \cdot a, 0.1, 2.0)$ \Comment{对比例进行加性更新}
+    \State 更新 $\alpha$：$\alpha_i \gets \text{base\_alpha} \times \text{ratio}_i$，其中 $\text{base\_alpha} = |f| / 512$ \Comment{乘性关系}
+    \State 存储经验：$\mathcal{B}_i.\text{add}((s, a, r, |r|))$ \Comment{优先级 = |r|}
+    \If{$|\mathcal{B}_i| \geq 32$}
+        \State 按优先级采样32个经验
+        \For{每个采样的 $(s', a', r', p)$}
+            \State 目标动作：$a_{\text{target}} \gets a' + 0.1 \cdot r'$
+            \State 计算损失：$\mathcal{L} \gets (a_{\text{target}} - \pi_\theta(s'))^2$
+            \State 梯度下降：$\theta \gets \theta - 0.01 \cdot \nabla_\theta \mathcal{L}$
+        \EndFor
+    \EndIf
+    \State 更新：$f_{\text{prev}} \gets f^{\text{pure}}$
+    
+    \If{$\text{rank}_i = 0$}
+        \State 输出指标：$(\text{iter}, \text{eval\_count}, f^{\text{pure}}, \text{penalty}, \alpha_i, \text{conflict}, \text{improv}, r)$
+    \EndIf
+\EndWhile
+
+\State \Return 最优解 $x^* = [x_{1,\text{con}}, x_{2,\text{con}}, \ldots, x_{N,\text{con}}]$拼接而成, 最优值 $F(x^*) = N \cdot f^{\text{pure}}$
+\end{algorithmic}
+
+
+\subsection{关键实现说明}
+
+\begin{itemize}
+    \item \textbf{并行执行}: 所有智能体同时执行算法, 在点对点通信、\texttt{MPI\_Allreduce} 与 \texttt{MPI\_Barrier} 时同步
+    \item \textbf{状态隔离}: 每个智能体维护自己的 $\text{CI}_i^{\text{smooth}}$, $\alpha_i$ 和冲突历史
+    \item \textbf{RL同步}: 策略网络 $\theta$ 在智能体间复制 (RL更新无需MPI)
+    \item \textbf{共识参考}: $x_{i,\text{con}}$ 是通过协商演化的关键协调变量
+    \item \textbf{纯适应度 vs 惩罚适应度}: $f_i(x)$ 是纯局部目标函数（无惩罚），用于纳什议价和全局指标; $h_i(x)$ 是带惩罚的适应度，仅用于局部优化器的粒子评估
+\end{itemize}
+\section{流程图步骤中的数学公式}
+
+\subsection{步骤 0：初始化}
+\textbf{全局目标函数} 需最小化（分布于 $N$ 个智能体）：
+\begin{equation}
+\min_{x} F(x) = \sum_{i=1}^N f_i(x_i), \quad x_i \in \Omega_i \subset \mathbb{R}^{D}
+\end{equation}
+其中 $D$ 是问题总维度，$x_i$ 是智能体 $i$ 负责的变量子集。
+
+\textbf{符号约定:}
+\begin{itemize}
+    \item $F(x)$: 全局目标（所有代理的局部目标之和）
+    \item $f_i(x_i)$: 代理 $i$ 的局部目标（纯适应度，无惩罚项）
+    \item $h_i(x_i)$: 第 $i$ 个代理的惩罚适应度（用于粒子群优化算法）
+    \item 初始惩罚系数： $\alpha_0 = 0$ (从零开始，RL动态调整)
+\end{itemize}
+
+\textbf{动态 $\alpha$ 初始化与RL学习的关系：}
+
+\textbf{重要说明：} 代码实现中，$\alpha$ 的确定分为两个阶段：
+
+\begin{enumerate}
+    \item \textbf{首次迭代的动态初始化（一次性）：}
+    
+    在 $\text{iter} = 0$ 时，代码执行以下初始化：
+    \begin{align}
+    \text{measured\_conflict} &= \text{calculate\_conflict}(x_{i,\text{best}}) \\
+    \text{scaling\_factor} &= \begin{cases}
+    1.0 / \text{measured\_conflict} & \text{if measured\_conflict} > 1.0 \\
+    1.0 & \text{otherwise}
+    \end{cases} \\
+    \text{base\_alpha} &= (|f| / 512) \times \text{scaling\_factor}
+    \end{align}
+    
+    这是一个\textbf{一次性校准}，基于问题的实际冲突规模自动设置合理的基础惩罚系数。
+    
+    \item \textbf{后续迭代的RL微调：}
+    
+    从 $\text{iter} = 1$ 开始，RL机制接管并持续调整：
+    \begin{align}
+    \text{ratio}_i(t+1) &= \text{clip}(\text{ratio}_i(t) + 0.1 \cdot a_t, 0.1, 2.0) \\
+    \alpha_i(t) &= \text{base\_alpha} \times \text{ratio}_i(t)
+    \end{align}
+    
+    其中 $a_t = \pi_\theta(s_t)$ 是RL策略网络的输出，$\text{ratio}_i$ 初始化为1.0。
+\end{enumerate}
+
+\textbf{两种机制的协同关系：}
+\begin{itemize}
+    \item \textbf{动态初始化}：提供问题相关的起始点（避免RL从零开始盲目探索）
+    \item \textbf{RL学习}：在合理起始点基础上持续优化（适应不同优化阶段的需求）
+    \item \textbf{关键优势}：结合了启发式初始化的快速收敛和RL自适应的长期优化
+    \item \textbf{设计哲学}：首次迭代的动态调整是"智能初始化"，RL是"持续学习"
+\end{itemize}
+
+\textbf{与纯RL方法的对比：}
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{方面} & \textbf{纯RL（$\alpha_0=0$）} & \textbf{动态初始化+RL} \\
+\hline
+初始惩罚系数 & 0（无惩罚） & $\alpha_0 = (|f|/512) / \text{conflict}_0$ \\
+\hline
+早期迭代性能 & 较慢（需探索合适惩罚强度） & 较快（已在合理范围） \\
+\hline
+收敛稳定性 & 依赖RL学习速度 & 更稳定（好的起点） \\
+\hline
+适应性 & 高（完全学习） & 高（初始化+学习） \\
+\hline
+实现复杂度 & 简单 & 中等（多一步初始化） \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{数值示例：}
+\begin{itemize}
+    \item 假设：$|f| = 10^5$，$\text{measured\_conflict}_0 = 2.5$
+    \item 动态初始化：$\text{base\_alpha} = (10^5 / 512) / 2.5 = 78.1$
+    \item RL初始状态：$\text{ratio}_0 = 1.0$，因此 $\alpha_0 = 78.1$
+    \item 后续RL调整：$\text{ratio}$ 可在 $[0.1, 2.0]$ 范围调整，对应 $\alpha \in [7.81, 156.2]$
+\end{itemize}
+
+
+\textbf{符号规则概要：}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Symbol} & \textbf{Meaning} & \textbf{Usage} \\
+\hline
+$F(x)$ & 全局目标 & $F(x) = \sum_{i=1}^N f_i(x_i)$ \\
+$f_i(x_i)$ & 纯本地化适应值（代理 $i$）& 无惩罚，真实目标 \\
+$h_i(x_i)$ & 惩罚性局部适应度（代理 $i$）& $h_i = f_i + \alpha \cdot \text{conflict}_i$ \\
+$\text{conflict}_i(x_i)$ & 冲突惩罚（L1范数和）& $\sum_{d=1}^D \mathbb{I}[d \in \theta_i] \cdot \frac{|x_i^d - x_{i,\text{con}}^d|}{\text{range}}$ \\
+$x_{i,\text{con}}$ & 共识参考（代理 $i$）& 每次迭代更新（步骤 9） \\
+$f^{\text{pure}}$ & 平均纯适应度值 & $\frac{1}{N}\sum_{i=1}^N f_i(x_{i,\text{con}})$ \\
+$h^{\text{penalty}}$ & 平均惩罚适应度 & $\frac{1}{N}\sum_{i=1}^N h_i(x_{i,\text{con}})$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{冲突计算的关键点：}
+\begin{itemize}
+    \item \textbf{未取平均值：} $\text{conflict}_i = \sum_{d \in \theta_i} \frac{|x^d - x_{\text{con}}^d|}{\text{range}}$ (按维度求和，非平均)
+    \item \textbf{理论范围：} $\text{conflict}_i \in [0, |\theta_i|]$，其中 $|\theta_i|$ 是重叠维度数量
+    \item \textbf{RL补偿：} 学习参数 $\alpha$ 自动调整以适应不同问题的冲突尺度
+    \item \textbf{预期行为：} 随优化进行，冲突值应逐渐减小并趋近于0（智能体达成共识）
+\end{itemize}
+
+\textbf{关键符号说明：}
+\begin{itemize}
+    \item $x^*$: 算法最终返回的\textbf{全局最优解}，由所有智能体的共识解拼接而成
+    \item $x^d$: 解向量 $x$ 的第 $d$ 维分量（上标表示维度）
+    \item $x_k$: 种群中第 $k$ 个粒子（下标表示粒子序号）
+\end{itemize}
+
+\textbf{关键关系：} 在收敛点, $h_i(x^*) = f_i(x^*)$ 以及$F(x^*) = N \cdot f^{\text{pure}}$
+
+\subsection{步骤1：局部优化（支持PSO/LLSO/CSO等优化器）}
+\textbf{惩罚性局部适应度}（用于局部优化器）对每个智能体 $i$ 的定义：
+\begin{equation}
+h_i(x_i) = f_i(x_i) + \alpha_i(t) \cdot \text{conflict}_i(x_i)
+\end{equation}
+
+其中冲突惩罚项定义为：
+\begin{equation}
+\text{conflict}_i(x_i) = \sum_{d=1}^{D} \mathbb{I}[d \in \theta_i] \cdot \frac{|x_i^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}
+\end{equation}
+
+\textbf{符号说明：}
+\begin{itemize}
+    \item $x_i^d$: 解 $x_i$ 的第 $d$ 维（上标 = 维度索引）
+    \item $x_{i,\text{con}}^d$: 智能体 $i$ 的共识参考的第 $d$ 维
+    \item $\mathbb{I}[d \in \theta_i]$: 指示函数，当 $d$ 属于重叠集合 $\theta_i$ 时为1，否则为0
+\end{itemize}
+
+\textbf{重要说明：}该冲突是所有重叠维度的\textbf{sum}（而非平均值）。此设计选择意味着：
+\begin{itemize}
+    \item 更大的重叠尺寸 $|\theta_i|$ → 更大的冲突值（比例缩放）
+    \item RL调整后的$\alpha$将自适应地补偿不同问题规模的影响。
+    \item 典型冲突强度： $\text{conflict}_i \in [0, |\theta_i|]$ （未归一化至[0,1]区间）
+\end{itemize}
+
+\textbf{核心符号定义（统一规范）：}
+\begin{itemize}
+    \item $h_i(x_i)$：智能体 $i$ 的惩罚适应度（局部优化器目标）
+    \item $f_i(x_i)$：智能体 $i$ 的纯局部适应度（无惩罚项）
+    \item $x_i \in \mathbb{R}^{D}$：智能体 $i$ 的局部解向量
+    \item $x_i^d$：解 $x_i$ 的第 $d$ 维分量（\textbf{上标表示维度}）
+    \item $x_k$：种群中第 $k$ 个粒子（\textbf{下标表示粒子序号}）
+    \item $\theta_i \subseteq \{1, 2, \ldots, D\}$：智能体 $i$ 的重叠变量维度索引集合
+    \item $x_{i,\text{con}}^d$：智能体 $i$ 在维度 $d$ 的\textbf{共识参考值}（来自前一迭代步骤9）
+    \item $\alpha_i(t)$：RL自适应调整的惩罚系数（动态范围，通常 $\sim 0.001$）
+    \item $\text{conflict}_i(x_i)$：归一化L1冲突度量（理论范围 $[0, |\theta_i|]$）
+\end{itemize}
+
+\textbf{物理意义：}冲突惩罚项 $\text{conflict}_i(x_i)$ 衡量所有重叠维度间的 \textbf{归一化L1距离之和}，促使重叠变量趋于一致。该冲突值与 $|\theta_i|$（重叠维度数量）呈线性关系，而强化学习机制会自适应调整 $\alpha$ 以维持适当的惩罚强度。
+
+\textbf{示例：} 考虑一个具有两个智能体的1000维问题：
+\begin{itemize}
+    \item 智能体1：管理维度 $\{1, 2, \ldots, 600\}$
+    \item 智能体2：管理维度 $\{401, 402, \ldots, 1000\}$
+    \item 重叠区域： $O_1 = O_2 = \{401, 402, \ldots, 600\}$ (200个共享维度)
+\end{itemize}
+
+对于智能体1，惩罚适应度为：
+\begin{equation}
+h_1(x_1) = f_1(x_1) + \alpha_1 \cdot \text{conflict}_1(x_1)
+\end{equation}
+其中
+\begin{equation}
+\text{conflict}_1(x_1) = \sum_{d=401}^{600} \frac{|x_1^d - x_{1,\text{con}}^d|}{x_{\max} - x_{\min}}
+\end{equation}
+
+\textbf{注意上下标规则：}$x_1^d$ 表示智能体1的解在第$d$维的值（下标=智能体序号，上标=维度）。
+
+\textbf{数值示例：} 假设 $x_{\max} - x_{\min} = 100$，且平均偏差为 $|x_1^d - x_{1,\text{con}}^d| = 1.0$：
+\begin{equation}
+\text{conflict}_1 = \sum_{d=401}^{600} \frac{1.0}{100} = 200 \times 0.01 = 2.0
+\end{equation}
+
+\textbf{规模观测：}当存在200个重叠维度时，冲突强度约为2.0（而非0.01）。强化学习机制会相应调整 $\alpha$ 值以维持有效的惩罚强度。
+
+\textbf{重要说明：} 在步骤1中，惩罚项应用于\textbf{每个粒子}：
+\begin{itemize}
+    \item 种群规模：$M = 300$ 个粒子
+    \item 每个粒子：$x_k \in \mathbb{R}^{D}$（下标 $k$ 表示第$k$个粒子）
+    \item 粒子的惩罚适应度: $h_1(x_k) = f_1(x_k) + \alpha_1 \cdot \text{conflict}_1(x_k)$
+    \item 局部优化器使用 $h_i$ 而非 $f_i$ 更新全部300个粒子
+    \item \textbf{适用于所有优化器}：PSO、LLSO、CSO等均使用相同的惩罚机制
+\end{itemize}
+
+\subsection{步骤2：获取局部最优（localBestPar）}
+
+从局部优化后的种群中提取最优解：
+\begin{equation}
+x_{i,\text{best}} = x_{\text{bestIndex}}, \quad \text{bestIndex} = \arg\min_{k \in [1,M]} h_i(x_k)
+\end{equation}
+
+\textbf{实现：} \texttt{Optimizer->getBestPar()} 返回具有最低惩罚适应度 $h_i$ 的粒子的位置向量：
+\begin{itemize}
+    \item 返回值：$x_{i,\text{best}} \in \mathbb{R}^{D}$ 是一个完整的解向量
+    \item \textbf{符号规范}：$x_{i,\text{best}}$ 表示智能体$i$的最优解（下标表示智能体序号）
+    \item 访问第$d$维：$x_{i,\text{best}}^d$（上标表示维度索引）
+\end{itemize}
+
+\textbf{关键区别：}
+\begin{itemize}
+    \item 步骤1：使用 $h_i(x_k)$（惩罚适应度）评估\textbf{所有 $M$ 个粒子}（$k=1,\ldots,M$）
+    \item 步骤2：选取 $h_i$ 最小的\textbf{单个最优粒子} $x_{i,\text{best}}$
+    \item 选择基于 $h_i$ 进行，但后续还会计算纯适应度 $f_i(x_{i,\text{best}})$
+\end{itemize}
+\subsection{步骤3：冲突计算}
+使用步骤2中获得的最佳解计算归一化冲突度量：
+\begin{equation}
+\text{conflict}_i = \sum_{d=1}^{D} \mathbb{I}[d \in \theta_i] \cdot \frac{|x_{i,\text{best}}^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}
+\end{equation}
+
+\textbf{要点：}
+\begin{itemize}
+    \item 使用步骤2中的 $x_{i,\text{best}}$（单个最佳粒子）
+    \item $x_{i,\text{best}}^d$ 表示最优解在第 $d$ 维的值（\textbf{上标=维度}）
+    \item $x_{i,\text{con}}^d$ 是前次迭代（步骤9）的共识参考在第 $d$ 维的值
+    \item $\mathbb{I}[d \in \theta_i]$ 是指示函数，仅对重叠维度求和
+    \item 通过变量边界归一化（除以 $x_{\max} - x_{\min}$）
+    \item 采用L1范数（绝对值）进行可解释的距离测量
+    \item 理论范围：$\text{conflict}_i \in [0, |\theta_i|]$
+    \item \textbf{不取平均值：}冲突值是所有重叠维度的总和，而非除以 $|\theta_i|$
+\end{itemize}
+
+\textbf{设计依据：为何采用求和而非求平均？}
+
+当前实现采用 $\text{conflict}_i = \sum_{d \in \theta_i} \frac{|Δx_d|}{\text{range}}$（求和）而非 $\frac{1}{|\theta_i|}\sum_{d \in \theta_i} \frac{|Δx_d|}{\text{range}}$（取平均值）。此设计选择具有重要影响：
+
+\begin{enumerate}
+\item \textbf{问题规模认知：}
+   \begin{itemize}
+        \item 采用总和：$\text{conflict}_i \propto |\theta_i|$（随重叠规模线性增长）
+        \item 采用平均值：$\text{conflict}_i \in [0,1]$（固定范围，与问题规模无关）
+        \item 优势：惩罚值自然反映协调复杂度（更多重叠维度 → 更高协调难度）
+    \end{itemize}
+    
+\item \textbf{自适应$\alpha$补偿机制：}
+    \begin{itemize}
+        \item 强化学习机制学习合适的$\alpha$值以补偿冲突尺度
+        \item 当$|\theta_i|$较大时：RL学习较小的$\alpha$值以避免过度惩罚
+        \item 当$|\theta_i|$较小时：RL学习较大的$\alpha$值以维持足够的惩罚强度
+        \item 结果：$\alpha \times \text{conflict}_i$ 动态调整以维持惩罚与适应度比值的稳定性
+    \end{itemize}
+    
+\item \textbf{与原始论文的对比：}
+    \begin{itemize}
+        \item 原始MACPO：$\alpha = |f| / 512$（固定公式）
+        \item 当前实现：$\alpha = \text{base\_alpha} \times \text{RL\_ratio}$，其中 $\text{base\_alpha} = |f| / 512$
+        \item 两者均使 $\alpha$ 随目标幅度变化，确保惩罚值保持有效性
+        \item 原版：冲突项分母包含 $|\theta_i|$，$\alpha$ 值较大
+        \item 当前：冲突项分母排除 $|\theta_i|$，$\alpha$ 值较小（RL 调整后）
+        \item \textbf{关键洞见：} 两种版本中 $\alpha \times \text{conflict}$ 的乘积应具有相近数量级
+    \end{itemize}
+    
+    \item \textbf{数值示例：}
+    \begin{itemize}
+        \item 问题：$|\theta_i| = 200$，平均偏差 =0.5, range = 100, $f = 10^5$
+        \item 现在（总和）： $\text{conflict} = 200 \times (0.5/100) = 1.0$
+        \item 原始（平均）： $\text{conflict} = (200 \times 0.5/100) / 200 = 0.005$
+        \item 现在: $\alpha \approx (10^5 / 512) \times 0.001 = 0.195$ (RL调整) $\Rightarrow$ penalty $\approx 0.195$
+        \item 原始: $\alpha = 10^5 / 512 = 195.3$ $\Rightarrow$ penalty $\approx 195.3 \times 0.005 = 0.977$
+        \item 两者均通过不同的$\alpha$缩放策略实现$\sim 0.2\% \times f$的惩罚值
+    \end{itemize}
+\end{enumerate}
+
+\textbf{当前设计的实际优势：}
+\begin{itemize}
+    \item \textbf{自动适应：} 无需针对不同问题规模手动调整$\alpha$参数
+    \item \textbf{学习灵活性：} RL能够发现冲突与最优惩罚之间的非线性关系
+    \item \textbf{鲁棒性：} 在多种基准函数上表现良好（经F1-F6验证）
+\end{itemize}
+
+\textbf{与第一步处罚的关系：}
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{外观} & \textbf{步骤1 ($h_i$)} & \textbf{步骤3（conflict）} \\
+\hline
+函数 & $h_i = f_i + \alpha \cdot \text{conflict}_i$ & $\text{conflict}_i$ (same formula) \\
+公式 & $\sum_{d=1}^D \mathbb{I}[d \in \theta_i] \cdot \frac{|x_i^d - x_{i,\text{con}}^d|}{\text{range}}$ & $\sum_{d=1}^D \mathbb{I}[d \in \theta_i] \cdot \frac{|x_{i,\text{best}}^d - x_{i,\text{con}}^d|}{\text{range}}$ \\
+标准型 & L1 (绝对的) & L1 (绝对的) \\
+规范化 & 按维度（按范围） & 按维度（按范围） \\
+平均值 & 否（按维度求和） & 否（按维度求和） \\
+权重 & $\alpha(t)$ (自适应) & 1 (未加权) \\
+适用于 & All $M$ 粒子 & 仅最佳粒子 \\
+范围 & $[0, |\theta_i|]$ & $[0, |\theta_i|]$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{关键见解：}第三步的冲突度量与第一步的惩罚项完全相同，只是评估对象从所有粒子变为最佳粒子。这确保了优化指导与通信决策之间的一致性。
+\subsection{第4步：通信指数门控（CI $>$ 阈值？）}
+
+\textbf{第4.1步：计算原始冲突指数}
+
+使用L1范数求和（非平均），与第3步公式相同：
+\begin{equation}
+\text{CI}_i^{\text{raw}} = \sum_{d \in \theta_i} \frac{|x_{i,\text{best}}^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}
+\end{equation}
+
+\textbf{重要：} $\text{CI}_i^{\text{raw}} \in [0, |\theta_i|]$ 随重叠规模缩放。
+
+\textbf{第4.2步：指数平滑以减少瞬时波动}
+
+为减轻瞬时噪声的影响，应用指数移动平均：
+\begin{equation}
+\text{CI}_i^{\text{smooth}} = \beta \cdot \text{CI}_i^{\text{smooth}} + (1 - \beta) \cdot \text{CI}_i^{\text{raw}}
+\end{equation}
+其中 $\beta = 0.7$ 为平滑系数（70\%历史信息 + 30\%当前信息）。
+
+\textbf{第4.3步：三层通信门控机制（当前代码实现）}
+当前代码实现采用三层门控：最小间隔 + 冲突阈值 + 阶段频率采样。
+
+仅当满足以下三个条件时才触发通信：
+
+\textbf{条件1：最小间隔约束}
+\begin{equation}
+\text{iter}_{\text{current}} - \text{iter}_{\text{last\_comm}} \geq T_{\min}
+\end{equation}
+防止过度通信引起的振荡。默认值：$T_{\min} = 10$ 次迭代。
+
+\textbf{条件2：自适应阈值测试}
+\begin{equation}
+\text{CI}_i^{\text{smooth}} > \tau
+\end{equation}
+其中 $\tau$ 是通信管理器中的自适应阈值（随历史收益动态更新）。
+
+\textbf{条件3：基于阶段的频率采样}
+\begin{equation}
+\text{uniform\_random}(0,1) < f_{\text{phase}}
+\end{equation}
+阶段频率由收敛阶段自适应器给出（EARLY/MID/LATE 对应不同基础频率）。
+
+\textbf{最终决策逻辑（代码实现）：}
+\begin{align}
+\text{should\_comm}_i &= (\text{iter} - \text{last\_comm} \geq T_{\min}) \land (\text{CI}_i^{\text{smooth}} > \tau) \land (\text{rand}<f_{\text{phase}}) \\
+\text{global\_comm} &= \text{MPI\_Allreduce}(\text{should\_comm}_i, \text{MAX})
+\end{align}
+\textbf{阶段确定（代码实现）：} 优化阶段由迭代次数和收敛速率共同决定：
+\begin{equation}
+\text{Phase}(\text{iter}, \Delta f) = \begin{cases}
+\text{LATE} & \text{若 } (\text{iter} > 30) \lor (\Delta f < 0.001) \\
+\text{MID} & \text{若 } (\text{iter} > 15) \lor (\Delta f < 0.01) \\
+\text{EARLY} & \text{其他情况}
+\end{cases}
+\end{equation}
+
+\textbf{频率映射：} 每个阶段具有基础通信概率：
+\begin{equation}
+f_{\text{phase}} = \begin{cases}
+0.6 & \text{若 Phase = EARLY （积极的探索）} \\
+0.3 & \text{若 Phase = MID （探索与开发的平衡）} \\
+0.15 & \text{若 Phase = LATE （微调收敛）}
+\end{cases}
+\end{equation}
+
+\textbf{当前实现特性：}
+\begin{itemize}
+    \item 三层门控可以显著降低无效通信
+    \item 阶段频率在早期更积极、后期更保守
+    \item 通过随机采样缓解边界抖动
+\end{itemize}
+
+
+\textbf{未来改进方向：}
+\begin{itemize}
+    \item 可实现完整的三层门控机制以进一步减少通信开销
+    \item 阶段识别可基于收敛速率或适应度改进趋势
+    \item 随机采样可避免确定性阈值判断的边界振荡
+\end{itemize}
+\subsection{第5步：通过MPI交换解}
+
+智能体 $i$ 与其在 $\mathcal{N}_i$ 中的所有邻居通信（$\mathcal{N}_i$ 是共享重叠变量的邻居智能体集合）：
+
+\textbf{通信模式：} 对每个邻居 $j \in \mathcal{N}_i$，执行双向点对点交换：
+\begin{equation}
+\begin{aligned}
+&\text{Agent } i: \begin{cases}
+\text{MPI\_Isend}(x_i^{\text{best}}, \text{destination}=j) & \text{(发送自己的解到} j\text{)} \\
+\text{MPI\_Recv}(x_j^{\text{best}}, \text{source}=j) & \text{(接收} j\text{的解)}
+\end{cases} \\
+&\text{Agent } j: \begin{cases}
+\text{MPI\_Isend}(x_j^{\text{best}}, \text{destination}=i) & \text{(发送自己的解到} i\text{)} \\
+\text{MPI\_Recv}(x_i^{\text{best}}, \text{source}=i) & \text{(接收} i\text{的解)}
+\end{cases}
+\end{aligned}
+\end{equation}
+
+\textbf{实现说明：}
+\begin{itemize}
+    \item 每个智能体遍历其邻居集合：\texttt{for (int rank : commu\_object)}
+    \item 通信是对称的：如果 $i$ 向 $j$ 发送，则 $j$ 同时向 $i$ 发送
+    \item 使用非阻塞的 \texttt{MPI\_Isend} 以避免死锁，随后使用阻塞的 \texttt{MPI\_Recv}
+    \item 每个智能体通常有2-4个邻居，具体取决于变量重叠结构
+\end{itemize}
+\subsection{第6步：纳什议价竞争}
+
+\textbf{符号约定（关键）：}
+\begin{itemize}
+    \item $x_{i,\text{best}}^d$：智能体$i$的最优解的第$d$维（下标=智能体，上标=维度）
+    \item $f_{a,b}^d$：\textbf{智能体$a$的解由智能体$b$的目标函数评估}
+    \begin{itemize}
+        \item 第一个下标：谁的解（决策变量值的来源）
+        \item 第二个下标：谁的目标函数（评估者的视角）
+    \end{itemize}
+\end{itemize}
+
+\textbf{第6.1步：评估交叉影响适应度}
+
+对于智能体$i$和$j$之间共享的每个重叠维度$d$，计算代表相互影响的四个适应度值：
+\begin{align}
+f_{i,i}^d &= f_i(x_{i,\text{best}}) \quad \text{(agent } i\text{'s solution, evaluated by } i\text{'s objective)} \\
+f_{i,j}^d &= f_j(x_{i,\text{best}}) \quad \text{(agent } i\text{'s solution, evaluated by } j\text{'s objective)} \\
+f_{j,i}^d &= f_i(x_{j,\text{best}}) \quad \text{(agent } j\text{'s solution, evaluated by } i\text{'s objective)} \\
+f_{j,j}^d &= f_j(x_{j,\text{best}}) \quad \text{(agent } j\text{'s solution, evaluated by } j\text{'s objective)}
+\end{align}
+
+\textbf{解释：}
+\begin{itemize}
+    \item $f_{i,j}^d$：智能体$i$的解对智能体$j$的子问题有多友好？（合作度量）
+    \item $f_{j,i}^d$：智能体$j$的解对智能体$i$的子问题有多友好？
+\end{itemize}
+
+\textbf{第6.2步：纳什议价决策}
+
+应用纳什议价解来确定维度$d$的共识值：
+\begin{equation}
+x_{i,\text{consensus}}^d = \begin{cases}
+x_{j,\text{best}}^d & \text{if } f_{i,i}^d + f_{j,i}^d > f_{i,j}^d + f_{j,j}^d \quad \text{(adopt } j\text{'s value)} \\
+x_{i,\text{best}}^d & \text{otherwise} \quad \text{(keep } i\text{'s value)}
+\end{cases}
+\end{equation}
+
+\textbf{经济解释：}
+\begin{itemize}
+    \item \textbf{左侧} $f_{i,i}^d + f_{j,i}^d$: 采用代理$i$的价值时的联合效用
+    \begin{itemize}
+        \item $f_{i,i}^d$: 代理$i$从其自身解决方案中获得的收益
+        \item $f_{j,i}^d$: 从代理$j$的角度看代理$i$带来的收益（交叉影响）
+    \end{itemize}
+    \item \textbf{右侧} $f_{i,j}^d + f_{j,j}^d$: 采用代理商$j$的价值时的联合效用
+    \begin{itemize}
+        \item $f_{i,j}^d$: 从代理$i$的角度看代理$j$带来的收益（交叉影响）
+        \item $f_{j,j}^d$: 代理$j$从其自身解决方案中获得的收益
+    \end{itemize}
+    \item \textbf{决策规则}: 选择使联合利益最大化的值（合作帕累托改进）
+\end{itemize}
+\subsection{第7步：基于双侧扰动符号一致性的冲突检测}
+当前代码在通信分支中执行该步骤，用于筛除“双方梯度方向一致、无需协商”的维度。
+
+对共享维度 \(d\) 计算双侧扰动增量：
+\begin{align}
+g_i^{+}(d) &= f_i(x_1, \ldots, x_d + \delta, \ldots, x_D) - f_i(x) \\
+g_i^{-}(d) &= f_i(x_1, \ldots, x_d - \delta, \ldots, x_D) - f_i(x)
+\end{align}
+
+若双方在正向与负向扰动上符号都一致，则认为该维度无冲突，关闭该维度协商：
+\begin{equation}
+\text{if } (g_i^+ g_j^+ > 0) \land (g_i^- g_j^- > 0) \Rightarrow \text{variable\_switch}[d] = 0
+\end{equation}
+
+\textbf{实现意义：}
+\begin{itemize}
+    \item 符号一致时关闭该维度协商，减少无效通信。
+    \item 符号不一致时保留纳什结果，执行维度级协调。
+    \item 相比更复杂的向量相似度方法，实现更直接、与主循环一致。
+\end{itemize}
+
+\subsection{第8步：跳过协商}
+
+如果通信未被触发（CI $\leq$ 阈值且非强制间隔）：
+\begin{equation}
+x_{i,\text{con}} = x_{i,\text{best}} \quad \text{（直接使用第2步的局部最优，跳过第5-7步）}
+\end{equation}
+
+\textbf{逻辑：} 当冲突较低时，协商是不必要的。智能体 $i$ 直接采用其自身的局部最优解，无需通信开销。
+\subsection{步骤9：设置全局最优解}
+根据是否发生协商，为每个代理更新全局最优解：
+\begin{equation}
+x_{i,\text{con}} = \begin{cases}
+x_{i,\text{consensus}} & \text{如果谈判发生(Step 6)} \\
+x_{i,\text{best}} & \text{如果跳过谈判(Step 8)}
+\end{cases}
+\end{equation}
+
+\textbf{目的：} 设定共识基准$x_{i,\text{con}}$ (变量名： \texttt{globalBest}) 将用于：
+\begin{itemize}
+    \item 惩罚项计算： $\sum_{d=1}^{D} \mathbb{I}[d \in \theta_i] \cdot (x_i^d - x_{i,\text{con}}^d)^2$ 在下一次迭代的步骤1中
+    \item 冲突计算：比较 $x_{i,\text{best}}^d$ 和 $x_{i,\text{con}}^d$ 在步骤3
+\end{itemize}
+
+\textbf{迭代流程：}
+\begin{itemize}
+    \item Iteration $t-1$: 产生 $x_{i,\text{con}}^{(t-1)}$（存储在内存中）
+    \item Iteration $t$: 步骤1使用$x_{i,\text{con}}^{(t-1)}$作为惩罚参考值$\to$步骤9更新为$x_{i,\text{con}}^{(t)}$
+\end{itemize}
+
+\subsection{步骤10：重新评估人口}
+使用更新后的共识参考重新评估所有粒子：
+\begin{equation}
+\forall p \in \text{Population}_i: \quad h_i(p) = f_i(p) + \alpha_i(t) \cdot \text{conflict}_i(p)
+\end{equation}
+
+其中
+\begin{equation}
+\text{conflict}_i(p) = \sum_{d=1}^{D} \mathbb{I}[d \in \theta_i] \cdot \frac{|p^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}
+\end{equation}
+
+\textbf{目的：}在更新协商结果 $x_{i,\text{con}}$（步骤9）后，使用新的共识参考值重新计算所有粒子的惩罚适应度 $h_i$。
+
+\textbf{符号说明：}
+\begin{itemize}
+    \item $p \in \text{Population}_i$: 智能体 $i$ 种群中的一个粒子（解向量）
+    \item $p^d$: 粒子 $p$ 的第 $d$ 维分量（\textbf{上标表示维度}）
+    \item $\alpha_i$: 惩罚系数（与步骤1相同）
+    \item $\text{conflict}_i(p)$: 粒子 $p$ 的冲突度量（与步骤1和步骤3相同的公式）
+    \item 该公式与步骤1具有完全相同的结构，只是应用于共识更新后的所有粒子。
+    \item \textbf{不进行平均：} 对所有重叠维度求和，与步骤1和步骤3保持一致
+\end{itemize}
+
+\subsection{第11步：MPI Allreduce - 全局适应度}
+
+聚合所有智能体的适应度值以计算全局指标：
+\begin{align}
+f^{\text{pure}} &= \frac{1}{N}\sum_{i=1}^N f_i(x_{i,\text{con}}) = \text{MPI\_Allreduce}(\text{SUM}) / N \\
+h^{\text{penalty}} &= \text{global\_average}(h_i(x_{i,\text{con}}), \mathcal{N}_i) \times N \\
+\text{penalty} &= h^{\text{penalty}} - f^{\text{pure}}
+\end{align}
+
+\textbf{理解惩罚项：}
+
+由于 $h_i(x_{i,\text{con}}) = f_i(x_{i,\text{con}}) + \alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})$，我们有：
+\begin{equation}
+\text{penalty} = \frac{1}{N}\sum_{i=1}^N \left[\alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})\right]
+\end{equation}
+
+其中
+\begin{equation}
+\text{conflict}_i(x_{i,\text{con}}) = \sum_{d \in \theta_i} \frac{|x_{i,\text{con}}^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}} = 0 \quad \text{（完美共识时）}
+\end{equation}
+
+\textbf{关于冲突范围的重要说明：}
+\begin{itemize}
+    \item 在当前实现中：$\text{conflict}_i \in [0, |\theta_i|]$（求和，非平均）
+    \item 对于典型问题：$|\theta_i| = 100 \sim 300$ 个重叠维度
+    \item 在初始化时：$\text{conflict}_i \approx 0.5 \times |\theta_i|$（随机偏差）
+    \item 示例：$|\theta_i| = 200$，平均偏差 $= 0.5 \Rightarrow \text{conflict}_i \approx 100$
+    \item RL调整的 $\alpha$ 补偿这一缩放以维持有效的惩罚强度
+\end{itemize}
+
+\textbf{关键区别：}
+\begin{itemize}
+    \item $f^{\text{pure}} = \frac{1}{N}\sum_{i=1}^N f_i(x_{i,\text{con}})$：\textbf{纯}局部适应度的平均值（无惩罚）
+    \item $h^{\text{penalty}} = \frac{1}{N}\sum_{i=1}^N h_i(x_{i,\text{con}})$：\textbf{带惩罚}局部适应度的平均值
+    \item $\text{penalty} = \frac{1}{N}\sum_{i=1}^N \alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})$：平均加权冲突
+    \item $F(x) = \sum_{i=1}^N f_i(x_i)$：全局目标（未平均）
+    \item 在收敛时：$\text{conflict}_i \to 0$，因此 $\text{penalty} \to 0$，且 $h^{\text{penalty}} \to f^{\text{pure}}$
+\end{itemize}
+
+\textbf{典型惩罚幅度分析：}
+\begin{itemize}
+    \item 早期迭代：$\text{conflict}_i \approx 50 \sim 150$（取决于 $|\theta_i|$ 和初始化）
+    \item 当 $\alpha \approx 0.001$（RL调整）：$\text{penalty} \approx 0.05 \sim 0.15$
+    \item 对于 $f^{\text{pure}} \approx 10^5$：$\text{penalty}/f \approx 0.0005\% \sim 0.0015\%$（非常小，按设计）
+    \item RL机制动态调整 $\alpha$ 以平衡探索与收敛
+\end{itemize}
+
+\textbf{重要说明：} 在评估 $h_i(x_{i,\text{con}})$ 时，冲突项将 $x_{i,\text{con}}$ 与自身比较（因为 $x_{i,\text{con}}$ 是共识参考）。在所有智能体达成完美共识时，该冲突为零。然而，在优化过程中，不同智能体可能具有略微不同的 $x_{i,\text{con}}$ 值，导致非零惩罚。
+\subsection{第12步：计算改进}
+
+测量相对适应度改进：
+\begin{equation}
+\text{improvement}_t = \frac{f_{t-1}^{\text{pure}} - f_t^{\text{pure}}}{|f_{t-1}^{\text{pure}}|}
+\end{equation}
+
+\subsection{第13步：计算奖励}
+
+最终采用无量纲惩罚效率奖励：
+\begin{equation}
+r_t = \tanh\!\left(-\Delta\text{conflict}_{\text{rate}} \cdot \Delta f_{\text{pure,rate}} \cdot 100\right)
+\end{equation}
+其中
+\begin{align}
+\Delta\text{conflict}_{\text{rate}} &= \frac{\text{conflict}_t - \text{conflict}_{t-1}}{\text{conflict}_{t-1} + 10^{-10}}, \\
+\Delta f_{\text{pure,rate}} &= \frac{f^{\text{pure}}_{t-1} - f^{\text{pure}}_t}{|f^{\text{pure}}_{t-1}| + 10^{-10}} .
+\end{align}
+\textbf{解释：} 当冲突下降且纯适应度改善同时发生时，奖励为正；反之趋于负值。
+\subsection{第14步：RL更新惩罚系数 $\alpha$}
+\textbf{核心思想：} 奖励在评估器内部由冲突变化率与纯适应度变化率共同计算，随后用于更新权重比例并映射到 $\alpha$。
+
+\subsubsection*{14.1 状态构建}
+从当前冲突和历史趋势构建环境状态：
+\begin{equation}
+s_t = [S_1, S_2] \in \mathbb{R}^2
+\end{equation}
+
+其中：
+\begin{align}
+S_1 &= \text{conflict}_i(x_{i,\text{con}}) = \sum_{d \in \theta_i} \frac{|x_{i,\text{best}}^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}} \quad \text{（当前冲突，来自第3步）} \\
+S_2 &= \text{conflict}_i^{(t)} - \text{conflict}_i^{(t-1)} \quad \text{（一阶差分，冲突变化率）}
+\end{align}
+
+\textbf{实现细节：}
+\begin{itemize}
+    \item $S_1$ 是第3步计算的\textbf{原始冲突值}（非第4步的平滑CI）
+    \item $S_2$ 是简单的\textbf{单步差分}（非复杂趋势指标）
+    \item 冲突历史保存在大小为10的滑动窗口中
+    \item 若不存在历史记录（首次迭代），$S_2 = 0$
+\end{itemize}
+
+\textbf{数值缩放：}
+\begin{itemize}
+    \item $S_1 \in [0, |\theta_i|]$（重叠维度上的归一化偏差之和）
+    \item 对于典型问题：$S_1 \in [0, 300]$，取决于重叠规模和偏差
+    \item $S_2 \in [-|\theta_i|, |\theta_i|]$（冲突的最大可能变化）
+    \item 示例：$S_1 = 2.0$（低冲突），$S_2 = -0.5$（冲突递减）
+\end{itemize}
+
+\textbf{与第3步和第4步的联系：}
+\begin{itemize}
+    \item 第3步计算\textbf{原始冲突} $\text{conflict}_i$（瞬时值）
+    \item 第4步使用\textbf{平滑CI} $\text{CI}_i^{\text{smooth}}$ 进行门控决策（稳定的阈值比较）
+    \item 第14.1步使用\textbf{原始冲突作为 $S_1$} 用于RL状态（快速反馈学习）
+\end{itemize}
+
+\textbf{关键区别：$S_1$ 与 $\text{CI}_i^{\text{smooth}}$}
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{方面} & \textbf{$S_1$（RL状态）} & \textbf{$\text{CI}_i^{\text{smooth}}$（门控）} \\
+\hline
+\textbf{公式} & $S_1 = \text{conflict}_i^{\text{raw}}$ & $\text{CI}^{\text{smooth}} = 0.7 \cdot \text{CI}^{\text{smooth}} + 0.3 \cdot \text{conflict}_i^{\text{raw}}$ \\
+\hline
+\textbf{平滑} & 否（原始值） & 是（EMA，$\beta=0.7$） \\
+\hline
+\textbf{响应速度} & 即时 & 延迟（滞后3-5次迭代） \\
+\hline
+\textbf{噪声敏感性} & 高（反映瞬时尖峰） & 低（滤除噪声） \\
+\hline
+\textbf{用途} & RL训练反馈 & 通信阈值测试 \\
+\hline
+\textbf{目的} & 学习自适应策略 & 稳定门控 \\
+\hline
+\textbf{典型值} & $0.001 \sim 0.05$ & $0.001 \sim 0.05$（相同范围，更平滑） \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{为什么RL使用原始冲突（$S_1$）而非平滑CI？}
+
+\begin{itemize}
+    \item \textbf{RL需要立即反馈}：策略网络必须在无延迟的情况下观察其动作（$\alpha$调整）的真实后果。平滑会破坏动作与奖励之间的因果关系。
+    \item \textbf{RL能处理噪声}：神经网络通过跨多个体验的权重平均自然平滑噪声信号。外部平滑是冗余且有害的。
+    \item \textbf{示例}：若RL在 $t=10$ 时增加 $\alpha$，它应在 $t=11$ 时看到冲突变化，而非 $t=7$ 到 $t=11$ 的平滑平均值。
+\end{itemize}
+
+\textbf{$S_1$ 与 $\text{CI}^{\text{smooth}}$ 的数值示例：}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{迭代次数} & \textbf{原始冲突} & \textbf{$S_1$（RL状态）} & \textbf{$\text{CI}^{\text{smooth}}$（门控）} \\
+\hline
+1 & 0.0500 & 0.0500 & 0.0500（初始化） \\
+2 & 0.0450 & 0.0450 & $0.7 \times 0.0500 + 0.3 \times 0.0450 = 0.0485$ \\
+3 & 0.0600（尖峰） & \textbf{0.0600} & $0.7 \times 0.0485 + 0.3 \times 0.0600 = 0.0520$ \\
+4 & 0.0400 & 0.0400 & $0.7 \times 0.0520 + 0.3 \times 0.0400 = 0.0484$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{示例观察：}
+\begin{itemize}
+    \item 在 $t=3$ 时：$S_1$ 立即跳到 0.0600（RL即时看到尖峰）
+    \item 在 $t=3$ 时：$\text{CI}^{\text{smooth}}$ 仅升至 0.0520（门控看到衰减信号）
+    \item 在 $t=4$ 时：$S_1$ 降至 0.0400（RL看到恢复），但 $\text{CI}^{\text{smooth}}$ 仍高达 0.0484
+    \item $\text{CI}^{\text{smooth}}$ 的这种滞后对门控有利（避免振荡），但对RL学习有害
+\end{itemize}
+
+\subsubsection*{14.2 动作选择（策略网络）}
+策略网络 $\pi_\theta$ 将状态映射到权重比例调整动作：
+\begin{align}
+a_t &= \pi_\theta(s_t) = \tanh(W \cdot s_t + b) \\
+\text{ratio}_{t+1} &= \text{clip}(\text{ratio}_t + 0.1 \cdot a_t, 0.1, 2.0) \\
+\alpha_{t+1} &= \text{base\_alpha}_{t+1} \cdot \text{ratio}_{t+1},\quad \text{base\_alpha}_{t+1}=\frac{|f_t|}{512}
+\end{align}
+
+其中 $\text{base\_alpha} = |f| / 512$ 是基于目标函数幅度的基础惩罚系数。
+
+\textbf{两层更新机制说明：}
+\begin{itemize}
+    \item \textbf{权重比例 ratio}：RL直接学习调整权重比例，范围 $[0.1, 2.0]$（允许在基础值的10\%-200\%之间调整）
+    \item \textbf{惩罚系数 $\alpha$}：通过 $\alpha = \text{base\_alpha} \times \text{ratio}$ 计算得到
+    \item \textbf{步长差异}：ratio更新步长为0.1（较大），允许快速调整惩罚强度
+    \item \textbf{设计优势}：
+    \begin{itemize}
+        \item base\_alpha根据目标函数幅度自动缩放，确保惩罚项与适应度值同数量级
+        \item RL学习的ratio在此基础上微调，适应不同优化阶段的需求
+        \item 比直接更新$\alpha$更稳定，避免过度惩罚或惩罚不足
+    \end{itemize}
+\end{itemize}
+
+\textbf{$\alpha$ 范围说明：}
+\begin{itemize}
+ \item ratio范围：$[0.1, 2.0]$（固定边界）
+    \item 对于 $|f| = 10^5$：$\text{base\_alpha} = 10^5 / 512 \approx 195.3$
+    \item 典型$\alpha$范围：$\alpha \in [19.53, 390.6]$（base\_alpha的10\%-200\%）
+    \item 初始化：$\text{ratio}_0 = 1.0$，因此初始 $\alpha_0 = \text{base\_alpha}$
+\end{itemize}
+
+\textbf{网络架构与维度：}
+
+\begin{itemize}
+    \item \textbf{输入}：$s_t = [S_1, S_2]^T \in \mathbb{R}^{2 \times 1}$（列向量，2维状态）
+    \item \textbf{权重矩阵}：$W \in \mathbb{R}^{1 \times 2}$（1行，2列）
+    \item \textbf{偏置}：$b \in \mathbb{R}$（标量）
+    \item \textbf{输出}：$a_t \in \mathbb{R}$（标量动作）
+\end{itemize}
+
+\textbf{矩阵乘法详解：}
+\begin{equation}
+W \cdot s_t = \begin{bmatrix} w_1 & w_2 \end{bmatrix} \cdot \begin{bmatrix} S_1 \\ S_2 \end{bmatrix} = w_1 \cdot S_1 + w_2 \cdot S_2 \in \mathbb{R}
+\end{equation}
+
+其中 $w_1, w_2$ 是分别对应冲突和趋势特征的可学习权重。
+
+\textbf{完整前向传播：}
+\begin{align}
+z &= W \cdot s_t + b = w_1 S_1 + w_2 S_2 + b \quad \text{（线性组合）} \\
+a_t &= \tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}} \in [-1, 1] \quad \text{（非线性激活）}
+\end{align}
+
+\textbf{维度检查：}
+\begin{align}
+W \cdot s_t: & \quad \underbrace{\mathbb{R}^{1 \times 2}}_{W} \times \underbrace{\mathbb{R}^{2 \times 1}}_{s_t} = \mathbb{R}^{1 \times 1} = \mathbb{R} \quad \checkmark \\
+z + b: & \quad \underbrace{\mathbb{R}}_{W \cdot s_t} + \underbrace{\mathbb{R}}_{b} = \mathbb{R} \quad \checkmark \\
+\tanh(z): & \quad \mathbb{R} \rightarrow \mathbb{R} \quad \checkmark
+\end{align}
+
+\textbf{参数说明：}
+\begin{itemize}
+    \item $W \in \mathbb{R}^{1 \times 2}$ 表示：\textbf{1个输出神经元，2个输入特征}
+    \item 展开：$W = [w_1, w_2]$，其中 $w_1$ 加权 $S_1$（冲突），$w_2$ 加权 $S_2$（趋势）
+    \item 可训练参数总数：$\theta = \{w_1, w_2, b\}$（3个参数）
+    \item $\tanh(\cdot)$ 将输出限制在 $[-1, 1]$（确保稳定更新权重）
+   \item $0.1$ 是权重比例ratio的调整步长：$\Delta\text{ratio} = a_t \times 0.1$
+    \item $[0.1, 2.0]$ 是ratio的有效范围（固定边界），alpha通过$\text{base}_\alpha \times \text{ratio}$计算得到
+\end{itemize}
+
+\textbf{数值示例：}
+\begin{align*}
+\text{假设：} & W = [2.5, -1.8], \quad b = 0.3 \\
+\text{状态：} & s_t = [0.01, -0.003]^T \quad \text{（低冲突，递减）} \\
+\text{ratio} = 1.0 \quad \text{（当前权重比例）} \\
+\text{计算：} & z = 2.5 \times 0.01 + (-1.8) \times (-0.003) + 0.3 = 0.0304 \\
+& a_t = \tanh(0.0304) \approx 0.0304 \\
+& \Delta\text{ratio} = a_t \times 0.1 = 0.00304 \quad \text{（ratio调整步长为0.1）} \\
+& \text{ratio}_{t+1} = \text{clip}(1.0 + 0.00304, 0.1, 2.0) = 1.00304 \\
+\text{假设：} & |f| = 10^5, \quad \text{base}_\alpha = 10^5 / 512 \approx 195.3 \\
+\text{结果：} & \alpha_{t+1} = 195.3 \times 1.00304 \approx 195.9 \quad \text{（惩罚系数轻微增加）}
+\end{align*}
+
+\subsubsection*{14.3 经验存储}
+\textbf{关键步骤：} 使用第13步的奖励存储决策经验：
+\begin{equation}
+\text{经验：} \mathcal{E}_t = (s_t, a_t, r_t) \rightarrow \text{ReplayBuffer}
+\end{equation}
+
+\textbf{优先级分配：}
+\begin{equation}
+p_t = |r_t| \quad \text{（与经验一起存储的优先级值）}
+\end{equation}
+
+其中 $p_t$ 是分配给经验 $\mathcal{E}_t$ 的\textbf{优先级值}（非概率）。
+
+\textbf{要点：}
+\begin{itemize}
+    \item 优先级值 $p_t = |r_t|$ 直接存储（例如，若 $r_t = -18.4$，则 $p_t = 18.4$）
+    \item 更高的 $|r_t|$（奖励幅度大）→ 更高的优先级值
+    \item 该优先级值将在第14.4步中用于确定采样概率
+    \item 正负贡献相等（取绝对值）
+\end{itemize}
+
+\subsubsection*{14.4 策略网络更新（监督学习）}
+当回放池中有 $\geq 32$ 条经验时，执行批量更新：
+\begin{align}
+a_{\text{target}} &= a_t + 0.1 \times r_t \quad \text{（奖励修正的动作）} \\
+\mathcal{L}(\theta) &= (a_{\text{target}} - \pi_\theta(s_t))^2 \quad \text{（MSE损失）} \\
+\theta &\leftarrow \theta - \eta \nabla_\theta \mathcal{L}(\theta) \quad \text{（梯度下降）}
+\end{align}
+
+\textbf{学习率 $\eta$：}
+\begin{equation}
+\eta = 0.01 \quad \text{（固定学习率）}
+\end{equation}
+
+\textbf{参数更新细节：}
+
+\textbf{$\theta$ 是什么？理解参数集合}
+
+符号 $\theta$ 表示策略网络 $\pi_\theta$ 中\textbf{所有可训练参数}的集合。
+
+\textbf{为什么 $\theta = \{w_1, w_2, b\}$？}
+
+策略网络具有简单的结构，仅有\textbf{恰好3个可训练参数}：
+
+\begin{enumerate}
+    \item \textbf{权重 $w_1$}：连接输入 $S_1$（冲突）到输出 $a_t$
+    \item \textbf{权重 $w_2$}：连接输入 $S_2$（趋势）到输出 $a_t$
+    \item \textbf{偏置 $b$}：给加权和添加常数偏移
+\end{enumerate}
+
+\textbf{网络结构：}
+\begin{equation}
+\pi_\theta(s_t) = \tanh(\underbrace{w_1 \cdot S_1 + w_2 \cdot S_2}_{\text{加权和}} + \underbrace{b}_{\text{偏置}})
+\end{equation}
+
+\textbf{参数数量推导：}
+\begin{itemize}
+    \item \textbf{权重矩阵 $W \in \mathbb{R}^{1 \times 2}$}：包含2个元素 $\{w_1, w_2\}$
+    \item \textbf{偏置 $b \in \mathbb{R}$}：包含1个元素 $\{b\}$
+    \item \textbf{总计}：$|\theta| = 2 + 1 = 3$ 个参数
+\end{itemize}
+
+\textbf{符号说明：}
+\begin{itemize}
+    \item $\theta$ = \textbf{参数集合}（所有可训练变量）
+    \item $\theta_i$ = \textbf{单个参数}（集合中的一个元素）
+    \item $\theta_i \in \{w_1, w_2, b\}$ 表示："对于每个参数 $i$，其值为 $w_1$、$w_2$ 或 $b$"
+\end{itemize}
+
+\textbf{为什么只有这3个参数？}
+\begin{itemize}
+    \item 网络\textbf{没有隐藏层}（直接的输入到输出映射）
+    \item 输入维度 = 2（$S_1, S_2$），输出维度 = 1（$a_t$）
+    \item 所需权重：$2 \times 1 = 2$（每个输入-输出连接一个权重）
+    \item 所需偏置：$1$（每个输出神经元一个偏置）
+    \item 总计：$2 + 1 = 3$ 个参数
+\end{itemize}
+
+\textbf{每个参数的梯度计算：}
+
+对于每个参数 $\theta_i \in \{w_1, w_2, b\}$：
+\begin{align}
+\nabla_{\theta_i} \mathcal{L} &= \frac{\partial}{\partial \theta_i} (a_{\text{target}} - \pi_\theta(s_t))^2 \\
+&= 2(a_{\text{target}} - \pi_\theta(s_t)) \cdot \frac{\partial \pi_\theta(s_t)}{\partial \theta_i}
+\end{align}
+
+这意味着我们\textbf{分别}计算3个参数的梯度：
+\begin{align}
+\nabla_{w_1} \mathcal{L} &= 2(a_{\text{target}} - a_t) \cdot \frac{\partial \pi_\theta(s_t)}{\partial w_1} \\
+\nabla_{w_2} \mathcal{L} &= 2(a_{\text{target}} - a_t) \cdot \frac{\partial \pi_\theta(s_t)}{\partial w_2} \\
+\nabla_{b} \mathcal{L} &= 2(a_{\text{target}} - a_t) \cdot \frac{\partial \pi_\theta(s_t)}{\partial b}
+\end{align}
+
+\textbf{完整更新方程：}
+\begin{align}
+\frac{\partial \pi_\theta(s_t)}{\partial w_1} &= (1 - \tanh^2(z)) \cdot S_1 \quad \text{其中 } z = w_1 S_1 + w_2 S_2 + b \\
+\frac{\partial \pi_\theta(s_t)}{\partial w_2} &= (1 - \tanh^2(z)) \cdot S_2 \\
+\frac{\partial \pi_\theta(s_t)}{\partial b} &= (1 - \tanh^2(z))
+\end{align}
+
+因此：
+\begin{align}
+w_1 &\leftarrow w_1 - \eta \cdot 2(a_{\text{target}} - a_t) \cdot (1 - a_t^2) \cdot S_1 \\
+w_2 &\leftarrow w_2 - \eta \cdot 2(a_{\text{target}} - a_t) \cdot (1 - a_t^2) \cdot S_2 \\
+b &\leftarrow b - \eta \cdot 2(a_{\text{target}} - a_t) \cdot (1 - a_t^2)
+\end{align}
+
+其中 $a_t = \pi_\theta(s_t) = \tanh(z)$ 是当前网络输出。
+
+\textbf{为什么 $\eta = 0.01$？}
+\begin{itemize}
+    \item \textbf{足够小}：防止越过最优权重（稳定收敛）
+    \item \textbf{足够大}：在合理训练时间内允许有意义的更新
+    \item \textbf{经验选择}：简单神经网络的标准值（典型范围：$0.001 \sim 0.1$）
+    \item \textbf{固定}：无需自适应调度（简单优于复杂）
+\end{itemize}
+
+\textbf{若使用自适应学习率会怎样？替代方案分析}
+
+\textbf{常见自适应方法：}
+
+\begin{enumerate}
+    \item \textbf{AdaGrad}：累积平方梯度
+    \begin{equation}
+    \eta_t^{(i)} = \frac{\eta_0}{\sqrt{G_t^{(i)} + \epsilon}}, \quad G_t^{(i)} = \sum_{k=1}^{t} (\nabla_{\theta_i} \mathcal{L}_k)^2
+    \end{equation}
+    其中 $\eta_0$ 是初始学习率，$\epsilon = 10^{-8}$ 防止除零。
+    
+    \item \textbf{RMSprop}：平方梯度的指数移动平均
+    \begin{equation}
+    \eta_t^{(i)} = \frac{\eta_0}{\sqrt{v_t^{(i)} + \epsilon}}, \quad v_t^{(i)} = \beta v_{t-1}^{(i)} + (1-\beta)(\nabla_{\theta_i} \mathcal{L}_t)^2
+    \end{equation}
+    其中 $\beta = 0.9$ 是衰减率。
+    
+    \item \textbf{Adam}：结合动量和自适应学习率
+    \begin{align}
+    m_t^{(i)} &= \beta_1 m_{t-1}^{(i)} + (1-\beta_1)\nabla_{\theta_i} \mathcal{L}_t \quad \text{（动量）} \\
+    v_t^{(i)} &= \beta_2 v_{t-1}^{(i)} + (1-\beta_2)(\nabla_{\theta_i} \mathcal{L}_t)^2 \quad \text{（方差）} \\
+    \hat{m}_t^{(i)} &= \frac{m_t^{(i)}}{1-\beta_1^t}, \quad \hat{v}_t^{(i)} = \frac{v_t^{(i)}}{1-\beta_2^t} \quad \text{（偏差修正）} \\
+    \eta_t^{(i)} &= \frac{\eta_0 \cdot \hat{m}_t^{(i)}}{\sqrt{\hat{v}_t^{(i)}} + \epsilon}
+    \end{align}
+    其中 $\beta_1 = 0.9$，$\beta_2 = 0.999$ 是动量衰减率。
+\end{enumerate}
+
+\textbf{对MACPO的潜在好处：}
+\begin{itemize}
+    \item \textbf{更快收敛}：大梯度 → 小学习率（防止超调），小梯度 → 大学习率（加速进展）
+    \item \textbf{逐参数自适应}：根据 $w_1$、$w_2$、$b$ 的不同梯度幅度设置不同学习率
+    \item \textbf{自动调参}：减少手动选择 $\eta$ 的需求
+\end{itemize}
+
+\textbf{对MACPO的潜在缺点：}
+\begin{itemize}
+    \item \textbf{过拟合风险}：自适应方法可能过快收敛到局部极小值，尤其仅3个参数时
+    \item \textbf{超参数敏感性}：AdaGrad/RMSprop/Adam引入新超参数（$\beta_1, \beta_2, \epsilon$）需要调优
+    \item \textbf{内存开销}：需要为每个参数存储动量/方差（多3倍内存）
+    \item \textbf{计算开销}：每次更新额外操作（平方根、除法、指数移动平均）
+    \item \textbf{不稳定性}：自适应方法在稀疏梯度下可能不稳定（RL中常见）
+\end{itemize}
+
+\textbf{复杂度分析：}
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{方面} & \textbf{固定 $\eta$} & \textbf{AdaGrad} & \textbf{RMSprop} & \textbf{Adam} \\
+\hline
+\textbf{代码行数} & 1 & +15 & +20 & +35 \\
+\hline
+\textbf{每参数内存} & 0 & +1 (G) & +1 (v) & +2 (m, v) \\
+\hline
+\textbf{每次更新操作} & 3次乘法 & +3（开方、除法） & +4（EMA、开方） & +8（动量、EMA、偏差修正） \\
+\hline
+\textbf{超参数} & 1 ($\eta$) & 2 ($\eta_0, \epsilon$) & 3 ($\eta_0, \beta, \epsilon$) & 4 ($\eta_0, \beta_1, \beta_2, \epsilon$) \\
+\hline
+\textbf{收敛速度} & 基准 & 更快（早期） & 中等 & 最快 \\
+\hline
+\textbf{稳定性} & 高 & 中等 & 中等 & 低（可能发散） \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{对于MACPO的3参数网络：}
+\begin{itemize}
+    \item \textbf{内存增加}：AdaGrad: +3个浮点数，RMSprop: +3个浮点数，Adam: +6个浮点数（在现代系统中可忽略）
+    \item \textbf{计算增加}：每次更新多约2-3倍操作（仍然很快，< 1$\mu$s）
+    \item \textbf{代码复杂度}：中等增加（15-35行），但增加维护负担
+\end{itemize}
+
+\textbf{MACPO选择固定 $\eta$ 的原因：}
+\begin{itemize}
+    \item \textbf{简单性}：仅3个参数，固定 $\eta = 0.01$ 经验上效果很好
+    \item \textbf{稳定性}：RL训练受益于可预测、稳定的更新
+    \item \textbf{可解释性}：固定学习率使行为更容易理解和调试
+    \item \textbf{收益有限}：自适应方法在大型网络（1000+参数）中效果显著，而非3参数网络
+    \item \textbf{避免超参数}：少一个需要调优的项 = 更快开发
+\end{itemize}
+
+\textbf{何时自适应学习率可能有帮助：}
+\begin{itemize}
+    \item 若MACPO网络扩展为包含隐藏层（10+参数）
+    \item 若训练显示出明显的收敛缓慢或振荡迹象
+    \item 若不同参数（$w_1$、$w_2$、$b$）具有截然不同的梯度尺度
+    \item 若计算开销不是问题
+\end{itemize}
+
+\textbf{建议：}
+\begin{itemize}
+    \item \textbf{当前设计}：保持固定 $\eta = 0.01$（简单、稳定、足够）
+    \item \textbf{未来考虑}：若网络增长到10+参数，考虑RMSprop或Adam
+    \item \textbf{实验选项}：允许自适应学习率作为可选功能（可配置）
+\end{itemize}
+
+\textbf{数值示例：}
+
+假设：
+\begin{align*}
+s_t &= [0.01, -0.003]^T \\
+a_t &= \pi_\theta(s_t) = 0.03 \quad \text{（当前输出）} \\
+a_{\text{target}} &= 0.05 \quad \text{（奖励修正后的目标）} \\
+\eta &= 0.01
+\end{align*}
+
+更新计算：
+\begin{align*}
+\text{误差} &= a_{\text{target}} - a_t = 0.05 - 0.03 = 0.02 \\
+\text{tanh导数} &= 1 - a_t^2 = 1 - 0.03^2 = 0.9991 \\
+\text{梯度因子} &= 2 \times 0.02 \times 0.9991 = 0.03996 \\
+\Delta w_1 &= -\eta \times 0.03996 \times S_1 = -0.01 \times 0.03996 \times 0.01 = -0.000004 \\
+\Delta w_2 &= -\eta \times 0.03996 \times S_2 = -0.01 \times 0.03996 \times (-0.003) = +0.0000012 \\
+\Delta b &= -\eta \times 0.03996 = -0.01 \times 0.03996 = -0.0004
+\end{align*}
+
+\textbf{观察：}
+\begin{itemize}
+    \item 权重更新非常小（$w_1, w_2$ 约 $\sim 10^{-6}$）
+    \item 偏置更新较大（$\sim 10^{-4}$）但仍保守
+    \item 这确保了稳定学习而不振荡
+\end{itemize}
+
+\textbf{基于优先级的采样：}
+
+从回放池采样32条经验时，采样概率与优先级值\textbf{成正比}：
+\begin{equation}
+P(\text{选择经验 } i) = \frac{p_i}{\sum_{j=1}^{N} p_j} = \frac{|r_i|}{\sum_{j=1}^{N} |r_j|} \quad \text{（采样概率）}
+\end{equation}
+
+其中 $N$ 是当前的池大小（$N \geq 32$）。
+
+\textbf{关键区别：}
+\begin{itemize}
+    \item \textbf{第14.3步}：优先级\textbf{值} $p_t = |r_t|$（直接存储，例如 $p_t = 18.4$）
+    \item \textbf{第14.4步}：采样\textbf{概率} $P(i) \propto |r_t|$（归一化，例如 $P(i) = 0.15$）
+    \item 关系：$P(i) = p_i / \sum_j p_j$（概率是归一化的优先级）
+\end{itemize}
+
+\textbf{数值示例：}
+
+假设回放池包含3条经验：
+\begin{align*}
+\mathcal{E}_1: & \quad r_1 = -18.4 \Rightarrow p_1 = 18.4 \\
+\mathcal{E}_2: & \quad r_2 = -13.8 \Rightarrow p_2 = 13.8 \\
+\mathcal{E}_3: & \quad r_3 = -9.2 \Rightarrow p_3 = 9.2 \\
+\text{总计：} & \quad \sum p_j = 18.4 + 13.8 + 9.2 = 41.4
+\end{align*}
+
+采样概率：
+\begin{align*}
+P(1) &= \frac{18.4}{41.4} = 0.444 \quad \text{（44.4\%，最高优先级）} \\
+P(2) &= \frac{13.8}{41.4} = 0.333 \quad \text{（33.3\%）} \\
+P(3) &= \frac{9.2}{41.4} = 0.222 \quad \text{（22.2\%，最低优先级）}
+\end{align*}
+
+\textbf{训练机制说明：}
+\begin{itemize}
+    \item \textbf{正奖励}（$r_t > 0$）：目标动作 $a_{\text{target}}$ 增加，鼓励网络在相似状态下输出更大的权重调整（更激进的惩罚）
+    \item \textbf{负奖励}（$r_t < 0$）：目标动作减小，教导网络减少权重调整（更温和的惩罚）
+    \item \textbf{批量采样}：32条经验按概率 $P(i) \propto |r_t|$ 采样，因此高影响决策（大 $|r_t|$）被更频繁采样和更密集学习
+\end{itemize}
+
+\textbf{示例训练序列：}
+\begin{align*}
+t=1: \quad & s_1 = [0.01, -0.5], \; a_1 = 0.02, \; r_1 = -18.4 \\
+           & a_{\text{target}} = 0.02 + 0.1 \times (-18.4) = -1.82 \\
+           & \text{网络学习：在高冲突状态下，激进地减少权重} \\[5pt]
+t=10: \quad & s_{10} = [0.002, -0.8], \; a_{10} = -0.01, \; r_{10} = -13.8 \\
+            & a_{\text{target}} = -0.01 + 0.1 \times (-13.8) = -1.39 \\
+            & \text{网络学习：冲突减少时继续减少权重}
+\end{align*}
+
+\textbf{与第13步的联系：}
+\begin{itemize}
+    \item 第13步计算 $r_t=\tanh\!\left(-\Delta\text{conflict}_{\text{rate}} \cdot \Delta f_{\text{pure,rate}} \cdot 100\right)$
+    \item 第14步使用 $r_t$ 更新策略：更好的适应度 → 更高的奖励 → 强化当前策略
+    \item 这形成反馈循环：RL学习哪种惩罚调整导致更好的优化结果
+\end{itemize}
+\subsection{第15步：输出结果}
+
+主进程（rank 0）输出综合指标：
+\begin{equation}
+\text{Output: } (\text{iter}, \text{eval}, f_{\text{penalty}}, f_{\text{pure}}, \text{penalty}, \text{improvement}, r, \text{conflict}, \text{weight}, \alpha_{\text{avg}}, \alpha_{\text{rank0}}, \alpha_{\min}, \alpha_{\max})
+\end{equation}
+\subsection{第16步：收敛检查}
+
+终止条件：
+\begin{equation}
+\text{Stop if: } \text{eval\_count} \geq E_{\max}
+\end{equation}
+
+\textbf{每个输出字段的详细公式：}
+
+\begin{enumerate}
+    \item \textbf{iter}（迭代次数）：
+    \begin{equation}
+    \text{iter} = t \quad \text{（当前迭代计数器，从0开始）}
+    \end{equation}
+    
+    \item \textbf{eval}（总函数评估次数）：
+    \begin{equation}
+    \text{eval} = \sum_{i=1}^N \text{eval}_i \quad \text{（所有智能体评估次数的总和）}
+    \end{equation}
+    其中 $\text{eval}_i$ 是智能体 $i$ 到目前为止执行的函数评估次数。
+    
+    \item \textbf{$h^{\text{penalty}}$}（平均惩罚适应度）：
+    \begin{equation}
+    h^{\text{penalty}} = \frac{1}{N}\sum_{i=1}^N h_i(x_{i,\text{con}}) = \frac{1}{N}\sum_{i=1}^N \left[f_i(x_{i,\text{con}}) + \alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})\right]
+    \end{equation}
+    其中 $x_{i,\text{con}}$ 是智能体 $i$ 的共识参考解（来自第9步）。
+    
+    \item \textbf{$f^{\text{pure}}$}（平均纯适应度）：
+    \begin{equation}
+    f^{\text{pure}} = \frac{1}{N}\sum_{i=1}^N f_i(x_{i,\text{con}})
+    \end{equation}
+    这是要最小化的\textbf{目标指标}（无惩罚项）。
+    
+    \item \textbf{penalty}（共识违反度量）：
+    \begin{equation}
+    \text{penalty} = h^{\text{penalty}} - f^{\text{pure}} = \frac{1}{N}\sum_{i=1}^N \left[\alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})\right]
+    \end{equation}
+    
+    \textbf{关键区别：惩罚项与惩罚值}
+    
+    \begin{itemize}
+        \item \textbf{惩罚项}（在第1步优化中使用）：
+        \begin{equation}
+        \text{智能体 } i \text{ 在粒子 } x \text{ 处的惩罚项}: \quad \alpha_i(t) \cdot \text{conflict}_i(x)
+        \end{equation}
+        这应用于PSO优化期间的\textbf{每个粒子}（第1步）：
+        \begin{equation}
+        h_i(x) = f_i(x) + \underbrace{\alpha_i(t) \cdot \text{conflict}_i(x)}_{\text{惩罚项}}
+        \end{equation}
+        
+        \item \textbf{惩罚值}（在第15步输出中报告）：
+        \begin{equation}
+        \text{penalty} = \frac{1}{N}\sum_{i=1}^N \left[\alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})\right]
+        \end{equation}
+        这是所有智能体的\textbf{平均惩罚项}，在\textbf{共识解} $x_{i,\text{con}}$ 处评估。
+        
+        \item \textbf{关键关系：}
+        \begin{itemize}
+            \item \textbf{惩罚项}（每智能体、每粒子）：$\alpha_i(t) \cdot \text{conflict}_i(x)$ - 在优化期间使用（第1步）
+            \item \textbf{惩罚值}（全局平均）：$\text{penalty} = \frac{1}{N}\sum_{i=1}^N [\alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})]$ - 在输出中报告（第15步）
+            \item \textbf{联系}：惩罚值 = 所有智能体的惩罚项在共识解 $x_{i,\text{con}}$ 处评估的平均值
+        \end{itemize}
+        
+        \item \textbf{它们为何不同：}
+        \begin{itemize}
+            \item 在优化期间（第1步），每个智能体为\textbf{多个粒子}（$M=300$个粒子）评估惩罚项
+            \item 在输出中（第15步），我们报告\textbf{单个共识解} $x_{i,\text{con}}$ 的惩罚值
+            \item 在收敛时：随着 $\text{conflict}_i \to 0$，惩罚项和惩罚值都趋近于零
+        \end{itemize}
+        
+        \item \textbf{数值示例：}
+        \begin{itemize}
+        \item 智能体1: $\alpha_1 = 0.002$, $\text{conflict}_1(x_{1,\text{con}}) = 0.05$ $\Rightarrow$ 惩罚项penalty term $= 0.002 \times 0.05 = 0.0001$
+            \item 智能体2: $\alpha_2 = 0.002$, $\text{conflict}_2(x_{2,\text{con}}) = 0.03$ $\Rightarrow$ 惩罚项 $= 0.002 \times 0.03 = 0.00006$
+            \item 惩罚值(输出) $= \frac{1}{2}(0.0001 + 0.00006) = 0.00008$
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{improvement}（相对适应度改进）：
+    \begin{equation}
+    \text{improvement}_t = \begin{cases}
+    \frac{f_{t-1}^{\text{pure}} - f_t^{\text{pure}}}{|f_{t-1}^{\text{pure}}|} & \text{if } |f_{t-1}^{\text{pure}}| > \epsilon \quad \text{（相对改进）} \\
+    0 & \text{otherwise （首次迭代或零适应度）}
+    \end{cases}
+    \end{equation}
+    其中 $\epsilon = 10^{-8}$ 防止除零。正值改进表示适应度降低（更优解）。
+    
+    \item \textbf{$r$}（RL奖励信号）：
+    \begin{equation}
+    r_t = \tanh\!\left(-\Delta\text{conflict}_{\text{rate}} \cdot \Delta f_{\text{pure,rate}} \cdot 100\right)
+    \end{equation}
+    这与第13步计算的奖励相同，用于第14步的RL训练。
+    
+    \item \textbf{conflict}（平均冲突度量）：
+    \begin{equation}
+    \text{conflict} = \frac{1}{N}\sum_{i=1}^N \text{conflict}_i(x_{i,\text{best}})
+    \end{equation}
+    其中 $\text{conflict}_i(x_{i,\text{best}})$ 在第3步计算：
+    \begin{equation}
+    \text{conflict}_i(x_{i,\text{best}}) = \sum_{d \in \theta_i} \frac{|x_{i,\text{best}}^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}
+    \end{equation}
+    注意：这里使用 $x_{i,\text{best}}$（局部最优，来自第2步），而非 $x_{i,\text{con}}$（共识参考）。
+    
+    \textbf{典型值：}
+    \begin{itemize}
+        \item 早期迭代：$\text{conflict} \approx 50 \sim 150$（高度不一致）
+        \item 中期：$\text{conflict} \approx 5 \sim 20$（部分共识）
+        \item 后期：$\text{conflict} \to 0$（收敛到共识）
+    \end{itemize}
+    
+    \item \textbf{weight}（全体智能体惩罚系数总和）：
+    \begin{equation}
+    \text{weight} = \sum_{i=1}^{N} \alpha_i(t)
+    \end{equation}
+
+    \item \textbf{$\alpha_{\text{avg}}$、$\alpha_{\text{rank0}}$、$\alpha_{\min}$、$\alpha_{\max}$}：
+    \begin{align}
+    \alpha_{\text{avg}} &= \frac{1}{N}\sum_{i=1}^{N}\alpha_i(t), \\
+    \alpha_{\text{rank0}} &= \alpha_{\text{rank}=0}(t), \\
+    \alpha_{\min} &= \min_i \alpha_i(t), \\
+    \alpha_{\max} &= \max_i \alpha_i(t).
+    \end{align}
+    其中 $\alpha_i(t)$ 由第14步更新：
+    \begin{align}
+    \text{ratio}_i(t+1) &= \text{clip}(\text{ratio}_i(t) + a_t \times 0.1, 0.1, 2.0), \\
+    \alpha_i(t+1) &= \text{base\_alpha} \times \text{ratio}_i(t+1),\quad \text{base\_alpha}=|f|/512.
+    \end{align}
+\end{enumerate}
+
+\textbf{所有输出值的汇总表：}
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{字段} & \textbf{公式} & \textbf{来源步骤} \\
+\hline
+iter & $t$ & 计数器 \\
+\hline
+eval & $\sum_{i=1}^N \text{eval}_i$ & 累积评估次数 \\
+\hline
+$h^{\text{penalty}}$ & $\frac{1}{N}\sum_{i=1}^N h_i(x_{i,\text{con}})$ & 第11步 \\
+\hline
+$f^{\text{pure}}$ & $\frac{1}{N}\sum_{i=1}^N f_i(x_{i,\text{con}})$ & 第11步 \\
+\hline
+penalty & $\frac{1}{N}\sum_{i=1}^N [\alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})]$ & 第11步（推导） \\
+\hline
+improvement & $\frac{f_{t-1}^{\text{pure}} - f_t^{\text{pure}}}{|f_{t-1}^{\text{pure}}|}$ & 第12步 \\
+\hline
+$r$ & $\tanh\!\left(-\Delta\text{conflict}_{\text{rate}} \cdot \Delta f_{\text{pure,rate}} \cdot 100\right)$ & 第13步 \\
+\hline
+conflict & $\frac{1}{N}\sum_{i=1}^N \text{conflict}_i(x_{i,\text{best}})$ & 第3步（平均） \\
+\hline
+weight & $\sum_{i=1}^N \alpha_i(t)$ & 第14步 + MPI聚合 \\
+\hline
+$\alpha_{\text{avg}}$ & $\frac{1}{N}\sum_{i=1}^N \alpha_i(t)$ & 第14步 + MPI聚合 \\
+\hline
+$\alpha_{\text{rank0}}$ & $\alpha_{\text{rank}=0}(t)$ & 第14步 \\
+\hline
+$\alpha_{\min}$ & $\min_i \alpha_i(t)$ & 第14步 + MPI聚合 \\
+\hline
+$\alpha_{\max}$ & $\max_i \alpha_i(t)$ & 第14步 + MPI聚合 \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{重要观察：}
+\begin{itemize}
+    \item \textbf{penalty} 和 \textbf{conflict} 不同：
+    \begin{itemize}
+        \item \textbf{conflict}：使用 $x_{i,\text{best}}$（局部最优），度量共识前的分歧
+        \item \textbf{penalty}：使用 $x_{i,\text{con}}$（共识参考），度量共识后的剩余违反
+    \end{itemize}
+    \item 在收敛时：$\text{conflict} \to 0$ 且 $\text{penalty} \to 0$，且 $h^{\text{penalty}} = f^{\text{pure}}$
+    \item \textbf{惩罚值}（输出）是共识解处评估的惩罚项的平均值，而非优化期间使用的惩罚项
+\end{itemize}
+\subsection{无稀释保证（理论性）}
+
+在收敛时，达成共识且惩罚适应度等于纯适应度：
+\begin{equation}
+x_{i,\text{con}}^{*,d} = x_{j,\text{con}}^{*,d}, \forall d \in \theta_i \cap O_j \Rightarrow \text{conflict}_i = 0 \Rightarrow h_i(x_i^*) = f_i(x_i^*)
+\end{equation}
+
+\textbf{证明概要：}
+\begin{align}
+\text{在收敛时： } & x_{i,\text{con}}^{*,d} = x_{j,\text{con}}^{*,d}, \forall d \in \theta_i \cap O_j \\
+\Rightarrow & \text{conflict}_i(x_{i,\text{con}}^*) = \sum_{d \in \theta_i} \frac{|x_{i,\text{con}}^{*,d} - x_{i,\text{con}}^{*,d}|}{x_{\max} - x_{\min}} = 0 \\
+\Rightarrow & h_i(x_i^*) = f_i(x_i^*) + \alpha_i(t) \cdot 0 = f_i(x_i^*) \\
+\Rightarrow & h^{\text{penalty}} = \frac{1}{N}\sum_{i=1}^N h_i(x_i^*) = \frac{1}{N}\sum_{i=1}^N f_i(x_i^*) = f^{\text{pure}} \\
+\Rightarrow & F(x^*) = \sum_{i=1}^N f_i(x_i^*) = N \cdot f^{\text{pure}}
+\end{align}
+
+\textbf{实际意义：} 所报告的$f^{\text{pure}}$是全局目标$F(x)$除以$N$的有效评估，不存在来自惩罚项的人为膨胀。
+
+\section{扩展功能实现状态说明（按当前代码）}
+\textbf{说明：} 本节是伪代码后面的详细解释，内容已按当前实现更新。
+
+\subsection{总体执行框架（与流程图和伪代码一致）}
+\begin{enumerate}
+    \item \textbf{局部优化阶段（Step 1-2）}：每轮先进行若干代局部优化，再提取局部最优解 $x_{i,\text{best}}$。
+    \item \textbf{冲突评估与门控（Step 3-4）}：先计算冲突指数，再通过三层门控决定是否进入通信分支。
+    \item \textbf{协商分支（Step 5-8）}：触发通信时执行“交换解 $\rightarrow$ 纳什判定 $\rightarrow$ 双侧扰动一致性检测”；否则跳过协商并沿用局部最优。
+    \item \textbf{重评与全局统计（Step 9-11）}：更新共识参考后重评种群，分别统计带惩罚与纯目标两条全局指标。
+    \item \textbf{RL自适应更新（Step 12-14）}：以最终奖励信号更新策略，先更新 ratio，再映射到 $\alpha$。
+    \item \textbf{日志与终止（Step 15-16）}：输出完整监控字段，达到评估上限后结束。
+\end{enumerate}
+
+\subsection{通信门控的详细机制（三层，当前启用）}
+\textbf{当前实现是三层门控，而非两层简化版本。}
+
+\textbf{层1：最小间隔约束}
+\begin{equation}
+\text{iter}_{\text{current}} - \text{iter}_{\text{last\_comm}} \ge T_{\min}, \quad T_{\min}=10
+\end{equation}
+含义：防止高频通信导致抖动和额外开销。
+
+\textbf{层2：冲突阈值约束}
+\begin{equation}
+\text{CI}_{\text{current}} > \tau_{\text{adaptive}}
+\end{equation}
+其中 $\tau_{\text{adaptive}}$ 会随近期通信收益与冲突水平进行平滑调整。
+
+\textbf{层3：阶段频率采样}
+\begin{equation}
+u \sim \mathcal{U}(0,1), \quad u < f_{\text{phase}}
+\end{equation}
+其中 $f_{\text{phase}}$ 由收敛阶段决定（早期更高，后期更低）。
+
+\textbf{最终触发条件}
+\begin{equation}
+\text{do\_comm} = \text{cond}_1 \land \text{cond}_2 \land \text{cond}_3
+\end{equation}
+并通过全局归并逻辑得到本轮统一通信决策。
+
+\subsection{收敛阶段自适应（当前启用）}
+阶段由迭代进程与近期改进幅度共同驱动：
+\begin{equation}
+\text{Phase} = \begin{cases}
+\text{EARLY} & \text{探索为主} \\
+\text{MID} & \text{探索与利用平衡} \\
+\text{LATE} & \text{稳定收敛}
+\end{cases}
+\end{equation}
+
+\textbf{阶段对应通信频率（基础值）}
+\begin{equation}
+f_{\text{phase}} = \begin{cases}
+0.6 & \text{EARLY}\\
+0.3 & \text{MID}\\
+0.15 & \text{LATE}
+\end{cases}
+\end{equation}
+
+\textbf{直接效果：}
+\begin{itemize}
+    \item 早期更积极通信，提升全局协调速度。
+    \item 中后期逐步降低通信频率，减少无效协商与震荡。
+    \item 阶段切换由运行状态自动驱动，无需手工调节。
+\end{itemize}
+
+\subsection{协商分支中的冲突检测（当前启用）}
+\textbf{当前实现使用双侧扰动符号一致性检测。}
+
+对共享维度 $d$ 计算两侧扰动响应：
+\begin{align}
+g_i^+(d) &= f_i(x+\delta e_d)-f_i(x), \\
+g_i^-(d) &= f_i(x-\delta e_d)-f_i(x).
+\end{align}
+若双方正向和负向符号均一致，则该维度视为“方向一致、冲突较弱”，该维度协商可关闭：
+\begin{equation}
+(g_i^+g_j^+>0)\land(g_i^-g_j^->0)\Rightarrow \text{switch}(d)=0
+\end{equation}
+否则保留协商结果。
+
+\textbf{含义：}
+\begin{itemize}
+    \item 只在真正有分歧的维度上继续协调。
+    \item 减少不必要的维度级通信与更新。
+\end{itemize}
+
+\subsection{变量重要性筛选模块（已实现，当前未接入主循环）}
+\textbf{当前状态：} 该模块具备完整逻辑，但默认主流程未启用“筛选后再协商”。
+
+\textbf{模块能力：}
+\begin{itemize}
+    \item 为共享变量维护重要性分数并动态更新。
+    \item 按比例选择高重要性变量进入协商。
+    \item 比例可按阶段变化（早期高、后期低）。
+\end{itemize}
+
+\textbf{为什么默认未接入：}
+\begin{itemize}
+    \item 当前主流程已通过三层门控和维度开关显著控制开销。
+    \item 先保持主干稳定，再按实验需要决定是否引入额外筛选层。
+\end{itemize}
+
+\subsection{RL更新链路的详细说明（与当前实现一致）}
+\textbf{第1步：设置基准惩罚强度}
+\begin{equation}
+\text{base\_alpha} = \frac{|f|}{512}
+\end{equation}
+
+\textbf{第2步：策略网络输出动作}
+\begin{equation}
+a_t=\tanh(Ws_t+b), \quad s_t=[S_1,S_2]^T
+\end{equation}
+
+\textbf{第3步：更新比例系数}
+\begin{equation}
+\text{ratio}_{t+1}=\text{clip}(\text{ratio}_t+0.1a_t,\,0.1,\,2.0)
+\end{equation}
+
+\textbf{第4步：映射到惩罚系数}
+\begin{equation}
+\alpha_{t+1}=\text{base\_alpha}\cdot\text{ratio}_{t+1}
+\end{equation}
+
+\textbf{第5步：最终奖励信号}
+\begin{equation}
+r_t=\tanh\!\left(-\Delta\text{conflict}_{\text{rate}}\cdot\Delta f_{\text{pure,rate}}\cdot100\right)
+\end{equation}
+
+\textbf{链路含义：}
+\begin{itemize}
+    \item \textbf{base\_alpha} 负责尺度对齐（随目标量级变化）。
+    \item \textbf{ratio} 负责策略自适应（在固定安全边界内调节）。
+    \item 二者乘积保证“可解释 + 可学习”的动态惩罚强度。
+\end{itemize}
+
+\subsection{输出字段的解释（当前日志格式）}
+主进程记录以下核心字段：
+\begin{equation}
+(\text{iter},\text{eval},f_{\text{penalty}},f_{\text{pure}},\text{penalty},\text{improvement},r,\text{conflict},\text{weight},\alpha_{\text{avg}},\alpha_{\text{rank0}},\alpha_{\min},\alpha_{\max})
+\end{equation}
+
+\textbf{关于多种 $\alpha$ 指标：}
+\begin{align}
+\text{weight} &= \sum_{i=1}^{N}\alpha_i, \\
+\alpha_{\text{avg}} &= \frac{1}{N}\sum_{i=1}^{N}\alpha_i, \\
+\alpha_{\min} &= \min_i \alpha_i, \\
+\alpha_{\max} &= \max_i \alpha_i.
+\end{align}
+
+\textbf{意义：}
+\begin{itemize}
+    \item 同时观察“总强度、均值、离散范围”，可快速判断多智能体惩罚是否失衡。
+    \item 与仅看单一 $\alpha$ 相比，更有利于诊断训练稳定性。
+\end{itemize}
+
+\subsection{本节小结}
+\begin{itemize}
+    \item 伪代码后的详细解释已恢复，并与当前实现对齐。
+    \item 当前默认主线：三层门控 + 纳什协商 + 双侧扰动检测 + ratio映射更新。
+    \item 变量重要性筛选属于“已实现、可扩展”能力，不是当前默认主线。
+\end{itemize}
+
+
+\end{document}

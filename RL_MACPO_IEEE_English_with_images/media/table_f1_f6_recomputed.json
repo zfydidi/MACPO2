@@ -1,0 +1,191 @@
+{
+  "sources": {
+    "MACPO_LLSO": "/Users/zhangyingjie/Project/MACPO2/MACPO_original_output/LLSO_25runs",
+    "RL-MACPO_LLSO": "/Users/zhangyingjie/Project/MACPO2/ablation_experiments/Exp4_Variable_Selection/MACPO2_WithSelection_0.9_0.7_0.5/output",
+    "MACPO_CSO": "/Users/zhangyingjie/Project/MACPO2/ablation_experiments/results/CSO_25runs/MACPO_baseline",
+    "RL-MACPO_CSO": "/Users/zhangyingjie/Project/MACPO2/ablation_experiments/results/CSO_25runs/Full",
+    "metric": "f_pure (last logged row per run)"
+  },
+  "functions": {
+    "F1": {
+      "LLSO": {
+        "MACPO": {
+          "mean": 19824000.0,
+          "median": 20000000.0,
+          "std": 1706429.0199126361,
+          "n": 25.0
+        },
+        "RL-MACPO": {
+          "mean": 6430780.0,
+          "median": 6481100.0,
+          "std": 352112.5826114899,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO": {
+          "mean": 23260000.0,
+          "median": 22400000.0,
+          "std": 2981470.554385313,
+          "n": 25.0
+        },
+        "RL-MACPO": {
+          "mean": 12516000.0,
+          "median": 12700000.0,
+          "std": 626285.3449772982,
+          "n": 25.0
+        }
+      }
+    },
+    "F2": {
+      "LLSO": {
+        "MACPO": {
+          "mean": 50504.0,
+          "median": 48300.0,
+          "std": 6226.320475743813,
+          "n": 25.0
+        },
+        "RL-MACPO": {
+          "mean": 3320.7599999999993,
+          "median": 3326.5,
+          "std": 133.12645304371327,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO": {
+          "mean": 69500.0,
+          "median": 68100.0,
+          "std": 5903.106526793046,
+          "n": 25.0
+        },
+        "RL-MACPO": {
+          "mean": 9111.6,
+          "median": 9090.0,
+          "std": 806.3326443430982,
+          "n": 25.0
+        }
+      }
+    },
+    "F3": {
+      "LLSO": {
+        "MACPO": {
+          "mean": 4025600000.0,
+          "median": 4050000000.0,
+          "std": 478740361.0866054,
+          "n": 25.0
+        },
+        "RL-MACPO": {
+          "mean": 635.2575999999999,
+          "median": 631.81,
+          "std": 31.16668724776505,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO": {
+          "mean": 1509600000.0,
+          "median": 1510000000.0,
+          "std": 85706864.75811997,
+          "n": 25.0
+        },
+        "RL-MACPO": {
+          "mean": 670.44,
+          "median": 645.0,
+          "std": 262.73102215003087,
+          "n": 25.0
+        }
+      }
+    },
+    "F4": {
+      "LLSO": {
+        "MACPO": {
+          "mean": 3167600.0,
+          "median": 3140000.0,
+          "std": 358565.19630326645,
+          "n": 25.0
+        },
+        "RL-MACPO": {
+          "mean": 2575472.0,
+          "median": 2611700.0,
+          "std": 129074.35363644734,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO": {
+          "mean": 7296000.0,
+          "median": 7160000.0,
+          "std": 753259.5834106593,
+          "n": 25.0
+        },
+        "RL-MACPO": {
+          "mean": 5802400.0,
+          "median": 5800000.0,
+          "std": 382015.27020090003,
+          "n": 25.0
+        }
+      }
+    },
+    "F5": {
+      "LLSO": {
+        "MACPO": {
+          "mean": 196520000.0,
+          "median": 198000000.0,
+          "std": 39098294.93298482,
+          "n": 25.0
+        },
+        "RL-MACPO": {
+          "mean": 3497824.0,
+          "median": 3522300.0,
+          "std": 140061.62715033692,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO": {
+          "mean": 24968000.0,
+          "median": 25000000.0,
+          "std": 1746596.690710251,
+          "n": 25.0
+        },
+        "RL-MACPO": {
+          "mean": 6606800.0,
+          "median": 6660000.0,
+          "std": 502068.3884359447,
+          "n": 25.0
+        }
+      }
+    },
+    "F6": {
+      "LLSO": {
+        "MACPO": {
+          "mean": 161762000.0,
+          "median": 50400000.0,
+          "std": 219564828.18293098,
+          "n": 25.0
+        },
+        "RL-MACPO": {
+          "mean": 2472.492,
+          "median": 2465.5,
+          "std": 102.31754460176091,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO": {
+          "mean": 3397880.0,
+          "median": 651000.0,
+          "std": 6804596.377449584,
+          "n": 25.0
+        },
+        "RL-MACPO": {
+          "mean": 5560.4,
+          "median": 5200.0,
+          "std": 977.750308957592,
+          "n": 25.0
+        }
+      }
+    }
+  }
+}

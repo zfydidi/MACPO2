@@ -1,0 +1,55 @@
+runs_dir=/Users/zhangyingjie/Project/MACPO2/output/RL-output_runs25_rho
+functions=F1 F2 F3 F4 F5 F6
+n_bins=5
+layout_ncols=3
+
+Quantile bins: equal count on pooled conflict; Q1 = lowest conflict, Q5 = highest.
+
+F1 conflict range per bin (scientific):
+  Q1: [2.3072e-03, 9.4496e-03]
+  Q2: [9.4790e-03, 1.0280e-02]
+  Q3: [1.0283e-02, 1.0604e-02]
+  Q4: [1.0604e-02, 1.0992e-02]
+  Q5: [1.0994e-02, 1.1971e-02]
+
+F2 conflict range per bin (scientific):
+  Q1: [3.0534e-03, 1.1392e-02]
+  Q2: [1.1422e-02, 1.2281e-02]
+  Q3: [1.2288e-02, 1.2846e-02]
+  Q4: [1.2848e-02, 1.3287e-02]
+  Q5: [1.3289e-02, 1.4649e-02]
+
+F3 conflict range per bin (scientific):
+  Q1: [3.8575e-03, 1.3568e-02]
+  Q2: [1.3571e-02, 1.3718e-02]
+  Q3: [1.3719e-02, 1.3775e-02]
+  Q4: [1.3775e-02, 1.3857e-02]
+  Q5: [1.3858e-02, 1.3897e-02]
+
+F4 conflict range per bin (scientific):
+  Q1: [2.5857e-03, 9.4176e-03]
+  Q2: [9.4204e-03, 9.8610e-03]
+  Q3: [9.8638e-03, 1.0088e-02]
+  Q4: [1.0089e-02, 1.0425e-02]
+  Q5: [1.0426e-02, 1.1373e-02]
+
+F5 conflict range per bin (scientific):
+  Q1: [3.0426e-03, 1.1046e-02]
+  Q2: [1.1047e-02, 1.1700e-02]
+  Q3: [1.1703e-02, 1.2081e-02]
+  Q4: [1.2082e-02, 1.2349e-02]
+  Q5: [1.2350e-02, 1.3856e-02]
+
+F6 conflict range per bin (scientific):
+  Q1: [3.0324e-03, 1.0797e-02]
+  Q2: [1.0800e-02, 1.1404e-02]
+  Q3: [1.1404e-02, 1.1869e-02]
+  Q4: [1.1870e-02, 1.2352e-02]
+  Q5: [1.2358e-02, 1.3249e-02]
+
+F1: Spearman rho = -0.6976 (n_pts=600)
+F2: Spearman rho = -0.7076 (n_pts=600)
+F3: Spearman rho = -0.6276 (n_pts=600)
+F4: Spearman rho = -0.6423 (n_pts=600)
+F5: Spearman rho = -0.4021 (n_pts=600)
+F6: Spearman rho = -0.6410 (n_pts=600)

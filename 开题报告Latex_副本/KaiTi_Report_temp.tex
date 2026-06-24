@@ -1,0 +1,38 @@
+% !TEX TS-program = xelatex
+
+\documentclass[12pt,openany]{gdu}
+
+
+% 居中列定义（你原来就在用）
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+\definecolor{winered}{RGB}{128,0,32}
+
+\begin{document}
+\CTitle{ }                      %学位论文题目
+\StudentNumber{ }   % 学号
+\Cmajor{ }                    % 所学学科(专业)
+\JointDate{ }                 %入学年月
+\college{ }                      %所属学院名称
+\Csupervisor{ }             %指导教师姓名
+
+% 封面页
+\input{Sections/cover}
+
+% 信息页
+\input{Sections/information}
+
+% 选题依据
+\input{Sections/XuanTiyiju}
+
+% 课题研究目标
+\input{Sections/CourseTarget}
+
+% 研究方法
+\input{Sections/Methodology}
+
+% 导师意见
+\input{Sections/SupervisorSuggestion}
+\end{document}
+
+

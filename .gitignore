@@ -17,3 +17,6 @@ __pycache__/
 
 *.docx
 *.pdfA
+
+# 局域网分发机密（含密码）
+scripts/lan_hosts.local.tsv

@@ -1,0 +1,545 @@
+#include <float.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+
+#include <ctime>
+#include <iomanip>
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <random>
+#include <sstream>
+#include <vector>
+#include <unistd.h>
+#include <mpi.h>
+
+#include "./Benchmarks/Benchmarks.h"
+#include "./components/optimizer.h"
+#include "./components/evaluator.h"
+#include "./components/competition.h"
+#include "./components/sharing.h"
+
+
+using namespace std;
+
+/**
+ * @brief 获取当前时间（毫秒）
+ *
+ * 该函数通过调用`gettimeofday`获取当前系统时间，并将其转换为毫秒。
+ *
+ * @return 当前时间的毫秒表示
+ */
+// 获取当前时间（毫秒）
+long getCurrentTime()
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec * 1000 + tv.tv_usec / 1000;// 转换为毫秒
+}
+
+
+/**
+ * @brief 计算全局平均值
+ *
+ * 该函数用于计算所有邻居的平均值，基于局部计算的值进行全局同步。
+ *
+ * @param value 当前进程的计算结果
+ * @param neighbor_id 邻居进程的ID列表
+ * @return 返回全局平均值
+ */
+// 声明全局平均值计算函数
+double global_average(double value, vector<int> neighbor_id);
+
+int main(int argc, char* argv[])
+{
+    // 记录程序开始时间
+    long start_time = getCurrentTime();
+
+    // 记录每一步的迭代次数和最佳适应度
+    std::vector<std::pair<int, double>> stepData;
+    // 记录当前时间，用于后续时间计算
+    std::time_t t2 = std::time(nullptr);
+
+    // MPI初始化相关变量
+    int myrank, nprocs, name;// myrank为当前进程号，nprocs为总进程数
+    char proc_name[MPI_MAX_PROCESSOR_NAME];
+
+    MPI_Init(&argc, &argv);// 初始化MPI环境
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);/// 获取总进程数
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);/// 获取当前进程的rank
+    MPI_Get_processor_name(proc_name, &name);/// 获取处理器名称
+    MPI_Status stat;/// MPI状态变量
+
+
+    // 定义算法的基本参数
+    //定义扰动系数，用于控制粒子群的扰动，根据Sec. III-D，distrub = theta(b-a) = 0.05% * 200 = 0.1
+    double distrub = 0.1; // according to Sec. III-D, distrub = theta(b-a) = 0.05% * 200 = 0.1
+
+    double gen_per_d = 0.4; // 每个维度的代数生成比例(生成率)，参考Sec. IV-A
+    // See Sec. IV-A
+    int eva_per_d = 3000; // 每个维度的评估次数，参考Sec. IV-D
+    // See Sec. IV-D
+    string exID = "ex03"; // 修改为与Python版本一致的实验ID
+    string method = "RL-MACPO"; // 修改方法名为RL-MACPO
+    string funcID = argv[argc - 1];// 从命令行参数获取函数 ID
+    string outDir = "./output/3000/LLSO/"; // 修改为与Python版本一致的输出目录
+
+    // 构建输出文件名
+    string filename = outDir + exID + "/" +exID+"_"+method+"_"+funcID+"_0.txt";
+
+    double initial_penalty = 1.0;  // 与Python版本一致的初始惩罚权重
+    double dynamic_weight = 512;
+    int swarm_size = 300;
+
+    // 添加全局适应度跟踪变量
+    double prev_global_fit = std::numeric_limits<double>::max();
+
+    //初始化随机引擎
+    srand(getCurrentTime());
+
+    // 创建目标函数的评估对象
+    Benchmarks *pFunc= new Benchmarks(funcID,0,true);
+    int dimension = pFunc->getDimension();// 获取目标问题的维度
+    vector<int> groupDim = pFunc->getGroupDim(myrank);// 获取当前进程的维度组
+    pFunc->max_eva_times = eva_per_d*groupDim.size();// 设置最大评估次数
+
+    //计算演化参数
+    int gen_times = groupDim.size()*gen_per_d;
+
+    // 初始化全局最优解数组
+    double *globalBest = new double[dimension];// 全局最优解的数组
+    memset(globalBest, 0, sizeof(double) * dimension);// 全局最优解初始化为 0
+
+    // 初始化变量开关和计算结果数组
+    int* variable_switch = new int[dimension];
+    int* compute_result = new int[dimension];
+    memset(variable_switch, 0, sizeof(int) * dimension);
+    memset(compute_result, 0, sizeof(int) * dimension);
+
+    //组件注册
+    evaluator *Evaluator = new RLPenaltyEvaluator(variable_switch, compute_result, dimension, globalBest, initial_penalty, pFunc, myrank);
+    optimizer *Optimizer = new optimizer_CSO(swarm_size, Evaluator, groupDim);
+    competition *Competition = new competition_variable_independent_2(pFunc,&(Optimizer->swarm),variable_switch);
+    sharing *Sharing =  new sharing_variable_wise(pFunc,((competition_variable_wise*)Competition)->compete_result);
+
+    // 初始化优化器
+    Optimizer->init();
+
+    //vector<int> v表示声明一个容器v,并且不给他预定存储空间.
+    vector<int> overlapDim;   // 重叠维度数组
+    //使用 vector<vector<int>> 来定义一个二维数组（向量的向量）外行内列
+    vector<vector<int>> overlapDimForEach;// 每个重叠维度的数组
+    vector<int> overlap_groups = pFunc->getOverlapGroup(myrank);// 获取重叠组
+    for(int i:overlap_groups){
+        vector<int> overlap = pFunc->getOverlapDim(myrank,i);// 获取每个重叠维度
+        //这个 insert 操作将一个向量 overlap 的所有元素插入到 overlapDim 的末尾
+        overlapDim.insert(overlapDim.end(),overlap.begin(),overlap.end());
+        overlapDimForEach.push_back(overlap);// 将重叠维度加入数组中
+    }
+
+    vector<int> commu_object= pFunc->getOverlapGroup(myrank);// 通信对象目标组
+
+    int iter = 0;// 迭代次数
+    double best_fitness = 0;// 定义全局最佳适应值
+
+    // 主评估循环
+    while (!pFunc->reachMaxEva())
+    {
+        int success = 0;// 成功次数
+        int gen_count = 0;// 迭代计数
+
+        // 进行多代优化
+        for(int gen=0;gen<gen_times;gen++)
+        {
+            Optimizer->generation(success);// 更新粒子群的参数
+            gen_count++;
+            if (pFunc->reachMaxEva())// 检查是否达到最大评估次数
+                break;              // 如果达到最大评估次数，则退出循环
+        }
+
+        //获取当前进程的局部最优参数
+        double *localBestPar = Optimizer->getBestPar();
+
+        // 计算当前解与全局最优解的冲突强度
+        double conflict_now = ((RLPenaltyEvaluator*)Evaluator)->calculate_conflict(localBestPar);
+
+        // 判断是否需要通信
+        bool should_communicate = ((RLPenaltyEvaluator*)Evaluator)->should_communicate(localBestPar);
+
+        // 在rank 0处记录RL相关信息
+        if (myrank == 0) {
+
+                        std::string dir = outDir + exID + "/";
+        system(("mkdir -p " + dir).c_str());
+        
+        ofstream outfile(filename, ios::app);
+        if(outfile.is_open()) {
+            outfile << "Iter " << iter << ": Conflict=" << conflict_now 
+                 << ", Weight=" << ((RLPenaltyEvaluator*)Evaluator)->get_alpha()
+                 << ", Communicate=" << should_communicate << endl;
+        }
+            cout << "Iter " << iter << ": Conflict=" << conflict_now 
+                 << ", Weight=" << ((RLPenaltyEvaluator*)Evaluator)->get_alpha()
+                 << ", Communicate=" << should_communicate << endl;
+        }
+
+        // 根据冲突强度决定是否进行通信
+        if (should_communicate) {
+            vector<double*> fitii,fitij;// 存储计算得到的适应值 fii 和 fij
+            vector<double*> neighborVec;// 存储邻居的最优解
+
+            /// \初始化 MPI 请求数组，用于异步通信
+            MPI_Request req[commu_object.size()];
+            MPI_Request req2[commu_object.size()];
+            MPI_Request req3[commu_object.size()];
+            MPI_Request req4[commu_object.size()];
+            MPI_Request req5[commu_object.size()];
+
+            int rank_index=0;
+
+            /// 1. 发送当前进程的局部最优解 localBestPar 给所有邻居进程
+            for (int rank : commu_object)
+            {
+                /// \向所有通信对象发送本地最优参数
+                MPI_Isend(localBestPar, dimension, MPI_DOUBLE, rank, 0, MPI_COMM_WORLD, &req[rank_index]);
+                rank_index++;
+            }
+
+            rank_index=0;
+
+            /// 2. 接收来自每个邻居的最优解
+            for (int rank : commu_object)
+            {   /// \从所有通信对象接收最优参数
+                double *neighbor = new double[dimension];
+                MPI_Recv(neighbor, dimension, MPI_DOUBLE, rank, 0, MPI_COMM_WORLD, &stat);
+                int hostID=myrank, neighborID=rank;
+                double* host = localBestPar;// 当前进程的局部最优解
+                double* gb = new double[pFunc->getDimension()];
+                // 初始化 gb 为当前进程的局部最优解
+                memcpy(gb,host,pFunc->getDimension()*sizeof(double));
+                if(hostID>neighborID){
+                    for(int d:overlapDimForEach[rank_index]){
+                        gb[d] = neighbor[d];
+                    }
+                }
+
+                /// 3. 计算在不替换共享变量的情况下的初始适应度 fit0
+                double localfit = pFunc->local_eva(gb,hostID);// 计算局部适应值
+                int len = overlapDimForEach[rank_index].size();// 重叠维度的大小
+                double* fij=new double[len]{0};// 初始化适应度矩阵 fij
+                double* fii=new double[len]{0};// 初始化适应度矩阵 fii
+
+                /// 4. 遍历共享变量集 L_i,j，对于每个共享变量执行竞争
+                for(int i=0;i<len;i++){
+                    int d = overlapDimForEach[rank_index][i];
+
+                    /// 5. 将 gb 中的第 d 维替换为邻居的共享变量值，得到新的测试解
+                    gb[d] = (hostID<neighborID)?neighbor[d]:host[d];
+
+                    /// 6. 计算替换后的适应度 newfit，并根据 hostID 和 neighborID 选择适应度值赋给 fii 和 fij
+                    double newfit = pFunc->local_eva(gb,hostID);
+                    fii[i] = (hostID<neighborID)?localfit:newfit;
+                    fij[i] = (hostID<neighborID)?newfit:localfit;
+
+                    /// 7. 将 gb 中的第 d 维还原为当前进程的值
+                    gb[d] = (hostID<neighborID)?host[d]:neighbor[d];
+                }
+
+                /// 发送适应度信息给邻居
+                MPI_Isend(fij,len,MPI_DOUBLE,rank,1,MPI_COMM_WORLD,&req2[rank_index]);// 发送fij
+                MPI_Isend(fii,len,MPI_DOUBLE,rank,2,MPI_COMM_WORLD,&req3[rank_index]);// 发送fii
+
+
+                // 将计算出的适应值 fii 和 fij 分别存入 fitii 和 fitij 数组中，便于后续处理
+                fitii.push_back(fii);
+                fitij.push_back(fij);
+                neighborVec.push_back(neighbor);// 存储邻居的最优解
+
+                rank_index ++;
+            }
+
+            // 初始化 fit1p 和 fit1n，用于存储扰动后的适应度值
+            vector<double*> fit1p,fit1n;
+            rank_index=0;
+
+            // 将当前节点的全局最优解初始化为其局部最优解
+            memcpy(globalBest, localBestPar, dimension * sizeof(double));
+
+            // 遍历通信对象（邻居节点）
+            for (int rank : commu_object)
+            {
+                // 获取当前邻居节点的重叠维度的大小
+                int len = overlapDimForEach[rank_index].size();
+
+                // 分配两个数组用于存储从邻居接收的适应度值
+                double *fji = new double[len];
+                double *fjj = new double[len];
+
+                /// \从邻居节点接收适应度值 fji 和 fjj
+                MPI_Recv(fji, len, MPI_DOUBLE, rank, 1, MPI_COMM_WORLD, &stat);
+                MPI_Recv(fjj, len, MPI_DOUBLE, rank, 2, MPI_COMM_WORLD, &stat);
+
+                // 获取当前节点的 ID
+                int hostID=myrank;
+
+                // 取出适应度评估结果的两个数组
+                double* fii = fitii[rank_index];
+                double* fij = fitij[rank_index];
+
+                // 遍历当前邻居的重叠维度，比较适应度结果并更新竞争结果
+                for(int i=0;i<len;i++){
+                    int d = overlapDimForEach[rank_index][i];
+
+                    // 如果当前节点和邻居的适应度组合在这个维度上优于邻居节点和当前节点的组合
+                    if(fii[i]+fji[i] > fij[i]+fjj[i]){// 如果fii和fji之和大于fij和fjj之和
+                        // 设置竞争结果为1，并更新全局最优解
+                        ((competition_variable_independent_2*)Competition)->compete_result[d]=1;
+                        globalBest[d] = neighborVec[rank_index][d];
+                    }
+                    else
+                        // 否则，设置竞争结果为0
+                        ((competition_variable_independent_2*)Competition)->compete_result[d]=0;
+                }
+
+                /// 执行共享操作，更新共享结果
+                int sharing_succ = 0;
+                Sharing->share(Optimizer->swarm, swarm_size, globalBest, myrank,rank,sharing_succ);
+
+                // 创建用于存储扰动适应度值的两个数组
+                double* f1p=new double[len];
+                double* f1n=new double[len];
+
+                // 遍历重叠维度，计算正负方向上的扰动适应度值
+                for(int i=0;i<len;i++){
+                    int d = overlapDimForEach[rank_index][i];
+
+                    double dt = distrub;// 扰动值
+                    // double dt = new_dt;
+                    double* gb=globalBest;
+
+                    // 计算当前全局最优解的适应度值
+                    double localfit = pFunc->local_eva(gb,myrank);
+
+                    // 确保当前维度最优值加上扰动值不超过设计变量的边界，并调整dt
+                    if(gb[d]+dt>=pFunc->getMaxX())// 增加dt后的新位置（梯度上升）
+                        dt = pFunc->getMaxX() - gb[d];// 计算适应度变化
+                    if(gb[d]-dt<=pFunc->getMinX())// 减少dt后的新位置（梯度下降）
+                        dt = gb[d] - pFunc->getMinX();// 计算适应度变化
+
+                    // 在正方向上扰动，计算适应度差值
+                    double ov = gb[d];// 保存原始值
+                    gb[d] = min(ov+dt, pFunc->getMaxX());
+                    f1p[i] = pFunc->local_eva(gb,hostID)-localfit;
+
+                    // 在负方向上扰动，计算适应度差值
+                    gb[d] = max(ov - dt, pFunc->getMinX());
+                    f1n[i] = pFunc->local_eva(gb,hostID)-localfit;
+
+                    // 恢复原始值
+                    gb[d] = ov;
+
+                }
+                /// \将扰动后的适应度结果发送给邻居节点
+                MPI_Isend(f1p,len,MPI_DOUBLE,rank,3,MPI_COMM_WORLD,&req4[rank_index]);
+                MPI_Isend(f1n,len,MPI_DOUBLE,rank,4,MPI_COMM_WORLD,&req5[rank_index]);
+
+                // 将扰动结果添加到 fit1p 和 fit1n 向量中，便于后续使用
+                fit1p.push_back(f1p);
+                fit1n.push_back(f1n);
+
+                rank_index ++;
+            }
+
+            // 再次遍历邻居节点，接收邻居的扰动适应度结果并进行冲突检测
+            rank_index=0;
+            for (int rank : commu_object)
+            {
+                int len = overlapDimForEach[rank_index].size();
+
+                // 分配两个数组用于存储从邻居接收的扰动适应度结果
+                double *f2p = new double[len];
+                double *f2n = new double[len];
+
+                /// \从邻居节点接收正负方向上的扰动适应度值
+                MPI_Recv(f2p, len, MPI_DOUBLE, rank, 3, MPI_COMM_WORLD, &stat);
+                MPI_Recv(f2n, len, MPI_DOUBLE, rank, 4, MPI_COMM_WORLD, &stat);
+
+                // 获取当前节点存储的扰动适应度结果
+                double* f1p = fit1p[rank_index];
+                double* f1n = fit1n[rank_index];
+
+                // 遍历重叠维度，根据扰动适应度结果判断是否存在冲突
+                for(int i=0;i<len;i++){
+                    int d = overlapDimForEach[rank_index][i];
+                    // 检查扰动方向上的适应度变化是否一致
+                    // 如果正负方向上的扰动结果符号相同，则认为无冲突
+                    if( f1p[i]*f2p[i] > 0 && f1n[i]*f2n[i]>0){
+                        ((competition_variable_independent_2*)Competition)->variable_switch[d] = 0;
+                    }else{
+                        // 否则，根据竞争结果决定是否进行变量切换
+                        ((competition_variable_independent_2*)Competition)->variable_switch[d] = ((competition_variable_independent_2*)Competition)->compete_result[d];
+                    }
+                }
+                rank_index ++;
+            }
+
+            // 等待所有异步通信完成
+            MPI_Status Istats[commu_object.size()];
+            MPI_Waitall(commu_object.size(), req, Istats);
+            MPI_Waitall(commu_object.size(), req2, Istats);
+            MPI_Waitall(commu_object.size(), req3, Istats);
+            MPI_Waitall(commu_object.size(), req4, Istats);
+            MPI_Waitall(commu_object.size(), req5, Istats);
+        } else {
+            // 如果跳过通信，直接使用本地最优解
+            memcpy(globalBest, localBestPar, dimension * sizeof(double));
+        }
+
+        // 在评估器中更新全局最优解
+        ((RLPenaltyEvaluator*)Evaluator)->set_global_best(globalBest);
+
+        // 重新评估群体并排序
+        Evaluator->total_evaluate(Optimizer->swarm);
+        sort(Optimizer->swarm.begin(),Optimizer->swarm.end(),cmp_unit_pointer);
+        ((optimizer_LLSO*)Optimizer)->bestFit = Optimizer->swarm[0]->fitness;
+
+        // 计算当前节点的适应度值并同步全局适应度
+        double local_fit = Evaluator->evaluate(globalBest);
+        double global_fit = global_average(local_fit, commu_object) * nprocs;
+
+        // 计算奖励并更新RL策略
+        if (iter > 0) {  // 从第二轮开始更新策略
+            // 计算全局适应度改进作为奖励
+            double reward = std::max(0.0, prev_global_fit - global_fit);  // 确保奖励非负
+
+            // 使用负对数转换增强梯度 - 与Python版本一致
+            double reward_transformed = -std::log(std::abs(global_fit) + 1e-10);
+
+            // 更新RL策略
+            ((RLPenaltyEvaluator*)Evaluator)->update_rl_weight(localBestPar, reward_transformed);
+
+            if (myrank == 0) {
+        
+                 ofstream outfile(filename, ios::app);
+        if(outfile.is_open()) {
+            outfile << "Iter " << iter << ": Old fit=" << std::scientific << prev_global_fit 
+                     << ", New fit=" << global_fit 
+                     << ", Reward=" << std::fixed << reward_transformed << endl;
+        }
+                
+                cout << "Iter " << iter << ": Old fit=" << std::scientific << prev_global_fit 
+                     << ", New fit=" << global_fit 
+                     << ", Reward=" << std::fixed << reward_transformed << endl;
+            }
+        }
+
+        prev_global_fit = global_fit;
+
+        //判断是否结束
+        // 判断是否达到最大评估次数，如果任意节点达到，则退出循环
+        double reach_max_eva = pFunc->reachMaxEva() ? 1.0 : 0.0;
+        double if_any_reach_max_eva = global_average(reach_max_eva, commu_object);
+        if(if_any_reach_max_eva > 0){
+            break;
+        }
+
+        // 在rank 0处输出进度信息
+        if (myrank == 0) {
+        
+        ofstream outfile(filename, ios::app);
+        if(outfile.is_open()) {
+            outfile << pFunc->eva_count << ", " << std::scientific << global_fit 
+                 << ", " << std::fixed << ((RLPenaltyEvaluator*)Evaluator)->get_alpha() 
+                 << ", " << conflict_now << endl;
+            outfile.close();
+        }
+
+            cout << pFunc->eva_count << ", " << std::scientific << global_fit 
+                 << ", " << std::fixed << ((RLPenaltyEvaluator*)Evaluator)->get_alpha() 
+                 << ", " << conflict_now << endl;
+        }
+
+        iter ++;
+    }
+
+    /// \结束 MPI 进程
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    // 计算总运行时间（毫秒）
+    long end_time = getCurrentTime();
+    long total_time = end_time - start_time;
+    
+    // 将运行时间写入到输出文件
+    if(myrank == 0) {
+        // 确保输出目录存在
+        std::string dir = outDir + exID + "/";
+        system(("mkdir -p " + dir).c_str());
+        
+        ofstream outfile(filename, ios::app);
+        if(outfile.is_open()) {
+            outfile << pFunc->eva_count << ", " << std::scientific << prev_global_fit << endl;
+            outfile.close();
+        }
+        
+        cout << "Final result: iterations=" << iter 
+             << ", evals=" << pFunc->eva_count 
+             << ", final fitness=" << std::scientific << prev_global_fit << endl;
+    }
+    
+    MPI_Finalize();
+}
+
+/**
+ * @brief 计算全局平均值
+ *
+ * 该函数通过多轮迭代计算当前节点与其邻居节点的全局平均值，使用MPI进行通信。
+ * 每个节点会将自己的值发送给所有邻居，并接收邻居节点的值来更新自身的全局平均值。
+ *
+ * @param value 当前节点的值
+ * @param neighbor_id 邻居节点的ID列表
+ *
+ * @return double 计算出的全局平均值
+ */
+// 计算全局平均值
+double global_average(double value, vector<int> neighbor_id){
+    MPI_Status stat;
+    double gval = value; // Initialize global value with the input value
+    int nei_num = neighbor_id.size(); // Get number of neighbors
+    int rounds = 20; // Number of rounds for averaging
+
+    // If no neighbors, return original value
+    if (nei_num == 0) {
+        return gval;
+    }
+
+    for(int i=0; i<rounds; i++){
+        MPI_Request req[neighbor_id.size()];
+
+        // Send current value to all neighbors
+        for (int rank_index = 0; rank_index < nei_num; rank_index++) {
+            MPI_Isend(&gval, 1, MPI_DOUBLE, neighbor_id[rank_index], 0, MPI_COMM_WORLD, &req[rank_index]);
+        }
+
+        double nval_sum = 0;
+
+        // Receive values from all neighbors
+        for (int rank_index = 0; rank_index < nei_num; rank_index++) {
+            double nval;
+            MPI_Recv(&nval, 1, MPI_DOUBLE, neighbor_id[rank_index], 0, MPI_COMM_WORLD, &stat);
+            nval_sum += nval;
+        }
+
+        // Update global value - same formula as in Python version
+        gval = (gval + nval_sum)/(nei_num+1);
+
+        // Wait for all sends to complete
+        MPI_Status Istats[neighbor_id.size()];
+        MPI_Waitall(neighbor_id.size(), req, Istats);
+    }
+
+    return gval;
+}

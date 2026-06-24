@@ -1,0 +1,110 @@
+[
+  {
+    "func": "F1",
+    "method": "Full",
+    "n": 10,
+    "comm_rate_mean": 0.208333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 31424793.63,
+    "final_fitness_std": 8224781.297636143
+  },
+  {
+    "func": "F1",
+    "method": "PeriodicK2",
+    "n": 10,
+    "comm_rate_mean": 0.5,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 16578367.97,
+    "final_fitness_std": 1431994.400792646
+  },
+  {
+    "func": "F1",
+    "method": "PeriodicK3",
+    "n": 10,
+    "comm_rate_mean": 0.333333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 14342173.38,
+    "final_fitness_std": 3219941.4620029936
+  },
+  {
+    "func": "F1",
+    "method": "PeriodicK5",
+    "n": 10,
+    "comm_rate_mean": 0.208333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 13050921.44,
+    "final_fitness_std": 931736.1394846842
+  },
+  {
+    "func": "F2",
+    "method": "Full",
+    "n": 10,
+    "comm_rate_mean": 0.208333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 29061.04658,
+    "final_fitness_std": 2881.3569117086686
+  },
+  {
+    "func": "F2",
+    "method": "PeriodicK2",
+    "n": 10,
+    "comm_rate_mean": 0.5,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 30603.65574,
+    "final_fitness_std": 1562.6224793735003
+  },
+  {
+    "func": "F2",
+    "method": "PeriodicK3",
+    "n": 10,
+    "comm_rate_mean": 0.333333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 27025.82318,
+    "final_fitness_std": 1058.2088644102896
+  },
+  {
+    "func": "F2",
+    "method": "PeriodicK5",
+    "n": 10,
+    "comm_rate_mean": 0.208333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 24356.09597,
+    "final_fitness_std": 910.9350229753337
+  },
+  {
+    "func": "F5",
+    "method": "Full",
+    "n": 10,
+    "comm_rate_mean": 0.0833333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 167699239.14,
+    "final_fitness_std": 59720181.83813883
+  },
+  {
+    "func": "F5",
+    "method": "PeriodicK2",
+    "n": 10,
+    "comm_rate_mean": 0.5,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 161729117.1,
+    "final_fitness_std": 51744091.96190923
+  },
+  {
+    "func": "F5",
+    "method": "PeriodicK3",
+    "n": 10,
+    "comm_rate_mean": 0.333333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 30008914.58,
+    "final_fitness_std": 8154203.438077573
+  },
+  {
+    "func": "F5",
+    "method": "PeriodicK5",
+    "n": 10,
+    "comm_rate_mean": 0.208333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 25449428.24,
+    "final_fitness_std": 10693042.071219815
+  }
+]

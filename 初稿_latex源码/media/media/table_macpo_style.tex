@@ -1,0 +1,50 @@
+\begin{table}[htbp]
+\centering
+\caption{Comparison with MACPO (25 Runs, LLSO). Mean, median, std in separate rows. * significantly better than MACPO; \# significantly worse (Wilcoxon, $\alpha=0.05$).}
+\label{tab:macpo_style}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccc}
+\hline
+\textbf{Function} & \textbf{MACPO} & \textbf{RL Only} & \textbf{RL-MACPO} \\
+\hline
+\multicolumn{4}{l}{\textit{F1}} \\
+mean & 1.98E+7 & 2.07E+7 & 6.36E+6 \\
+median & 2.00E+7 & 2.07E+7 & 6.36E+6 \\
+std & 1.67E+6 & 3.49E+6 & 4.23E+5 \\
+p-value & - & 8.61e-01 & 7.03e-10* \\
+\hline
+\multicolumn{4}{l}{\textit{F2}} \\
+mean & 5.05E+4 & 4.76E+4 & 3.29E+3 \\
+median & 4.83E+4 & 4.76E+4 & 3.29E+3 \\
+std & 6.10E+3 & 9.43E+3 & 8.77E+2 \\
+p-value & - & 1.30e-01 & 7.07e-10* \\
+\hline
+\multicolumn{4}{l}{\textit{F3}} \\
+mean & 4.03E+9 & 5.89E+9 & 6.40E+2 \\
+median & 4.05E+9 & 5.89E+9 & 6.40E+2 \\
+std & 4.69E+8 & 6.95E+8 & 1.90E+2 \\
+p-value & - & 1.00e+00\# & 7.07e-10* \\
+\hline
+\multicolumn{4}{l}{\textit{F4}} \\
+mean & 3.17E+6 & 3.01E+6 & 2.59E+6 \\
+median & 3.14E+6 & 3.01E+6 & 2.59E+6 \\
+std & 3.51E+5 & 2.64E+5 & 1.66E+5 \\
+p-value & - & 6.03e-02 & 4.26e-08* \\
+\hline
+\multicolumn{4}{l}{\textit{F5}} \\
+mean & 1.97E+8 & 4.24E+8 & 3.44E+6 \\
+median & 1.98E+8 & 4.24E+8 & 3.44E+6 \\
+std & 3.83E+7 & 1.05E+8 & 2.71E+5 \\
+p-value & - & 1.00e+00\# & 7.08e-10* \\
+\hline
+\multicolumn{4}{l}{\textit{F6}} \\
+mean & 1.62E+8 & 1.61E+8 & 2.50E+3 \\
+median & 5.04E+7 & 1.50E+8 & 2.50E+3 \\
+std & 2.15E+8 & 1.26E+8 & 7.31E+2 \\
+p-value & - & 7.00e-01 & 7.08e-10* \\
+\hline
+w/t/l & - & 0/4/2 & 6/0/0 \\
+\hline
+\end{tabular}%
+}
+\end{table}

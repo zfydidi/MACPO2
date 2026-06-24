@@ -1,0 +1,646 @@
+\documentclass[12pt]{ctexart}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\setlength{\emergencystretch}{3em}
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen}
+\usepackage{bookmark}
+\usepackage{xurl}
+\urlstyle{same}
+\hypersetup{hidelinks,pdfcreator={LaTeX via pandoc}}
+\author{}
+\date{}
+
+\begin{document}
+
+目 录
+
+1 引言 \hyperref[ux5f15ux8a00]{3}
+
+\hyperref[ux76f8ux5173ux5de5ux4f5c]{2 相关工作
+\hyperref[ux76f8ux5173ux5de5ux4f5c]{4}}
+
+\hyperref[ux65b9ux6cd5-proposed-rl-macpo]{3 方法 (Proposed RL-MACPO)
+\hyperref[ux65b9ux6cd5-proposed-rl-macpo]{5}}
+
+\hyperref[ux6574ux4f53ux6846ux67b6-ux7b80ux8981ux4ecbux7ecdux4e09ux5927ux6539ux8fdbux673aux5236ux53caux5176ux5173ux7cfb]{3.1
+整体框架 (简要介绍三大改进机制及其关系)
+\hyperref[ux6574ux4f53ux6846ux67b6-ux7b80ux8981ux4ecbux7ecdux4e09ux5927ux6539ux8fdbux673aux5236ux53caux5176ux5173ux7cfb]{5}}
+
+\hyperref[ux57faux4e8eux5f3aux5316ux5b66ux4e60ux7684ux81eaux9002ux5e94ux60e9ux7f5aux6743ux91cdux8c03ux6574ux673aux5236-ux5982ux4f55ux52a8ux6001ux8c03ux6574ux60e9ux7f5aux5f3aux5ea6]{3.2
+基于强化学习的自适应惩罚权重调整机制 (如何动态调整惩罚强度)
+\hyperref[ux57faux4e8eux5f3aux5316ux5b66ux4e60ux7684ux81eaux9002ux5e94ux60e9ux7f5aux6743ux91cdux8c03ux6574ux673aux5236-ux5982ux4f55ux52a8ux6001ux8c03ux6574ux60e9ux7f5aux5f3aux5ea6]{6}}
+
+\hyperref[ux57faux4e8eux51b2ux7a81ux6307ux6570ux7684ux95e8ux63a7ux901aux4fe1ux673aux5236-ux51b3ux5b9aux4f55ux65f6ux8fdbux884cux534fux5546]{3.3
+基于冲突指数的门控通信机制 (决定何时进行协商)
+\hyperref[ux57faux4e8eux51b2ux7a81ux6307ux6570ux7684ux95e8ux63a7ux901aux4fe1ux673aux5236-ux51b3ux5b9aux4f55ux65f6ux8fdbux884cux534fux5546]{12}}
+
+\hyperref[ux667aux80fdux53d8ux91cfux7b5bux9009ux673aux5236-ux51b3ux5b9aux534fux5546ux54eaux4e9bux53d8ux91cf]{3.4
+智能变量筛选机制 (决定协商哪些变量)
+\hyperref[ux667aux80fdux53d8ux91cfux7b5bux9009ux673aux5236-ux51b3ux5b9aux534fux5546ux54eaux4e9bux53d8ux91cf]{14}}
+
+\hyperref[ux7b80ux5316ux51b2ux7a81ux68c0ux6d4bux4e0eux589eux5f3aux534fux5546ux673aux5236-ux5982ux4f55ux9ad8ux6548ux5730ux8fdbux884cux534fux5546]{3.5
+简化冲突检测与增强协商机制 (如何高效地进行协商)
+\hyperref[ux7b80ux5316ux51b2ux7a81ux68c0ux6d4bux4e0eux589eux5f3aux534fux5546ux673aux5236-ux5982ux4f55ux9ad8ux6548ux5730ux8fdbux884cux534fux5546]{16}}
+
+\textbf{\hfill\break
+}
+
+\subsection{引言}\label{ux5f15ux8a00}
+
+基于网络的分布式优化（Network-based Distributed Optimization,
+NDO）旨在解决一种典型的网络系统优化问题：在全局目标不可直接获取的情况下，多个
+agent
+只能依赖各自有限的局部信息共同优化系统性能。这里的局部信息通常指每个
+agent 或计算节点能够访问的局部目标函数，而全局目标只能通过多 agent
+的交互与协作间接实现。
+
+在分布式优化中，agent 的决策变量可分为两类：一类是共享变量，由多个 agent
+共同控制，例如无线传感器网络中的位置坐标、分布式学习中的模型参数等；另一类是私有变量，仅属于单个
+agent，例如电力系统中的节点电压或功率。许多实际问题同时包含共享与私有变量，例如交通网络中的流量优化、电力系统的潮流分布等，这类问题更能体现多
+agent 系统的异构性与复杂耦合特征。
+
+现有分布式优化方法大体可分为基于梯度的方法和无梯度的方法。前者依赖于目标函数的可微性，代表性算法包括分布式子梯度下降
+(DGD) 等；后者则不依赖梯度信息，典型方法如随机无梯度方法
+(RGFs)。与这两类方法相比，进化算法 (Evolutionary Computation, EC)
+不要求问题具备可微性或凸性，因此更适合处理黑箱与非凸优化问题，尤其是在并行分布式环境下。
+
+在这一背景下，我们研究的 NDO
+问题首次将共享变量与私有变量同时纳入黑箱和非凸分布式优化的框架。这种设定能够模拟多种现实场景，但也带来了新的挑战：共享变量会引发
+agent
+之间的冲突，通信和协作开销随网络规模急剧增加。因此，需要设计能够同时兼顾优化质量与计算成本的多
+agent 协同演化算法。
+
+然而，现有方法在应对 NDO 时仍存在明显不足。以多 agent
+协同演化的代表性方法 MACPO
+为例，该算法通过在局部评估中引入惩罚项来处理共享变量冲突，并在邻居间进行逐维协商以保证一致性。虽然这种机制在一定程度上提高了分布式优化的适应性，但它也存在三方面局限：其一，惩罚权重通常是固定设置的，缺乏动态调节能力；其二，协商阶段需要在所有共享变量上进行完整的双向扰动检测，计算开销随维度线性增加；其三，每轮迭代都必须触发通信，导致在大规模问题中通信负担显著。
+
+针对这些问题，本文提出了一种基于强化学习的改进算法（RL-MACPO）。该方法利用强化学习策略动态调整惩罚权重，并结合智能变量筛选、简化冲突检测和基于冲突指数的门控通信机制，在保证解质量的同时有效降低了评估与通信开销。实验结果表明，RL-MACPO
+在不同规模和不同冲突特性的基准函数上均表现出更强的适应性和计算效率。
+
+\subsection{相关工作}\label{ux76f8ux5173ux5de5ux4f5c}
+
+网络型分布式优化（Network-based Distributed Optimization,
+NDO）广泛存在于交通分配、电力调度、分布式状态估计等场景中。在 NDO
+中，系统由多个 agent 构成，每个 agent
+对应网络图中的一个节点，并拥有私有的局部目标函数。其决策变量既包括节点自身的私有变量，也包括连接边上的共享变量。全局目标函数是所有局部目标函数的总和，优化的关键在于：在仅依赖局部信息的条件下，通过相邻
+agent
+的交互与协作，获得全局最优或次优解。由于共享变量引入了强烈的耦合性，NDO
+的求解需要同时处理 agent
+间冲突和分布式通信开销，这区别于传统的集中式或并行优化问题。
+
+为解决这一挑战，Chen
+等人提出了基于惩罚目标的多智能体协同进化算法（MACPO）。在该框架中，每个
+agent
+维护一个子群体，在\textbf{局部优化阶段}利用带惩罚的目标函数演化自身解，在\textbf{协商阶段}通过通信与邻居交换候选解，并在评估、竞争、共享和冲突检测的多步交互中逐步达成共识。惩罚项的设计使得共享变量趋向于共识解，从而增强了全局一致性。MACPO
+还通过冲突检测机制自适应调整惩罚开关，在一定程度上缓解了不同子问题之间的目标冲突。
+
+尽管 MACPO 为 NDO
+提供了一个有效的解决方案，但仍存在若干局限。首先，惩罚权重在实现中往往采用静态或预设策略，难以根据动态冲突情况灵活调整。其次，协商阶段在所有共享变量上逐维进行完整的扰动和评估，导致计算开销随问题规模线性甚至超线性增加。再次，通信机制在每轮迭代中都会被触发，当网络规模扩大时，通信负担成为主要瓶颈。这些不足限制了
+MACPO 在高维、强冲突或大规模网络优化中的效率和扩展性。
+
+针对这些不足，本文提出了一种基于强化学习的改进框架（RL-MACPO）。该方法在延续
+MACPO
+局部优化与协商机制的基础上，做出了三方面改进：首先，引入强化学习机制动态调整惩罚权重，使其能够根据冲突程度自适应更新；其次，设计智能变量筛选策略，仅在重要维度上执行协商与冲突检测，从而降低不必要的评估开销；最后，结合冲突指数（CI）提出门控通信机制，避免在低冲突回合中冗余的信息交换。这些改进使
+RL-MACPO 在保证解质量的同时显著提升了收敛效率和扩展性。
+
+\subsection{方法 (Proposed
+RL-MACPO)}\label{ux65b9ux6cd5-proposed-rl-macpo}
+
+MACPO
+作为一种多智能体协同进化框架，主要包含两个阶段：局部优化与邻居协商。在局部优化阶段，每个
+agent
+维护独立的子群体，并通过带惩罚项的适应度函数在局部维度上进行进化，从而在保证个体最优的同时尽量接近全局解。在协商阶段，相邻
+agent
+基于共享变量进行候选解的交换与比较，具体包括评估、竞争、共享和冲突检测等环节，以推动共享变量收敛到一致解。该框架在分布式优化中展现出较好的适应性，但其计算和通信开销在大规模问题中快速增长。
+
+为克服这些不足，我们提出了改进的 RL-MACPO 框架。在继承 MACPO
+基础流程的同时，RL-MACPO 引入了三项关键机制：
+
+强化学习自适应惩罚权重------通过策略网络动态更新惩罚系数，使算法能够随冲突程度变化而灵活调整局部与全局目标的平衡；
+
+智能变量筛选与简化冲突检测------在协商阶段仅对重要变量进行扰动与评估，同时将原始的双侧扰动简化为单侧扰动，大幅降低了每次协商的评估调用次数；
+
+基于冲突指数的门控通信------借助冲突指数 (CI)
+判断协商必要性，仅在高冲突情况下触发通信与共享，从而有效减少冗余交互。
+
+通过这三方面改进，RL-MACPO 在维持 MACPO
+收敛特性的同时，显著降低了计算与通信成本，并在实验中表现出更好的扩展性与适应性。
+
+\subsection{整体框架
+(简要介绍三大改进机制及其关系)}\label{ux6574ux4f53ux6846ux67b6-ux7b80ux8981ux4ecbux7ecdux4e09ux5927ux6539ux8fdbux673aux5236ux53caux5176ux5173ux7cfb}
+
+本文提出的 RL-MACPO 算法继承了 MACPO 的整体框架，即在
+\textbf{局部优化阶段}与\textbf{协商阶段}之间交替运行。局部优化阶段主要通过带惩罚项的目标函数引导群体在局部子问题上进行搜索，从而提高个体适应度并维持对全局约束的遵循。协商阶段则由相邻
+agent 在共享变量维度上进行信息交互，以实现跨 agent 的一致性控制。
+
+在 MACPO
+的原始设计中，协商阶段由三个基本步骤构成，即\textbf{评估（Evaluation）------竞争（Competition）------共享（Sharing）}。在评估环节中，每个
+agent 将自身最优解发送给相邻
+agent，并计算在共享变量替换下的局部适应度表现；在竞争环节中，两个 agent
+基于适应度比较逐维决定共享变量的取值；在共享环节中，竞争结果被写回局部解与全局缓存，从而保证相邻
+agent
+在共享变量上的一致性。上述流程构成了一个迭代逼近的过程，使得私有变量和共享变量逐步协调，并最终收敛到全局可行解。
+
+尽管该框架在多个分布式优化问题上表现出良好的适应性，但在高维和冲突密集场景下仍存在局限性。其一，原始协商机制在所有共享维度上进行全面评估，导致计算成本随问题规模显著增加；其二，竞争过程仅依赖于即时适应度比较，缺乏对历史信息的利用，因而容易在局部最优附近停滞；其三，冲突检测依赖双侧扰动进行数值梯度估计，计算负担较重且数值稳定性不足。
+
+为克服这些不足，本文在保持原有``局部优化---协商''双阶段的前提下，对协商机制进行了系统性改进。新的
+RL-MACPO
+框架在评估、竞争和共享三个环节中分别引入了\textbf{历史学习与增量评估}、\textbf{智能变量筛选}以及\textbf{简化冲突检测}等机制，同时结合\textbf{基于冲突指数的门控通信}，显著降低了评估与通信的冗余开销，并提升了整体收敛效率。这些改进将在下文中分别展开说明。
+
+算法的整体流程如图 2.1 所示。
+
+\subsection{基于强化学习的自适应惩罚权重调整机制
+(如何动态调整惩罚强度)}\label{ux57faux4e8eux5f3aux5316ux5b66ux4e60ux7684ux81eaux9002ux5e94ux60e9ux7f5aux6743ux91cdux8c03ux6574ux673aux5236-ux5982ux4f55ux52a8ux6001ux8c03ux6574ux60e9ux7f5aux5f3aux5ea6}
+
+在局部优化阶段，MACPO
+通过在局部目标函数中引入惩罚项来保证共享变量的一致性。其惩罚性目标函数定义如下：
+
+\[h_{i}(x) = f_{i}(x) + w*\sum_{j \in \mathcal{N}_{\mathcal{i}}}^{}{\sum_{d \in \mathcal{L}_{\mathcal{i,j}}}^{}\left( t_{j,d}\left| x^{d} - x_{i,\text{con}}^{d} \right| \right)}\]
+
+其中，\(f_{i}(x)\) 表示 agent \emph{i} 的局部目标函数，w
+为惩罚权重，\(t_{j,d} \in \text{\{}0,1\text{\}}\)
+为惩罚开关，\(x_{i,con}\)
+为当前迭代中形成的共识解。惩罚项用于度量候选解与共识解之间在共享维度上的偏差，从而限制群体解逐步收敛到一致性区域。
+
+传统 MACPO 将惩罚权重 w 设计为通过全局适应度和缩放得到：
+
+\[w = \lambda\sum_{i = 1}^{n}{f_{i}\left( x_{i,con} \right)}\]
+
+其中$\lambda$为静态参数。这种方式能够随全局适应度下降而自动缩小惩罚权重，在一定程度上实现了局部目标与全局一致性的平衡。然而，它也存在明显局限：一方面，所有
+agent
+使用相同的权重，无法反映个体之间的冲突差异；另一方面，$\lambda$的静态设置缺乏灵活性，无法适应不同阶段的优化需求，容易在异构或动态环境中表现不足。
+
+为克服这些问题，本文提出了基于强化学习（RL）的自适应权重调整机制。其核心思想是将权重更新建模为一个序贯决策过程，每个
+agent
+独立配备一个轻量级策略网络，以自身冲突状态为输入，输出权重调整动作，根据自身冲突状态动态输出权重调整动作。
+
+\includegraphics[width=5.76806in,height=1.60486in]{media/media/image1.png}
+
+图 3.1 基于强化学习的自适应权重调整机制示意图
+
+状态向量由冲突强度与冲突趋势构成，输入轻量级策略网络后得到权重调整动作
+\(a_{i}\)。动作经更新公式转化为新的惩罚权重
+\(w_{i}\)，并通过奖励信号反馈进行策略更新，形成闭环。
+
+如图 3.1
+所示，该机制通过``状态输入---策略网络---动作输出---奖励反馈''的闭环实现自适应权重调整。在冲突激烈时，策略网络输出正向调整动作以增大权重，强化共享变量的一致性；而在收敛阶段，网络倾向于减小权重，避免过度惩罚，从而保持探索能力与稳定性之间的平衡。由于策略网络结构极简，训练与更新的开销远低于目标函数评估成本，因此不会成为额外负担。为了更清晰地展示这一闭环机制在程序层面的实现过程，算法1给出了从状态构建、前向传播到权重更新与奖励反馈的完整步骤，其对应关系与图2的概念框架一一对应。
+
+\includegraphics[width=5.76806in,height=2.78472in]{media/media/image2.png}
+
+算法1给出了具体实现步骤：从状态构建、策略前向传播、权重更新，到奖励计算、目标动作生成与参数更新，完整描述了图2所示闭环在程序层面的实现。
+
+通过该机制，每个 agent
+能够实现个性化权重调节：当冲突强度上升时，权重自动增大以强化约束；在收敛阶段，权重逐步减小以避免过度惩罚。与传统方法相比，该机制在动态环境中更具灵活性和敏感性，同时通过边界控制保证了稳定性，显著提升了分布式优化中的收敛效率与解质量。
+
+我们提出了基于奖励回归与优先经验回放的轻量级策略学习方法，该方法强化学习的个体化自适应权重机制。每个
+agent
+配备独立的策略学习器，通过小型前馈网络观察自身冲突状态与历史趋势，输出个性化的权重调整建议。其更新过程如下。
+
+\begin{quote}
+权重更新公式定义如下：\(w_{i}^{(t + 1)} = clip\left( w_{i}^{(t)} + \alpha \cdot a_{i}^{(t)},w_{\min},w_{\max} \right)\)
+\end{quote}
+
+其中
+\(a_{i}^{(t)} \in ( - 1,1)\)为策略网络输出，\(\alpha\)为步长系数，clip
+函数用于保证权重始终处于合理区间。
+
+在 Chen 等人提出的 MACPO 框架中，冲突指数（Conflict Index,
+CI）最早被引入，用于刻画相邻 agent
+在共享维度上的冲突程度，其定义依赖于候选解与共识解之间的归一化差异。本文在借鉴其思想的基础上，将该指标简化为
+\textbf{冲突强度}（Conflict
+Intensity），并作为强化学习模块的状态输入之一。
+
+我们设计的 RL-MACPO 自适应权重机制中，每个 agent
+的状态向量定义为二维向量：
+
+\[S_{t} = \left\lbrack s_{1},s_{2} \right\rbrack\]
+
+其中，状态向量由两个部分组成：\textbf{冲突强度}与\textbf{冲突趋势}。
+
+冲突强度定义为当前迭代中共享变量与共识解之间的平均归一化差异：
+
+\[s_{1} = \frac{1}{\left| \sum_{j \in N_{i}}^{}\mspace{2mu} |L_{i,j}| \right|} \cdot \sum_{j \in N_{i}}^{}\mspace{2mu}\sum_{d \in L_{i,j}}^{}\mspace{2mu}\frac{|x^{d} - x_{i,con}^{d}|}{x_{\max} - x_{\min}}\]
+
+其中，其中，\(N_{i}\)为agent \emph{i}的邻居集合，\(L_{i,j}\)为agent
+\emph{i}与邻居\emph{j}的共享变量索引集，\(x_{i,con}^{d}\)为第d维的共识解。数值越大说明
+agent
+之间分歧越强，需要更高的惩罚约束；数值越小则表示逐渐趋于一致，可适当放松约束。
+
+冲突趋势定义为相邻两轮迭代冲突强度的差分：
+
+\[s_{2}^{t} = \ s_{1}^{t} - \ s_{1}^{t - 1}\]
+
+若 \(s_{2}^{t}\)\textgreater0，说明冲突在加剧；若
+\(s_{2}^{t}\)\textless0，说明冲突在缓解；若接近零，则表示冲突水平保持稳定。
+
+该状态向量直接作为策略网络的输入，用于生成权重调整动作。奖励信号由局部适应度改善幅度定义，使得策略网络能够通过奖励反馈直接感知权重调整对优化效果的贡献。
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\item
+  \textbf{权重的策略网络设计（SimpleNet）}
+\end{enumerate}
+
+为实现个体级的动态权重调节机制，我们为每个agent设计了一个轻量级策略网络
+SimpleNet，用于从当前状态生成权重调整动作。该网络为\textbf{单层前馈式神经网络}，使用
+\(\ tanh\)
+作为激活函数，结构简洁、计算高效，特别适用于强化学习中的在线策略更新。
+
+网络结构如下：
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\item
+  \textbf{网络结构}
+\end{enumerate}
+
+SimpleNet
+采用极简的前馈结构，仅由输入层与输出层构成，不包含隐藏层。输入层含两个神经元，分别对应冲突强度与冲突趋势，构成状态向量
+
+\[\mathbf{s}_{\mathbf{i}} = \left\lbrack \text{conflict}_{\mathbf{i}},\text{trend}_{\mathbf{i}} \right\rbrack^{\top}\]
+
+输出层包含一个神经元，用于产生权重调整动作
+\(\mathbf{a}_{\mathbf{i}} \in \left( - \mathbf{1},\mathbf{1} \right)\)。输入层与输出层通过全连接相连，并采用
+\(\mathbf{t}\mathbf{an}\mathbf{h}( \cdot )\)
+激活函数限制输出范围。该结构保证了模型的轻量化与高效性。
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{1}
+\item
+  \textbf{前向传播公式}
+\end{enumerate}
+
+\begin{quote}
+神经网络的前向传播输出为：
+\end{quote}
+
+\[a_{i} = \tanh\left( w^{\top}\mathbf{s}_{\mathbf{i}} + b \right) = \tanh\left( w_{1}s_{1} + w_{2}s_{2} + b \right)\]
+
+\begin{quote}
+\(s_{i} = \left\lbrack s_{1},s_{2} \right\rbrack^{\top} \in R^{\mathbb{2}}\)：输入状态向量的两个分量（冲突强度、冲突趋势）
+
+\(w = \left\lbrack w_{1},w_{2} \right\rbrack^{\top} \in R^{\mathbb{2}}\)：权重参数，连接两个输入神经元到输出神经元
+
+\(b \in R\)：偏置参数项
+
+由此得到输出权重调整动作\(a_{i}^{(t)} \in \lbrack - 1,1\rbrack\)被用于更新当前agent的惩罚权重。
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{2}
+\item
+  \textbf{参数初始化}
+\end{enumerate}
+
+所有网络参数（权重W$_1$, W$_2$和偏置b）均采用正态分布N(0,
+0.1)进行初始化，初始化方式如下：
+
+\[w_{1},w_{2},b \sim \mathcal{N}(0,0.1)\]
+
+以确保初始输出较小、训练稳定。
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{3}
+\item
+  \textbf{网络训练机制}
+\end{enumerate}
+
+网络通过监督式损失函数进行训练，并使用梯度下降法更新参数。训练目标为最小化输出动作与``目标动作''之间的差异。损失函数采用最小均方误差（MSE）形式：
+
+\[\mathcal{L =}\left( a_{i} - \widehat{a_{i}} \right)^{2}\]
+
+其中目标动作为：
+
+\[\widehat{a_{i}} = a_{i} + \beta r_{i}\]
+
+\(r_{i}\)为当前回合的奖励信号，表示权重调整所带来的适应度改善，\(\beta\)
+为奖励调节系数。
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{4}
+\item
+  \textbf{参数更新（基于梯度下降）}
+\end{enumerate}
+
+参数更新采用标准的反向传播算法：
+
+令\(\delta = 2\left( a_{i} - \widehat{a_{i}} \right)\left( 1 - a_{i}^{2} \right)\)
+为反向传播中的误差信号，则：
+
+\[\frac{\partial\mathcal{L}}{\partial w_{k}} = \delta \cdot s_{k},\quad(k = 1,2),\]
+
+\[\frac{\partial\mathcal{L}}{\partial b} = \ \delta\]
+
+参数更新如下：
+
+\[w_{k} \leftarrow w_{k} - \eta \cdot \delta \cdot s_{k},\quad\quad b \leftarrow b - \eta \cdot \delta\]
+
+其中\(\ \eta\) 为学习率。
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{5}
+\item
+  \textbf{设计优势}
+\end{enumerate}
+
+SimpleNet
+的极简设计仅包含三个参数，前向与反向传播均可在常数时间内完成，计算开销极低，适用于分布式环境下的高频在线更新。通过
+tanh 激活函数将输出严格限制在
+(-1,1)，有效避免了权重调整过大引起的不稳定。同时，参数数量少，过拟合风险低，具有较强的泛化能力。更重要的是，该网络可以独立部署在每个
+agent
+上，使得系统能够根据局部冲突状况进行个性化调节，从而提升整体的收敛效率与适应性。
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\setcounter{enumi}{1}
+\item
+  \textbf{利用奖励反馈进行在线策略更新}
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\item
+  奖励函数设计：
+\end{enumerate}
+
+系统采用基于局部适应度改善的奖励机制，奖励信号\(r_{i}\)直接反映当前回合权重调整所带来的优化效果。具体而言，奖励信号定义为当前迭代中agent局部适应度的负对数值，即\(r_{i} = - \log\left( f_{i}\left( x_{i} \right) \right)\)，当适应度值为负或零时设置为惩罚值\(r_{i} = - 100\)。该设计确保适应度越小（优化效果越好），agent获得的奖励信号越大，从而引导策略网络学习有利的权重调整方向。
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{1}
+\item
+  策略网络训练机制：
+\end{enumerate}
+
+网络通过监督式损失函数进行在线训练，训练目标为最小化输出动作与目标动作之间的差异。损失函数采用最小均方误差形式：\(\mathcal{L} = \left( a_{i} - \widehat{a_{i}} \right)^{2}\)，其中目标动作为\(\widehat{a_{i}} = a_{i} + \beta r_{i}\)，\(r_{i}\)为当前回合的奖励信号，\(\beta\)为奖励调节系数。该设计通过奖励反馈直接修正网络输出，使策略逐步向高奖励方向调整。
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{2}
+\item
+  梯度更新算法：
+\end{enumerate}
+
+参数更新采用标准的反向传播算法，令\(\delta = 2\left( a_{i} - \widehat{a_{i}} \right)\left( 1 - a_{i}^{2} \right)\)为反向传播中的误差信号，梯度计算为\(\frac{\partial\mathcal{L}}{\partial w_{k}} = \delta \cdot s_{k}\)和\(\frac{\partial\mathcal{L}}{\partial b} = \delta\)。参数更新遵循梯度下降法则：\(w_{k} \leftarrow w_{k} - \eta \cdot \delta \cdot s_{k}\)，\(b \leftarrow b - \eta \cdot \delta\)，其中\(\eta\)为学习率。tanh激活函数的导数项\(\left( 1 - a_{i}^{2} \right)\)确保了梯度在输出接近边界值时自然衰减，提供了良好的数值稳定性。
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{3}
+\item
+  经验回放与优先级采样：
+\end{enumerate}
+
+系统维护容量固定的经验回放缓冲区，存储历史决策经验(\(s_{i},a_{i},r_{i}\))。经验优先级定义为\(p_{i} = \left| r_{i} \right| + \epsilon\)，其中\(\epsilon\)为小正数防止零优先级。采样过程采用离散分布优先级采样，重要经验具有更高的被选择概率。当缓冲区积累足够经验时，系统进行批量策略更新，通过多个高价值经验同时训练网络，提高学习效率和策略稳定性。
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{4}
+\item
+  在线学习收敛保证：
+\end{enumerate}
+
+该机制通过奖励信号的即时反馈和渐进式参数调整实现在线学习。学习率\(\eta = 0.001\)的小步长设计保证了权重变化的平滑性，而奖励调节系数\(\beta\)的适当设置平衡了探索与利用，确保策略能够在优化过程中持续改进并最终收敛到局部最优策略。
+
+综上所述，该机制实现了 agent
+级别的个性化自适应调节，克服了传统方法的全局统一和静态更新缺陷。它不仅增强了算法在异构冲突场景下的灵活性，也提高了在动态环境中的鲁棒性，是
+RL-MACPO 的关键改进之一。
+
+\subsection{基于冲突指数的门控通信机制
+(决定何时进行协商)}\label{ux57faux4e8eux51b2ux7a81ux6307ux6570ux7684ux95e8ux63a7ux901aux4fe1ux673aux5236-ux51b3ux5b9aux4f55ux65f6ux8fdbux884cux534fux5546}
+
+在原始 MACPO
+框架中，所有共享变量每轮迭代都进入通信与冲突检测流程，流程均需在所有共享变量维度上执行通信与冲突检测，即便在冲突程度较低的情形下，这会引入大量冗余通信与计算开销。这种处理方式虽然能够保证全局一致性，但在大规模网络与异构场景下表现出明显的低效。为此，本文提出基于冲突指数（Conflict
+Index, CI）的门控通信机制，以实现``按需通信''的自适应控制。
+
+在通信机制层面，本文重新引入并扩展了冲突指数 CI 的概念。与 Chen
+等人工作中用于一致性约束的 CI 不同，我们将其定义为
+\textbf{通信触发的门控条件}。
+
+不同于文献中常见的基于梯度方向一致性的冲突刻画，本文采用基于位置差异的鲁棒定义。对于
+agent \emph{i}，其冲突指数定义为
+
+\[CI_{i} = (1\text{/}|\Theta_{i}|) \cdot \sum_{d \in \Theta_{i}}^{}|x_{i}^{d} - x_{i,con}^{d}|\text{/}(u_{d} - l_{d})\]
+
+其中，\(\Theta_{i}\) 表示 agent i 的 局部变量索引集，由其私有变量集合
+\(L_{i}\) 与邻居共享变量集合
+\(\text{\{}L_{i,j} \mid j \in N_{i}\text{\}}\) 构成。\(x_{i}^{d}\) 为
+agent i 在第 d 维的当前解，\(x_{i,con}^{d}\) 为第 d
+维的共识解；\(\left\lbrack u_{d},l_{d} \right\rbrack\)
+分别为该维变量的上、下界。该指标取值范围为
+{[}0,1{]}，数值越大代表该agent与参考解的偏差越大，冲突越严重。为了减弱瞬时波动的影响，系统进一步采用指数平滑得到历史加权冲突指数，其中
+\(\alpha\) 为平滑系数：
+
+\[CI_{i}^{smooth} = \alpha \cdot CI_{i}^{smooth} + (1 - \alpha) \cdot CI_{i}\]
+
+在此基础上，通信是否触发由三重条件共同决定。首先，必须满足与上次通信间隔不小于
+\(T_{\min}\)，以避免频繁通信引起的抖动。其次，仅当\(CI_{i} > \tau\)时才具备通信可能，其中阈值
+\(\tau\)
+会随迭代过程动态调整：在冲突频繁时降低阈值以增加通信，在冲突稀疏或收益不足时提高阈值以节省开销。最后，系统结合优化阶段的节奏引入频率抽样机制，使得在早期阶段通信更为积极，而在收敛后期则逐步减少。
+
+不同于 3.2 中作为 RL 状态输入的``冲突强度''，此处的 CI
+是一个\textbf{门控判据}，与最小间隔约束 \(T_{\min}\)
+和阶段频率抽样共同作用：
+
+\begin{itemize}
+\item
+  \textbf{最小间隔}：仅当距离上次通信大于 \(T_{\min}\)
+  时才允许触发，避免高频抖动；
+\item
+  \textbf{自适应阈值}：CI 超过动态阈值 \(\tau\) 时才触发，\(\tau\)
+  根据近期冲突水平与通信收益动态调整；
+\item
+  \textbf{阶段频率}：结合优化进程采用分阶段的目标通信频率抽样。
+\end{itemize}
+
+\begin{quote}
+\includegraphics[width=5.76806in,height=5.62708in]{media/media/image3.png}
+\end{quote}
+
+如算法2所示，该机制通过``冲突指数计算---平滑处理---阈值判定---阶段抽样''形成完整的门控决策流。当
+CI 水平较低时，通信被跳过，当前本地解直接作为共识解写入缓存；当 CI
+超过阈值且满足抽样与间隔条件时，则触发完整的协商流程，包括评估、竞争与冲突检测。与原始
+MACPO 相比，该机制在保持一致性约束的同时显著降低了冗余通信，使得
+RL-MACPO 在大规模网络下展现出更优的扩展性。
+
+\subsection{智能变量筛选机制
+(决定协商哪些变量)}\label{ux667aux80fdux53d8ux91cfux7b5bux9009ux673aux5236-ux51b3ux5b9aux534fux5546ux54eaux4e9bux53d8ux91cf}
+
+在原始 MACPO
+框架中，所有共享变量在协商阶段均被纳入冲突检测与惩罚项计算。这种\textbf{无差别的全变量处理}虽然保证了一致性，但在高维问题中存在两个显著缺陷：一方面，大量计算资源消耗在冲突敏感度较低的变量上；另一方面，过度约束抑制了部份变量的探索潜力，降低了整体搜索的灵活性。
+
+为此，RL-MACPO~在保持惩罚项整体形式不变的基础上，引入了\textbf{基于变量重要性筛选的协商门控机制。}其核心思想是通过变量重要性分数筛选出需要进入协商/共享的关键维度，从而在不改变整体惩罚结构的前提下，集中计算资源解决主要冲突。
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\item
+  \textbf{变量重要性分数}
+\end{enumerate}
+
+算法为每个共享变量 d
+维护一个动态更新的\textbf{重要性分数}\(\text{importance}_{d} \in \lbrack 0,1\rbrack\)，用于衡量该变量在优化过程中的冲突敏感度与协调优先级。重要性分数的更新采用指数平滑的形式：
+
+\begin{quote}
+\[\text{importance}_{d} \leftarrow \alpha \cdot \text{importance}_{d} + (1 - \alpha) \cdot {\text{C}\text{onflictLevel}}_{d}\]
+\end{quote}
+
+其中，\(\alpha \in (0,1)\)为历史平滑系数，\(ConflictLevel_{d}\) 表示变量
+d
+的当前冲突强度。由变量与共识解的归一化差异及其历史协商表现共同决定。指数平滑的设计使分数既反映了最新冲突状态，又保留了历史经验的影响，从而更全面地刻画变量的重要性。
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\setcounter{enumi}{1}
+\item
+  \textbf{筛选机制（二级门控决策：筛选→试探→判定→应用）}
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\item
+  \textbf{Top-R\% 重要性筛选}
+\end{enumerate}
+
+在每轮协商中，系统根据\(\text{importance}_{d}\)对所有共享变量排序，仅选取排名前
+R\% 的变量进入协商候选集。这些变量的
+\(variable\_ switch\lbrack d\rbrack\) 被置为
+1，表示具有进入协商的资格，其余变量直接跳过。需要强调的是：\textbf{惩罚项的计算仍然基于整体冲突度量}，不依赖于
+\(t_{j,d\ }\)，因此筛选机制不会改变惩罚函数的全局约束力，而仅减少了参与协商的变量数量。
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{1}
+\item
+  \textbf{逐维试探判定}
+\end{enumerate}
+
+对候选变量集中的变量进行逐维的增量适应度评估，并执行简化的冲突检测以判定其优化方向是否一致（详见第3.4节）。若替换能够带来合并适应度提升且冲突方向一致，则保留
+\(variable\_ switch\lbrack d\rbrack = 1\)，允许该变量进入协商共享；否则关闭该变量，即\(variable\_ switch\lbrack d\rbrack = 0\)，避免无效协商。
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\setcounter{enumi}{2}
+\item
+  \textbf{协商历史学习}
+\end{enumerate}
+
+为每个变量维护其协商历史记录，包括累计尝试次数 \(attempts_{d}\)
+和成功协商次数\(success_{d}\)。其成功率采用滑动平均机制更新：
+
+\[SuccessRate_{d}^{(t + 1)} = \frac{SuccessRate_{d}^{(t)} \times \left( attempts_{d}^{(t)} - 1 \right) + result_{d}^{(t + 1)}}{attempts_{d}^{(t)}}\]
+
+其中，\(result_{d}^{(t + 1)} \in \left\{ 0,1 \right\}\)
+表示本轮协商是否成功。该统计量被纳入
+\({\text{C}\text{onflictLevel}}_{d}\)的估计，使得变量的重要性能够更真实地反映其长期协商效果。
+
+\includegraphics[width=5.76806in,height=2.86458in]{media/media/image4.png}
+
+图 3.2智能变量筛选与二级协商门控机制示意图
+
+本机制通过两级门控筛选共享变量：第一级根据动态更新的重要性分数进行
+Top-R\%
+排序，仅将排名靠前的变量纳入候选集；第二级结合逐维试探与单侧扰动冲突检测进一步判定，最终决定变量是否进入协商共享流程。未入选的变量直接跳过协商（\(variable\_ switch\lbrack d\rbrack = 0\)），而通过两级筛选的变量则标记为
+\(variable\_ switch\lbrack d\rbrack = 1\)
+并进入评估--竞争--共享阶段。该机制有效减少了冗余开销，确保计算与通信资源集中于关键冲突维度。
+
+如图 3.2 所示，智能变量筛选机制通过``Top-R\% 入场资格 +
+逐维试探''确认的二级门控流程，有效减少了不必要的通信与计算开销，同时保持了对关键维度的强一致性约束，从而在不牺牲整体收敛性的前提下，显著提升了
+RL-MACPO 在高维与异构环境下的适应性与效率。
+
+\subsection{简化冲突检测与增强协商机制
+(如何高效地进行协商)}\label{ux7b80ux5316ux51b2ux7a81ux68c0ux6d4bux4e0eux589eux5f3aux534fux5546ux673aux5236-ux5982ux4f55ux9ad8ux6548ux5730ux8fdbux884cux534fux5546}
+
+在 MACPO
+框架中，协商阶段由评估、竞争与共享三个步骤组成，其核心目的是保证相邻
+agent 在共享变量维度上逐步趋于一致。本节在第 3.3
+节``智能变量筛选与协商门控机制''的基础上，进一步介绍 RL-MACPO
+在协商阶段的实现细节。
+
+原始方法采用双向扰动的冲突检测方式，即在每个共享变量上分别进行正向与负向扰动，通过比较两个
+agent
+的局部适应度差分来判断优化方向是否一致。虽然这种方法较为严谨，但每个维度需进行四次函数评估，计算代价高昂，并且在高维问题中容易出现数值不稳定性。
+
+为此，RL-MACPO
+对协商机制进行了两方面的改进，改进主要在局部冲突检测与竞争两个方面：
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\item
+  \textbf{简化冲突检测}
+\end{enumerate}
+
+原始 MACPO
+使用双向扰动方式进行冲突检测。在每个共享变量上分别施加正向与负向扰动，通过比较两个
+agent
+的适应度差分来判断优化方向是否一致。尽管这种方法理论上严谨，但每个维度需进行四次函数评估（正负双向、双
+agent 各两次），计算代价高昂且在高维问题中易出现数值不稳定。
+
+我们提出的冲突检测方法采用单侧扰动替代原有方案，即在共享变量 d
+上仅进行一次正向扰动，通过数值差分估计梯度方向，并结合边界修正来保证扰动点仍在可行域内。然后通过比较两个
+agent
+的梯度符号是否一致来判定冲突：若符号一致则认为优化方向相同，无需施加额外约束；若符号相反则认定存在冲突，需要在协商中保留该变量的约束。
+
+在评估开销上，单个 agent
+仅需执行两次函数调用（原点与扰动点），两方合计约四次，相比原有正负两侧的中心差分方案评估量约减半，同时避免了中心差分带来的数值误差。
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\setcounter{enumi}{1}
+\item
+  \textbf{增强竞争机制}
+\end{enumerate}
+
+在原始竞争中，每个共享变量的替换都需构造多个测试解并进行独立评估，效率较低。RL-MACPO
+引入了基于历史学习与增量适应度评估的增强机制：
+
+\begin{itemize}
+\item
+  \textbf{协商历史的成功率统计}
+\end{itemize}
+
+\begin{quote}
+系统为每个共享变量维护协商历史记录，包括尝试次数和成功次数，成功率通过滑动平均动态更新，该统计量被纳入变量冲突水平的估计，使得重要性评估能真实反映长期表现。具体在智能变量筛选与协商门控机制有详细讲解。
+\end{quote}
+
+\begin{itemize}
+\item
+  \textbf{增量适应度评估与贪心试探}
+\end{itemize}
+
+\begin{quote}
+传统竞争机制需要对多个候选解逐一计算完整的适应度向量。现在此基础上引入\textbf{增量评估与贪心更新策略}：首先构造测试解\(\ gb_{test}\)，初始化为当前
+agent
+的局部最优解，并根据优先级原则更新非重叠维度变量，随后逐维尝试替换共享变量值，并计算合并适应度
+\(f_{test} = f_{i}\left( gb_{test} \right) + f_{j}\left( gb_{test} \right)\)。若替换能带来改进，则立即接受该修改并更新基准值，实现``边试边改''的增量式更新。这一贪心策略有效避免了对全变量的重复比较，在保持准确性的同时显著减少了冗余计算。
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\setcounter{enumi}{2}
+\item
+  \textbf{综合协商历史成功性判定}
+\end{enumerate}
+
+增强的协商机制在判定协商成功时引入了更严格的整体判定标准。具体而言，一轮协商仅在以下两个条件同时满足时才被视为成功：一是整合适应度需较初始解有所改善，二是至少存在一个共享变量完成有效替换。避免了因个别变量的微小扰动造成的虚假改进，以保证共识过程的真实性与稳定性。
+
+\includegraphics[width=5.76806in,height=5.06458in]{media/media/image5.png}
+
+通过以上改进，RL-MACPO
+在协商阶段通过单侧扰动冲突检测与增量式竞争更新，同时利用上一节的
+\(variable\_ switch\)
+使协商集中于关键变量维度，减少函数评估开销，避免了数值不稳定，增强在高维与异构分布式优化场景中的效率与鲁棒性。
+
+\end{document}

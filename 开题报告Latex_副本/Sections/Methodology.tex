@@ -1,0 +1,367 @@
+% !TEX root = ../KaiTi_Report_temp.tex
+% 研究方法
+\begin{titlepage}
+\setcounter{page}{8}
+\makeatletter
+\newpage
+\AddToShipoutPictureBG*{
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw [line width=1pt]
+        ($ (current page.north west) + (1.95cm,-1.5cm) $)
+        rectangle
+        ($ (current page.south east) + (-1.95cm,1.5cm) $);
+       % \draw (1.85,19.64) -- (18.95,19.64);
+       % \draw (1.85,10.82) -- (18.95,10.82);
+    \end{tikzpicture}
+}
+\makeatother
+\section{研究方法、技术路线、实验方案及其可行性论述}
+
+
+\noindent
+\textbf{1.研究方法与技术路线}
+
+\par
+\indent
+针对MACPO算法在大规模分布式约束优化中存在的简单规则调整适应性不足和全维度协商成本高的问题，本文提出基于轻量级强化学习的智能调控与通信策略。技术路线如图\ref{fig:guanxitu}所示，整体框架分为问题识别、研究内容和技术方案三个层次。
+
+\par
+\indent
+\textbf{问题层：}MACPO算法面临两大核心问题:简单规则调整难以适应不同搜索阶段的动态需求；全维度协商导致通信成本过高。
+
+\par
+\indent
+\textbf{研究内容层：}针对上述问题，本文提出两大研究内容作为共同作用的技术支撑：
+
+\begin{itemize}
+\item \textbf{研究内容一：轻量级RL自适应调整惩罚参数。}通过直接感知协同状态（$\text{CI}_t + \Delta\text{CI}_t$），采用单层RL网络动态调节惩罚系数$\alpha$，避免固定规则的局限性。
+
+\item \textbf{研究内容二：智能通信策略。}从变量维度（EMA+Top-k筛选）和时间维度（三层门控）两个方向降低协商开销，在保证协同效果的前提下显著减少通信成本。
+\end{itemize}
+
+\par
+\indent
+\textbf{技术方案层：}具体实现包括四个核心模块:
+（1）直接感知协同状态：构建二维状态特征$[\text{CI}_t, \Delta\text{CI}_t]$作为RL输入；
+（2）策略学习自适应调节$\alpha$：轻量级网络输出惩罚系数调整动作；
+（3）变量维度筛选：基于EMA累积冲突强度，Top-k选择重要变量；
+（4）时间维度门控：通过最小间隔、冲突阈值、阶段概率三层控制通信时机。
+
+\par
+\indent
+上述四个技术模块协同作用，共同实现提升协同优化效率与解质量的总体目标。研究内容一侧重于适应性调控，研究内容二侧重于效率优化，两者相辅相成，构成完整的智能协同优化框架。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{技术路线流程图.png}
+    \caption{相关内容框架逻辑关系图}
+    \label{fig:guanxitu}
+\end{figure}
+
+
+
+\noindent
+\textbf{1.1 基于强化学习的动态惩罚机制}
+\par
+\indent
+在现有惩罚函数法的基础上，用于缓解固定惩罚参数在不同阶段下适应性不足的问题，用于缓解固定惩罚参数在不同阶段下适应性不足的问题。
+在现有惩罚函数法的基础上，本文引入\textbf{轻量级强化学习（线性+Tanh）}实现惩罚参数的自适应调节。其核心动机是：多次协商的冲突强度与收敛速度具有动态性，静态规则难以稳定适配。
+
+\textbf{现有惩罚目标：}
+以Agent $i$为例，其惩罚型目标可写为
+\begin{equation}
+h_i(x)=f_i(x)+w\cdot \sum_{j\in N_i}\sum_{d\in\Theta_{ij}}|x_i^d-x_{j,\text{con}}^d|
+\end{equation}
+其中$N_i$为邻居集合，$\Theta_{ij}$为重叠维度集合，$x_{j,\text{con}}$为协商后的共识解；权重尺度为
+\begin{equation}
+w=\lambda\sum_{i=1}^{n} f_i(x_{i,\text{con}})
+\end{equation}
+
+\textbf{本文改进后的惩罚目标：}
+引入归一化冲突度与动态惩罚权重，
+\begin{equation}
+h_i(x)=f_i(x)+\alpha(t)\cdot \sum_{d\in\Theta_i}\frac{|x_i^d-x_{i,\text{con}}^d|}{x_{\max}-x_{\min}}
+\end{equation}
+其中$\Theta_i$为Agent $i$的重叠维度集合，$x_{i,\text{con}}$为Agent $i$的共识估计，$\text{CI}(x_i,x_{i,\text{con}})=\sum_{d\in\Theta_i}\frac{|x_i^d-x_{i,\text{con}}^d|}{x_{\max}-x_{\min}}$为冲突强度指标。
+动态惩罚权重采用冲突驱动的比例调节：
+\begin{equation}
+\alpha(t)=\kappa\sum_{i=1}^{n} f_i(x_{i,\text{con}})\cdot \left(1+\theta_1\text{CI}_t+\theta_2\Delta\text{CI}_t\right)
+\end{equation}
+其中$\kappa$为基准尺度系数，$\theta_1,\theta_2$为学习型调控参数，$\text{CI}_t$与$\Delta\text{CI}_t$用于刻画冲突强度及其变化趋势。
+
+进一步，定义RL状态空间为归一化二维特征向量：
+
+\begin{equation}
+\mathbf{s}_t = [\text{CI}_t, \Delta\text{CI}_t]^T
+\end{equation}
+
+其中，$\text{CI}_t$ 为全局冲突指标（对各Agent冲突的汇总统计），$\Delta\text{CI}_t = \text{CI}_t - \text{CI}_{t-1}$ 为冲突变化趋势。策略网络为单层线性+Tanh，如图\ref{fig:rl_policy_net}所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{策略网络.png}
+    \caption{RL调整惩罚项的策略网络图}
+    \label{fig:rl_policy_net}
+\end{figure}
+
+策略网络输出动作（调整方向与幅度）：
+
+\begin{equation}
+a_t = \pi_\theta(\mathbf{s}_t) = \tanh(W \cdot \mathbf{s}_t + b)
+\end{equation}
+
+其中，$a_t\in[-1,1]$；$a_t>0$倾向增大惩罚比例，$a_t<0$倾向减小惩罚比例，$|a_t|$表示调整强度。
+
+\textbf{动作到惩罚权重：$a_t \rightarrow \xi_t \rightarrow \alpha_t$}
+\par
+\indent
+本文采用“\textbf{比例因子$\xi_t$更新} + \textbf{基准尺度惩罚}$\alpha_{\text{base}}(t)$”的组合方式，而非直接对$\alpha$做绝对增量更新：
+
+\textbf{步骤1：比例因子更新（RL直接输出）}
+\begin{equation}
+\xi_t=\text{clip}(\xi_{t-1}+a_t\cdot \delta,\ \xi_{\min},\ \xi_{\max})
+\end{equation}
+其中$\delta$为比例更新步长，$[\xi_{\min},\xi_{\max}]$为比例范围。
+
+\textbf{步骤2：基准尺度惩罚（当前实现）}
+\begin{equation}
+\alpha_{\text{base}}(t)=\kappa\cdot |f(x_t)|
+\end{equation}
+
+\textbf{步骤3：最终惩罚权重}
+\begin{equation}
+\boxed{\alpha_t=\alpha_{\text{base}}(t)\cdot \xi_t}
+\end{equation}
+当$\xi_t=1$时退化为基准规则$\alpha_{\text{base}}(t)$。
+
+\textbf{奖励函数与梯度更新}
+\par
+\indent
+先执行一次优化步骤得到下一轮结果，再计算奖励（强调“先优化、后奖励”）：
+\begin{equation}
+x_{t+1}=\text{Optimize}(x_t,\alpha_t)
+\end{equation}
+奖励采用相对改进率（正值表示改进）：
+\begin{equation}
+r_t=\frac{f(x_t)-f(x_{t+1})}{|f(x_t)|}\times 100
+\end{equation}
+构造目标动作（$\beta_r$为奖励缩放因子）：
+\begin{equation}
+a^{\text{target}}_t=a_t+\beta_r\cdot r_t
+\end{equation}
+以$L(\theta)=\frac12(a_t-a^{\text{target}}_t)^2$为损失，则梯度为：
+\begin{equation}
+\nabla_{\theta}L=(a_t-a^{\text{target}}_t)\cdot(1-a_t^2)\cdot \mathbf{s}_t
+\end{equation}
+参数更新为（学习率$\eta$）：
+\begin{equation}
+\theta \leftarrow \theta-\eta\nabla_{\theta}L
+\end{equation}
+
+该机制通过感知冲突强度与趋势，在协商过程中动态调节惩罚比例，使惩罚项更贴合“多次协商”的动态过程。RL调整惩罚权重的流程如图\ref{fig:rl_flow}所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.2\linewidth]{RL流程图.png}
+    \caption{RL调整惩罚项流程图}
+    \label{fig:rl_flow}
+\end{figure}
+
+\vspace{0.3cm}
+
+\noindent
+\textbf{1.2 变量重要性评估与选择策略}
+\par
+\indent
+为减少协商变量数与通信开销，本文采用\textbf{冲突驱动的重要性评分（EMA平滑）+ Top-k变量筛选}。核心思想是用冲突强度的长期累积刻画变量重要性，优先协商关键维度。
+
+对每个候选协商维度$d$，定义其重要性分数为：
+
+\begin{equation}
+I_d(t)=\lambda\cdot I_d(t-1)+(1-\lambda)\cdot \text{CI}_d(t)
+\end{equation}
+
+其中，$\text{CI}_d(t)$为维度$d$在当前迭代的冲突强度（可由$|x_i^d-x_{i,\text{con}}^d|$归一化得到），$\lambda\in(0,1)$为EMA平滑系数：$\lambda$越大越“记忆历史”，评分越稳定。
+
+每次迭代选择重要性最高的前$k$个维度进入协商集合：
+
+\begin{equation}
+\mathcal{S}(t)=\text{Top-}k(\{I_1(t),I_2(t),\ldots,I_D(t)\}),\quad
+k=\left\lceil \rho(t)\cdot D\right\rceil
+\end{equation}
+
+其中，$D$为候选协商维度数（可取$|\Theta|$），$\rho(t)\in(0,1]$为\textbf{分阶段选择率}：早期$\rho(t)$较大以增强全局探索，中期适度，后期$\rho(t)$较小以偏向局部精细化；也可设置为常数$\rho$用于消融对比。变量筛选流程如图\ref{fig:var_select}所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{变量筛选流程图.png}
+    \caption{变量重要性评估与筛选图}
+    \label{fig:var_select}
+\end{figure}
+
+\vspace{0.3cm}
+
+\noindent
+\textbf{1.3 三层门控通信控制机制}
+\par
+\indent
+为进一步降低通信开销，本文采用\textbf{三层门控机制}动态控制通信时机，避免不必要的信息交换。
+
+\textbf{第一层：最小通信间隔约束}
+
+设置最小通信间隔 $T_{\min}$，确保Agent有足够时间进行局部搜索：
+
+\begin{equation}
+\text{Gate}_1(t) = \begin{cases}
+1, & \text{if } t - t_{\text{last}} \geq T_{\min} \\
+0, & \text{otherwise}
+\end{cases}
+\end{equation}
+
+其中，$t_{\text{last}}$ 为上次通信的迭代次数。
+
+\textbf{第二层：冲突阈值触发}
+
+当全局冲突指标超过阶段阈值$\tau(t)$时触发通信：
+
+\begin{equation}
+\text{Gate}_2(t) = \begin{cases}
+1, & \text{if } \text{CI}_t > \tau(t) \\
+0, & \text{otherwise}
+\end{cases}
+\end{equation}
+
+其中，$\tau(t)$为随阶段变化的冲突触发阈值，用于“低冲突时拒绝通信、高冲突时触发协商”。
+
+\textbf{第三层：阶段感知概率采样}
+
+根据搜索阶段进行概率采样：
+
+\begin{equation}
+\text{Gate}_3(t)=\mathbb{I}\big(\text{rand}(0,1)<t_{\text{phase}}(t)\big)
+\end{equation}
+
+其中，$t_{\text{phase}}(t)$为阶段概率：早期取较大值以增强探索，中期适度，后期较小以减少通信干扰、促进收敛。
+
+最终通信决策为三层门控的逻辑与：
+
+\begin{equation}
+\text{Communicate}(t) = \text{Gate}_1(t) \land \text{Gate}_2(t) \land \text{Gate}_3(t)
+\end{equation}
+
+该机制在保证协同效果的前提下显著降低通信频率。三层门控流程如图\ref{fig:gating3}所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{三层门控流程图.png}
+    \caption{三层门控机制图}
+    \label{fig:gating3}
+\end{figure}
+
+\noindent 
+\newpage
+\textbf{2.实验方案}
+
+为验证技术方案的有效性与稳定性，实验设置与对比如下。
+
+评价指标包括：
+
+\textbf{解质量指标：}采用相对百分比偏差（RPD），定义为：
+\begin{equation}
+RPD(\%) = \frac{f_{\text{算法}} - f_{\text{最优}}}{f_{\text{最优}}} \times 100\%
+\end{equation}
+其中，$f_{\text{算法}}$ 为相应算法输出的目标值，$f_{\text{最优}}$ 为所有RL方法中的最佳值。RPD值越小，解质量越高。
+
+\textbf{效率指标：}记录RL网络参数量、训练时间和内存占用，评估轻量级设计的资源效率。
+
+\textbf{稳定性指标：}使用Wilcoxon秩和检验评估不同RL方法间的显著性差异。
+
+\textbf{（3）扩展实验：新基准函数测试}
+
+为验证算法的可扩展性和泛化能力，后续将开展以下扩展实验：
+
+\textbf{高维度测试：}在CEC2013上测试更高维问题，评估算法在高维空间的性能。
+
+\textbf{新基准测试：}在CEC2024最新基准测试集上验证算法的泛化能力。
+
+\textbf{（4）应用场景测试：}加入实际场景
+
+\noindent 
+\textbf{3.可行性论述}
+
+\par
+\indent
+从理论层面看，多智能体协同进化、动态惩罚函数法以及强化学习辅助参数调控等方法已在约束优化与分布式决策问题中得到广泛研究，为本文技术方案提供了理论基础。
+
+从技术条件上看，群体智能优化与轻量级强化学习方法均具有成熟的实现框架，相关数值计算与并行计算工具（如MPI、Eigen）能够满足大规模分布式问题求解的需求，为多层协同与参数自适应机制的实现提供必要条件。
+
+从实施层面看，整体技术路线可按照机制设计、算法实现、对比实验与应用验证等阶段逐步推进，流程清晰，风险可控。在合理的时间与计算资源条件下具备现实可行性。
+
+\section{课题特色与创新性}
+面向大规模约束优化问题中普遍存在的约束结构复杂、演化效率受限以及参数设置高度依赖人工经验等特点，本课题围绕群体智能方法中的协同机制与参数调控方式开展系统研究，重点体现多层协同思想与学习型调节机制在复杂约束环境下的应用潜力。相关特色与创新性主要体现在以下几个方面：
+\par
+\indent
+(1)多层协同惩罚调控思想：从群体协同视角引入分层惩罚调控思路，系统刻画不同协同层级在约束引导、决策更新与演化稳定性中的功能分工，形成面向复杂约束问题的多层协同组织方式，为约束调控机制的设计提供新的建模视角。
+\par
+\indent
+(2)层次化控制与变量筛选机制：结合层次化控制结构，对大规模问题中的信息流动与变量参与方式进行约束与引导，通过突出关键变量在协同演化过程中的作用，降低决策冗余并缓解计算复杂度随问题规模增长带来的压力。
+\par
+\indent
+(3)学习型参数调节视角：引入强化学习机制辅助关键参数的动态调节，减少算法对人工经验设定的依赖，增强群体智能方法在不同问题规模与演化阶段下的自适应能力与调控稳定性。
+\par
+\indent
+(4)协同机制作用分析框架：从技术验证与机制分析角度，对不同调控策略在整体协同流程中的功能定位及其相互关系进行系统分析，为群体智能算法中协同结构与调控机制的设计与改进提供可参考的分析框架。
+
+\section{研究计划进度和预期成果}
+ \noindent
+ \textbf{1. 研究计划}
+\begin{itemize}
+    \item \textbf{（2024.10—2024.12）：}
+ \par
+\indent
+查阅传统分布式优化、协同进化、强化学习等相关文献，系统梳理群体智能优化、黑箱追踪及强化学习调控相关理论与方法，明确课题技术路线与总体思路；
+    \item \textbf{（2025.01—2025.12）：}
+\par
+\indent
+开展动态惩罚调控机制与变量重要性评估方法的理论分析，为多层协同调控框架的构建奠定基础。构建多层协同惩罚调控与层次化控制结构，完成核心机制实现并进行初步验证分析。结合典型测试问题，对相关技术路线进行验证与整理，分析不同机制在整体流程中的作用特点；完成动态惩罚机和智能通信策略的设计与实现；
+    
+    \item \textbf{（2026.01—2026.10）：}
+\par
+\indent
+阶段一：补充实验验证
+
+实验1：消融实验完整验证：验证RL调整α、三层门控、变量筛选的独立贡献
+
+实验2：不同RL方法性能对比：对比DQN、DoubleDQN、DuelingDQN、PPO、A2C与轻量级RL；评估参数量、训练时间、内存占用
+
+实验3：动态惩罚α调整效果验证：
+对比固定α vs RL动态调整；分析收敛速度和解质量
+
+实验4：三层门控机制效果验证
+对比无门控 vs 单层门控 vs 三层门控；量化通信成本降低程度
+
+实验5：变量重要性筛选效果验证
+对比全变量协商 vs Top-k筛选；分析不同筛选率的影响
+
+实验6：参数自适应调整综合验证：验证RL同时调整多参数的效果：对比单参数调整 vs 多参数协同调整
+
+阶段二：高维与新基准测试
+
+扩展实验1：更高维度测试，验证算法在高维问题上的可扩展性
+
+扩展实验2：新基准函数测试（CEC2024）   
+    \item \textbf{（2026.11—2027.01）：}
+\par
+\indent   
+完成对比实验，与主流算法进行性能比较；进行统计分析；开展应用场景下的综合性能验证与对比分析，完成整体内容梳理与论文撰写工作，形成阶段性成果总结。
+    \item \textbf{（2027.01—2027.06）：}
+    \par
+\indent  
+   完善理论分析，撰写学位论文；整理研究成果，投稿学术期刊。
+\end{itemize}
+
+ \noindent
+ \textbf{2.预期成果}
+ \par
+\indent  
+撰写专利一项，撰写论文1篇。
+\end{titlepage}

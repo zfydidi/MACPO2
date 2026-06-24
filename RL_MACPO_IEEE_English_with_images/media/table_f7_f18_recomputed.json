@@ -1,0 +1,371 @@
+{
+  "sources": {
+    "MACPO": "/Users/zhangyingjie/Project/MACPO2/MACPO_original_output",
+    "RL-MACPO": "/Users/zhangyingjie/Project/MACPO2/MACPO2_deployment/output",
+    "MACPO_metric": "penalized final fitness (completion logs)",
+    "RL_metric": "f_pure (last trajectory row; equals f_penalty at budget end)"
+  },
+  "functions": {
+    "F7": {
+      "LLSO": {
+        "MACPO_penalized": {
+          "mean": 2300800000.0,
+          "median": 2290000000.0,
+          "std": 204876385.4946034,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 14368000.0,
+          "median": 14400000.0,
+          "std": 456179.78911828174,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO_penalized": {
+          "mean": 3292800000.0,
+          "median": 3240000000.0,
+          "std": 160870548.37145713,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 45792000.0,
+          "median": 45900000.0,
+          "std": 1395803.2335063086,
+          "n": 25.0
+        }
+      }
+    },
+    "F8": {
+      "LLSO": {
+        "MACPO_penalized": {
+          "mean": 12704000.0,
+          "median": 12800000.0,
+          "std": 548847.2768752099,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 61868.0,
+          "median": 63000.0,
+          "std": 4110.729862202088,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO_penalized": {
+          "mean": 27720000.0,
+          "median": 27500000.0,
+          "std": 1450000.0,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 420160.0,
+          "median": 423000.0,
+          "std": 19556.925457068483,
+          "n": 25.0
+        }
+      }
+    },
+    "F9": {
+      "LLSO": {
+        "MACPO_penalized": {
+          "mean": 304840000000.0,
+          "median": 304000000000.0,
+          "std": 11689311356.961966,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 1010.44,
+          "median": 992.0,
+          "std": 247.91027946954253,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO_penalized": {
+          "mean": 240000000000.0,
+          "median": 238000000000.0,
+          "std": 8640987597.877148,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 1044.24,
+          "median": 1080.0,
+          "std": 212.35039439567802,
+          "n": 25.0
+        }
+      }
+    },
+    "F10": {
+      "LLSO": {
+        "MACPO_penalized": {
+          "mean": 1102400000.0,
+          "median": 1100000000.0,
+          "std": 75734184.26751995,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 7102000.0,
+          "median": 6990000.0,
+          "std": 340832.31458690454,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO_penalized": {
+          "mean": 1969200000.0,
+          "median": 1970000000.0,
+          "std": 159423963.06703708,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 23864000.0,
+          "median": 23900000.0,
+          "std": 998281.8573262095,
+          "n": 25.0
+        }
+      }
+    },
+    "F11": {
+      "LLSO": {
+        "MACPO_penalized": {
+          "mean": 54320000000.0,
+          "median": 54400000000.0,
+          "std": 3837642505.497353,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 7028800.0,
+          "median": 6980000.0,
+          "std": 248215.63206212455,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO_penalized": {
+          "mean": 48952000000.0,
+          "median": 47700000000.0,
+          "std": 3686814343.033834,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 23352000.0,
+          "median": 23300000.0,
+          "std": 836221.6612039338,
+          "n": 25.0
+        }
+      }
+    },
+    "F12": {
+      "LLSO": {
+        "MACPO_penalized": {
+          "mean": 53916000000.0,
+          "median": 52500000000.0,
+          "std": 6196348387.020644,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 27852.0,
+          "median": 27300.0,
+          "std": 2558.0135522184655,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO_penalized": {
+          "mean": 53284000000.0,
+          "median": 52600000000.0,
+          "std": 6015444012.428897,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 238600.0,
+          "median": 201000.0,
+          "std": 163816.97103780182,
+          "n": 25.0
+        }
+      }
+    },
+    "F13": {
+      "LLSO": {
+        "MACPO_penalized": {
+          "mean": 6960800000.0,
+          "median": 6930000000.0,
+          "std": 222072060.37680653,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 29140000.0,
+          "median": 29200000.0,
+          "std": 673300.3292241385,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO_penalized": {
+          "mean": 11664000000.0,
+          "median": 11600000000.0,
+          "std": 275196899.20733726,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 205440000.0,
+          "median": 205000000.0,
+          "std": 4628534.685333289,
+          "n": 25.0
+        }
+      }
+    },
+    "F14": {
+      "LLSO": {
+        "MACPO_penalized": {
+          "mean": 61984000.0,
+          "median": 61600000.0,
+          "std": 1413235.0594764245,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 520040.0,
+          "median": 517000.0,
+          "std": 19402.49124897797,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO_penalized": {
+          "mean": 348840000.0,
+          "median": 343000000.0,
+          "std": 23269579.569328994,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 6909200.0,
+          "median": 6900000.0,
+          "std": 291231.8663882783,
+          "n": 25.0
+        }
+      }
+    },
+    "F15": {
+      "LLSO": {
+        "MACPO_penalized": {
+          "mean": 1242800000000.0,
+          "median": 1240000000000.0,
+          "std": 24069344264.71426,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 841.4,
+          "median": 838.0,
+          "std": 189.19632660281755,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO_penalized": {
+          "mean": 902400000000.0,
+          "median": 904000000000.0,
+          "std": 15127238126.417305,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 819.84,
+          "median": 827.0,
+          "std": 170.70336844948315,
+          "n": 25.0
+        }
+      }
+    },
+    "F16": {
+      "LLSO": {
+        "MACPO_penalized": {
+          "mean": 2930400000.0,
+          "median": 2920000000.0,
+          "std": 80284909.33336517,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 14972000.0,
+          "median": 15000000.0,
+          "std": 470389.90918882034,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO_penalized": {
+          "mean": 7061200000.0,
+          "median": 6980000000.0,
+          "std": 292137524.6922814,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 107500000.0,
+          "median": 108000000.0,
+          "std": 4464116.1872573765,
+          "n": 25.0
+        }
+      }
+    },
+    "F17": {
+      "LLSO": {
+        "MACPO_penalized": {
+          "mean": 217280000000.0,
+          "median": 217000000000.0,
+          "std": 9723339618.327303,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 13812000.0,
+          "median": 13800000.0,
+          "std": 412633.81667850085,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO_penalized": {
+          "mean": 173680000000.0,
+          "median": 172000000000.0,
+          "std": 9276852914.647295,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 104048000.0,
+          "median": 105000000.0,
+          "std": 2850309.9246690115,
+          "n": 25.0
+        }
+      }
+    },
+    "F18": {
+      "LLSO": {
+        "MACPO_penalized": {
+          "mean": 227787520000.0,
+          "median": 229353000000.0,
+          "std": 14437235634.28955,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 260760.0,
+          "median": 261000.0,
+          "std": 11248.259124563825,
+          "n": 25.0
+        }
+      },
+      "CSO": {
+        "MACPO_penalized": {
+          "mean": 200920000000.0,
+          "median": 203000000000.0,
+          "std": 15110482013.048645,
+          "n": 25.0
+        },
+        "RL-MACPO_f_pure": {
+          "mean": 3269200.0,
+          "median": 3260000.0,
+          "std": 132127.4637108677,
+          "n": 25.0
+        }
+      }
+    }
+  },
+  "metric_note": "\\paragraph{F7--F18 data sources and metrics.} Table~\\ref{tab:macpo_rl_mean_f1_f18} MACPO entries are recomputed from \\texttt{MACPO\\_original\\_output/\\{LLSO,CSO\\}/F*/LLSO\\_F*\\_exp*.log} (penalized \\texttt{final fitness}). RL-MACPO entries use last-row \\texttt{f\\_pure} from \\texttt{MACPO2\\_deployment/output/\\{LLSO,CSO\\}/F*/F*\\_exp*.txt}. Both sides share the same 25-run evaluation-budget protocol; only the logged objective field differs because the MACPO baseline archive lacks \\texttt{f\\_pure} trajectories beyond F6."
+}

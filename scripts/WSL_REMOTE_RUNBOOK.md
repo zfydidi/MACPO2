@@ -7,6 +7,45 @@
 
 ---
 
+## 0a. 局域网分发（学校网无法 GitHub 时）
+
+在 **Mac** 上（需 `brew install hudochenkov/sshpass/sshpass`）：
+
+```bash
+# 1) 复制并编辑机器列表（密码仅保存在本地，已 gitignore）
+cp scripts/lan_hosts.example.tsv scripts/lan_hosts.local.tsv
+
+# 2) 一键按分工表分发 + 启动（推荐）
+bash scripts/lan_dispatch_all.sh
+
+# 分工（scripts/lan_dispatch_plan.tsv）:
+#   F13→.48  F14→.50  F15→.47  F16→.23  F17→.61  F18→.49
+#   GFPDO→.27  DPSO→.25   （.24 需管理员装 WSL，代码可 git clone 到 D:\\zyj\\MACPO2）
+
+# 注意: .25/.27 可能 ping 不通但 SSH 可用；已 git clone 的机器无需 lan_distribute，直接:
+#   TASK=baselines_dpso  bash scripts/lan_run_remote.sh --host 10.21.51.25
+#   TASK=baselines_gfpdo bash scripts/lan_run_remote.sh --host 10.21.51.27
+
+# 3) 仅分发 / 仅启动
+bash scripts/lan_dispatch_all.sh --distribute-only
+bash scripts/lan_dispatch_all.sh --run-only
+
+# 4) 单机手动
+FUNCS=F13 bash scripts/lan_run_remote.sh --host 10.21.51.48
+TASK=baselines_gfpdo bash scripts/lan_run_remote.sh --host 10.21.51.24
+TASK=baselines_dpso  bash scripts/lan_run_remote.sh --host 10.21.51.25
+
+# 5) 跑完后拉回 Mac 并更新论文表
+bash scripts/lan_fetch_results.sh --all
+bash scripts/lan_fetch_results.sh --baselines
+python3 scripts/aggregate_comm_rate_f1_f18.py
+python3 scripts/patch_conference_comm_section.py
+```
+
+WSL 内日志：`tail -f /mnt/e/zyj/MACPO2/logs/*.log`（路径因机器而异）。
+
+---
+
 ## 0. 两台机器分工
 
 | 任务 | 目录 | 函数 | MPI 进程数 |

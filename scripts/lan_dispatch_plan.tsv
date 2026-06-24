@@ -1,0 +1,11 @@
+# 实验分工（与 lan_dispatch_all.sh 一致）
+# IP	任务类型	参数
+# 说明: .25 DPSO / .27 GFPDO（已 git clone）；.24 需管理员权限装 WSL 后作备用
+10.21.51.48	comm	F13
+10.21.51.50	comm	F14
+10.21.51.47	comm	F15
+10.21.51.23	comm	F16
+10.21.51.61	comm	F17
+10.21.51.49	comm	F18
+10.21.51.27	baselines_gfpdo	
+10.21.51.25	baselines_dpso	

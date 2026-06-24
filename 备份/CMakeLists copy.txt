@@ -1,0 +1,44 @@
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+project(MACPO2)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Find MPI
+find_package(MPI REQUIRED)
+include_directories(${MPI_INCLUDE_PATH})
+
+# Find Eigen3
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+
+# Set MPI compiler
+SET(CMAKE_CXX_COMPILER mpicxx)
+SET(CMAKE_C_COMPILER mpicc)
+
+# Build MACPO_simplified (main executable)
+add_executable(MACPO_simplified 
+    Benchmarks/Benchmarks.cpp
+    MACPO_simplified.cpp
+    components/evaluator.cpp
+)
+
+target_link_libraries(MACPO_simplified 
+    PRIVATE 
+    Eigen3::Eigen
+    ${MPI_LIBRARIES}
+)
+
+# Build MACPO_CSO_properly_fixed (if exists)
+if(EXISTS ${CMAKE_SOURCE_DIR}/MACPO_CSO_properly_fixed.cpp)
+    add_executable(MACPO_CSO_properly_fixed 
+        Benchmarks/Benchmarks.cpp
+        MACPO_CSO_properly_fixed.cpp
+        components/evaluator.cpp
+    )
+    target_link_libraries(MACPO_CSO_properly_fixed 
+        PRIVATE 
+        Eigen3::Eigen
+        ${MPI_LIBRARIES}
+    )
+endif()

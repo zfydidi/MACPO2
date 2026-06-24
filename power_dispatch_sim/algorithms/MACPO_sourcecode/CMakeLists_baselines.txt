@@ -1,0 +1,34 @@
+# 与主 MACPO 并行：仅编译 DPSO / GFPDO 基线（无 MPI）
+# 用法: cmake -S . -B build_baselines -DCMAKE_PREFIX_PATH=<eigen> -C CMakeLists_baselines.txt
+# 更简单: cmake -S . -B build_baselines -f CMakeLists_baselines.txt  (部分版本不支持 -f)
+# 推荐：复制本文件为 CMakeLists.txt 或:
+#   cmake -S . -B build_baselines -DCMAKE_TOOLCHAIN_FILE=...
+#
+# 实际用法（在 MACPO_sourcecode 目录）:
+#   cmake -S . -B build_b -DCMAKE_BUILD_TYPE=Release
+# 下面用独立片段：见 CMake 文档，或直接用下面命令替换默认工程文件。
+
+cmake_minimum_required(VERSION 3.10)
+project(MACPO_baselines CXX)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(Eigen3 REQUIRED)
+set(MACPO_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${MACPO_ROOT})
+include_directories(${EIGEN3_INCLUDE_DIR})
+
+set(BENCH_SRC ${MACPO_ROOT}/Benchmarks/Benchmarks.cpp)
+
+add_executable(DPSO1 ${MACPO_ROOT}/DPSO1.cpp ${BENCH_SRC})
+target_link_libraries(DPSO1 PRIVATE Eigen3::Eigen)
+target_include_directories(DPSO1 PRIVATE ${MACPO_ROOT})
+
+add_executable(DPSO_overlap_2 ${MACPO_ROOT}/DPSO_overlap_2.cpp ${BENCH_SRC})
+target_link_libraries(DPSO_overlap_2 PRIVATE Eigen3::Eigen)
+target_include_directories(DPSO_overlap_2 PRIVATE ${MACPO_ROOT})
+
+add_executable(GFPDO_overlap ${MACPO_ROOT}/GFPDO_overlap.cpp ${BENCH_SRC})
+target_link_libraries(GFPDO_overlap PRIVATE Eigen3::Eigen)
+target_include_directories(GFPDO_overlap PRIVATE ${MACPO_ROOT})

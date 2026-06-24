@@ -1,0 +1,1335 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}  % 使用algpseudocode代替algorithmic
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning}
+\usepackage[margin=2cm]{geometry}
+
+\title{MACPO: Multi-Agent Cooperative Parallel Optimization \\ with Reinforcement Learning}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Algorithm Flowchart}
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=0.7cm,
+    box/.style={rectangle, draw, minimum width=2cm, minimum height=0.6cm, font=\scriptsize},
+    round/.style={rectangle, rounded corners, draw, fill=red!20, minimum width=2cm, minimum height=0.6cm, font=\scriptsize},
+    proc/.style={box, fill=blue!15},
+    deci/.style={diamond, draw, fill=green!15, aspect=2.5, minimum width=1.5cm, font=\scriptsize},
+    comm/.style={box, fill=orange!15},
+    out/.style={box, fill=yellow!15, minimum width=1.5cm, minimum height=0.5cm},
+    arrow/.style={->, >=stealth, thick}
+]
+
+% Main flow
+\node[round] (start) {Init: $\alpha=0$};
+\node[deci, below=of start] (loop) {iter$<$max?};
+\node[proc, below=of loop] (pso) {1:PSO/LLSO};
+\node[proc, below=of pso] (best) {2:localBest};
+\node[proc, below=of best] (conf) {3:conflict};
+\node[deci, below=of conf] (gate) {4:CI$>$T?};
+
+% Right branch
+\node[comm, right=2cm of gate] (nego) {5:Exchange};
+\node[comm, below=of nego] (nash) {6:Nash};
+\node[comm, below=of nash] (grad) {7:Gradient};
+
+% Left branch
+\node[proc, left=1.5cm of gate] (skip) {8:Skip};
+
+% Merge
+\node[proc, below=1.2cm of gate] (merge) {9:globalBest};
+\node[proc, below=of merge] (eval) {10:Evaluate};
+\node[proc, below=of eval] (mpi) {11:MPI};
+
+% Right output
+\node[out, right=0.5cm of mpi] (fp) {$f_{pure}$};
+\node[out, below=0.2cm of fp] (fpen) {$f_{penalty}$};
+
+% Continue
+\node[proc, below=0.8cm of mpi] (imp) {12:improve};
+\node[proc, below=of imp] (rew) {13:reward};
+\node[proc, below=of rew] (rl) {14:RL-$\alpha$};
+\node[proc, below=of rl] (outp) {15:Output};
+\node[deci, below=of outp] (check) {16:End?};
+\node[round, below=of check] (end) {End};
+
+% Arrows
+\draw[arrow] (start) -- (loop);
+\draw[arrow] (loop) -- node[right,font=\tiny]{Y} (pso);
+\draw[arrow] (pso) -- (best);
+\draw[arrow] (best) -- (conf);
+\draw[arrow] (conf) -- (gate);
+\draw[arrow] (gate) -- node[above,font=\tiny]{Y} (nego);
+\draw[arrow] (nego) -- (nash);
+\draw[arrow] (nash) -- (grad);
+\draw[arrow] (grad) -| (merge);
+\draw[arrow] (gate) -- node[above,font=\tiny]{N} (skip);
+\draw[arrow] (skip) |- (merge);
+\draw[arrow] (merge) -- (eval);
+\draw[arrow] (eval) -- (mpi);
+\draw[arrow, dashed] (mpi) -- (fp);
+\draw[arrow] (fp) -- (fpen);
+\draw[arrow] (mpi) -- (imp);
+\draw[arrow] (imp) -- (rew);
+\draw[arrow] (rew) -- (rl);
+\draw[arrow] (rl) -- (outp);
+\draw[arrow] (outp) -- (check);
+\draw[arrow] (check) -- node[right,font=\tiny]{Y} (end);
+\draw[arrow] (check.west) -| ++(-2.5,0) |- node[near end,above,font=\tiny]{N} (loop.west);
+\draw[arrow] (loop.east) -| ++(1.5,0) |- node[near start,above,font=\tiny]{N} (end.east);
+
+\end{tikzpicture}
+\end{center}
+
+\section{Algorithm Pseudocode}
+
+\begin{algorithm}
+\caption{MACPO with RL-based Adaptive Penalty}
+\begin{algorithmic}[1]
+\Require Global objective $F(x) = \sum_{i=1}^N f_i(x_i)$, Agent count $N$, Max evaluations $E_{\max}$
+\Ensure Optimal solution $x^*$, Optimal value $F(x^*)$
+
+\State \textbf{Initialize on each agent $i \in \{1, \ldots, N\}$:}
+\State \quad Population $\mathcal{P}_i$ with $M=300$ particles, each $x_k \in \mathbb{R}^{D_i}$
+\State \quad Consensus reference $x_{i,\text{con}} \gets \text{random solution}$
+\State \quad Penalty coefficient $\alpha_i \gets 0$ \Comment{Start from zero, RL will adjust}
+\State \quad RL policy network $\pi_\theta$: weights $W \in \mathbb{R}^{1 \times 2}$, bias $b \in \mathbb{R}$ (random init)
+\State \quad Conflict history buffer $H_i \gets []$ (max size 10)
+\State \quad Replay buffer $\mathcal{B}_i \gets \emptyset$
+\State \quad Previous fitness $f_{\text{prev}} \gets \infty$
+
+\While{$\text{eval\_count} < E_{\max}$}
+    \State \textbf{/* PHASE 1: Local Optimization with Penalty */}
+    \For{$g = 1$ to $\text{gen\_times}$}
+        \For{each particle $x_k \in \mathcal{P}_i$}
+            \State Compute conflict: $c_k \gets \sum_{d \in O_i} \frac{|x_k^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}$
+            \State Evaluate penalized fitness: $h_i(x_k) \gets f_i(x_k) + \alpha_i \cdot c_k$
+        \EndFor
+        \State Update velocities and positions (standard PSO/LLSO)
+    \EndFor
+    
+    \State \textbf{/* PHASE 2: Select Local Best */}
+    \State Find best particle: $x_{i,\text{best}} \gets \arg\min_{x_k \in \mathcal{P}_i} h_i(x_k)$
+    
+    \State \textbf{/* PHASE 3: Compute Conflict for Monitoring */}
+    \State $\text{conflict}_i \gets \sum_{d \in O_i} \frac{|x_{i,\text{best}}^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}$
+    \State Append to history: $H_i.\text{push}(\text{conflict}_i)$
+    
+    \State \textbf{/* PHASE 4: Communication Decision (Three-Layer Gating) */}
+    \State Smooth conflict: $\text{CI}_{\text{smooth}} \gets 0.7 \cdot \text{CI}_{\text{smooth}} + 0.3 \cdot \text{conflict}_i$
+    \State Check conditions:
+    \State \quad $\text{cond}_1 \gets (\text{iter} - \text{last\_comm} \geq 10)$ \Comment{Min interval}
+    \State \quad $\text{cond}_2 \gets (\text{CI}_{\text{smooth}} > \text{threshold})$ \Comment{Adaptive threshold}
+    \State \quad $\text{cond}_3 \gets (\text{rand}() < f_{\text{phase}})$ \Comment{Phase-based sampling}
+    \State $\text{should\_comm}_i \gets \text{cond}_1 \land \text{cond}_2 \land \text{cond}_3$
+    \State Global decision: $\text{do\_comm} \gets \text{MPI\_Allreduce}(\text{should\_comm}_i, \text{MAX})$
+    
+    \If{$\text{do\_comm} = \text{true}$}
+        \State \textbf{/* PHASE 5-7: Negotiation */}
+        \State \textit{Step 5:} Exchange solutions with neighbors via MPI\_Isend/Recv
+        \State \textit{Step 6:} Nash bargaining on overlapping variables
+        \State \quad Initialize $x_{i,\text{temp}} \gets x_{i,\text{best}}$
+        \For{each neighbor $j$ and shared dimension $d \in O_i \cap O_j$}
+            \State Evaluate cross-impact: $f_{ii} \gets f_i(x_{i,\text{best}})$, $f_{ij} \gets f_j(x_{i,\text{best}})$
+            \State \quad\quad\quad\quad\quad\quad\quad $f_{ji} \gets f_i(x_{j,\text{best}})$, $f_{jj} \gets f_j(x_{j,\text{best}})$
+            \If{$f_{ii} + f_{ji} > f_{ij} + f_{jj}$}
+                \State $x_{i,\text{temp}}^d \gets x_{j,\text{best}}^d$ \Comment{Adopt neighbor's value}
+            \EndIf
+        \EndFor
+        \State \textit{Step 7:} Gradient-based conflict detection (optional, can be skipped)
+        \State Update consensus: $x_{i,\text{con}} \gets x_{i,\text{temp}}$
+        \State $\text{last\_comm} \gets \text{iter}$
+    \Else
+        \State \textbf{/* PHASE 8: Skip Negotiation */}
+        \State $x_{i,\text{con}} \gets x_{i,\text{best}}$ \Comment{Use local best directly}
+    \EndIf
+    
+    \State \textbf{/* PHASE 9: Update Optimizer State */}
+    \State Set global best in optimizer to $x_{i,\text{con}}$
+    \State Re-evaluate all particles in $\mathcal{P}_i$ with updated $x_{i,\text{con}}$
+    \State Sort $\mathcal{P}_i$ by penalized fitness $h_i$
+    
+    \State \textbf{/* PHASE 10: Compute Global Metrics */}
+    \State Local pure fitness: $f_i^{\text{local}} \gets f_i(x_{i,\text{con}})$
+    \State Local penalized fitness: $h_i^{\text{local}} \gets h_i(x_{i,\text{con}})$
+    \State Global pure fitness: $f^{\text{pure}} \gets \text{MPI\_Allreduce}(f_i^{\text{local}}, \text{SUM}) / N$
+    \State Global penalized fitness: $h^{\text{penalty}} \gets \text{MPI\_Allreduce}(h_i^{\text{local}}, \text{SUM}) / N$
+    \State Penalty term: $\text{penalty} \gets h^{\text{penalty}} - f^{\text{pure}}$
+    
+    \State \textbf{/* PHASE 11: RL Update for Penalty Coefficient */}
+    \State Compute improvement: $\text{improv} \gets (f_{\text{prev}} - f^{\text{pure}}) / \max(|f_{\text{prev}}|, 10^{-8})$
+    \State Compute reward (Scheme 5): $r \gets \tanh\!\left(-\Delta\text{conflict}_{\text{rate}} \cdot \Delta f_{\text{pure,rate}} \cdot 100\right)$
+    \State Build state: $s \gets [\text{conflict}_i, H_i[\text{end}] - H_i[\text{end}-1]]^T$ \Comment{[conflict, trend]}
+    \State Policy forward: $a \gets \tanh(W \cdot s + b)$
+    \State Update $\alpha$: $\alpha_i \gets \text{clip}(\alpha_i + 0.01 \cdot a, 0.01, 1.0)$
+    \State Store experience: $\mathcal{B}_i.\text{add}((s, a, r, |r|))$ \Comment{Priority = |r|}
+    \If{$|\mathcal{B}_i| \geq 32$}
+        \State Sample 32 experiences by priority
+        \For{each sampled $(s', a', r', p)$}
+            \State Target action: $a_{\text{target}} \gets a' + 0.1 \cdot r'$
+            \State Compute loss: $\mathcal{L} \gets (a_{\text{target}} - \pi_\theta(s'))^2$
+            \State Gradient descent: $\theta \gets \theta - 0.01 \cdot \nabla_\theta \mathcal{L}$
+        \EndFor
+    \EndIf
+    \State Update: $f_{\text{prev}} \gets f^{\text{pure}}$
+    
+    \If{$\text{rank}_i = 0$}
+        \State Output metrics: (iter, eval\_count, $f^{\text{pure}}$, penalty, $\alpha_i$, conflict, improv, $r$)
+    \EndIf
+\EndWhile
+
+\State \Return $x^* \gets \bigcup_{i=1}^N x_{i,\text{con}}$, $F(x^*) = N \cdot f^{\text{pure}}$
+
+\end{algorithmic}
+\end{algorithm}
+
+\section{Mathematical Formulas by Flowchart Steps}
+
+\subsection{Step 0: Initialization}
+\textbf{Global objective function} to minimize (distributed across $N$ agents):
+\begin{equation}
+\min_{x} F(x) = \sum_{i=1}^N f_i(x_i), \quad x_i \in \Omega_i \subset \mathbb{R}^{d_i}
+\end{equation}
+
+\textbf{Notation convention:}
+\begin{itemize}
+    \item $F(x)$: Global objective (sum of all agents' local objectives)
+    \item $f_i(x_i)$: Agent $i$'s local objective (pure fitness, no penalty)
+    \item $h_i(x_i)$: Agent $i$'s penalized fitness (used in PSO optimization)
+    \item Initial penalty coefficient: $\alpha_0 = 0$ (starts from zero, RL adjusts dynamically)
+\end{itemize}
+
+\textbf{Summary of notation system:}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Symbol} & \textbf{Meaning} & \textbf{Usage} \\
+\hline
+$F(x)$ & Global objective & $F(x) = \sum_{i=1}^N f_i(x_i)$ \\
+$f_i(x_i)$ & Pure local fitness (agent $i$) & No penalty, true objective \\
+$h_i(x_i)$ & Penalized local fitness (agent $i$) & $h_i = f_i + \alpha \cdot \text{conflict}_i$ \\
+$\text{conflict}_i(x_i)$ & Conflict penalty (L1-norm sum) & $\sum_d \frac{|x_{i,d} - x_{i,\text{con}}^d|}{\text{range}}$ \\
+$x_{i,\text{con}}$ & Consensus reference (agent $i$) & Updated each iteration (Step 9) \\
+$f^{\text{pure}}$ & Average pure fitness & $\frac{1}{N}\sum_{i=1}^N f_i(x_{i,\text{con}})$ \\
+$h^{\text{penalty}}$ & Average penalized fitness & $\frac{1}{N}\sum_{i=1}^N h_i(x_{i,\text{con}})$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Key points about conflict calculation:}
+\begin{itemize}
+    \item \textbf{Not averaged:} $\text{conflict}_i = \sum_{d \in O_i} \frac{|Δx_d|}{\text{range}}$ (sum over dimensions)
+    \item \textbf{Range:} $\text{conflict}_i \in [0, |O_i|]$ scales with number of overlapping dimensions
+    \item \textbf{RL compensation:} The learned $\alpha$ automatically adjusts for problem-specific conflict scales
+    \item \textbf{Typical magnitude:} $\text{conflict}_i \approx 0.5 \sim 5.0$ for well-tuned systems
+\end{itemize}
+
+\textbf{Key relationship:} At convergence, $h_i(x^*) = f_i(x^*)$ and $F(x^*) = N \cdot f^{\text{pure}}$
+
+\subsection{Step 1: PSO/LLSO/CSO Local Optimization}
+\textbf{Penalized local fitness} for each agent $i$ (used in PSO):
+\begin{equation}
+h_i(x_i) = f_i(x_i) + \alpha_i(t) \cdot \text{conflict}_i(x_i)
+\end{equation}
+
+where the conflict penalty term is defined as:
+\begin{equation}
+\text{conflict}_i(x_i) = \sum_{d \in O_i} \frac{|x_{i,d} - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}
+\end{equation}
+
+\textbf{Important note:} The conflict is the \textbf{sum} over all overlapping dimensions (not averaged). This design choice means:
+\begin{itemize}
+    \item Larger overlap size $|O_i|$ → larger conflict value (proportional scaling)
+    \item The RL-adjusted $\alpha$ will adaptively compensate for different problem scales
+    \item Typical conflict magnitude: $\text{conflict}_i \in [0, |O_i|]$ (not normalized to [0,1])
+\end{itemize}
+
+\textbf{Symbol definitions:}
+\begin{itemize}
+    \item $h_i(x_i)$: Penalized fitness for agent $i$ (PSO optimization objective)
+    \item $f_i(x_i)$: Pure local fitness for agent $i$ (no penalty)
+    \item $x_i \in \mathbb{R}^{D_i}$: Local solution vector for agent $i$ (including all variables)
+    \item $x_{i,d}$: The value of the $d$-th decision variable in agent $i$'s current solution $x_i$
+    \item $O_i$: Set of overlapping variable indices that agent $i$ shares with neighbors
+    \item $x_{i,\text{con}}^d$: \textbf{Consensus reference value} for dimension $d$ (from previous iteration's Step 9)
+    \item $\alpha_i(t) \in [0.01, 1.0]$: Time-varying penalty coefficient adjusted by RL
+    \item $\text{conflict}_i(x_i)$: Normalized conflict measure (L1-norm sum, range $[0, |O_i|]$)
+\end{itemize}
+
+\textbf{Physical meaning:} The conflict penalty $\text{conflict}_i(x_i)$ measures the \textbf{sum of normalized L1-distances} across all overlapping dimensions, driving overlapping variables towards agreement. The conflict scales linearly with $|O_i|$ (number of overlapping dimensions), and the RL mechanism adaptively adjusts $\alpha$ to maintain appropriate penalty strength.
+
+\textbf{Example:} Consider a 1000-dimensional problem with 2 agents:
+\begin{itemize}
+    \item Agent 1: manages variables $x_1, x_2, \ldots, x_{600}$ (dimensions 1-600)
+    \item Agent 2: manages variables $x_{401}, x_{402}, \ldots, x_{1000}$ (dimensions 401-1000)
+    \item Overlapping region: $O_1 = O_2 = \{401, 402, \ldots, 600\}$ (200 shared variables)
+\end{itemize}
+For agent 1, the penalized fitness is:
+\begin{equation}
+h_1(x_1) = f_1(x_1) + \alpha_1(t) \cdot \text{conflict}_1(x_1)
+\end{equation}
+where
+\begin{equation}
+\text{conflict}_1(x_1) = \sum_{d=401}^{600} \frac{|x_{1,d} - x_{1,\text{con}}^d|}{x_{\max} - x_{\min}}
+\end{equation}
+
+\textbf{Numerical example:} Assume $x_{\max} - x_{\min} = 100$ and average deviation is $|x_{1,d} - x_{1,\text{con}}^d| = 1.0$:
+\begin{equation}
+\text{conflict}_1 = \sum_{d=401}^{600} \frac{1.0}{100} = 200 \times 0.01 = 2.0
+\end{equation}
+
+\textbf{Scaling observation:} With 200 overlapping dimensions, the conflict magnitude is $\sim 2.0$ (not 0.01). The RL mechanism learns to adjust $\alpha$ accordingly to maintain effective penalty strength.
+
+\textbf{Important clarification:} In Step 1, the penalty is applied to \textbf{every particle} during PSO optimization:
+\begin{itemize}
+    \item Population size: $M = 300$ particles
+    \item Each particle $k$: $x_k \in \mathbb{R}^{600}$ for agent 1
+    \item Penalized fitness for particle $k$: $h_1(x_k) = f_1(x_k) + \alpha_1(t) \cdot \text{conflict}_1(x_k)$
+    \item PSO updates all 300 particles using $h_i$, not $f_i$
+\end{itemize}
+
+\subsection{Step 2: Get Local Best (localBestPar)}
+Extract the best solution from local population after PSO optimization:
+\begin{equation}
+x_i^{\text{best}} = x_{\text{bestIndex}}, \quad \text{bestIndex} = \arg\min_{k \in [1,M]} h_i(x_k)
+\end{equation}
+
+\textbf{Implementation:} \texttt{Optimizer->getBestPar()} returns the position vector of the particle with lowest penalized fitness $h_i$:
+\begin{itemize}
+    \item For PSO: Returns \texttt{swarm[bestParIndex]->X} (best particle's position)
+    \item For LLSO/CSO: Returns \texttt{swarm[0]->X} (first particle after sorting)
+    \item Result: $x_i^{\text{best}} \in \mathbb{R}^{D_i}$ is a complete solution vector, NOT an average
+\end{itemize}
+
+\textbf{Key distinction:}
+\begin{itemize}
+    \item Step 1: Evaluates \textbf{all $M$ particles} using $h_i(x_k)$ (penalized fitness)
+    \item Step 2: Selects the \textbf{single best particle} with minimum $h_i$
+    \item The selection is based on $h_i$, but later we also compute pure fitness $f_i(x_i^{\text{best}})$
+\end{itemize}
+
+\subsection{Step 3: Conflict Calculation}
+Compute normalized conflict measure using the best solution obtained from Step 2:
+\begin{equation}
+\text{conflict}_i = \sum_{d \in O_i} \frac{|x_{i,\text{best}}^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}
+\end{equation}
+
+\textbf{Key points:}
+\begin{itemize}
+    \item Uses $x_{i,\text{best}}$ from Step 2 (the single best particle, not the entire population)
+    \item $x_{i,\text{best}}^d$ denotes the value at dimension $d$ in this best solution
+    \item $x_{i,\text{con}}^d$ is the consensus reference from previous iteration (Step 9)
+    \item Normalized by variable bounds (dividing by $x_{\max} - x_{\min}$)
+    \item Uses L1-norm (absolute value) for interpretable distance measurement
+    \item Result: $\text{conflict}_i \in [0, |O_i|]$ represents sum of normalized deviations across overlapping dimensions
+    \item \textbf{No averaging:} The conflict is summed over all dimensions, not divided by $|O_i|$
+\end{itemize}
+
+\textbf{Design rationale: Why sum instead of average?}
+
+The current implementation uses $\text{conflict}_i = \sum_{d \in O_i} \frac{|Δx_d|}{\text{range}}$ (sum) rather than $\frac{1}{|O_i|}\sum_{d \in O_i} \frac{|Δx_d|}{\text{range}}$ (average). This design choice has important implications:
+
+\begin{enumerate}
+    \item \textbf{Problem-scale awareness:}
+    \begin{itemize}
+        \item With sum: $\text{conflict}_i \propto |O_i|$ (scales with overlap size)
+        \item With average: $\text{conflict}_i \in [0,1]$ (fixed range regardless of problem size)
+        \item Benefit: The penalty naturally reflects the complexity of coordination (more overlapping dimensions → higher coordination challenge)
+    \end{itemize}
+    
+    \item \textbf{Adaptive α compensation:}
+    \begin{itemize}
+        \item The RL mechanism learns an appropriate $\alpha$ that compensates for the conflict scale
+        \item For large $|O_i|$: RL learns smaller $\alpha$ to avoid over-penalization
+        \item For small $|O_i|$: RL learns larger $\alpha$ to maintain sufficient penalty strength
+        \item Result: $\alpha \times \text{conflict}_i$ adapts to maintain consistent penalty-to-fitness ratio
+    \end{itemize}
+    
+    \item \textbf{Comparison with original paper:}
+    \begin{itemize}
+        \item Original MACPO: $\alpha = |f| / 512$ (fixed formula)
+        \item Current implementation: $\alpha = \text{base\_alpha} \times \text{RL\_ratio}$ where $\text{base\_alpha} = |f| / 512$
+        \item Both approaches scale $\alpha$ with objective magnitude, ensuring penalty remains meaningful
+        \item Original: conflict includes $|O_i|$ in denominator, $\alpha$ is larger
+        \item Current: conflict excludes $|O_i|$ in denominator, $\alpha$ is smaller (RL-adjusted)
+        \item \textbf{Key insight:} The product $\alpha \times \text{conflict}$ should have similar order of magnitude in both versions
+    \end{itemize}
+    
+    \item \textbf{Numerical example:}
+    \begin{itemize}
+        \item Problem: $|O_i| = 200$, average deviation = 0.5, range = 100, $f = 10^5$
+        \item Current (sum): $\text{conflict} = 200 \times (0.5/100) = 1.0$
+        \item Original (average): $\text{conflict} = (200 \times 0.5/100) / 200 = 0.005$
+        \item Current: $\alpha \approx (10^5 / 512) \times 0.001 = 0.195$ (RL-adjusted) $\Rightarrow$ penalty $\approx 0.195$
+        \item Original: $\alpha = 10^5 / 512 = 195.3$ $\Rightarrow$ penalty $\approx 195.3 \times 0.005 = 0.977$
+        \item Both achieve penalty $\sim 0.2\% \times f$ through different $\alpha$ scaling strategies
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Practical advantage of current design:}
+\begin{itemize}
+    \item \textbf{Automatic adaptation:} No need to manually tune $\alpha$ for different problem sizes
+    \item \textbf{Learning flexibility:} RL can discover non-linear relationships between conflict and optimal penalty
+    \item \textbf{Robustness:} Works well across diverse benchmark functions (F1-F6 validated)
+\end{itemize}
+
+\textbf{Relationship with Step 1 penalty:}
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Aspect} & \textbf{Step 1 ($h_i$)} & \textbf{Step 3 (conflict)} \\
+\hline
+Purpose & Optimization guidance & Monitoring/Gating metric \\
+Function & $h_i = f_i + \alpha \cdot \text{conflict}_i$ & $\text{conflict}_i$ (same formula) \\
+Formula & $\sum_d \frac{|x_{i,d} - x_{i,\text{con}}^d|}{\text{range}}$ & $\sum_d \frac{|x_{i,\text{best}}^d - x_{i,\text{con}}^d|}{\text{range}}$ \\
+Norm type & L1 (absolute) & L1 (absolute) \\
+Normalization & Per-dimension (by range) & Per-dimension (by range) \\
+Averaging & No (sum over dimensions) & No (sum over dimensions) \\
+Weight & $\alpha(t)$ (adaptive) & 1 (unweighted) \\
+Applied to & All $M$ particles & Best particle only \\
+Range & $[0, |O_i|]$ & $[0, |O_i|]$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Key insight:} Step 3's conflict measure is \textbf{exactly the same} as the penalty term in Step 1, just evaluated on the best particle instead of all particles. This ensures consistency between optimization guidance and communication decisions.
+
+\subsection{Step 4: Communication Index Gating (CI $>$ Threshold?)}
+
+\textbf{Step 4.1: Compute raw Conflict Index}
+
+Using L1-norm sum (NOT averaged), SAME formula as Step 3:
+\begin{equation}
+\text{CI}_i^{\text{raw}} = \sum_{d \in O_i} \frac{|x_{i,\text{best}}^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}
+\end{equation}
+
+\textbf{Important:} $\text{CI}_i^{\text{raw}} \in [0, |O_i|]$ scales with overlap size.
+
+\textbf{Step 4.2: Exponential smoothing to reduce transient fluctuations}
+
+To mitigate the impact of momentary noise, apply exponential moving average:
+\begin{equation}
+\text{CI}_i^{\text{smooth}} = \beta \cdot \text{CI}_i^{\text{smooth}} + (1 - \beta) \cdot \text{CI}_i^{\text{raw}}
+\end{equation}
+where $\beta = 0.7$ is the smoothing coefficient (70\% history + 30\% current).
+
+\textbf{Step 4.3: Three-tier communication gating mechanism}
+
+Communication is triggered only when ALL three conditions are satisfied:
+
+\textbf{Condition 1: Minimum interval constraint}
+\begin{equation}
+\text{iter}_{\text{current}} - \text{iter}_{\text{last\_comm}} \geq T_{\min}
+\end{equation}
+Prevents excessive communication-induced oscillations. Default: $T_{\min} = 10$ iterations.
+
+\textbf{Condition 2: Adaptive threshold test}
+\begin{equation}
+\text{CI}_i^{\text{smooth}} > \tau(t)
+\end{equation}
+where $\tau(t)$ is dynamically adjusted:
+\begin{itemize}
+    \item When conflicts are frequent: $\tau \downarrow$ (lower threshold, increase communication)
+    \item When conflicts are sparse or communication benefit is low: $\tau \uparrow$ (raise threshold, save overhead)
+    \item Specific adjustment rule:
+    \begin{equation}
+    \tau(t) = \begin{cases}
+    0.5 \cdot \tau_{\text{base}} & \text{if } \text{CI}_i^{\text{smooth}} > 0.7 \text{ (high conflict)} \\
+    2.0 \cdot \tau_{\text{base}} & \text{if } \text{CI}_i^{\text{smooth}} < 0.3 \text{ (low conflict)} \\
+    \tau_{\text{base}} & \text{otherwise}
+    \end{cases}
+    \end{equation}
+    where $\tau_{\text{base}} = 0.02$.
+\end{itemize}
+
+\textbf{Condition 3: Phase-based frequency sampling}
+
+Use probabilistic gating to avoid deterministic over-communication:
+\begin{equation}
+\text{uniform\_random}(0,1) < f_{\text{phase}}(\text{iter}, \Delta f)
+\end{equation}
+where $\text{uniform\_random}(0,1)$ generates a random number in $[0,1]$, and $f_{\text{phase}}$ is the phase-dependent communication probability.
+
+\textbf{Phase determination:} The optimization phase is determined by both iteration count and convergence rate:
+\begin{equation}
+\text{Phase}(\text{iter}, \Delta f) = \begin{cases}
+\text{LATE} & \text{if } (\text{iter} > 30) \lor (\Delta f < 0.001) \\
+\text{MID} & \text{if } (\text{iter} > 15) \lor (\Delta f < 0.01) \\
+\text{EARLY} & \text{otherwise}
+\end{cases}
+\end{equation}
+where $\Delta f$ is the fitness improvement rate (relative change per iteration).
+
+\textbf{Frequency mapping:} Each phase has a base communication probability:
+\begin{equation}
+f_{\text{phase}} = \begin{cases}
+0.6 & \text{if Phase = EARLY (aggressive exploration)} \\
+0.3 & \text{if Phase = MID (balanced exploration-exploitation)} \\
+0.15 & \text{if Phase = LATE (fine-tuning convergence)}
+\end{cases}
+\end{equation}
+
+\textbf{Randomness rationale:} The probabilistic mechanism prevents:
+\begin{itemize}
+    \item Over-reaction to borderline CI values near the threshold
+    \item Synchronous oscillations among multiple agents
+    \item Excessive communication overhead in marginal conflict scenarios
+\end{itemize}
+
+\textbf{Final decision logic:}
+\begin{align}
+\text{should\_comm}_i &= (\text{iter} - \text{last\_comm} \geq T_{\min}) \land (\text{CI}_i^{\text{smooth}} > \tau(t)) \land (\text{rand}() < f_{\text{phase}}) \\
+\text{global\_comm} &= \text{MPI\_Allreduce}(\text{should\_comm}_i, \text{MAX})
+\end{align}
+
+\subsection{Step 5: Exchange Solutions via MPI}
+
+Agent $i$ communicates with all its neighbors in $\mathcal{N}_i$ (the set of neighboring agents sharing overlapping variables):
+
+\textbf{Communication pattern:} For each neighbor $j \in \mathcal{N}_i$, perform bidirectional point-to-point exchange:
+\begin{equation}
+\begin{aligned}
+&\text{Agent } i: \begin{cases}
+\text{MPI\_Isend}(x_i^{\text{best}}, \text{destination}=j) & \text{(send own solution to } j\text{)} \\
+\text{MPI\_Recv}(x_j^{\text{best}}, \text{source}=j) & \text{(receive } j\text{'s solution)}
+\end{cases} \\
+&\text{Agent } j: \begin{cases}
+\text{MPI\_Isend}(x_j^{\text{best}}, \text{destination}=i) & \text{(send own solution to } i\text{)} \\
+\text{MPI\_Recv}(x_i^{\text{best}}, \text{source}=i) & \text{(receive } i\text{'s solution)}
+\end{cases}
+\end{aligned}
+\end{equation}
+
+\textbf{Implementation note:}
+\begin{itemize}
+    \item Each agent loops through its neighbor set: \texttt{for (int rank : commu\_object)}
+    \item Communication is symmetric: if $i$ sends to $j$, then $j$ sends to $i$ simultaneously
+    \item Uses non-blocking \texttt{MPI\_Isend} to avoid deadlock, followed by blocking \texttt{MPI\_Recv}
+    \item Each agent typically has 2-4 neighbors depending on variable overlap structure
+\end{itemize}
+
+\subsection{Step 6: Nash Bargaining Competition}
+
+\textbf{Notation convention (critical):}
+\begin{itemize}
+    \item $x_{i,\text{best}}^d$: the $d$-th dimension of agent $i$'s best solution (subscript = agent, superscript = dimension)
+    \item $f_{a,b}^d$: \textbf{agent $a$'s solution evaluated by agent $b$'s objective function}
+    \begin{itemize}
+        \item First subscript: whose solution (source of decision variable values)
+        \item Second subscript: whose objective function (evaluator's perspective)
+    \end{itemize}
+\end{itemize}
+
+\textbf{Step 6.1: Evaluate cross-impact fitness}
+
+For each overlapping dimension $d$ shared between agents $i$ and $j$, compute four fitness values representing mutual impact:
+
+\begin{align}
+f_{i,i}^d &= f_i(x_{i,\text{best}}) \quad \text{(agent } i\text{'s solution, evaluated by } i\text{'s objective)} \\
+f_{i,j}^d &= f_j(x_{i,\text{best}}) \quad \text{(agent } i\text{'s solution, evaluated by } j\text{'s objective)} \\
+f_{j,i}^d &= f_i(x_{j,\text{best}}) \quad \text{(agent } j\text{'s solution, evaluated by } i\text{'s objective)} \\
+f_{j,j}^d &= f_j(x_{j,\text{best}}) \quad \text{(agent } j\text{'s solution, evaluated by } j\text{'s objective)}
+\end{align}
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item $f_{i,j}^d$: How friendly is agent $i$'s solution to agent $j$'s sub-problem? (cooperation measure)
+    \item $f_{j,i}^d$: How friendly is agent $j$'s solution to agent $i$'s sub-problem?
+\end{itemize}
+
+\textbf{Step 6.2: Nash bargaining decision}
+
+Apply Nash bargaining solution to determine consensus value for dimension $d$:
+\begin{equation}
+x_{i,\text{consensus}}^d = \begin{cases}
+x_{j,\text{best}}^d & \text{if } f_{i,i}^d + f_{j,i}^d > f_{i,j}^d + f_{j,j}^d \quad \text{(adopt } j\text{'s value)} \\
+x_{i,\text{best}}^d & \text{otherwise} \quad \text{(keep } i\text{'s value)}
+\end{cases}
+\end{equation}
+
+\textbf{Economic interpretation:}
+\begin{itemize}
+    \item \textbf{Left side} $f_{i,i}^d + f_{j,i}^d$: Joint utility when adopting agent $i$'s value
+    \begin{itemize}
+        \item $f_{i,i}^d$: benefit to agent $i$ from its own solution
+        \item $f_{j,i}^d$: benefit to agent $i$ from agent $j$'s perspective (cross-impact)
+    \end{itemize}
+    \item \textbf{Right side} $f_{i,j}^d + f_{j,j}^d$: Joint utility when adopting agent $j$'s value
+    \begin{itemize}
+        \item $f_{i,j}^d$: benefit to agent $j$ from agent $i$'s perspective (cross-impact)
+        \item $f_{j,j}^d$: benefit to agent $j$ from its own solution
+    \end{itemize}
+    \item \textbf{Decision rule}: Choose the value maximizing joint welfare (cooperative Pareto improvement)
+\end{itemize}
+
+\subsection{Step 7: Gradient-based Conflict Detection}
+Compute numerical gradients using finite difference:
+\begin{align}
+g_i^{+}(d) &= f_i(x_1, \ldots, x_d + \delta, \ldots, x_D) - f_i(x) \\
+g_i^{-}(d) &= f_i(x_1, \ldots, x_d - \delta, \ldots, x_D) - f_i(x)
+\end{align}
+Reject consensus if gradients agree (no conflict):
+\begin{equation}
+\text{Reject if: } [\text{sign}(g_i^+) = \text{sign}(g_j^+)] \land [\text{sign}(g_i^-) = \text{sign}(g_j^-)]
+\end{equation}
+
+\subsection{Step 8: Skip Negotiation}
+If communication is not triggered (CI $\leq$ threshold and not forced interval):
+\begin{equation}
+x_{i,\text{con}} = x_{i,\text{best}} \quad \text{(directly use local best from Step 2, skip Steps 5-7)}
+\end{equation}
+
+\textbf{Logic:} When conflict is low, negotiation is unnecessary. Agent $i$ directly adopts its own local best solution without communication overhead.
+
+\subsection{Step 9: Set Global Best}
+Update global best solution for each agent based on whether negotiation occurred:
+\begin{equation}
+x_{i,\text{con}} = \begin{cases}
+x_{i,\text{consensus}} & \text{if negotiation occurred (Step 6)} \\
+x_{i,\text{best}} & \text{if negotiation skipped (Step 8)}
+\end{cases}
+\end{equation}
+
+\textbf{Purpose:} Set the consensus reference $x_{i,\text{con}}$ (variable name: \texttt{globalBest}) that will be used in:
+\begin{itemize}
+    \item Penalty term calculation: $\sum_{d \in O_i}(x_{i,d} - x_{i,\text{con}}^d)^2$ in next iteration's Step 1
+    \item Conflict calculation: compare $x_{i,\text{best}}^d$ with $x_{i,\text{con}}^d$ in Step 3
+\end{itemize}
+
+\textbf{Iteration flow:}
+\begin{itemize}
+    \item Iteration $t-1$: produces $x_{i,\text{con}}^{(t-1)}$ (stored in memory)
+    \item Iteration $t$: Step 1 uses $x_{i,\text{con}}^{(t-1)}$ as penalty reference $\to$ Step 9 updates to $x_{i,\text{con}}^{(t)}$
+\end{itemize}
+
+\subsection{Step 10: Re-evaluate Population}
+Re-evaluate all particles with updated consensus reference:
+\begin{equation}
+\forall p \in \text{Population}_i: \quad h_i(p) = f_i(p) + \alpha_i(t) \cdot \text{conflict}_i(p)
+\end{equation}
+
+where
+\begin{equation}
+\text{conflict}_i(p) = \sum_{d \in O_i} \frac{|p_{i,d} - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}
+\end{equation}
+
+\textbf{Purpose:} After negotiation updates $x_{i,\text{con}}$ (Step 9), recalculate penalized fitness $h_i$ for all particles using the new consensus reference.
+
+\textbf{Notation clarification:}
+\begin{itemize}
+    \item $p \in \text{Population}_i$: A particle (solution vector) in agent $i$'s population
+    \item $p_{i,d}$: The value of dimension $d$ in particle $p$ (consistent with Step 1's notation $x_{i,d}$)
+    \item $\alpha_i(t)$: Time-varying penalty coefficient (same as Step 1)
+    \item $\text{conflict}_i(p)$: Conflict measure for particle $p$ (same formula as Step 1 and Step 3)
+    \item This formula has the \textbf{exact same structure} as Step 1, just applied to all particles after consensus update
+    \item \textbf{No averaging:} Sum over all overlapping dimensions, consistent with Steps 1 and 3
+\end{itemize}
+
+\subsection{Step 11: MPI Allreduce - Global Fitness}
+Aggregate fitness values across all agents to compute global metrics:
+\begin{align}
+f^{\text{pure}} &= \frac{1}{N}\sum_{i=1}^N f_i(x_{i,\text{con}}) = \text{MPI\_Allreduce}(\text{SUM}) / N \\
+h^{\text{penalty}} &= \frac{1}{N}\sum_{i=1}^N h_i(x_{i,\text{con}}) = \text{MPI\_Allreduce}(\text{SUM}) / N \\
+\text{penalty} &= h^{\text{penalty}} - f^{\text{pure}}
+\end{align}
+
+\textbf{Understanding the penalty term:}
+
+Since $h_i(x_{i,\text{con}}) = f_i(x_{i,\text{con}}) + \alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})$, we have:
+\begin{equation}
+\text{penalty} = \frac{1}{N}\sum_{i=1}^N \left[\alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})\right]
+\end{equation}
+
+where
+\begin{equation}
+\text{conflict}_i(x_{i,\text{con}}) = \sum_{d \in O_i} \frac{|x_{i,\text{con}}^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}} = 0 \quad \text{(at perfect consensus)}
+\end{equation}
+
+\textbf{Important clarification on conflict range:}
+\begin{itemize}
+    \item In the current implementation: $\text{conflict}_i \in [0, |O_i|]$ (sum, not average)
+    \item For typical problems: $|O_i| = 100 \sim 300$ overlapping dimensions
+    \item At initialization: $\text{conflict}_i \approx 0.5 \times |O_i|$ (random deviations)
+    \item Example: $|O_i| = 200$, average deviation $= 0.5 \Rightarrow \text{conflict}_i \approx 100$
+    \item The RL-adjusted $\alpha$ compensates for this scaling to maintain effective penalty strength
+\end{itemize}
+
+\textbf{Key distinction:}
+\begin{itemize}
+    \item $f^{\text{pure}} = \frac{1}{N}\sum_{i=1}^N f_i(x_{i,\text{con}})$: Average of \textbf{pure} local fitness (no penalty)
+    \item $h^{\text{penalty}} = \frac{1}{N}\sum_{i=1}^N h_i(x_{i,\text{con}})$: Average of \textbf{penalized} local fitness
+    \item $\text{penalty} = \frac{1}{N}\sum_{i=1}^N \alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})$: Average weighted conflict
+    \item $F(x) = \sum_{i=1}^N f_i(x_i)$: Global objective (without averaging)
+    \item At convergence: $\text{conflict}_i \to 0$, thus $\text{penalty} \to 0$, and $h^{\text{penalty}} \to f^{\text{pure}}$
+\end{itemize}
+
+\textbf{Typical penalty magnitude analysis:}
+\begin{itemize}
+    \item Early iterations: $\text{conflict}_i \approx 50 \sim 150$ (depending on $|O_i|$ and initialization)
+    \item With $\alpha \approx 0.001$ (RL-adjusted): $\text{penalty} \approx 0.05 \sim 0.15$
+    \item For $f^{\text{pure}} \approx 10^5$: $\text{penalty}/f \approx 0.0005\% \sim 0.0015\%$ (very small, as designed)
+    \item The RL mechanism dynamically tunes $\alpha$ to balance exploration and convergence
+\end{itemize>
+
+\textbf{Important note:} When evaluating $h_i(x_{i,\text{con}})$, the conflict term compares $x_{i,\text{con}}$ with itself (since $x_{i,\text{con}}$ is the consensus reference). At perfect consensus across all agents, this conflict becomes zero. However, during optimization, different agents may have slightly different $x_{i,\text{con}}$ values, leading to non-zero penalties.
+
+\subsection{Step 12: Calculate Improvement}
+Measure relative fitness improvement:
+\begin{equation}
+\text{improvement}_t = \frac{f_{t-1}^{\text{pure}} - f_t^{\text{pure}}}{|f_{t-1}^{\text{pure}}|}
+\end{equation}
+
+\subsection{Step 13: Compute Reward}
+RL reward signal uses Scheme 5 (dimensionless penalty-efficiency reward):
+\begin{equation}
+r_t = \tanh\!\left(-\Delta\text{conflict}_{\text{rate}} \cdot \Delta f_{\text{pure,rate}} \cdot 100\right)
+\end{equation}
+where
+\begin{align}
+\Delta\text{conflict}_{\text{rate}} &= \frac{\text{conflict}_t - \text{conflict}_{t-1}}{\text{conflict}_{t-1} + 10^{-10}}, \\
+\Delta f_{\text{pure,rate}} &= \frac{f^{\text{pure}}_{t-1} - f^{\text{pure}}_t}{|f^{\text{pure}}_{t-1}| + 10^{-10}} .
+\end{align}
+\textbf{Interpretation:} reward is positive when conflict decreases and pure fitness improves simultaneously.
+
+\subsection{Step 14: RL Update Penalty Coefficient $\alpha$}
+\textbf{Key insight:} This step uses the reward $r_t$ from Step 13 to train the RL policy network, enabling adaptive penalty adjustment.
+
+\subsubsection*{14.1 State Construction}
+Construct the environment state from current conflict and historical trend:
+\begin{equation}
+s_t = [S_1, S_2] \in \mathbb{R}^2
+\end{equation}
+
+where:
+\begin{align}
+S_1 &= \text{conflict}_i(x_{i,\text{con}}) = \sum_{d \in O_i} \frac{|x_{i,\text{best}}^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}} \quad \text{(current conflict, from Step 3)} \\
+S_2 &= \text{conflict}_i^{(t)} - \text{conflict}_i^{(t-1)} \quad \text{(first-order difference, conflict rate of change)}
+\end{align}
+
+\textbf{Implementation details:}
+\begin{itemize}
+    \item $S_1$ is the \textbf{raw conflict value} computed in Step 3 (not the smoothed CI from Step 4)
+    \item $S_2$ is a simple \textbf{one-step difference} (not a complex trend metric)
+    \item Conflict history is maintained in a sliding window of size 10
+    \item If no history exists (first iteration), $S_2 = 0$
+\end{itemize}
+
+\textbf{Numerical scaling:}
+\begin{itemize}
+    \item $S_1 \in [0, |O_i|]$ (sum of normalized deviations across overlapping dimensions)
+    \item For typical problems: $S_1 \in [0, 300]$ depending on overlap size and deviation
+    \item $S_2 \in [-|O_i|, |O_i|]$ (maximum possible change in conflict)
+    \item Example: $S_1 = 2.0$ (low conflict), $S_2 = -0.5$ (conflict decreasing)
+\end{itemize}
+
+\textbf{Connection to Step 3 and Step 4:}
+\begin{itemize}
+    \item Step 3 computes \textbf{raw conflict} $\text{conflict}_i$ (instantaneous value)
+    \item Step 4 uses \textbf{smoothed CI} $\text{CI}_i^{\text{smooth}}$ for gating decision (stable threshold comparison)
+    \item Step 14.1 uses \textbf{raw conflict as $S_1$} for RL state (fast feedback for learning)
+\end{itemize}
+
+\textbf{Critical distinction: $S_1$ vs $\text{CI}_i^{\text{smooth}}$}
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Aspect} & \textbf{$S_1$ (RL State)} & \textbf{$\text{CI}_i^{\text{smooth}}$ (Gating)} \\
+\hline
+\textbf{Formula} & $S_1 = \text{conflict}_i^{\text{raw}}$ & $\text{CI}^{\text{smooth}} = 0.7 \cdot \text{CI}^{\text{smooth}} + 0.3 \cdot \text{conflict}_i^{\text{raw}}$ \\
+\hline
+\textbf{Smoothing} & ❌ No (raw value) & ✅ Yes (EMA with $\beta=0.7$) \\
+\hline
+\textbf{Response speed} & ⚡ Instant & 🐌 Delayed (3-5 iterations lag) \\
+\hline
+\textbf{Noise sensitivity} & High (reflects transient spikes) & Low (filters out noise) \\
+\hline
+\textbf{Usage} & RL training feedback & Communication threshold test \\
+\hline
+\textbf{Purpose} & Learn adaptive policy & Stable gate control \\
+\hline
+\textbf{Typical value} & $0.001 \sim 0.05$ & $0.001 \sim 0.05$ (same range, smoother) \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Why use raw conflict ($S_1$) for RL instead of smoothed CI?}
+
+\begin{itemize}
+    \item \textbf{RL needs immediate feedback}: The policy network must observe the true consequence of its actions ($\alpha$ adjustment) without delay. Smoothing would corrupt the causal relationship between action and reward.
+    \item \textbf{RL can handle noise}: Neural networks naturally smooth noisy signals through weight averaging across multiple experiences. External smoothing is redundant and harmful.
+    \item \textbf{Example}: If RL increases $\alpha$ at $t=10$, it should see the conflict change at $t=11$, not a smoothed average of $t=7$ to $t=11$.
+\end{itemize}
+
+\textbf{Numerical example comparing $S_1$ and $\text{CI}^{\text{smooth}}$:}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Iteration} & \textbf{Raw conflict} & \textbf{$S_1$ (RL State)} & \textbf{$\text{CI}^{\text{smooth}}$ (Gate)} \\
+\hline
+1 & 0.0500 & 0.0500 & 0.0500 (init) \\
+2 & 0.0450 & 0.0450 & $0.7 \times 0.0500 + 0.3 \times 0.0450 = 0.0485$ \\
+3 & 0.0600 (spike) & \textbf{0.0600} ⚡ & $0.7 \times 0.0485 + 0.3 \times 0.0600 = 0.0520$ 🐌 \\
+4 & 0.0400 & 0.0400 & $0.7 \times 0.0520 + 0.3 \times 0.0400 = 0.0484$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Observation from example:}
+\begin{itemize}
+    \item At $t=3$: $S_1$ immediately jumps to 0.0600 (RL sees the spike instantly)
+    \item At $t=3$: $\text{CI}^{\text{smooth}}$ only rises to 0.0520 (gate sees a dampened signal)
+    \item At $t=4$: $S_1$ drops to 0.0400 (RL sees recovery), but $\text{CI}^{\text{smooth}}$ is still high at 0.0484
+    \item This lag in $\text{CI}^{\text{smooth}}$ is desirable for gating (avoids oscillation) but harmful for RL learning
+\end{itemize}
+
+\subsubsection*{14.2 Action Selection (Policy Network)}
+The policy network $\pi_\theta$ maps state to weight adjustment action:
+\begin{align}
+a_t &= \pi_\theta(s_t) = \tanh(W \cdot s_t + b) \\
+\text{ratio}_{t+1} &= \text{clip}(\text{ratio}_t + 0.1 \cdot a_t, 0.1, 2.0), \\
+\alpha_{t+1} &= \text{base\_alpha}_t \cdot \text{ratio}_{t+1}, \quad \text{base\_alpha}_t = |f_t^{\text{pure}}|/512
+\end{align}
+
+\textbf{Network architecture and dimensions:}
+
+\begin{itemize}
+    \item \textbf{Input}: $s_t = [S_1, S_2]^T \in \mathbb{R}^{2 \times 1}$ (column vector, 2-dimensional state)
+    \item \textbf{Weight matrix}: $W \in \mathbb{R}^{1 \times 2}$ (1 row, 2 columns)
+    \item \textbf{Bias}: $b \in \mathbb{R}$ (scalar)
+    \item \textbf{Output}: $a_t \in \mathbb{R}$ (scalar action)
+\end{itemize}
+
+\textbf{Matrix multiplication detailed:}
+\begin{equation}
+W \cdot s_t = \begin{bmatrix} w_1 & w_2 \end{bmatrix} \cdot \begin{bmatrix} S_1 \\ S_2 \end{bmatrix} = w_1 \cdot S_1 + w_2 \cdot S_2 \in \mathbb{R}
+\end{equation}
+
+where $w_1, w_2$ are the learnable weights corresponding to conflict and trend features.
+
+\textbf{Complete forward pass:}
+\begin{align}
+z &= W \cdot s_t + b = w_1 S_1 + w_2 S_2 + b \quad \text{(linear combination)} \\
+a_t &= \tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}} \in [-1, 1] \quad \text{(nonlinear activation)}
+\end{align}
+
+\textbf{Dimension check:}
+\begin{align}
+W \cdot s_t: & \quad \underbrace{\mathbb{R}^{1 \times 2}}_{W} \times \underbrace{\mathbb{R}^{2 \times 1}}_{s_t} = \mathbb{R}^{1 \times 1} = \mathbb{R} \quad \checkmark \\
+z + b: & \quad \underbrace{\mathbb{R}}_{W \cdot s_t} + \underbrace{\mathbb{R}}_{b} = \mathbb{R} \quad \checkmark \\
+\tanh(z): & \quad \mathbb{R} \rightarrow \mathbb{R} \quad \checkmark
+\end{align}
+
+\textbf{Parameter explanation:}
+\begin{itemize}
+    \item $W \in \mathbb{R}^{1 \times 2}$ means: \textbf{1 output neuron, 2 input features}
+    \item Expanded: $W = [w_1, w_2]$ where $w_1$ weights $S_1$ (conflict), $w_2$ weights $S_2$ (trend)
+    \item Total trainable parameters: $\theta = \{w_1, w_2, b\}$ (3 parameters)
+    \item $\tanh(\cdot)$ bounds output to $[-1, 1]$ (ensures stable weight updates)
+    \item $0.01$ is the step size for weight adjustment: $\Delta\alpha = a_t \times 0.01$
+    \item $[0.01, 1.0]$ is the valid range for $\alpha$ (hard constraints)
+\end{itemize}
+
+\textbf{Numerical example:}
+\begin{align*}
+\text{Assume: } & W = [2.5, -1.8], \quad b = 0.3 \\
+\text{State: } & s_t = [0.01, -0.003]^T \quad \text{(low conflict, decreasing)} \\
+\text{Compute: } & z = 2.5 \times 0.01 + (-1.8) \times (-0.003) + 0.3 = 0.0304 \\
+& a_t = \tanh(0.0304) \approx 0.0304 \\
+& \Delta\alpha = 0.0304 \times 0.01 = 0.000304 \\
+\text{Result: } & \alpha_{t+1} = \alpha_t + 0.000304 \quad \text{(slight increase in penalty)}
+\end{align*}
+
+\subsubsection*{14.3 Experience Storage}
+\textbf{Critical step:} Store the decision experience using reward from Step 13:
+\begin{equation}
+\text{Experience: } \mathcal{E}_t = (s_t, a_t, r_t) \rightarrow \text{ReplayBuffer}
+\end{equation}
+
+\textbf{Priority assignment:}
+\begin{equation}
+p_t = |r_t| \quad \text{(priority value stored with experience)}
+\end{equation}
+
+where $p_t$ is the \textbf{priority value} (not probability) assigned to experience $\mathcal{E}_t$.
+
+\textbf{Key points:}
+\begin{itemize}
+    \item Priority value $p_t = |r_t|$ is stored directly (e.g., if $r_t = -18.4$, then $p_t = 18.4$)
+    \item Higher $|r_t|$ (large reward magnitude) → higher priority value
+    \item This priority value will be used in Step 14.4 to determine sampling probability
+    \item Both positive and negative rewards contribute equally (absolute value)
+\end{itemize}
+
+\subsubsection*{14.4 Policy Network Update (Supervised Learning)}
+When replay buffer has $\geq 32$ experiences, perform batch update:
+\begin{align}
+a_{\text{target}} &= a_t + 0.1 \times r_t \quad \text{(reward-corrected action)} \\
+\mathcal{L}(\theta) &= (a_{\text{target}} - \pi_\theta(s_t))^2 \quad \text{(MSE loss)} \\
+\theta &\leftarrow \theta - \eta \nabla_\theta \mathcal{L}(\theta) \quad \text{(gradient descent)}
+\end{align}
+
+\textbf{Learning rate $\eta$:}
+\begin{equation}
+\eta = 0.01 \quad \text{(fixed learning rate)}
+\end{equation}
+
+\textbf{Parameter update details:}
+
+\textbf{What is $\theta$? Understanding the parameter set}
+
+The symbol $\theta$ represents the \textbf{set of all trainable parameters} in the policy network $\pi_\theta$. 
+
+\textbf{Why $\theta = \{w_1, w_2, b\}$?}
+
+The policy network has a simple structure with \textbf{exactly 3 trainable parameters}:
+
+\begin{enumerate}
+    \item \textbf{Weight $w_1$}: Connects input $S_1$ (conflict) to output $a_t$
+    \item \textbf{Weight $w_2$}: Connects input $S_2$ (trend) to output $a_t$
+    \item \textbf{Bias $b$}: Adds a constant offset to the weighted sum
+\end{enumerate}
+
+\textbf{Network structure:}
+\begin{equation}
+\pi_\theta(s_t) = \tanh(\underbrace{w_1 \cdot S_1 + w_2 \cdot S_2}_{\text{weighted sum}} + \underbrace{b}_{\text{bias}})
+\end{equation}
+
+\textbf{Parameter count derivation:}
+\begin{itemize}
+    \item \textbf{Weight matrix $W \in \mathbb{R}^{1 \times 2}$}: Contains 2 elements $\{w_1, w_2\}$
+    \item \textbf{Bias $b \in \mathbb{R}$}: Contains 1 element $\{b\}$
+    \item \textbf{Total}: $|\theta| = 2 + 1 = 3$ parameters
+\end{itemize}
+
+\textbf{Notation explanation:}
+\begin{itemize}
+    \item $\theta$ = \textbf{parameter set} (all trainable variables)
+    \item $\theta_i$ = \textbf{individual parameter} (one element from the set)
+    \item $\theta_i \in \{w_1, w_2, b\}$ means: "for each parameter $i$ that is either $w_1$, $w_2$, or $b$"
+\end{itemize}
+
+\textbf{Why only these 3 parameters?}
+\begin{itemize}
+    \item The network has \textbf{no hidden layers} (direct input-to-output mapping)
+    \item Input dimension = 2 ($S_1, S_2$), Output dimension = 1 ($a_t$)
+    \item Required weights: $2 \times 1 = 2$ (one weight per input-output connection)
+    \item Required bias: $1$ (one bias per output neuron)
+    \item Total: $2 + 1 = 3$ parameters
+\end{itemize}
+
+\textbf{Gradient computation for each parameter:}
+
+For each parameter $\theta_i \in \{w_1, w_2, b\}$:
+\begin{align}
+\nabla_{\theta_i} \mathcal{L} &= \frac{\partial}{\partial \theta_i} (a_{\text{target}} - \pi_\theta(s_t))^2 \\
+&= 2(a_{\text{target}} - \pi_\theta(s_t)) \cdot \frac{\partial \pi_\theta(s_t)}{\partial \theta_i}
+\end{align}
+
+This means we compute the gradient \textbf{separately} for each of the 3 parameters:
+\begin{align}
+\nabla_{w_1} \mathcal{L} &= 2(a_{\text{target}} - a_t) \cdot \frac{\partial \pi_\theta(s_t)}{\partial w_1} \\
+\nabla_{w_2} \mathcal{L} &= 2(a_{\text{target}} - a_t) \cdot \frac{\partial \pi_\theta(s_t)}{\partial w_2} \\
+\nabla_{b} \mathcal{L} &= 2(a_{\text{target}} - a_t) \cdot \frac{\partial \pi_\theta(s_t)}{\partial b}
+\end{align}
+
+\textbf{Complete update equations:}
+\begin{align}
+\frac{\partial \pi_\theta(s_t)}{\partial w_1} &= (1 - \tanh^2(z)) \cdot S_1 \quad \text{where } z = w_1 S_1 + w_2 S_2 + b \\
+\frac{\partial \pi_\theta(s_t)}{\partial w_2} &= (1 - \tanh^2(z)) \cdot S_2 \\
+\frac{\partial \pi_\theta(s_t)}{\partial b} &= (1 - \tanh^2(z))
+\end{align}
+
+Therefore:
+\begin{align}
+w_1 &\leftarrow w_1 - \eta \cdot 2(a_{\text{target}} - a_t) \cdot (1 - a_t^2) \cdot S_1 \\
+w_2 &\leftarrow w_2 - \eta \cdot 2(a_{\text{target}} - a_t) \cdot (1 - a_t^2) \cdot S_2 \\
+b &\leftarrow b - \eta \cdot 2(a_{\text{target}} - a_t) \cdot (1 - a_t^2)
+\end{align}
+
+where $a_t = \pi_\theta(s_t) = \tanh(z)$ is the current network output.
+
+\textbf{Why $\eta = 0.01$?}
+\begin{itemize}
+    \item \textbf{Small enough}: Prevents overshooting optimal weights (stable convergence)
+    \item \textbf{Large enough}: Allows meaningful updates within reasonable training time
+    \item \textbf{Empirical choice}: Standard value for simple neural networks (typical range: $0.001 \sim 0.1$)
+    \item \textbf{Fixed}: No adaptive scheduling (simplicity over sophistication)
+\end{itemize}
+
+\textbf{What if we use adaptive learning rate? Analysis of alternatives}
+
+\textbf{Common adaptive methods:}
+
+\begin{enumerate}
+    \item \textbf{AdaGrad}: Accumulates squared gradients
+    \begin{equation}
+    \eta_t^{(i)} = \frac{\eta_0}{\sqrt{G_t^{(i)} + \epsilon}}, \quad G_t^{(i)} = \sum_{k=1}^{t} (\nabla_{\theta_i} \mathcal{L}_k)^2
+    \end{equation}
+    where $\eta_0$ is initial learning rate, $\epsilon = 10^{-8}$ prevents division by zero.
+    
+    \item \textbf{RMSprop}: Exponential moving average of squared gradients
+    \begin{equation}
+    \eta_t^{(i)} = \frac{\eta_0}{\sqrt{v_t^{(i)} + \epsilon}}, \quad v_t^{(i)} = \beta v_{t-1}^{(i)} + (1-\beta)(\nabla_{\theta_i} \mathcal{L}_t)^2
+    \end{equation}
+    where $\beta = 0.9$ is decay rate.
+    
+    \item \textbf{Adam}: Combines momentum and adaptive learning rate
+    \begin{align}
+    m_t^{(i)} &= \beta_1 m_{t-1}^{(i)} + (1-\beta_1)\nabla_{\theta_i} \mathcal{L}_t \quad \text{(momentum)} \\
+    v_t^{(i)} &= \beta_2 v_{t-1}^{(i)} + (1-\beta_2)(\nabla_{\theta_i} \mathcal{L}_t)^2 \quad \text{(variance)} \\
+    \hat{m}_t^{(i)} &= \frac{m_t^{(i)}}{1-\beta_1^t}, \quad \hat{v}_t^{(i)} = \frac{v_t^{(i)}}{1-\beta_2^t} \quad \text{(bias correction)} \\
+    \eta_t^{(i)} &= \frac{\eta_0 \cdot \hat{m}_t^{(i)}}{\sqrt{\hat{v}_t^{(i)}} + \epsilon}
+    \end{align}
+    where $\beta_1 = 0.9$, $\beta_2 = 0.999$ are momentum decay rates.
+\end{enumerate}
+
+\textbf{Potential benefits for MACPO:}
+\begin{itemize}
+    \item \textbf{Faster convergence}: Large gradients → smaller learning rate (prevents overshooting), small gradients → larger learning rate (faster progress)
+    \item \textbf{Per-parameter adaptation}: Different learning rates for $w_1$, $w_2$, $b$ based on their gradient magnitudes
+    \item \textbf{Automatic tuning}: Reduces need for manual $\eta$ selection
+\end{itemize}
+
+\textbf{Potential drawbacks for MACPO:}
+\begin{itemize}
+    \item \textbf{Overfitting risk}: Adaptive methods can converge too quickly to local minima, especially with only 3 parameters
+    \item \textbf{Hyperparameter sensitivity}: AdaGrad/RMSprop/Adam introduce new hyperparameters ($\beta_1, \beta_2, \epsilon$) that need tuning
+    \item \textbf{Memory overhead}: Need to store momentum/variance for each parameter (3× more memory)
+    \item \textbf{Computational overhead}: Additional operations per update (square root, division, exponential moving average)
+    \item \textbf{Instability}: Adaptive methods can be unstable with sparse gradients (common in RL)
+\end{itemize}
+
+\textbf{Complexity analysis:}
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Aspect} & \textbf{Fixed $\eta$} & \textbf{AdaGrad} & \textbf{RMSprop} & \textbf{Adam} \\
+\hline
+\textbf{Code lines} & 1 & +15 & +20 & +35 \\
+\hline
+\textbf{Memory per param} & 0 & +1 (G) & +1 (v) & +2 (m, v) \\
+\hline
+\textbf{Operations per update} & 3 mult & +3 (sqrt, div) & +4 (EMA, sqrt) & +8 (momentum, EMA, bias corr) \\
+\hline
+\textbf{Hyperparameters} & 1 ($\eta$) & 2 ($\eta_0, \epsilon$) & 3 ($\eta_0, \beta, \epsilon$) & 4 ($\eta_0, \beta_1, \beta_2, \epsilon$) \\
+\hline
+\textbf{Convergence speed} & Baseline & Faster (early) & Moderate & Fastest \\
+\hline
+\textbf{Stability} & High & Medium & Medium & Low (can diverge) \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{For MACPO's 3-parameter network:}
+\begin{itemize}
+    \item \textbf{Memory increase}: AdaGrad: +3 floats, RMSprop: +3 floats, Adam: +6 floats (negligible for modern systems)
+    \item \textbf{Computation increase}: ~2-3× more operations per update (still very fast, < 1$\mu$s)
+    \item \textbf{Code complexity}: Moderate increase (15-35 lines), but adds maintenance burden
+\end{itemize}
+
+\textbf{Why MACPO chooses fixed $\eta$:}
+\begin{itemize}
+    \item \textbf{Simplicity}: Only 3 parameters, fixed $\eta = 0.01$ works well empirically
+    \item \textbf{Stability}: RL training benefits from predictable, stable updates
+    \item \textbf{Interpretability}: Fixed learning rate makes behavior easier to understand and debug
+    \item \textbf{Minimal benefit}: Adaptive methods shine with large networks (1000+ parameters), not 3-parameter networks
+    \item \textbf{Hyperparameter avoidance}: One less thing to tune = faster development
+\end{itemize}
+
+\textbf{When adaptive learning rate might help:}
+\begin{itemize}
+    \item If MACPO network is expanded to include hidden layers (10+ parameters)
+    \item If training shows clear signs of slow convergence or oscillation
+    \item If different parameters ($w_1$ vs $w_2$ vs $b$) have vastly different gradient scales
+    \item If computational overhead is not a concern
+\end{itemize}
+
+\textbf{Recommendation:}
+\begin{itemize}
+    \item \textbf{Current design}: Keep fixed $\eta = 0.01$ ✅ (simple, stable, sufficient)
+    \item \textbf{Future consideration}: If network grows to 10+ parameters, consider RMSprop or Adam
+    \item \textbf{Experimental option}: Allow adaptive learning rate as an optional feature (configurable)
+\end{itemize}
+
+\textbf{Numerical example:}
+
+Assume:
+\begin{align*}
+s_t &= [0.01, -0.003]^T \\
+a_t &= \pi_\theta(s_t) = 0.03 \quad \text{(current output)} \\
+a_{\text{target}} &= 0.05 \quad \text{(target after reward correction)} \\
+\eta &= 0.01
+\end{align*}
+
+Update computation:
+\begin{align*}
+\text{Error} &= a_{\text{target}} - a_t = 0.05 - 0.03 = 0.02 \\
+\text{tanh derivative} &= 1 - a_t^2 = 1 - 0.03^2 = 0.9991 \\
+\text{Gradient factor} &= 2 \times 0.02 \times 0.9991 = 0.03996 \\
+\Delta w_1 &= -\eta \times 0.03996 \times S_1 = -0.01 \times 0.03996 \times 0.01 = -0.000004 \\
+\Delta w_2 &= -\eta \times 0.03996 \times S_2 = -0.01 \times 0.03996 \times (-0.003) = +0.0000012 \\
+\Delta b &= -\eta \times 0.03996 = -0.01 \times 0.03996 = -0.0004
+\end{align*}
+
+\textbf{Observation:}
+\begin{itemize}
+    \item Weight updates are very small ($\sim 10^{-6}$ for $w_1, w_2$)
+    \item Bias update is larger ($\sim 10^{-4}$) but still conservative
+    \item This ensures stable learning without oscillations
+\end{itemize}
+
+\textbf{Priority-based sampling:}
+
+When sampling 32 experiences from the replay buffer, the sampling probability is \textbf{proportional to} the priority value:
+\begin{equation}
+P(\text{select experience } i) = \frac{p_i}{\sum_{j=1}^{N} p_j} = \frac{|r_i|}{\sum_{j=1}^{N} |r_j|} \quad \text{(sampling probability)}
+\end{equation}
+
+where $N$ is the current buffer size ($N \geq 32$).
+
+\textbf{Key distinction:}
+\begin{itemize}
+    \item \textbf{Step 14.3}: Priority \textbf{value} $p_t = |r_t|$ (stored directly, e.g., $p_t = 18.4$)
+    \item \textbf{Step 14.4}: Sampling \textbf{probability} $P(i) \propto |r_t|$ (normalized, e.g., $P(i) = 0.15$)
+    \item The relationship: $P(i) = p_i / \sum_j p_j$ (probability is normalized priority)
+\end{itemize}
+
+\textbf{Numerical example:}
+
+Assume replay buffer contains 3 experiences:
+\begin{align*}
+\mathcal{E}_1: & \quad r_1 = -18.4 \Rightarrow p_1 = 18.4 \\
+\mathcal{E}_2: & \quad r_2 = -13.8 \Rightarrow p_2 = 13.8 \\
+\mathcal{E}_3: & \quad r_3 = -9.2 \Rightarrow p_3 = 9.2 \\
+\text{Total: } & \quad \sum p_j = 18.4 + 13.8 + 9.2 = 41.4
+\end{align*}
+
+Sampling probabilities:
+\begin{align*}
+P(1) &= \frac{18.4}{41.4} = 0.444 \quad \text{(44.4\%, highest priority)} \\
+P(2) &= \frac{13.8}{41.4} = 0.333 \quad \text{(33.3\%)} \\
+P(3) &= \frac{9.2}{41.4} = 0.222 \quad \text{(22.2\%, lowest priority)}
+\end{align*}
+
+\textbf{Training mechanism explained:}
+\begin{itemize}
+    \item \textbf{Positive reward} ($r_t > 0$): The target action $a_{\text{target}}$ increases, encouraging the network to output larger weight adjustments in similar states (more aggressive penalty)
+    \item \textbf{Negative reward} ($r_t < 0$): The target action decreases, teaching the network to reduce weight adjustments (gentler penalty)
+    \item \textbf{Batch sampling}: 32 experiences are sampled with probability $P(i) \propto |r_t|$, so high-impact decisions (large $|r_t|$) are sampled more frequently and learned more intensively
+\end{itemize}
+
+\textbf{Example training sequence:}
+\begin{align*}
+t=1: \quad & s_1 = [0.01, -0.5], \; a_1 = 0.02, \; r_1 = -18.4 \\
+           & a_{\text{target}} = 0.02 + 0.1 \times (-18.4) = -1.82 \\
+           & \text{Network learns: In high-conflict state, reduce weight aggressively} \\[5pt]
+t=10: \quad & s_{10} = [0.002, -0.8], \; a_{10} = -0.01, \; r_{10} = -13.8 \\
+            & a_{\text{target}} = -0.01 + 0.1 \times (-13.8) = -1.39 \\
+            & \text{Network learns: Continue reducing weight when conflict decreases}
+\end{align*}
+
+\textbf{Connection to Step 13:}
+\begin{itemize}
+    \item Step 13 computes Scheme-5 reward: $r_t=\tanh\!\left(-\Delta\text{conflict}_{\text{rate}}\cdot\Delta f_{\text{pure,rate}}\cdot100\right)$
+    \item Step 14 uses $r_t$ to update policy: better fitness → higher reward → reinforce current strategy
+    \item This creates a feedback loop: RL learns which penalty adjustments lead to better optimization outcomes
+\end{itemize}
+
+\subsection{Step 15: Output Results}
+Master process (rank 0) outputs comprehensive metrics:
+\begin{equation}
+\text{Output: } (\text{iter}, \text{eval}, h^{\text{penalty}}, f^{\text{pure}}, \text{penalty}, \text{improvement}, r, \text{conflict}, \alpha)
+\end{equation}
+
+\textbf{Detailed formulas for each output field:}
+
+\begin{enumerate}
+    \item \textbf{iter} (iteration number):
+    \begin{equation}
+    \text{iter} = t \quad \text{(current iteration counter, starts from 0)}
+    \end{equation}
+    
+    \item \textbf{eval} (total function evaluations):
+    \begin{equation}
+    \text{eval} = \sum_{i=1}^N \text{eval}_i \quad \text{(sum of evaluations across all agents)}
+    \end{equation}
+    where $\text{eval}_i$ is the number of function evaluations performed by agent $i$ so far.
+    
+    \item \textbf{$h^{\text{penalty}}$} (average penalized fitness):
+    \begin{equation}
+    h^{\text{penalty}} = \frac{1}{N}\sum_{i=1}^N h_i(x_{i,\text{con}}) = \frac{1}{N}\sum_{i=1}^N \left[f_i(x_{i,\text{con}}) + \alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})\right]
+    \end{equation}
+    where $x_{i,\text{con}}$ is the consensus reference solution for agent $i$ (from Step 9).
+    
+    \item \textbf{$f^{\text{pure}}$} (average pure fitness):
+    \begin{equation}
+    f^{\text{pure}} = \frac{1}{N}\sum_{i=1}^N f_i(x_{i,\text{con}})
+    \end{equation}
+    This is the \textbf{target metric} to minimize (no penalty term).
+    
+    \item \textbf{penalty} (consensus violation measure):
+    \begin{equation}
+    \text{penalty} = h^{\text{penalty}} - f^{\text{pure}} = \frac{1}{N}\sum_{i=1}^N \left[\alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})\right]
+    \end{equation}
+    
+    \textbf{Critical distinction: Penalty term vs. Penalty value}
+    
+    \begin{itemize}
+        \item \textbf{Penalty term} (used in Step 1 optimization):
+        \begin{equation}
+        \text{Penalty term for agent } i \text{ at particle } x: \quad \alpha_i(t) \cdot \text{conflict}_i(x)
+        \end{equation}
+        This is applied to \textbf{each particle} during PSO optimization (Step 1):
+        \begin{equation}
+        h_i(x) = f_i(x) + \underbrace{\alpha_i(t) \cdot \text{conflict}_i(x)}_{\text{penalty term}}
+        \end{equation}
+        
+        \item \textbf{Penalty value} (reported in Step 15 output):
+        \begin{equation}
+        \text{penalty} = \frac{1}{N}\sum_{i=1}^N \left[\alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})\right]
+        \end{equation}
+        This is the \textbf{average penalty term} across all agents, evaluated at the \textbf{consensus solution} $x_{i,\text{con}}$.
+        
+        \item \textbf{Key relationship:}
+        \begin{itemize}
+            \item \textbf{Penalty term} (per agent, per particle): $\alpha_i(t) \cdot \text{conflict}_i(x)$ - Used during optimization (Step 1)
+            \item \textbf{Penalty value} (global average): $\text{penalty} = \frac{1}{N}\sum_{i=1}^N [\alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})]$ - Reported in output (Step 15)
+            \item \textbf{Connection}: Penalty value = Average of all agents' penalty terms evaluated at consensus solution $x_{i,\text{con}}$
+        \end{itemize}
+        
+        \item \textbf{Why they differ:}
+        \begin{itemize}
+            \item During optimization (Step 1), each agent evaluates penalty term for \textbf{many particles} ($M=300$ particles)
+            \item In output (Step 15), we report penalty value for the \textbf{single consensus solution} $x_{i,\text{con}}$
+            \item At convergence: Both penalty term and penalty value approach zero as $\text{conflict}_i \to 0$
+        \end{itemize}
+        
+        \item         \textbf{Numerical example:}
+        \begin{itemize}
+            \item Agent 1: $\alpha_1 = 0.002$, $\text{conflict}_1(x_{1,\text{con}}) = 0.05$ $\Rightarrow$ penalty term $= 0.002 \times 0.05 = 0.0001$
+            \item Agent 2: $\alpha_2 = 0.002$, $\text{conflict}_2(x_{2,\text{con}}) = 0.03$ $\Rightarrow$ penalty term $= 0.002 \times 0.03 = 0.00006$
+            \item Penalty value (output) $= \frac{1}{2}(0.0001 + 0.00006) = 0.00008$
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{improvement} (relative fitness improvement):
+    \begin{equation}
+    \text{improvement}_t = \begin{cases}
+    \frac{f_{t-1}^{\text{pure}} - f_t^{\text{pure}}}{|f_{t-1}^{\text{pure}}|} & \text{if } |f_{t-1}^{\text{pure}}| > \epsilon \quad \text{(relative improvement)} \\
+    0 & \text{otherwise (first iteration or zero fitness)}
+    \end{cases}
+    \end{equation}
+    where $\epsilon = 10^{-8}$ prevents division by zero. Positive improvement means fitness decreased (better solution).
+    
+    \item \textbf{$r$} (RL reward signal):
+    \begin{equation}
+    r_t = \tanh\!\left(-\Delta\text{conflict}_{\text{rate}} \cdot \Delta f_{\text{pure,rate}} \cdot 100\right)
+    \end{equation}
+    This is the same reward computed in Step 13, used for RL training in Step 14.
+    
+    \item \textbf{conflict} (average conflict measure):
+    \begin{equation}
+    \text{conflict} = \frac{1}{N}\sum_{i=1}^N \text{conflict}_i(x_{i,\text{best}})
+    \end{equation}
+    where $\text{conflict}_i(x_{i,\text{best}})$ is computed in Step 3:
+    \begin{equation}
+    \text{conflict}_i(x_{i,\text{best}}) = \sum_{d \in O_i} \frac{|x_{i,\text{best}}^d - x_{i,\text{con}}^d|}{x_{\max} - x_{\min}}
+    \end{equation}
+    Note: This uses $x_{i,\text{best}}$ (local best from Step 2), not $x_{i,\text{con}}$ (consensus reference).
+    
+    \textbf{Typical values:}
+    \begin{itemize}
+        \item Early iterations: $\text{conflict} \approx 50 \sim 150$ (high disagreement)
+        \item Mid-stage: $\text{conflict} \approx 5 \sim 20$ (partial consensus)
+        \item Late-stage: $\text{conflict} \to 0$ (convergence to consensus)
+    \end{itemize}
+    
+    \item \textbf{$\alpha$} (current penalty coefficient):
+    \begin{equation}
+    \alpha = \frac{1}{N}\sum_{i=1}^N \alpha_i(t)
+    \end{equation}
+    In practice, if all agents use the same RL policy, $\alpha_i(t) = \alpha(t)$ for all $i$, so $\alpha = \alpha(t)$.
+    The value $\alpha_i(t)$ is updated by RL in Step 14:
+    \begin{equation}
+    \alpha_i(t+1) = \text{clip}(\alpha_i(t) + a_t \times 0.01, 0.01, 1.0)
+    \end{equation}
+    where $a_t = \pi_\theta(s_t)$ is the action from the RL policy network.
+\end{enumerate}
+
+\textbf{Summary table of all output values:}
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Field} & \textbf{Formula} & \textbf{Source Step} \\
+\hline
+iter & $t$ & Counter \\
+\hline
+eval & $\sum_{i=1}^N \text{eval}_i$ & Accumulated evaluations \\
+\hline
+$h^{\text{penalty}}$ & $\frac{1}{N}\sum_{i=1}^N h_i(x_{i,\text{con}})$ & Step 11 \\
+\hline
+$f^{\text{pure}}$ & $\frac{1}{N}\sum_{i=1}^N f_i(x_{i,\text{con}})$ & Step 11 \\
+\hline
+penalty & $\frac{1}{N}\sum_{i=1}^N [\alpha_i(t) \cdot \text{conflict}_i(x_{i,\text{con}})]$ & Step 11 (derived) \\
+\hline
+improvement & $\frac{f_{t-1}^{\text{pure}} - f_t^{\text{pure}}}{|f_{t-1}^{\text{pure}}|}$ & Step 12 \\
+\hline
+$r$ & $\tanh\!\left(-\Delta\text{conflict}_{\text{rate}}\cdot\Delta f_{\text{pure,rate}}\cdot100\right)$ & Step 13 \\
+\hline
+conflict & $\frac{1}{N}\sum_{i=1}^N \text{conflict}_i(x_{i,\text{best}})$ & Step 3 (averaged) \\
+\hline
+$\alpha$ & $\frac{1}{N}\sum_{i=1}^N \alpha_i(t)$ & Step 14 \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Important observations:}
+\begin{itemize}
+    \item \textbf{penalty} and \textbf{conflict} are different:
+    \begin{itemize}
+        \item \textbf{conflict}: Uses $x_{i,\text{best}}$ (local best), measures disagreement before consensus
+        \item \textbf{penalty}: Uses $x_{i,\text{con}}$ (consensus reference), measures remaining violation after consensus
+    \end{itemize}
+    \item At convergence: Both $\text{conflict} \to 0$ and $\text{penalty} \to 0$, and $h^{\text{penalty}} = f^{\text{pure}}$
+    \item The \textbf{penalty value} (output) is the average of penalty terms evaluated at consensus solution, not the penalty terms used during optimization
+\end{itemize}
+
+\subsection{Step 16: Convergence Check}
+Termination condition:
+\begin{equation}
+\text{Stop if: } \text{eval\_count} \geq E_{\max}
+\end{equation}
+
+\subsection{No-Water-Down Guarantee (Theoretical)}
+At convergence, consensus is achieved and penalized fitness equals pure fitness:
+\begin{equation}
+x_{i,\text{con}}^{*,d} = x_{j,\text{con}}^{*,d}, \forall d \in O_i \cap O_j \Rightarrow \text{conflict}_i = 0 \Rightarrow h_i(x_i^*) = f_i(x_i^*)
+\end{equation}
+
+\textbf{Proof sketch:}
+\begin{align}
+\text{At convergence: } & x_{i,\text{con}}^{*,d} = x_{j,\text{con}}^{*,d}, \forall d \in O_i \cap O_j \\
+\Rightarrow & \text{conflict}_i(x_{i,\text{con}}^*) = \sum_{d \in O_i} \frac{|x_{i,\text{con}}^{*,d} - x_{i,\text{con}}^{*,d}|}{x_{\max} - x_{\min}} = 0 \\
+\Rightarrow & h_i(x_i^*) = f_i(x_i^*) + \alpha_i(t) \cdot 0 = f_i(x_i^*) \\
+\Rightarrow & h^{\text{penalty}} = \frac{1}{N}\sum_{i=1}^N h_i(x_i^*) = \frac{1}{N}\sum_{i=1}^N f_i(x_i^*) = f^{\text{pure}} \\
+\Rightarrow & F(x^*) = \sum_{i=1}^N f_i(x_i^*) = N \cdot f^{\text{pure}}
+\end{align}
+
+\textbf{Practical implication:} The reported $f^{\text{pure}}$ is a valid evaluation of the global objective $F(x)$ divided by $N$, with no artificial inflation from penalty terms.
+
+\end{document}
+

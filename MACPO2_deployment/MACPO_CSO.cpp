@@ -1,0 +1,514 @@
+#include <float.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <chrono>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <iomanip>
+#include <mpi.h>
+
+#include "Benchmarks/Benchmarks.h"
+#include "components/optimizer.h"
+#include "components/sharing.h"
+#include "components/enhanced_evaluator.h"
+#include "components/enhanced_competition.h"
+
+using namespace std;
+
+// 获取当前时间（毫秒），跨平台（Windows / Linux / macOS）
+long getCurrentTime() {
+    using namespace std::chrono;
+    return static_cast<long>(
+        duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+}
+
+// 全局平均函数
+double global_average(double value, vector<int> neighbor_id) {
+    MPI_Status stat;
+    double gval = value;
+    int nei_num = neighbor_id.size();
+    int rounds = 20;
+    
+    for (int i = 0; i < rounds; i++) {
+        MPI_Request req[neighbor_id.size()];
+        for (int rank_index = 0; rank_index < nei_num; rank_index++) {
+            MPI_Isend(&gval, 1, MPI_DOUBLE, neighbor_id[rank_index], 0, MPI_COMM_WORLD, &req[rank_index]);
+        }
+        
+        double nval_sum = 0;
+        for (int rank_index = 0; rank_index < nei_num; rank_index++) {
+            double nval;
+            MPI_Recv(&nval, 1, MPI_DOUBLE, neighbor_id[rank_index], 0, MPI_COMM_WORLD, &stat);
+            nval_sum += nval;
+        }
+        gval = (gval + nval_sum) / (nei_num + 1);
+    }
+    return gval;
+}
+
+int main(int argc, char* argv[]) {
+    long start_time = getCurrentTime();
+    
+    // MPI初始化
+    int myrank, nprocs;
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+    MPI_Status stat;
+    
+    // 算法参数
+    double distrub = 0.1;
+    double gen_per_d = 0.4;
+    int eva_per_d = 3000;
+    
+    // 从命令行参数获取funcID、exID、实验配置
+    string funcID = argv[1];
+    string exID = (argc >= 3) ? argv[2] : "ex01";
+    string expConfig = (argc >= 4) ? argv[3] : "Full";
+
+    string method = "RL-MACPO-CSO";  
+    string outDir = "./output/";
+    
+    double initial_penalty = 0;  
+    int swarm_size = 300;
+    double prev_global_fit = 1e10;
+    double ema_fitness = 1e6;
+    
+    srand(getCurrentTime());
+    
+    // 简化输出文件名
+    string filename = outDir + funcID + "_CSO_" + exID + ".txt";
+    
+    // 写入表头
+    if (myrank == 0) {
+        ofstream outfile(filename);
+        if (outfile.is_open()) {
+            // 第一行：算法标识
+            outfile << "# Algorithm: CSO" << endl;
+            // 第二行：表头（固定宽度对齐）
+            outfile << setw(4) << "iter" 
+                   << setw(12) << "eval" 
+                   << setw(12) << "f_penalty" 
+                   << setw(12) << "f_pure" 
+                   << setw(12) << "penalty"
+                   << setw(12) << "improvement" 
+                   << setw(12) << "reward" 
+                   << setw(12) << "conflict" 
+                   << setw(12) << "weight" << endl;
+            outfile.close();
+        }
+    }
+    
+    // 创建基准函数和组件
+    Benchmarks *pFunc = new Benchmarks(funcID, 0, true);
+    int dimension = pFunc->getDimension();
+    vector<int> groupDim = pFunc->getGroupDim(myrank);
+    pFunc->max_eva_times = eva_per_d * groupDim.size();
+    int gen_times = groupDim.size() * gen_per_d;
+    
+    // 初始化数组
+    double *globalBest = new double[dimension];
+    int* variable_switch = new int[dimension];
+    int* compute_result = new int[dimension];
+    memset(globalBest, 0, sizeof(double) * dimension);
+    memset(variable_switch, 0, sizeof(int) * dimension);
+    memset(compute_result, 0, sizeof(int) * dimension);
+    
+    // 创建组件 - 使用CSO优化器但配合增强型组件
+    evaluator *Evaluator = new EnhancedRLPenaltyEvaluator(variable_switch, compute_result, dimension, globalBest, initial_penalty, pFunc, myrank);
+    // 设置消融实验配置（与 MACPO_simplified 一致）
+    {
+        ExperimentConfig cfg;
+        if (expConfig == "RL_Only" || expConfig == "NoGating") {
+            cfg.gating_mode = 0;
+            cfg.use_variable_filter = false;
+        } else if (expConfig == "Layer1") {
+            cfg.gating_mode = 1;
+            cfg.use_variable_filter = false;
+        } else if (expConfig == "Layer1_2") {
+            cfg.gating_mode = 2;
+            cfg.use_variable_filter = false;
+        } else if (expConfig == "NoPhase") {
+            cfg.gating_mode = 3;
+            cfg.phase_early = cfg.phase_mid = cfg.phase_late = 0.5;
+        } else if (expConfig == "NoSelection") {
+            cfg.gating_mode = 3;
+            cfg.use_variable_filter = false;
+        }
+        ((EnhancedRLPenaltyEvaluator*)Evaluator)->set_experiment_config(cfg);
+    }
+    optimizer *Optimizer = new optimizer_CSO(swarm_size, Evaluator, groupDim);
+    competition *Competition = new EnhancedCompetition(pFunc, &(Optimizer->swarm), variable_switch);
+    sharing *Sharing = new sharing_variable_wise(pFunc, ((competition_variable_wise*)Competition)->compete_result);
+    
+    Optimizer->init();
+    
+    // 获取重叠信息
+    vector<int> overlapDim;
+    vector<vector<int>> overlapDimForEach;
+    vector<int> overlap_groups = pFunc->getOverlapGroup(myrank);
+    for (int i : overlap_groups) {
+        vector<int> overlap = pFunc->getOverlapDim(myrank, i);
+        overlapDim.insert(overlapDim.end(), overlap.begin(), overlap.end());
+        overlapDimForEach.push_back(overlap);
+    }
+    
+    vector<int> commu_object = pFunc->getOverlapGroup(myrank);
+    
+    int iter = 0;
+    
+    // 主循环
+    while (!pFunc->reachMaxEva()) {
+        // 1. 粒子群优化
+        int success = 0;
+        for (int gen = 0; gen < gen_times; gen++) {
+            Optimizer->generation(success);
+            if (pFunc->reachMaxEva()) break;
+        }
+        
+        // 2. 获取当前最优解
+        double *localBestPar = Optimizer->getBestPar();
+        
+        // 3. 计算冲突和通信决策
+        double conflict_now = ((EnhancedRLPenaltyEvaluator*)Evaluator)->calculate_enhanced_conflict(localBestPar);
+        bool should_communicate = ((EnhancedRLPenaltyEvaluator*)Evaluator)->should_communicate(localBestPar, iter);
+        
+        // *** 关键修复1：全局通信同步 ***
+        int communicate_int = should_communicate ? 1 : 0;
+        int global_communicate_int = 0;
+        MPI_Allreduce(&communicate_int, &global_communicate_int, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+        should_communicate = (global_communicate_int > 0);
+        
+        // 4. 记录信息（删除不必要的日志）
+        
+        // 5. 协商过程
+        if (should_communicate) {
+            vector<double*> fitii, fitij;
+            vector<double*> neighborVec;
+            
+            // 使用动态分配避免可变长度数组问题
+            int num_neighbors = commu_object.size();
+            MPI_Request* req = new MPI_Request[num_neighbors];
+            MPI_Request* req2 = new MPI_Request[num_neighbors];
+            MPI_Request* req3 = new MPI_Request[num_neighbors];
+            MPI_Request* req4 = new MPI_Request[num_neighbors];
+            MPI_Request* req5 = new MPI_Request[num_neighbors];
+            
+            // 发送本地最优解
+            int rank_index = 0;
+            for (int rank : commu_object) {
+                MPI_Isend(localBestPar, dimension, MPI_DOUBLE, rank, 0, MPI_COMM_WORLD, &req[rank_index]);
+                rank_index++;
+            }
+            
+            // 接收邻居解并计算竞争适应度
+            rank_index = 0;
+            for (int rank : commu_object) {
+                double *neighbor = new double[dimension];
+                MPI_Recv(neighbor, dimension, MPI_DOUBLE, rank, 0, MPI_COMM_WORLD, &stat);
+                
+                int hostID = myrank, neighborID = rank;
+                double* host = localBestPar;
+                double* gb = new double[dimension];
+                memcpy(gb, host, dimension * sizeof(double));
+                
+                if (hostID > neighborID) {
+                    for (int d : overlapDimForEach[rank_index]) {
+                        gb[d] = neighbor[d];
+                    }
+                }
+                
+                double localfit = pFunc->local_eva(gb, hostID);
+                int len = overlapDimForEach[rank_index].size();
+                double* fij = new double[len]{0};
+                double* fii = new double[len]{0};
+                
+                for (int i = 0; i < len; i++) {
+                    int d = overlapDimForEach[rank_index][i];
+                    gb[d] = (hostID < neighborID) ? neighbor[d] : host[d];
+                    double newfit = pFunc->local_eva(gb, hostID);
+                    fii[i] = (hostID < neighborID) ? localfit : newfit;
+                    fij[i] = (hostID < neighborID) ? newfit : localfit;
+                    gb[d] = (hostID < neighborID) ? host[d] : neighbor[d];
+                }
+                
+                MPI_Isend(fij, len, MPI_DOUBLE, rank, 1, MPI_COMM_WORLD, &req2[rank_index]);
+                MPI_Isend(fii, len, MPI_DOUBLE, rank, 2, MPI_COMM_WORLD, &req3[rank_index]);
+                
+                fitii.push_back(fii);
+                fitij.push_back(fij);
+                neighborVec.push_back(neighbor);
+                delete[] gb;
+                rank_index++;
+            }
+            
+            // 处理竞争结果
+            vector<double*> fit1p, fit1n;
+            rank_index = 0;
+            memcpy(globalBest, localBestPar, dimension * sizeof(double));
+            
+            for (int rank : commu_object) {
+                int len = overlapDimForEach[rank_index].size();
+                double *fji = new double[len];
+                double *fjj = new double[len];
+                MPI_Recv(fji, len, MPI_DOUBLE, rank, 1, MPI_COMM_WORLD, &stat);
+                MPI_Recv(fjj, len, MPI_DOUBLE, rank, 2, MPI_COMM_WORLD, &stat);
+                
+                double* fii = fitii[rank_index];
+                double* fij = fitij[rank_index];
+                
+                for (int i = 0; i < len; i++) {
+                    int d = overlapDimForEach[rank_index][i];
+                    if (fii[i] + fji[i] > fij[i] + fjj[i]) {
+                        ((EnhancedCompetition*)Competition)->compete_result[d] = 1;
+                        globalBest[d] = neighborVec[rank_index][d];
+                    } else {
+                        ((EnhancedCompetition*)Competition)->compete_result[d] = 0;
+                    }
+                }
+                
+                int sharing_succ = 0;
+                Sharing->share(Optimizer->swarm, swarm_size, globalBest, myrank, rank, sharing_succ);
+                
+                double* f1p = new double[len];
+                double* f1n = new double[len];
+                
+                for (int i = 0; i < len; i++) {
+                    int d = overlapDimForEach[rank_index][i];
+                    double dt = distrub;
+                    double* gb = globalBest;
+                    double localfit = pFunc->local_eva(gb, myrank);
+                    
+                    if (gb[d] + dt >= pFunc->getMaxX()) dt = pFunc->getMaxX() - gb[d];
+                    if (gb[d] - dt <= pFunc->getMinX()) dt = gb[d] - pFunc->getMinX();
+                    
+                    double ov = gb[d];
+                    gb[d] = min(ov + dt, pFunc->getMaxX());
+                    f1p[i] = pFunc->local_eva(gb, myrank) - localfit;
+                    gb[d] = max(ov - dt, pFunc->getMinX());
+                    f1n[i] = pFunc->local_eva(gb, myrank) - localfit;
+                    gb[d] = ov;
+                }
+                
+                MPI_Isend(f1p, len, MPI_DOUBLE, rank, 3, MPI_COMM_WORLD, &req4[rank_index]);
+                MPI_Isend(f1n, len, MPI_DOUBLE, rank, 4, MPI_COMM_WORLD, &req5[rank_index]);
+                fit1p.push_back(f1p);
+                fit1n.push_back(f1n);
+                rank_index++;
+            }
+            
+            // 冲突检测
+            rank_index = 0;
+            for (int rank : commu_object) {
+                int len = overlapDimForEach[rank_index].size();
+                double *f2p = new double[len];
+                double *f2n = new double[len];
+                MPI_Recv(f2p, len, MPI_DOUBLE, rank, 3, MPI_COMM_WORLD, &stat);
+                MPI_Recv(f2n, len, MPI_DOUBLE, rank, 4, MPI_COMM_WORLD, &stat);
+                
+                double* f1p = fit1p[rank_index];
+                double* f1n = fit1n[rank_index];
+                
+                for (int i = 0; i < len; i++) {
+                    int d = overlapDimForEach[rank_index][i];
+                    if (f1p[i] * f2p[i] > 0 && f1n[i] * f2n[i] > 0) {
+                        ((EnhancedCompetition*)Competition)->variable_switch[d] = 0;
+                    } else {
+                        ((EnhancedCompetition*)Competition)->variable_switch[d] = ((EnhancedCompetition*)Competition)->compete_result[d];
+                    }
+                }
+                
+                delete[] f2p;
+                delete[] f2n;
+                rank_index++;
+            }
+            
+            // 等待所有异步通信完成
+            MPI_Status* Istats = new MPI_Status[num_neighbors];
+            MPI_Waitall(num_neighbors, req, Istats);
+            MPI_Waitall(num_neighbors, req2, Istats);
+            MPI_Waitall(num_neighbors, req3, Istats);
+            MPI_Waitall(num_neighbors, req4, Istats);
+            MPI_Waitall(num_neighbors, req5, Istats);
+            
+            // 清理内存
+            for (auto ptr : neighborVec) delete[] ptr;
+            for (auto ptr : fitii) delete[] ptr;
+            for (auto ptr : fitij) delete[] ptr;
+            for (auto ptr : fit1p) delete[] ptr;
+            for (auto ptr : fit1n) delete[] ptr;
+            
+            delete[] req;
+            delete[] req2;
+            delete[] req3;
+            delete[] req4;
+            delete[] req5;
+            delete[] Istats;
+            
+        } else {
+            memcpy(globalBest, localBestPar, dimension * sizeof(double));
+        }
+        
+        // 6. 更新评估器和重新评估
+        ((EnhancedRLPenaltyEvaluator*)Evaluator)->set_global_best(globalBest);
+        Evaluator->total_evaluate(Optimizer->swarm);
+        sort(Optimizer->swarm.begin(), Optimizer->swarm.end(), cmp_unit_pointer);
+        
+        // *** 关键修复2：正确的CSO类型转换 ***
+        ((optimizer_CSO*)Optimizer)->bestFit = Optimizer->swarm[0]->fitness;
+        
+        // *** 关键修复3：使用MPI_Allreduce计算全局适应度 ***
+        // 计算真实目标函数值(不含惩罚项)
+        double local_fit_pure = pFunc->local_eva(globalBest, myrank);
+        // 计算带惩罚项的目标函数值
+        double local_fit_with_penalty = Evaluator->evaluate(globalBest);
+        
+        MPI_Barrier(MPI_COMM_WORLD);
+        
+        // 聚合真实目标函数值
+        double local_sum_pure = local_fit_pure;
+        double global_sum_pure;
+        MPI_Allreduce(&local_sum_pure, &global_sum_pure, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        double global_fit_pure = global_sum_pure / nprocs;
+        
+        // 聚合带惩罚的目标函数值
+        double local_sum_with_penalty = local_fit_with_penalty;
+        double global_sum_with_penalty;
+        MPI_Allreduce(&local_sum_with_penalty, &global_sum_with_penalty, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        double global_fit_with_penalty = global_sum_with_penalty / nprocs;
+        
+        // 使用真实目标函数值作为主要评价指标
+        double global_fit = global_fit_pure;
+        
+        // ========== 设置基准α并动态调整以适应实际conflict规模 ==========
+        ((EnhancedRLPenaltyEvaluator*)Evaluator)->set_base_alpha(global_fit);
+        
+        if (iter == 0) {
+            // 第一次迭代后：测量实际conflict并动态调整α
+            double base_alpha = ((EnhancedRLPenaltyEvaluator*)Evaluator)->get_base_alpha();
+            
+            // 测量实际conflict（使用基类的calculate_conflict）
+            double measured_conflict = ((RLPenaltyEvaluator*)Evaluator)->calculate_conflict(localBestPar);
+            
+            if (myrank == 0) {
+                cout << "[CSO] 第一次迭代完成 - 动态α调整" << endl;
+                cout << "  - global_fit = " << global_fit << endl;
+                cout << "  - base_alpha = |f| / 512 = " << base_alpha << endl;
+                cout << "  - measured_conflict = " << measured_conflict << endl;
+            }
+            
+            // 动态调整：如果conflict较大（>1.0），则缩小α
+            if (measured_conflict > 1.0) {
+                // 计算α的动态缩放因子
+                // 目标：使 penalty/f ≈ 0.195% = 1/512
+                // 公式：α_adjusted = base_alpha / measured_conflict
+                double scaling_factor = 1.0 / measured_conflict;
+                double adjusted_alpha = base_alpha * scaling_factor;
+                
+                // 直接设置调整后的α
+                ((EnhancedRLPenaltyEvaluator*)Evaluator)->set_alpha(adjusted_alpha);
+                
+                if (myrank == 0) {
+                    cout << "  - scaling_factor = 1.0 / conflict = " << scaling_factor << endl;
+                    cout << "  - adjusted_alpha = base_alpha × scaling = " << adjusted_alpha << endl;
+                    cout << "  - 预期 penalty/f ≈ 0.195%" << endl;
+                }
+            } else if (myrank == 0) {
+                cout << "  - conflict ≤ 1.0，不需要调整α" << endl;
+            }
+        }
+        
+        // 7. RL权重更新 + 轨迹（与 MACPO baseline 对齐：含 iter==0 一行）
+        {
+            static double historical_best = 1e10;
+            static bool ema_initialized = false;
+            
+            double improvement_rate = 0.0;
+            if (abs(prev_global_fit) > 1e-8) {
+                improvement_rate = (prev_global_fit - global_fit) / abs(prev_global_fit);
+            }
+            
+            double reward = 0.0;
+            if (iter > 0) {
+                historical_best = min(historical_best, global_fit);
+                if (!ema_initialized) {
+                    ema_fitness = global_fit;
+                    ema_initialized = true;
+                }
+                ema_fitness = 0.8 * ema_fitness + 0.2 * global_fit;
+                if (global_fit > 0) {
+                    reward = -log(global_fit);
+                } else {
+                    reward = -100.0;
+                }
+                ((EnhancedRLPenaltyEvaluator*)Evaluator)->update_rl_weight(localBestPar, reward);
+            }
+            
+            if (myrank == 0) {
+                ofstream outfile(filename, ios::app);
+                if (outfile.is_open()) {
+                    outfile << scientific << uppercase << setprecision(2);
+                    outfile << iter << "\t"
+                           << pFunc->eva_count << "\t"
+                           << global_fit_with_penalty << "\t"
+                           << global_fit << "\t"
+                           << (global_fit_with_penalty - global_fit) << "\t"
+                           << improvement_rate << "\t"
+                           << reward << "\t"
+                           << conflict_now << "\t"
+                           << ((EnhancedRLPenaltyEvaluator*)Evaluator)->get_alpha() << endl;
+                    outfile.close();
+                }
+            }
+            
+            if (iter > 0) {
+                if (global_fit < prev_global_fit) {
+                    prev_global_fit = global_fit;
+                }
+            } else {
+                prev_global_fit = global_fit;
+            }
+        }
+        
+        // 8. 检查终止条件
+        MPI_Barrier(MPI_COMM_WORLD);
+        double reach_max_eva = pFunc->reachMaxEva() ? 1.0 : 0.0;
+        double if_any_reach_max_eva = global_average(reach_max_eva, commu_object);
+        if (if_any_reach_max_eva > 0) break;
+        
+        // 9. 记录进度（已在上面的RL更新部分记录）
+        
+        MPI_Barrier(MPI_COMM_WORLD);
+        iter++;
+    }
+    
+    // 最终输出
+    MPI_Barrier(MPI_COMM_WORLD);
+    long end_time = getCurrentTime();
+    long total_time = end_time - start_time;
+    
+    if (myrank == 0) {
+        cout << "Completed [CSO]: iterations=" << iter 
+             << ", evals=" << pFunc->eva_count 
+             << ", final fitness=" << prev_global_fit 
+             << ", total time=" << total_time << "ms" << endl;
+    }
+    
+    // 清理资源
+    delete[] globalBest;
+    delete[] variable_switch;
+    delete[] compute_result;
+    delete Evaluator;
+    delete Optimizer;
+    delete Competition;
+    delete Sharing;
+    delete pFunc;
+    
+    MPI_Finalize();
+    return 0;
+} 

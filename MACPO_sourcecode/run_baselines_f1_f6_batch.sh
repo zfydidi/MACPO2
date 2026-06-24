@@ -7,6 +7,7 @@
 #   RUNS    重复次数（默认 25）
 #   MPIRUN  mpirun 命令（默认 mpirun）
 #   NPROCS  F1–F6 填 20（默认 20）；若跑 F7+ 请改 NPROCS
+#   ALGO    dpso | gfpdo | both（默认 both，分机跑时设为 dpso 或 gfpdo）
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -17,13 +18,21 @@ OUT="${OUT:-$ROOT/output_baselines}"
 RUNS="${RUNS:-25}"
 MPIRUN="${MPIRUN:-mpirun}"
 NPROCS="${NPROCS:-20}"
+ALGO="${ALGO:-both}"
 
 mkdir -p "$OUT"
 
 BIN_DPSO1="$BUILD/DPSO1"
 BIN_GFPDO="$BUILD/GFPDO_overlap"
 
-for b in "$BIN_DPSO1" "$BIN_GFPDO"; do
+case "$ALGO" in
+  dpso)  need_bins=("$BIN_DPSO1") ;;
+  gfpdo) need_bins=("$BIN_GFPDO") ;;
+  both)  need_bins=("$BIN_DPSO1" "$BIN_GFPDO") ;;
+  *) echo "ALGO 须为 dpso | gfpdo | both"; exit 1 ;;
+esac
+
+for b in "${need_bins[@]}"; do
   if [[ ! -x "$b" ]]; then
     echo "找不到可执行文件: $b"
     echo "请先: cd $ROOT && cmake -S . -B build && cmake --build build"
@@ -31,9 +40,15 @@ for b in "$BIN_DPSO1" "$BIN_GFPDO"; do
   fi
 done
 
+case "$ALGO" in
+  dpso)  ALGOS=(dpso) ;;
+  gfpdo) ALGOS=(gfpdo) ;;
+  both)  ALGOS=(dpso gfpdo) ;;
+esac
+
 FUNCS=(F1 F2 F3 F4 F5 F6)
 OPTS=(LLSO CSO)
-TOTAL_JOBS=$((RUNS * ${#FUNCS[@]} * ${#OPTS[@]} * 2))
+TOTAL_JOBS=$((RUNS * ${#FUNCS[@]} * ${#OPTS[@]} * ${#ALGOS[@]}))
 JOB_IDX=0
 BATCH_START=$SECONDS
 
@@ -41,7 +56,7 @@ echo "============================================================"
 echo "GFPDO/DPSO baseline batch"
 echo "  BUILD=$BUILD"
 echo "  OUT=$OUT"
-echo "  RUNS=$RUNS  NPROCS=$NPROCS"
+echo "  RUNS=$RUNS  NPROCS=$NPROCS  ALGO=$ALGO"
 echo "  total jobs=$TOTAL_JOBS  (funcs=${FUNCS[*]}  opts=${OPTS[*]})"
 echo "============================================================"
 
@@ -79,8 +94,13 @@ for ((r=1; r<=RUNS; r++)); do
   echo "---- run $r/$RUNS ($ex) ----"
   for f in "${FUNCS[@]}"; do
     for opt in "${OPTS[@]}"; do
-      run_one "$BIN_DPSO1" "DPSO1" "$f" "$opt" "$ex"
-      run_one "$BIN_GFPDO" "GFPDO" "$f" "$opt" "$ex"
+      for algo in "${ALGOS[@]}"; do
+        if [[ "$algo" == "dpso" ]]; then
+          run_one "$BIN_DPSO1" "DPSO1" "$f" "$opt" "$ex"
+        else
+          run_one "$BIN_GFPDO" "GFPDO" "$f" "$opt" "$ex"
+        fi
+      done
     done
   done
 done

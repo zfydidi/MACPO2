@@ -1,0 +1,279 @@
+% 选题依据
+\begin{titlepage}
+\makeatletter
+\newpage
+\AddToShipoutPictureBG{
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw [line width=1pt]
+        ($ (current page.north west) + (1.95cm,-1.5cm) $)
+        rectangle
+        ($ (current page.south east) + (-1.95cm,1.5cm) $);
+    \end{tikzpicture}
+     \put(\dimexpr0.5\paperwidth, 1cm){\makebox[0pt]{\thepage}}
+\hspace{1.8cm}\raisebox{30pt}{\textit{}}
+}
+\makeatother
+\section{选题依据（内容包括：课题来源、研究背景及意义、国内外研究现状及分析）}
+%% 填写内容
+
+\noindent 
+\textbf{1. 研究来源}
+
+\par
+\indent
+本研究来源于“网络化分布式优化（Network-based Distributed Optimization, NDO）”问题的相关研究工作，聚焦在复杂网络资源分配、协同调度与网络系统控制中的优化问题。NDO 的典型特征是：全局目标函数与约束条件在网络上耦合，决策变量分散在不同节点或智能体处，各节点仅掌握局部信息并通过通信实现协同决策，因此难以采用集中式方式直接求解。该类问题在分布式资源分配与调度场景中具有明确的数学建模与算法谱系基础，并持续受到控制与优化领域关注。在前期工作中，已形成以多智能体协同进化与惩罚函数为核心的算法框架 \cite{chen2020}，为进一步引入学习机制提供了稳定的算法基础与工程实现条件。该框架在网络化分布式环境下，通过将大规模约束优化问题分解为多个子问题，由多个智能体并行协同进化，并通过惩罚型目标函数将可行性调控与目标优化统一刻画，为后续引入学习机制提供了可复用的框架与工程实现条件。
+
+\noindent 
+\textbf{2. 研究背景及意义}
+
+\par
+\indent
+\textbf{约束优化问题}（Constrained Optimization Problems, COPs）广泛存在于资源分配、生产调度、通信网络与复杂工程系统中，是运筹优化与系统控制领域的重要研究对象。随着系统规模与结构复杂度的持续提升，决策变量往往分散于多个节点或子系统中，全局目标函数与约束条件通过网络结构产生耦合，使得问题逐渐演化为\textbf{网络化分布式约束优化}（Network-based Distributed Constrained Optimization, NDCO）问题。在此类问题中，各决策主体仅能获取局部信息，并依赖有限通信实现协同决策。
+
+\par
+\indent
+当前针对NDCO问题的求解面临两类核心技术挑战：一是\textbf{传统分布式优化方法}依赖严格凸性、可分解性与梯度信息可得等假设，难以适应实际系统中高度非线性耦合与隐式约束的复杂场景；二是工程系统中目标函数与约束往往仅能通过仿真或运行反馈评估，呈现典型的\textbf{黑箱特性}，使得基于解析模型的优化方法失效。这两类挑战的共存，使得大规模分布式约束优化问题的有效求解成为亟待突破的技术瓶颈。
+
+\par
+\indent
+针对传统分布式凸优化方法的局限性，研究者将群体智能与协同进化方法引入NDCO场景，通过并行演化与惩罚型目标函数统一刻画优化目标与约束可行性，为黑箱、非凸、大规模的NDCO问题提供了可扩展的求解框架 \cite{chen2020,potter1994,omidvar2014}。然而，现有方法中惩罚参数与协同策略多依赖人工经验或静态规则设定，难以反映约束冲突程度与系统状态的动态变化，在复杂约束场景下容易出现可行性引导不足或协同一致性下降等问题 \cite{li2012pso,yang2008,mezuramontes2011}。
+
+\par
+\indent
+在此背景下，\textbf{强化学习}等学习型方法被逐步引入优化领域，用于辅助参数调节与策略选择，为缓解人工经验依赖、提升算法自适应能力提供了新的思路 \cite{wang2014,karafotias2015}。但现有工作多集中于无约束或简单约束问题，尚缺乏在NDCO框架下，对惩罚调控、协同结构与学习型自适应机制之间作用关系的系统刻画与统一分析。本研究旨在针对分布式黑箱约束优化场景，引入强化学习机制实现惩罚参数与协同策略的智能调控，为复杂NDCO问题提供有效解决途径。
+
+\noindent 
+\textbf{3. 国内外研究现状及分析}
+
+\par
+\indent
+本研究主要集中在分布式优化方法、黑箱约束处理、多智能体协同进化以及强化学习赋能优化算法等方向。为清晰展示不同方法的适用场景与技术特点，表1给出了相关方法在交互粒度、适应性与优化假设方面的对比总结。
+
+\begin{table}[H]
+\centering
+\caption{分布式约束优化相关方法对比}
+\label{tab:related_methods}
+\small
+\setlength{\tabcolsep}{3pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{算法} & \textbf{类别} & \textbf{问题结构} & \textbf{黑箱优化} & \textbf{依赖梯度} & \textbf{约束处理} & \textbf{智能调控} & \textbf{适用性} \\
+\midrule
+ADMM \cite{boyd2011} & 凸优化 & 同构 & $\times$ & \checkmark & 对偶变量 & $\times$ & 凸+可分解 \\
+EXTRA \cite{shi2015} & 凸优化 & 同构 & $\times$ & \checkmark & 梯度投影 & $\times$ & 凸+光滑 \\
+DGD \cite{nedic2009} & 凸优化 & 同构 & $\times$ & \checkmark & 次梯度 & $\times$ & 凸+弱凸 \\
+\midrule
+DPSO \cite{li2012pso} & 黑箱进化 & 同构/异构 & \checkmark & $\times$ & 惩罚函数 & $\times$ & 黑箱+非凸 \\
+GFPDO \cite{chen2020} & 黑箱进化 & 异构 & \checkmark & $\times$ & 惩罚函数 & $\times$ & 黑箱+非凸 \\
+MACPO \cite{chen2020} & 黑箱进化 & 异构 & \checkmark & $\times$ & 惩罚函数 & $\times$ & 黑箱+非凸 \\
+\midrule
+\textbf{本研究} & 黑箱进化 & 异构 & \checkmark & $\times$ & 惩罚函数 & \checkmark & 黑箱+非凸 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\vspace{0.3cm}
+
+\par
+\indent（1）传统分布式优化方法及其局限性
+
+在网络化分布式优化问题中，传统凸优化方法为理论分析提供了重要基础。围绕一致性（consensus）与分解—协调思想，研究者提出了分布式次梯度方法 \cite{nedic2009}、原—对偶方法 \cite{nedic2010,ozdaglar2011} 以及交替方向乘子法（ADMM）\cite{boyd2011}，并在凸假设条件下建立了较为完善的收敛性与稳定性分析框架。相关研究表明，这些方法在资源分配、网络流控制和分布式统计学习等场景中取得了广泛应用 \cite{nedic2017,shi2015}。
+
+然而，传统分布式凸优化方法的有效性通常依赖于三个关键前提：\textbf{(a) 目标函数与约束的凸性与可分解性}；\textbf{(b) 梯度或次梯度信息可得}；\textbf{(c) 约束结构显式且可通过对偶变量协调}。在实际工程系统中，约束关系往往高度非线性耦合，目标函数仅能通过仿真或运行反馈评估，上述假设难以满足，从而限制了传统方法的适用范围 \cite{ghadimi2013,wang2014}。
+
+\par
+\indent（2）黑箱约束优化与惩罚机制
+
+针对模型不完全可得或难以解析建模的现实需求，\textbf{黑箱优化}（Black-box Optimization）逐渐成为重要研究方向。在黑箱设置下，算法无法直接利用目标函数或约束的解析形式，仅能通过有限次评估获取反馈信息，这对优化策略的样本效率与鲁棒性提出了更高要求 \cite{back1996,hansen2001}。
+
+在黑箱约束优化中，\textbf{惩罚函数法}作为一种无需显式约束处理的替代路径，被广泛用于复杂约束优化问题，通过将约束违反程度映射为目标函数的一部分，引导优化过程逐步逼近可行区域 \cite{deb2000,mezuramontes2011}。Deb等提出的可行性规则在多种基准问题上取得了良好效果，但其性能对惩罚参数设置较为敏感 \cite{coello2002}。为缓解参数敏感性问题，研究者提出了自适应惩罚系数调整方法 \cite{li2019}、$\varepsilon$-约束法 \cite{takahama2006} 和随机排序机制 \cite{runarsson2000}。然而，上述方法在大规模复杂约束场景中仍普遍存在\textbf{参数依赖性强、调节机制静态}等问题，难以适应约束冲突程度的动态变化 \cite{mezuramontes2011,besbes2015}。
+
+\par
+\indent（3）多智能体协同进化与分布式黑箱优化
+
+在网络化分布式优化（NDCO）问题中，决策变量与约束分散分布于网络节点之间，如何在有限通信条件下实现近似全局协调，是区别于集中式优化的关键挑战。\textbf{协同进化方法}通过将高维问题划分为多个相互关联的子问题，并由多个智能体并行决策与协作演化，被认为是应对大规模黑箱优化问题的有效手段 \cite{potter1994,omidvar2014,li2012survey}。
+
+Chen等提出的多智能体协同进化与惩罚优化框架（MACPO）\cite{chen2020}，将协同进化与惩罚函数法结合，为分布式黑箱约束优化提供了可扩展的求解范式。该框架通过并行演化与信息交互，在黑箱场景下实现了局部决策与全局约束的协同，已在网络化资源分配等场景中验证了有效性。然而，现有方法中惩罚参数与协同策略多依赖静态规则设定，在约束冲突强度变化剧烈或搜索阶段转换时，容易出现\textbf{可行性引导不足或协同效率下降}等问题 \cite{yang2008,li2012pso}。
+
+\par
+\indent（4）强化学习赋能优化算法
+
+在复杂工程系统中，目标函数与约束关系往往难以通过解析模型精确刻画，且系统状态可能随时间变化，使得最优决策呈现动态漂移特性 \cite{besbes2015,vakili2018}。在此类场景下，依赖固定参数或静态规则的优化方法难以长期维持稳定性能，促使研究者引入学习型机制，根据系统状态反馈对调控策略进行自适应调整。
+
+\textbf{强化学习}作为一种基于交互反馈进行策略更新的方法，近年来被广泛用于优化算法中的参数控制、算子选择与决策调节，被视为缓解人工经验依赖、提升算法适应性的重要工具 \cite{karafotias2015,wang2014}。围绕强化学习在优化算法中的作用方式，已有研究逐步形成了从参数调控到策略学习的研究脉络，其典型发展路径如图1所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{图像1.png}
+    \caption{强化学习赋能优化算法的研究脉络示意图}
+    \label{fig:rl_evolution}
+\end{figure}
+
+相关研究表明，强化学习能够在一定程度上替代人工经验，实现优化过程的自适应控制 \cite{yi2019,andrychowicz2016}。此外，"learning to optimize"范式尝试通过学习更新规则或优化策略本身以替代人工设计，在机器学习与优化交叉领域受到广泛关注 \cite{andrychowicz2016,vakili2018}。然而，现有工作多集中于\textbf{无约束或简单约束问题}，对于大规模分布式黑箱约束优化中惩罚参数与多智能体协同策略的学习机制研究仍较为有限 \cite{busoniu2008}。
+
+\par
+\indent（5）研究现状总结与本研究定位
+
+现有研究在分布式优化方法、黑箱约束处理、多智能体协同进化以及学习型优化方法等方面已取得显著进展，但在\textbf{分布式黑箱约束优化}场景下，仍缺乏一种能够同时对惩罚参数和协同策略进行自适应调节的统一框架。具体而言，存在以下不足：
+
+\begin{itemize}
+    \item 传统分布式凸优化方法依赖严格假设，难以适应黑箱、非凸的复杂约束场景；
+    \item 现有惩罚机制多采用静态规则或人工经验设定，缺乏对约束冲突动态变化的感知与调控能力；
+    \item 多智能体协同策略（通信时机、变量选择）主要依赖预设规则，难以根据搜索状态进行智能调整；
+    \item 强化学习在优化算法中的应用多集中于无约束场景，尚未深度融入分布式约束优化的核心调控机制。
+\end{itemize}
+
+本研究拟基于多智能体协同进化与惩罚优化的理论基础 \cite{chen2020}，引入\textbf{轻量级强化学习机制}实现惩罚参数与协同策略的智能调控，构建面向分布式黑箱约束优化的自适应算法框架，为复杂NDCO问题提供有效解决途径。如表1所示，本研究在智能交互、黑箱适应性与不依赖梯度优化三个维度上实现了完整覆盖，填补了现有方法的技术空白。
+
+\begin{thebibliography}{99}
+\bibitem{chen2020}
+Taiyou Chen, Ke Tang, Guoliang Chen, and Xin Yao.
+A multi-agent co-evolutionary algorithm with penalty-based objective
+for network-based distributed optimization.
+\emph{IEEE Transactions on Cybernetics}, 50(8):3423--3436, 2020.
+
+\bibitem{potter1994}
+Mitchell A. Potter and Kenneth A. De Jong.
+A cooperative coevolutionary approach to function optimization.
+In \emph{Parallel Problem Solving from Nature III}, pages 249--257, 1994.
+
+\bibitem{omidvar2014}
+Mohammad Nabi Omidvar, Xiaodong Li, Yi Mei, and Xin Yao.
+Cooperative co-evolution with differential grouping for large scale optimization.
+\emph{IEEE Transactions on Evolutionary Computation}, 18(3):378--393, 2014.
+
+\bibitem{li2012pso}
+Xiaodong Li and Xin Yao.
+Cooperatively coevolving particle swarms for large scale optimization.
+\emph{IEEE Transactions on Evolutionary Computation}, 16(2):210--224, 2012.
+
+\bibitem{yang2008}
+Zhenyu Yang, Ke Tang, and Xin Yao.
+Large scale evolutionary optimization using cooperative coevolution.
+\emph{Information Sciences}, 178(15):2985--2999, 2008.
+
+\bibitem{mezuramontes2011}
+Efr\'en Mezura-Montes and Carlos A. Coello Coello.
+Constraint-handling in nature-inspired numerical optimization:
+Past, present and future.
+\emph{Swarm and Evolutionary Computation}, 1(4):173--194, 2011.
+
+\bibitem{wang2014}
+Yong Wang, Zixing Cai, and Qingfu Zhang.
+Differential evolution with adaptive constraint handling for constrained optimization.
+\emph{IEEE Transactions on Evolutionary Computation}, 18(6):1--15, 2014.
+
+\bibitem{karafotias2015}
+Giorgos Karafotias, Mark Hoogendoorn, and \'Agoston E. Eiben.
+Parameter control in evolutionary algorithms: Trends and challenges.
+\emph{IEEE Transactions on Evolutionary Computation}, 19(2):167--187, 2015.
+
+\bibitem{nedic2009}
+Angelina Nedi\'c and Asuman Ozdaglar.
+Distributed subgradient methods for multi-agent optimization.
+\emph{IEEE Transactions on Automatic Control}, 54(1):48--61, 2009.
+
+\bibitem{nedic2010}
+Angelina Nedi\'c and Asuman Ozdaglar.
+Distributed subgradient methods for saddle-point problems.
+\emph{Journal of Optimization Theory and Applications}, 147(1):1--25, 2010.
+
+\bibitem{ozdaglar2011}
+Asuman Ozdaglar, Angelina Nedi\'c, and Patrick A. Parrilo.
+Constrained consensus and optimization in multi-agent networks.
+\emph{IEEE Transactions on Automatic Control}, 56(2):279--294, 2011.
+
+\bibitem{boyd2011}
+Stephen Boyd, Neal Parikh, Eric Chu, Borja Peleato, and Jonathan Eckstein.
+Distributed optimization and statistical learning via the alternating direction method of multipliers.
+\emph{Foundations and Trends in Machine Learning}, 3(1):1--122, 2011.
+
+\bibitem{nedic2017}
+Angelina Nedi\'c, Alex Olshevsky, and Wei Shi.
+Achieving geometric convergence for distributed optimization over time-varying graphs.
+\emph{SIAM Journal on Optimization}, 27(4):2597--2633, 2017.
+
+\bibitem{shi2015}
+Wei Shi, Qing Ling, Guodong Wu, and Wotao Yin.
+EXTRA: An exact first-order algorithm for decentralized consensus optimization.
+\emph{SIAM Journal on Optimization}, 25(2):944--966, 2015.
+
+\bibitem{ghadimi2013}
+Shahrzad Ghadimi and Guanghui Lan.
+Stochastic first- and zeroth-order methods for nonconvex stochastic programming.
+\emph{SIAM Journal on Optimization}, 23(4):2341--2368, 2013.
+
+\bibitem{back1996}
+Thomas B\"ack.
+\emph{Evolutionary Algorithms in Theory and Practice}.
+Oxford University Press, 1996.
+
+\bibitem{hansen2001}
+Nikolaus Hansen and Andreas Ostermeier.
+Completely derandomized self-adaptation in evolution strategies.
+\emph{Evolutionary Computation}, 9(2):159--195, 2001.
+
+\bibitem{deb2000}
+Kalyanmoy Deb.
+An efficient constraint handling method for genetic algorithms.
+\emph{Computer Methods in Applied Mechanics and Engineering}, 186(2--4):311--338, 2000.
+
+\bibitem{coello2002}
+Carlos A. Coello Coello.
+Theoretical and numerical constraint-handling techniques used with evolutionary algorithms:
+A survey of the state of the art.
+\emph{Computer Methods in Applied Mechanics and Engineering}, 191(11--12):1245--1287, 2002.
+
+\bibitem{li2019}
+Ke Li, Renzhi Chen, Guanhua Fu, and Xin Yao.
+An adaptive penalty-based boundary intersection method for constrained multiobjective optimization.
+\emph{Information Sciences}, 478:15--37, 2019.
+
+\bibitem{takahama2006}
+Tetsuyuki Takahama and Setsuko Sakai.
+Constrained optimization by the $\varepsilon$-constrained differential evolution.
+In \emph{IEEE Congress on Evolutionary Computation}, pages 1--8, 2006.
+
+\bibitem{runarsson2000}
+Thomas P. Runarsson and Xin Yao.
+Stochastic ranking for constrained evolutionary optimization.
+\emph{IEEE Transactions on Evolutionary Computation}, 4(3):284--294, 2000.
+
+\bibitem{besbes2015}
+Omar Besbes, Yonatan Gur, and Assaf Zeevi.
+Non-stationary stochastic optimization.
+\emph{Operations Research}, 63(5):1227--1244, 2015.
+
+\bibitem{li2012survey}
+Xiaodong Li and Xin Yao.
+Cooperative coevolutionary algorithms: A survey of the state of the art.
+\emph{IEEE Transactions on Evolutionary Computation}, 16(6):837--863, 2012.
+
+\bibitem{yi2019}
+Xiaowen Yi, Ying Tan, and Jun Wang.
+Distributed online convex optimization with time-varying coupled inequality constraints.
+\emph{IEEE Transactions on Automatic Control}, 64(10):4023--4038, 2019.
+
+\bibitem{andrychowicz2016}
+Marcin Andrychowicz, Misha Denil, Sergio Gomez, Matthew W. Hoffman,
+David Pfau, Tom Schaul, Brendan Shillingford, and Nando De Freitas.
+Learning to learn by gradient descent by gradient descent.
+In \emph{Advances in Neural Information Processing Systems},
+pages 3981--3989, 2016.
+
+\bibitem{vakili2018}
+Sattar Vakili, Qing Zhao, and Alessandro Lazaric.
+Online optimization in dynamic environments.
+\emph{IEEE Transactions on Automatic Control}, 63(10):1--14, 2018.
+
+\bibitem{busoniu2008}
+Lucian Busoniu, Robert Babuska, and Bart De Schutter.
+A comprehensive survey of multiagent reinforcement learning.
+\emph{IEEE Transactions on Systems, Man, and Cybernetics, Part C},
+38(2):156--172, 2008.
+
+\end{thebibliography}
+
+\end{titlepage}
