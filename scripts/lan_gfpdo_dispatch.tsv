@@ -1,0 +1,14 @@
+# GFPDO 12 jobs（F1–F6 × LLSO/CSO × ex01）分到 4 台空闲机，每台 3 个 job
+# 列: IP	WSL项目根路径	FUNC	OPT
+10.21.51.25	/mnt/d/zyj/MACPO2	F1	LLSO
+10.21.51.25	/mnt/d/zyj/MACPO2	F2	CSO
+10.21.51.25	/mnt/d/zyj/MACPO2	F5	LLSO
+10.21.51.27	/mnt/c/zyj/MACPO2	F1	CSO
+10.21.51.27	/mnt/c/zyj/MACPO2	F3	LLSO
+10.21.51.27	/mnt/c/zyj/MACPO2	F5	CSO
+10.21.51.24	/mnt/d/zyj/MACPO2	F2	LLSO
+10.21.51.24	/mnt/d/zyj/MACPO2	F3	CSO
+10.21.51.24	/mnt/d/zyj/MACPO2	F6	LLSO
+10.21.51.21	/mnt/f/zyj/MACPO2	F4	LLSO
+10.21.51.21	/mnt/f/zyj/MACPO2	F4	CSO
+10.21.51.21	/mnt/f/zyj/MACPO2	F6	CSO

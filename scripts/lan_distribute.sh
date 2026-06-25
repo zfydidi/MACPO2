@@ -87,17 +87,10 @@ while read_lan_host_row; do
 
   sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$ARCHIVE_PATH" "${ssh_user}@${ip}:${remote_tgz}"
 
-  if sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
-    "wsl.exe bash -lc \"set -e; mkdir -p '${wsl_root}'; tar xzf '${wsl_tgz}' -C '${wsl_root}'; echo UNPACK_OK\"" 2>/dev/null | grep -q UNPACK_OK; then
-    echo "    完成(WSL): ${ip}"
-  elif sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
-    "powershell -NoProfile -Command \"tar -xzf '${scp_win}/${ARCHIVE_NAME}' -C '${scp_win}'; Write-Output UNPACK_OK\"" 2>/dev/null | grep -q UNPACK_OK; then
-    echo "    完成(Windows tar，WSL 远程不可用): ${ip}"
-    echo "    请在本机 WSL 进入 ${wsl_root} 后编译运行"
-  else
-    echo "    失败: ${ip} 解压未成功"
-    continue
-  fi
+  sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
+    "wsl.exe bash -lc \"set -e; mkdir -p '${wsl_root}'; tar xzf '${wsl_tgz}' -C '${wsl_root}'; echo UNPACK_OK\""
+
+  echo "    完成: ${ip}"
 done < "$HOSTS_FILE"
 
 echo ""

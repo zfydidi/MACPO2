@@ -61,10 +61,10 @@ fetch_comm_func() {
   drive=$(echo "$win_path" | sed -E 's/^([A-Za-z]):.*/\1/' | tr 'A-Z' 'a-z')
   local tgz_name="macpo_${func}_${ip}.tgz"
   local scp_tgz
-  scp_tgz=$(echo "$win_path" | sed -E 's/^([A-Za-z]):.*/\1:/' | tr 'A-Z' 'a-z')"/tmp/${tgz_name}"
+  scp_tgz=$(echo "$win_path" | sed 's|\\|/|g')"/tmp/${tgz_name}"
 
   echo "==> [$ip] 拉取 $func"
-  pack_cmd="wsl.exe bash -lc \"cd '${wsl_root}' && tar czf /tmp/${tgz_name} '${rel}' 2>/dev/null || true\""
+  pack_cmd="wsl.exe bash -lc \"cd '${wsl_root}' && mkdir -p tmp && tar czf tmp/${tgz_name} '${rel}' 2>/dev/null || true\""
   sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" "$pack_cmd"
   sshpass -p "$pass" scp "${SSH_OPTS[@]}" "${ssh_user}@${ip}:${scp_tgz}" "/tmp/${tgz_name}" 2>/dev/null || {
     echo "    跳过: 无 ${func} 数据"
@@ -86,11 +86,11 @@ fetch_baselines() {
   fi
   local tgz_name="macpo_${algo}_${ip}.tgz"
   local scp_tgz
-  scp_tgz=$(echo "$win_path" | sed -E 's/^([A-Za-z]):.*/\1:/' | tr 'A-Z' 'a-z')"/tmp/${tgz_name}"
+  scp_tgz=$(echo "$win_path" | sed 's|\\|/|g')"/tmp/${tgz_name}"
   local local_out="$ROOT/MACPO_sourcecode/output_baselines_5runs_${algo}"
 
   echo "==> [$ip] 拉取 ${algo} 基线"
-  pack_cmd="wsl.exe bash -lc \"cd '${wsl_root}' && tar czf /tmp/${tgz_name} '${out_sub}' 2>/dev/null || true\""
+  pack_cmd="wsl.exe bash -lc \"cd '${wsl_root}' && mkdir -p tmp && tar czf tmp/${tgz_name} '${out_sub}' 2>/dev/null || true\""
   sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" "$pack_cmd"
   sshpass -p "$pass" scp "${SSH_OPTS[@]}" "${ssh_user}@${ip}:${scp_tgz}" "/tmp/${tgz_name}" 2>/dev/null || {
     echo "    跳过: 无 ${algo} 数据"

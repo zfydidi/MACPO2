@@ -1,0 +1,45 @@
+# GFPDO 分机手动跑（每台 WSL 里执行）
+# Mac 推送脚本: bash scripts/lan_push_gfpdo.sh
+
+# ========== 要复制什么 ==========
+# 机器上已有 MACPO2（之前分发过）→ 只需更新 MACPO_sourcecode/run_gfpdo_single.sh
+# 全新机器 → 复制整个 MACPO_sourcecode/ 文件夹（不要 build/、output_baselines_*）
+
+# ========== 每台先做一次编译 ==========
+cd /mnt/d/zyj/MACPO2/MACPO_sourcecode    # 路径见下表
+export OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+export OMPI_MCA_btl_vader_single_copy_mechanism=none
+rm -rf build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target GFPDO_overlap -j$(nproc)
+file build/GFPDO_overlap    # 必须是 ELF x86-64
+
+# ========== 每台跑 3 个 job（开 tmux，一条一条跑）==========
+tmux new -s gfpdo
+
+# --- 10.21.51.25  D:\zyj\MACPO2 ---
+cd /mnt/d/zyj/MACPO2/MACPO_sourcecode
+FUNC=F1 OPT=LLSO bash run_gfpdo_single.sh
+FUNC=F2 OPT=CSO  bash run_gfpdo_single.sh
+FUNC=F5 OPT=LLSO bash run_gfpdo_single.sh
+
+# --- 10.21.51.27  C:\zyj\MACPO2 ---
+cd /mnt/c/zyj/MACPO2/MACPO_sourcecode
+FUNC=F1 OPT=CSO  bash run_gfpdo_single.sh
+FUNC=F3 OPT=LLSO bash run_gfpdo_single.sh
+FUNC=F5 OPT=CSO  bash run_gfpdo_single.sh
+
+# --- 10.21.51.24  D:\zyj\MACPO2 ---
+cd /mnt/d/zyj/MACPO2/MACPO_sourcecode
+FUNC=F2 OPT=LLSO bash run_gfpdo_single.sh
+FUNC=F3 OPT=CSO  bash run_gfpdo_single.sh
+FUNC=F6 OPT=LLSO bash run_gfpdo_single.sh
+
+# --- 10.21.51.21  F:\zyj\MACPO2（若 SSH 不稳可改派到 .25/.27 多跑）---
+cd /mnt/f/zyj/MACPO2/MACPO_sourcecode
+FUNC=F4 OPT=LLSO bash run_gfpdo_single.sh
+FUNC=F4 OPT=CSO  bash run_gfpdo_single.sh
+FUNC=F6 OPT=CSO  bash run_gfpdo_single.sh
+
+# 控制台每代会看到: Iteration: 0 Best Fitness: ...
+# 完成后 Mac 拉回: bash scripts/lan_fetch_results.sh --baselines

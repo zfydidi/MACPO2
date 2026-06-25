@@ -5,18 +5,20 @@
 #   BUILD   可执行文件目录（默认 ./build）
 #   OUT     输出根目录（默认 ./output_baselines）
 #   RUNS    重复次数（默认 25）
-#   MPIRUN  mpirun 命令（默认 mpirun）
+#   MPIRUN  已废弃；内部使用 mpirun --allow-run-as-root 数组调用
 #   NPROCS  F1–F6 填 20（默认 20）；若跑 F7+ 请改 NPROCS
 #   ALGO    dpso | gfpdo | both（默认 both，分机跑时设为 dpso 或 gfpdo）
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT"
+# shellcheck source=../utils/wsl_mpi_env.sh
+source "$ROOT/../utils/wsl_mpi_env.sh"
 
 BUILD="${BUILD:-$ROOT/build}"
 OUT="${OUT:-$ROOT/output_baselines}"
 RUNS="${RUNS:-25}"
-MPIRUN="${MPIRUN:-mpirun --allow-run-as-root}"
+MPI_ARGS=(mpirun --allow-run-as-root "${WSL_MPIRUN_MCA_ARGS[@]}")
 NPROCS="${NPROCS:-20}"
 ALGO="${ALGO:-both}"
 
@@ -67,9 +69,9 @@ run_one() {
   local elapsed=$((SECONDS - BATCH_START))
   echo ""
   echo "[$JOB_IDX/$TOTAL_JOBS] +${elapsed}s | $name | $f | $opt | $ex"
-  echo "  cmd: $MPIRUN -n $NPROCS $name $f $ex $opt $OUT/"
+  echo "  cmd: ${MPI_ARGS[*]} -n $NPROCS $name $f $ex $opt $OUT/"
   local run_start=$SECONDS
-  if "$MPIRUN" -n "$NPROCS" --oversubscribe "$exe" "$f" "$ex" "$opt" "$OUT/" \
+  if "${MPI_ARGS[@]}" -n "$NPROCS" --oversubscribe "$exe" "$f" "$ex" "$opt" "$OUT/" \
     >"$OUT/${name}_${f}_${opt}_${ex}.stdout.log" 2>&1; then
     :
   else

@@ -22,7 +22,7 @@ bash scripts/lan_dispatch_all.sh
 #   F13→.48  F14→.50  F15→.47  F16→.23  F17→.61  F18→.49
 #   GFPDO→.27 (C:\zyj\MACPO2)  DPSO→.25   .24 备用
 
-# 注意: .25/.27 可能 ping 不通但 SSH 可用；已 git clone 的机器无需 lan_distribute，直接:
+# 注意: .25/.27 Dell 机 WSL 无 systemd，脚本会自动回退为 Mac 长连接 SSH（需 Mac 保持联网）
 #   TASK=baselines_dpso  bash scripts/lan_run_remote.sh --host 10.21.51.25
 #   TASK=baselines_gfpdo bash scripts/lan_run_remote.sh --host 10.21.51.27
 
@@ -43,6 +43,13 @@ python3 scripts/patch_conference_comm_section.py
 ```
 
 WSL 内日志：`tail -f /mnt/e/zyj/MACPO2/logs/*.log`（路径因机器而异）。
+
+Mac 一键查进度：`bash scripts/lan_status.sh`
+
+通信率脚本支持续跑（默认跳过已有结果）：
+`FUNCS=F13 RUNS=25 bash scripts/run_comm_rate_f1_f18.sh`
+强制重跑：`FORCE=1 FUNCS=F13 bash scripts/run_comm_rate_f1_f18.sh`
+MPI 详细日志：`logs/comm_rate_mpi/F13_comm_01.log`
 
 ---
 

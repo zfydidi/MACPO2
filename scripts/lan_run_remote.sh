@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-# 通过 SSH 在远程 WSL 上编译并后台启动实验。
-# 用法:
-#   FUNCS=F13 bash scripts/lan_run_remote.sh --host 10.21.51.48
-#   TASK=baselines_dpso bash scripts/lan_run_remote.sh --host 10.21.51.25
-#   TASK=baselines_gfpdo bash scripts/lan_run_remote.sh --host 10.21.51.24
+# 通过 SSH 在远程 WSL 上启动实验。
+# hxm 机优先 systemd-run（SSH 断开后仍运行）；Dell 等无 systemd 的 WSL 回退为 Mac 长连接 SSH。
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -44,70 +41,30 @@ win_to_wsl_root() {
   echo "/mnt/${drive}${rest}"
 }
 
-write_remote_runner() {
-  local proj="$1" out="$2"
-  local stop_block=""
-  if [[ "$STOP_OLD" == "1" ]]; then
-    stop_block='pkill -f run_comm_rate_f1_f18.sh 2>/dev/null || true
-pkill -f run_baselines_f1_f6_batch.sh 2>/dev/null || true
-sleep 1'
-  fi
+ip_slug() { echo "$1" | tr '.' '-'; }
 
-  if [[ "$TASK" == "comm_f13_f18" ]]; then
-    cat > "$out" <<SCRIPT
-#!/usr/bin/env bash
-set -euo pipefail
-cd "$proj"
-export OMP_NUM_THREADS=1
-export OMPI_ALLOW_RUN_AS_ROOT=1
-export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
-mkdir -p logs
-${stop_block}
-if [[ ! -x RL-MACPO/build/MACPO_simplified ]]; then
-  echo "==> compile RL-MACPO"
-  cmake -S RL-MACPO -B RL-MACPO/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=mpicxx
-  cmake --build RL-MACPO/build -j"\$(nproc)"
+# 在远程 runner 脚本末尾插入：检测 systemd，失败则打印 NEED_MAC_SSH
+launch_block() {
+  local unit="$1" inner="$2"
+  cat <<LAUNCH
+if command -v systemd-run >/dev/null 2>&1 && [[ -d /run/systemd/system ]] && systemctl --user show-environment >/dev/null 2>&1; then
+  systemd-run --user --collect --unit='${unit}' bash -c "${inner}"
+  echo "STARTED unit=${unit} via=systemd"
+else
+  echo "NEED_MAC_SSH=1 unit=${unit}"
 fi
-LOG="logs/comm_${FUNCS}_\$(date +%Y%m%d_%H%M%S).log"
-nohup bash -lc 'FUNCS=${FUNCS} RUNS=25 bash scripts/run_comm_rate_f1_f18.sh' >"\$LOG" 2>&1 &
-echo "STARTED comm funcs=${FUNCS} pid=\$! log=\$LOG"
-SCRIPT
-  elif [[ "$TASK" == "baselines_dpso" || "$TASK" == "baselines_gfpdo" ]]; then
-    local algo out_sub log_tag need_bin
-    if [[ "$TASK" == "baselines_dpso" ]]; then
-      algo="dpso"
-      out_sub="output_baselines_dpso_5runs"
-      log_tag="baselines_dpso"
-      need_bin="MACPO_sourcecode/build/DPSO1"
-    else
-      algo="gfpdo"
-      out_sub="output_baselines_gfpdo_5runs"
-      log_tag="baselines_gfpdo"
-      need_bin="MACPO_sourcecode/build/GFPDO_overlap"
-    fi
-    cat > "$out" <<SCRIPT
-#!/usr/bin/env bash
-set -euo pipefail
-cd "$proj"
-mkdir -p logs
-${stop_block}
-if [[ ! -x ${need_bin} ]]; then
-  echo "==> compile MACPO_sourcecode (${algo})"
-  cmake -S MACPO_sourcecode -B MACPO_sourcecode/build -DCMAKE_BUILD_TYPE=Release
-  cmake --build MACPO_sourcecode/build -j"\$(nproc)" --target $([[ "$algo" == "dpso" ]] && echo DPSO1 || echo GFPDO_overlap)
-fi
-LOG="logs/${log_tag}_\$(date +%Y%m%d_%H%M%S).log"
-pushd MACPO_sourcecode >/dev/null
-export OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
-nohup env ALGO=${algo} RUNS=${BASELINE_RUNS} OUT=./${out_sub} bash run_baselines_f1_f6_batch.sh >"../\$LOG" 2>&1 &
-popd >/dev/null
-echo "STARTED ${log_tag} pid=\$! log=\$LOG"
-SCRIPT
-  else
-    echo "未知 TASK: $TASK"
-    exit 1
-  fi
-  chmod +x "$out"
+LAUNCH
+}
+
+# Dell 等无 systemd 的 WSL：从 Mac 保持 SSH 会话，避免 Windows 侧回收子进程
+start_mac_persisted_ssh() {
+  local pass=$1 ip=$2 ssh_user=$3 wsl_root=$4 inner="$5" log_tag="$6"
+  local mac_log="/tmp/macpo_lan_${ip//./_}_${log_tag}.log"
+  local remote_cmd="cd ${wsl_root} && export OMP_NUM_THREADS=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 && ${inner}"
+  nohup sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
+    "wsl.exe bash -lc $(printf '%q' "$remote_cmd")" >"$mac_log" 2>&1 &
+  local pid=$!
+  echo "    Mac 长连接 SSH 已启动 PID=${pid} 日志=${mac_log}"
 }
 
 if [[ "$RUN_ALL" != true && -z "$FILTER_HOST" ]]; then
@@ -116,22 +73,20 @@ if [[ "$RUN_ALL" != true && -z "$FILTER_HOST" ]]; then
 fi
 
 sync_remote_scripts() {
-  local ip=$1 pass=$2 scp_win=$3 wsl_root=$4
+  local pass=$1 scp_win=$2 wsl_root=$3
+  local -a rels
   if [[ "$TASK" == comm_f13_f18 ]]; then
-    sshpass -p "$pass" scp "${SSH_OPTS[@]}" \
-      "$ROOT/scripts/run_comm_rate_f1_f18.sh" \
-      "${user}@${ip}:${scp_win}/scripts/run_comm_rate_f1_f18.sh" 2>/dev/null || true
-  elif [[ "$TASK" == baselines_dpso || "$TASK" == baselines_gfpdo ]]; then
-    for rel in MACPO_sourcecode/run_baselines_f1_f6_batch.sh \
-               MACPO_sourcecode/GFPDO_overlap.cpp \
-               MACPO_sourcecode/DPSO1.cpp; do
-      if ! sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$ROOT/$rel" "${ssh_user}@${ip}:${scp_win}/$rel" 2>/dev/null; then
-        echo "    scp $rel 失败，改用 wsl tee..."
-        cat "$ROOT/$rel" | sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
-          "wsl.exe bash -lc \"tee '${wsl_root}/$rel' > /dev/null\""
-      fi
-    done
+    rels=(scripts/run_comm_rate_f1_f18.sh)
+  else
+    rels=(MACPO_sourcecode/run_baselines_f1_f6_batch.sh MACPO_sourcecode/GFPDO_overlap.cpp MACPO_sourcecode/DPSO1.cpp)
   fi
+  for rel in "${rels[@]}"; do
+    if ! sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$ROOT/$rel" "${ssh_user}@${ip}:${scp_win}/$rel" 2>/dev/null; then
+      echo "    scp $rel 失败，改用 wsl tee..."
+      cat "$ROOT/$rel" | sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
+        "wsl.exe bash -lc \"tee '${wsl_root}/$rel' > /dev/null\""
+    fi
+  done
 }
 
 while read_lan_host_row; do
@@ -141,17 +96,76 @@ while read_lan_host_row; do
 
   scp_win=$(win_to_scp_path "$win_path")
   wsl_root=$(win_to_wsl_root "$win_path" "${wsl_path_extra:-}")
-  remote_runner_win="${scp_win}/_lan_remote_run.sh"
-  remote_runner_wsl="${wsl_root}/_lan_remote_run.sh"
+  slug=$(ip_slug "$ip")
+  runner_local="/tmp/macpo_lan_remote_run_${ip}.sh"
+  runner_remote="${scp_win}/_lan_remote_run.sh"
 
-  write_remote_runner "$wsl_root" "/tmp/macpo_lan_remote_run_${ip}.sh"
-  RUNNER_LOCAL="/tmp/macpo_lan_remote_run_${ip}.sh"
+  stop_line=""
+  if [[ "$STOP_OLD" == "1" ]]; then
+    stop_line="systemctl --user stop 'macpo-'* 2>/dev/null || true
+pkill -f run_comm_rate_f1_f18.sh 2>/dev/null || true
+pkill -f run_baselines_f1_f6_batch.sh 2>/dev/null || true
+sleep 1"
+  fi
 
-  echo "==> [$ip] ${ssh_user} 同步脚本并启动 $TASK ${FUNCS:+funcs=$FUNCS}"
-  sync_remote_scripts "$ip" "$pass" "$scp_win" "$wsl_root"
-  sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$RUNNER_LOCAL" "${ssh_user}@${ip}:${remote_runner_win}"
-  sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
-    "wsl.exe bash -lc \"chmod +x '${remote_runner_wsl}' && bash '${remote_runner_wsl}'\""
+  if [[ "$TASK" == comm_f13_f18 ]]; then
+    unit="macpo-comm-${slug}-${FUNCS}"
+    inner="cd ${wsl_root} && export OMP_NUM_THREADS=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 && FUNCS=${FUNCS} RUNS=25 bash scripts/run_comm_rate_f1_f18.sh > logs/comm_${FUNCS}_\\\$(date +%Y%m%d_%H%M%S).log 2>&1"
+    cat > "$runner_local" <<SCRIPT
+#!/usr/bin/env bash
+set -euo pipefail
+cd "${wsl_root}"
+mkdir -p logs
+${stop_line}
+if [[ -x RL-MACPO/build/MACPO_simplified ]] && ! file -b RL-MACPO/build/MACPO_simplified | grep -qE 'ELF .*x86-64'; then
+  echo "WARN: 非 Linux ELF，清理 build/ 后重编译"
+  rm -rf RL-MACPO/build
+fi
+if [[ ! -x RL-MACPO/build/MACPO_simplified ]]; then
+  cmake -S RL-MACPO -B RL-MACPO/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=mpicxx
+  cmake --build RL-MACPO/build -j"\$(nproc)"
+fi
+$(launch_block "$unit" "$inner")
+SCRIPT
+    mac_inner="FUNCS=${FUNCS} RUNS=25 bash scripts/run_comm_rate_f1_f18.sh > logs/comm_${FUNCS}_mac_ssh.log 2>&1"
+    mac_log_tag="comm_${FUNCS}"
+  elif [[ "$TASK" == baselines_dpso || "$TASK" == baselines_gfpdo ]]; then
+    if [[ "$TASK" == baselines_dpso ]]; then
+      algo=dpso; out_sub=output_baselines_dpso_5runs; bin=MACPO_sourcecode/build/DPSO1; target=DPSO1
+      unit="macpo-dpso-${slug}"
+    else
+      algo=gfpdo; out_sub=output_baselines_gfpdo_5runs; bin=MACPO_sourcecode/build/GFPDO_overlap; target=GFPDO_overlap
+      unit="macpo-gfpdo-${slug}"
+    fi
+    inner="cd ${wsl_root}/MACPO_sourcecode && export OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 && ALGO=${algo} RUNS=${BASELINE_RUNS} OUT=./${out_sub} bash run_baselines_f1_f6_batch.sh > ${wsl_root}/logs/baselines_${algo}_\\\$(date +%Y%m%d_%H%M%S).log 2>&1"
+    cat > "$runner_local" <<SCRIPT
+#!/usr/bin/env bash
+set -euo pipefail
+cd "${wsl_root}"
+mkdir -p logs
+${stop_line}
+if [[ ! -x ${bin} ]]; then
+  cmake -S MACPO_sourcecode -B MACPO_sourcecode/build -DCMAKE_BUILD_TYPE=Release
+  cmake --build MACPO_sourcecode/build -j"\$(nproc)" --target ${target}
+fi
+$(launch_block "$unit" "$inner")
+SCRIPT
+    mac_inner="cd MACPO_sourcecode && ALGO=${algo} RUNS=${BASELINE_RUNS} OUT=./${out_sub} bash run_baselines_f1_f6_batch.sh > logs/${algo}_mac_ssh.log 2>&1"
+    mac_log_tag="${algo}"
+  else
+    echo "未知 TASK: $TASK"; exit 1
+  fi
+  chmod +x "$runner_local"
+
+  echo "==> [$ip] ${ssh_user} 同步并启动 $TASK ${FUNCS:+funcs=$FUNCS}"
+  sync_remote_scripts "$pass" "$scp_win" "$wsl_root"
+  sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$runner_local" "${ssh_user}@${ip}:${runner_remote}"
+  remote_out=$(sshpass -p "$pass" ssh "${SSH_OPTS[@]}" "${ssh_user}@${ip}" \
+    "wsl.exe bash -lc \"bash '${wsl_root}/_lan_remote_run.sh'\"" 2>&1) || true
+  echo "$remote_out" | grep -vE 'WARNING|post-quantum|store now|pq.html' || true
+  if echo "$remote_out" | grep -q 'NEED_MAC_SSH=1'; then
+    start_mac_persisted_ssh "$pass" "$ip" "$ssh_user" "$wsl_root" "$mac_inner" "$mac_log_tag"
+  fi
 done < "$HOSTS_FILE"
 
-echo "远程任务已提交。WSL 内查看: tail -f <项目>/logs/*.log"
+echo "远程任务已提交。hxm 机: systemctl --user list-units 'macpo-*'；Dell 机: tail -f /tmp/macpo_lan_*_*.log"

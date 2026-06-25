@@ -1,0 +1,35 @@
+# 每台机器 WSL 里只跑下面一块（改 PROJ 和 FUNC 两行即可）
+# Mac 查进度: bash scripts/lan_status.sh
+
+# --- 10.21.51.48  F13 ---
+PROJ=/mnt/e/zyj/MACPO2
+FUNC=F13
+
+# --- 10.21.51.50  F14 ---
+# PROJ=/mnt/d/zyj/MACPO2
+# FUNC=F14
+
+# --- 10.21.51.47  F15 ---
+# PROJ=/mnt/d/zyj/MACPO2
+# FUNC=F15
+
+# --- 10.21.51.23  F16 ---
+# PROJ=/mnt/d/zyj/MACPO2
+# FUNC=F16
+
+# --- 10.21.51.61  F17 ---
+# PROJ=/mnt/e/zyj/MACPO2
+# FUNC=F17
+
+# --- 10.21.51.49  F18 ---
+# PROJ=/mnt/e/zyj/MACPO2
+# FUNC=F18
+
+cd "$PROJ"
+export OMP_NUM_THREADS=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+rm -rf RL-MACPO/build
+cmake -S RL-MACPO -B RL-MACPO/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=mpicxx
+cmake --build RL-MACPO/build -j$(nproc)
+file RL-MACPO/build/MACPO_simplified
+tmux new -s comm
+FUNCS=$FUNC RUNS=25 bash scripts/run_comm_rate_f1_f18.sh
