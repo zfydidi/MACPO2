@@ -1,0 +1,159 @@
+\pagestyle{empty}
+\begin{titlepage}
+\section{学位论文工作}
+\vspace{-18pt}
+\begin{center}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabular}{|C{0.7cm}|C{1.5cm}|C{2.168cm}|C{2.165cm}|C{3.2cm}|C{3.0cm}|C{1cm}|}
+\hline
+\multicolumn{2}{|c|}{学位论文题目} &\multicolumn{5}{c|}{基于强化学习惩罚因子的多智能体协同优化方法} \\
+\hline
+\multicolumn{2}{|c|}{开题报告会时间} &\multicolumn{3}{c|}{\makebox[3.2cm]{2026年1月19日}} &开题报告会地点&412 \\
+\hline
+\multirow{9}{*}{\makecell{开\\题\\报\\告\\会\\组\\成\\人\\员}} &\multicolumn{2}{c|}{\makebox[2.5cm]{姓名}}& \makebox[0.8cm]{职称} &\multicolumn{3}{c|}{工作单位} \\
+\cline{2-7}
+&\multicolumn{2}{c|}{李小平}& 教授& \multicolumn{3}{c|}{广东工业大学}\\
+\cline{2-7}
+&\multicolumn{2}{c|}{胡晓敏}& 教授& \multicolumn{3}{c|}{广东工业大学}\\
+\cline{2-7}
+&\multicolumn{2}{c|}{杨振国}& 副教授& \multicolumn{3}{c|}{广东工业大学}\\
+\cline{2-7}
+&\multicolumn{2}{c|}{谭帅帅}& 副教授& \multicolumn{3}{c|}{广东工业大学}\\
+\cline{2-7}
+&\multicolumn{2}{c|}{胡宇}& 特聘副教授& \multicolumn{3}{c|}{广东工业大学}\\
+\cline{2-7}
+&\multicolumn{2}{c|}{庞书杰}& 特聘副教授& \multicolumn{3}{c|}{广东工业大学}\\
+\cline{2-7}
+&\multicolumn{2}{c|}{}&& \multicolumn{3}{c|}{}\\
+\cline{2-7}
+&\multicolumn{2}{c|}{}&& \multicolumn{3}{c|}{}\\
+\cline{2-7}
+\hline
+\multicolumn{7}{|l|}{\parbox[t]{0.97\textwidth}{%
+\small
+学位论文进展情况（\textit{内容包括：查阅文献、调研、实验、工作进度、完成工作量、预期答辩时间等}）：
+
+\noindent\textbf{1. 查阅文献与调研}
+
+\par
+\indent
+本课题来源于网络化分布式优化（Network-based Distributed Optimization，NDO）相关研究工作。在智能电网调度、交通流分配、无线传感网络与车联网等场景中，全局目标与约束通过网络结构耦合，各节点仅掌握局部信息并依赖有限通信实现协同决策，决策变量同时包含私有变量与共享变量，问题呈现典型的黑箱、非凸与大规模特征。传统基于梯度的分布式方法（如 ADMM、EXTRA、DGD）依赖凸性、可分解性与梯度可得等假设，难以适应高度非线性与隐式约束；群体智能与协同进化方法（如 DPSO、GFPDO、MACPO）为黑箱 NDO 提供了可扩展框架，但惩罚参数与通信策略多依赖人工经验或静态规则，难以反映约束冲突与演化阶段的动态变化。
+
+\par
+\indent
+围绕上述问题，本人系统查阅了分布式优化、黑箱约束处理、多智能体协同进化及强化学习赋能优化等方向文献。对传统凸分布式算法、协同协进化算法（CCEA、DPSO、GFPDO、MACPO）以及 RL 辅助参数调控的发展脉络进行了梳理，重点分析了现有方法在惩罚参数自适应、共享变量协商与通信效率等方面的不足。结合开题阶段形成的文献综述，明确了“轻量级 RL 自适应惩罚调控 + 冲突门控通信 + 变量重要性筛选”的技术路线，为后续算法设计与实验验证奠定了理论基础。此外，参加 ACM 图灵大会、ChineseCSCW、CCF 演化计算学术会议等活动，持续关注分布式优化与群体智能领域进展，不断完善研究思路。
+
+\noindent\textbf{2. 工作进度}
+
+\par
+\indent
+针对调研中存在的问题，本课题在 MACPO 框架基础上提出 RL-MACPO 方法，围绕惩罚调控与通信协商两条主线开展设计与实现，主要创新点如下：
+
+\par
+\indent
+（1）\textbf{轻量级强化学习自适应惩罚调控。}以全局冲突指标 CI 与冲突变化趋势 $\Delta$CI 构成二维状态，采用单层线性+Tanh 策略网络在线调节惩罚比例因子 $\xi_t$，通过“基准尺度惩罚 $\times$ 学习型比例因子”实现惩罚强度随协商冲突动态变化，缓解固定规则在不同演化阶段的适应性不足。
+
+\par
+\indent
+（2）\textbf{基于 EMA 与 Top-$k$ 的共享变量筛选。}对各共享维度冲突强度进行指数滑动平均累积，按重要性评分选取 Top-$k$ 变量参与协商，并配合分阶段选择率，从空间维度降低单次通信数据量。
+
+\par
+\indent
+（3）\textbf{三层门控通信控制机制。}通过最小通信间隔、相对冲突阈值判断与阶段感知概率采样三层门控，从时间维度动态决定是否触发邻居协商，在保证协同效果的前提下显著降低通信频率。
+
+\par
+\indent
+算法采用 C++ 与 MPI 实现，在 MACPO 原有协商—局部优化交替流程上集成 RL 惩罚模块、变量筛选与门控通信，并建立统一实验日志与 \texttt{COST\_STATS} 统计模块，自动记录通信次数、冲突变化与收敛轨迹。目前已完成 RL-MACPO 核心代码、实验脚本及 Windows+WSL 多机并行环境搭建，具备 F1--F18 基准与基线算法批量复现能力。
+
+}}
+\\
+\hline
+\end{tabular}
+\end{center}
+\end{titlepage}
+
+% ===== 续页 =====
+\begin{titlepage}
+    \makeatletter
+    \AddToShipoutPictureBG*{
+        \begin{tikzpicture}[overlay,remember picture]
+            \draw [line width=1pt]
+            ($ (current page.north west) + (1.95cm,-2.1cm) $)
+            rectangle
+            ($ (current page.south east) + (-1.95cm,1.75cm) $);
+        \end{tikzpicture}
+    }
+    \makeatother
+\section{学位论文工作（续）}
+\vspace{2.0cm}
+
+\small
+\noindent\textbf{(续)}
+
+\noindent\textbf{3. 实验}
+
+\par
+\indent
+\textbf{3.1 实验设置。}主实验沿用 MACPO 原文 20 智能体链式网络、905 维 NDO 基准（F1--F6），嵌入优化器以 LLSO 为主、CSO 为对照；每个函数独立重复 25 次，统一评价预算与随机种子，采用 Wilcoxon 符号秩检验（$\alpha{=}0.05$）评估显著性。扩展实验覆盖 F7--F18 更高维度与更复杂网络结构算例；通信效率实验统计外循环中触发邻居协商的比例；典型应用包括多区域电力经济调度、资源受限调度与电动汽车充电协调三类网络化调度场景。
+
+\par
+\indent
+\textbf{3.2 F1--F6 主对比实验。}在 LLSO 设置下，RL-MACPO 在 F1--F6 六个函数上均取得优于 MACPO 的最终适应度，且 Wilcoxon 检验均显著。例如 F1 上 MACPO 均值为 $1.98\times10^{7}$，RL-MACPO 降至 $6.43\times10^{6}$；F2 上由 $5.05\times10^{4}$ 降至 $3.32\times10^{3}$；冲突敏感的 Rosenbrock 类算例（F3--F5）改善尤为明显。CSO 设置下亦取得 6/6 全胜（w/t/l 为 $6/0/0$），说明方法对不同嵌入优化器具有一定鲁棒性。
+
+\par
+\indent
+\textbf{3.3 消融实验与 RL 结构对比。}门控深度消融表明：无门控配置方差大、性能退化；第二层相对冲突阈值门控是恢复性能与稳定性的关键；第三层阶段采样带来边际增益。RL 结构对比（SimpleNet、DQN、A2C、PPO 等）表明，在当前问题规模下轻量级线性策略已能满足惩罚调节需求。阶段采样、$\eta$ 更新策略及 RL Only（仅惩罚自适应、无门控）等消融进一步验证了“RL 惩罚 + 门控通信”协同设计的必要性。
+
+\par
+\indent
+\textbf{3.4 F7--F18 扩展实验。}已完成 RL-MACPO 与 MACPO 在 F7--F18 上的 25 次重复对比（LLSO/CSO），随问题规模增大，RL-MACPO 在多数算例上仍保持更优的最终精度与收敛稳定性，表明方法具有较好的可扩展性。
+
+\par
+\indent
+\textbf{3.5 通信效率统计。}F1--F12 通信率实验表明：MACPO 每轮均协商（100\%），RL-MACPO 通信触发率约为 8.3\%--22.3\%，相对降低约 77\%--92\%，且在 F1--F6 上同时保持或提升最终解质量。三类应用案例中，RL-MACPO 通信次数较 MACPO 降低约 80\%--89\%，纯目标值保持或更优。F13--F18 通信率统计正在局域网多机环境下补充运行。
+
+\par
+\indent
+\textbf{3.6 基线算法复现。}已复现 DPSO 并在 F1--F6 完成 25 次重复实验；GFPDO 复现实验正在多机并行补充，用于完善论文对比分析。
+
+\noindent\textbf{4. 工作进度时间条}
+
+\par
+\indent
+2024.10--2024.12：文献调研，梳理 NDO、MACPO 与 RL 调控相关理论与技术路线；\\
+2025.01--2025.06：完成 RL 惩罚模块、变量筛选与三层门控机制设计与初步实现；\\
+2025.07--2025.12：搭建实验平台，完成 F1--F6 主对比、消融与 RL 结构对比实验；\\
+2026.01--2026.03：完成 F7--F18 扩展实验、F1--F12 通信率统计及应用案例验证；开题答辩；\\
+2026.04--2026.06：英文会议论文撰写与修改；补充 GFPDO/DPSO 基线及 F13--F18 通信实验；中期检查；\\
+2026.07--2026.12：完善理论分析，整合实验结果，撰写学位论文初稿；\\
+2027.01--2027.05：论文修改、送审与答辩准备。
+
+\noindent\textbf{5. 完成工作量}
+
+\par
+\indent
+（1）完成 NDO、分布式黑箱优化、协同进化与强化学习调控等方向文献精读与综述撰写，形成开题报告选题依据、研究目标与技术路线等章节内容。
+
+\par
+\indent
+（2）完成 RL-MACPO 算法设计与 C++/MPI 实现，包括轻量级 RL 惩罚调控、EMA+Top-$k$ 变量筛选、三层门控通信及实验统计模块，搭建多机并行实验环境。
+
+\par
+\indent
+（3）完成 F1--F18 主对比、消融实验、RL 结构对比、F1--F12 通信率统计及三类应用案例验证；DPSO 基线复现已完成，GFPDO 复现进行中。
+
+\par
+\indent
+（4）完成英文会议论文《RL-MACPO: Reinforcement-Learning-Based Adaptive Penalty and Conflict-Gated Communication for Network-Based Distributed Optimization》初稿撰写，正根据实验结果持续修改完善。
+
+\par
+\indent
+（5）参与申请发明专利《一种基于强化学习的多智能体协同优化方法及系统》（本人排名第二）。
+
+\noindent\textbf{6. 预期答辩时间}
+
+\par
+\indent
+2027年5月。
+
+\end{titlepage}
