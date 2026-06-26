@@ -1,0 +1,39 @@
+# GFPDO 多窗口并行（函数 × LLSO/CSO 可拆）
+# 项目根: /mnt/d/zyj/MACPO2  （按实际路径改）
+
+cd /mnt/d/zyj/MACPO2
+source utils/wsl_mpi_env.sh
+export OMP_NUM_THREADS=1 SKIP_EXISTING=1 RUNS=25
+
+# ========== 12 窗口：每窗一个 (函数, 优化器)，各 25 runs ==========
+# 复制下面 12 行到 12 个 CMD/WSL 窗口分别执行：
+
+bash scripts/run_baselines_wsl.sh gfpdo F1 LLSO
+bash scripts/run_baselines_wsl.sh gfpdo F1 CSO
+bash scripts/run_baselines_wsl.sh gfpdo F2 LLSO
+bash scripts/run_baselines_wsl.sh gfpdo F2 CSO
+bash scripts/run_baselines_wsl.sh gfpdo F3 LLSO
+bash scripts/run_baselines_wsl.sh gfpdo F3 CSO
+bash scripts/run_baselines_wsl.sh gfpdo F4 LLSO
+bash scripts/run_baselines_wsl.sh gfpdo F4 CSO
+bash scripts/run_baselines_wsl.sh gfpdo F5 LLSO
+bash scripts/run_baselines_wsl.sh gfpdo F5 CSO
+bash scripts/run_baselines_wsl.sh gfpdo F6 LLSO
+bash scripts/run_baselines_wsl.sh gfpdo F6 CSO
+
+# ========== 或 tmux 一键 12 路 ==========
+
+for f in F1 F2 F3 F4 F5 F6; do
+  for o in LLSO CSO; do
+    tmux new -d -s "gf_${f}_${o}" \
+      "cd /mnt/d/zyj/MACPO2 && source utils/wsl_mpi_env.sh && \
+       export OMP_NUM_THREADS=1 SKIP_EXISTING=1 RUNS=25 && \
+       bash scripts/run_baselines_wsl.sh gfpdo $f $o"
+  done
+done
+tmux ls
+
+# ========== 看某一路日志 ==========
+# tail -f "$(cat logs/.last_baselines_gfpdo_F1_LLSO.logpath)"
+
+# 详细说明见 scripts/WSL_EXPERIMENT_CHECKLIST.md

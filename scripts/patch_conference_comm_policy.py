@@ -86,9 +86,11 @@ def main() -> None:
     scale_block = "\n".join(
         [
             r"\subsubsection{Benchmark-scale scalability}",
-            r"Table~\ref{tab:scalability_chain} summarizes the MACPO benchmark tiers "
-            r"(20/40/60 agents on F1/F7/F13). Communication reduction remains large at "
-            r"moderate scale while final fitness stays favorable for RL-MACPO.",
+            r"Table~\ref{tab:scalability_chain} summarizes MACPO benchmark tiers "
+            r"(20/40/60 agents on F1/F7/F13) and extended F1-chain pilots (50/100 agents), "
+            r"each with 5 independent runs. "
+            r"Communication reduction remains large at moderate scale; fitness trade-offs on "
+            r"the shortest pilot (F1, 20 agents) are discussed below.",
             "",
             build_scalability_table_tex(),
         ]

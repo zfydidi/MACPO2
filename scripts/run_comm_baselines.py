@@ -107,11 +107,51 @@ def run_cmd(cmd: list[str], cwd: Path, env: dict | None = None) -> tuple[int, fl
     return code, elapsed, "".join(chunks)
 
 
-def run_artifacts_ok(out_file: Path) -> bool:
+def read_run_artifact(out_file: Path) -> tuple[dict | None, float | None]:
     if not out_file.is_file():
-        return False
+        return None, None
     text = out_file.read_text(encoding="utf-8", errors="replace")
-    return parse_final_fitness(text) is not None and parse_cost_stats(text) is not None
+    return parse_cost_stats(text), parse_final_fitness(text)
+
+
+def aggregate_comm_rows(
+    funcs: tuple[str, ...],
+    methods: tuple[str, ...],
+    runs: int,
+    output_dir: Path,
+) -> list[dict]:
+    rows: list[dict] = []
+    for func in funcs:
+        for method in methods:
+            comms: list[float] = []
+            fits: list[float] = []
+            for rid in range(1, runs + 1):
+                exid = f"cb_{method}_r{rid:02d}"
+                out_file = output_dir / f"{func}_LLSO_final_{exid}.txt"
+                stats, fit = read_run_artifact(out_file)
+                if stats:
+                    comms.append(stats["comm_rate"])
+                if fit is not None:
+                    fits.append(fit)
+            cm, cs = summarize(comms)
+            fm, fs = summarize(fits)
+            rows.append(
+                {
+                    "func": func,
+                    "method": method,
+                    "n": len(fits),
+                    "comm_rate_mean": cm,
+                    "comm_rate_std": cs,
+                    "final_fitness_mean": fm,
+                    "final_fitness_std": fs,
+                }
+            )
+    return rows
+
+
+def run_artifacts_ok(out_file: Path) -> bool:
+    stats, fit = read_run_artifact(out_file)
+    return stats is not None and fit is not None
 
 
 def summarize(vals: list[float]) -> tuple[float | None, float | None]:
@@ -136,7 +176,32 @@ def main() -> None:
     ap.add_argument("--methods", type=str, default=",".join(METHODS))
     ap.add_argument("--skip-existing", action="store_true")
     ap.add_argument("--sleep-sec", type=float, default=0.0, help="每次 run 结束后休眠秒数，降低 CPU 占用")
+    ap.add_argument(
+        "--output-dir",
+        type=Path,
+        default=RLMACPO / "output",
+        help="MACPO_simplified 输出 .txt 目录（默认 RL-MACPO/output）",
+    )
+    ap.add_argument(
+        "--aggregate-only",
+        action="store_true",
+        help="仅从已有 output .txt 汇总 JSON，不启动 MPI",
+    )
     args = ap.parse_args()
+
+    funcs = tuple(f.strip() for f in args.funcs.split(",") if f.strip())
+    methods = tuple(m.strip() for m in args.methods.split(",") if m.strip())
+    output_dir = args.output_dir.resolve()
+
+    if args.aggregate_only:
+        if not output_dir.is_dir():
+            raise SystemExit(f"aggregate-only: 目录不存在 {output_dir}")
+        rows = aggregate_comm_rows(funcs, methods, args.runs, output_dir)
+        JSON_OUT.parent.mkdir(parents=True, exist_ok=True)
+        JSON_OUT.write_text(json.dumps(rows, indent=2), encoding="utf-8")
+        print(f"aggregate-only from {output_dir}")
+        print(f"Wrote {JSON_OUT} ({len(rows)} rows)")
+        return
 
     bin_path = RLMACPO / "build" / "MACPO_simplified"
     if not bin_path.is_file():
@@ -147,8 +212,6 @@ def main() -> None:
             "-DCMAKE_CXX_COMPILER=mpicxx && cmake --build build -j1"
         )
 
-    funcs = tuple(f.strip() for f in args.funcs.split(",") if f.strip())
-    methods = tuple(m.strip() for m in args.methods.split(",") if m.strip())
     raw = OUT / "raw"
     raw.mkdir(parents=True, exist_ok=True)
     rows: list[dict] = []
@@ -168,7 +231,7 @@ def main() -> None:
             for rid in range(1, args.runs + 1):
                 exid = f"cb_{method}_r{rid:02d}"
                 log = raw / f"{func}_{method}_r{rid:02d}.log"
-                out_file = RLMACPO / "output" / f"{func}_LLSO_final_{exid}.txt"
+                out_file = output_dir / f"{func}_LLSO_final_{exid}.txt"
                 if args.skip_existing and run_artifacts_ok(out_file):
                     text = out_file.read_text(encoding="utf-8", errors="replace")
                     print(f"{func} {method} r{rid:02d} skip-existing (ok)", flush=True)

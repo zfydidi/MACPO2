@@ -23,7 +23,7 @@ export MKL_NUM_THREADS="${MKL_NUM_THREADS:-1}"
 export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}"
 
 BIN="$ROOT/RL-MACPO/build/MACPO_simplified"
-mkdir -p "$ROOT/logs" "$ROOT/ablation_experiments/results/scalability"
+mkdir -p "$ROOT/logs" "$ROOT/ablation_experiments/results/scalability" "$ROOT/RL-MACPO/output1/output"
 
 verify_linux_elf() {
   if [[ ! -x "$BIN" ]]; then
@@ -62,4 +62,6 @@ echo "推荐: tail -f \"$LOG\""
 
 nice -n 19 ionice -c 3 python3 -u "$ROOT/scripts/run_scalability_experiments.py" \
   --benchmarks "$BENCH" --runs "$RUNS" --sleep-sec "$SLEEP_SEC" \
+  --output-dir "$ROOT/RL-MACPO/output1/output" \
+  --skip-existing \
   2>&1 | tee "$LOG"

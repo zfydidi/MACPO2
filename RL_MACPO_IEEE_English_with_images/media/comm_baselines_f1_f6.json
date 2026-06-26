@@ -1,0 +1,380 @@
+[
+  {
+    "func": "F1",
+    "method": "Full",
+    "n": 10,
+    "comm_rate_mean": 0.17083309,
+    "comm_rate_std": 0.05728205870967715,
+    "final_fitness_mean": 44912263.4,
+    "final_fitness_std": 25749310.26364536
+  },
+  {
+    "func": "F1",
+    "method": "PeriodicK2",
+    "n": 10,
+    "comm_rate_mean": 0.5,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 16761752.91,
+    "final_fitness_std": 1821165.0307322973
+  },
+  {
+    "func": "F1",
+    "method": "PeriodicK3",
+    "n": 10,
+    "comm_rate_mean": 0.333333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 14131394.63,
+    "final_fitness_std": 881077.2205965595
+  },
+  {
+    "func": "F1",
+    "method": "PeriodicK5",
+    "n": 10,
+    "comm_rate_mean": 0.208333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 14246123.23,
+    "final_fitness_std": 1537628.1622813481
+  },
+  {
+    "func": "F1",
+    "method": "FixedThreshold",
+    "n": 10,
+    "comm_rate_mean": 0.0833333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 78793144.42,
+    "final_fitness_std": 40367539.82766733
+  },
+  {
+    "func": "F1",
+    "method": "FixedThresholdNoFailSafe",
+    "n": 10,
+    "comm_rate_mean": 0.0,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 6487910.235,
+    "final_fitness_std": 469142.8926491329
+  },
+  {
+    "func": "F1",
+    "method": "RelativeThresholdFailSafe",
+    "n": 10,
+    "comm_rate_mean": 0.17083312,
+    "comm_rate_std": 0.08003892178197804,
+    "final_fitness_mean": 66137882.08,
+    "final_fitness_std": 35989953.25235684
+  },
+  {
+    "func": "F2",
+    "method": "Full",
+    "n": 10,
+    "comm_rate_mean": 0.17083309,
+    "comm_rate_std": 0.05728205870967715,
+    "final_fitness_mean": 30891.7251,
+    "final_fitness_std": 2638.4336984294227
+  },
+  {
+    "func": "F2",
+    "method": "PeriodicK2",
+    "n": 10,
+    "comm_rate_mean": 0.5,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 33343.121660000004,
+    "final_fitness_std": 2766.5325608119433
+  },
+  {
+    "func": "F2",
+    "method": "PeriodicK3",
+    "n": 10,
+    "comm_rate_mean": 0.333333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 28368.72842,
+    "final_fitness_std": 1776.6308897610825
+  },
+  {
+    "func": "F2",
+    "method": "PeriodicK5",
+    "n": 10,
+    "comm_rate_mean": 0.208333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 25651.86018,
+    "final_fitness_std": 1594.7278234181222
+  },
+  {
+    "func": "F2",
+    "method": "FixedThreshold",
+    "n": 10,
+    "comm_rate_mean": 0.0833333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 40312.74153,
+    "final_fitness_std": 24009.539947868736
+  },
+  {
+    "func": "F2",
+    "method": "FixedThresholdNoFailSafe",
+    "n": 10,
+    "comm_rate_mean": 0.0,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 3145.91438,
+    "final_fitness_std": 769.3427043156425
+  },
+  {
+    "func": "F2",
+    "method": "RelativeThresholdFailSafe",
+    "n": 10,
+    "comm_rate_mean": 0.12083321,
+    "comm_rate_std": 0.05728205870967715,
+    "final_fitness_mean": 32649.98375,
+    "final_fitness_std": 3760.5937189363367
+  },
+  {
+    "func": "F3",
+    "method": "Full",
+    "n": 10,
+    "comm_rate_mean": 0.0833333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 1512504552.8,
+    "final_fitness_std": 427392033.10260344
+  },
+  {
+    "func": "F3",
+    "method": "PeriodicK2",
+    "n": 10,
+    "comm_rate_mean": 0.5,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 1166046016.0,
+    "final_fitness_std": 238739642.95652083
+  },
+  {
+    "func": "F3",
+    "method": "PeriodicK3",
+    "n": 10,
+    "comm_rate_mean": 0.333333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 211055531.05,
+    "final_fitness_std": 94209900.88604084
+  },
+  {
+    "func": "F3",
+    "method": "PeriodicK5",
+    "n": 10,
+    "comm_rate_mean": 0.208333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 185490885.92,
+    "final_fitness_std": 97846994.34603973
+  },
+  {
+    "func": "F3",
+    "method": "FixedThreshold",
+    "n": 10,
+    "comm_rate_mean": 0.0833333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 1470637719.4,
+    "final_fitness_std": 410534079.4745167
+  },
+  {
+    "func": "F3",
+    "method": "FixedThresholdNoFailSafe",
+    "n": 10,
+    "comm_rate_mean": 0.0,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 567.5317879,
+    "final_fitness_std": 204.18394822208523
+  },
+  {
+    "func": "F3",
+    "method": "RelativeThresholdFailSafe",
+    "n": 10,
+    "comm_rate_mean": 0.0833333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 1403169236.8,
+    "final_fitness_std": 356234412.81505644
+  },
+  {
+    "func": "F4",
+    "method": "Full",
+    "n": 10,
+    "comm_rate_mean": 0.15833312,
+    "comm_rate_std": 0.061237096600194885,
+    "final_fitness_mean": 3969986.799,
+    "final_fitness_std": 2170042.504103626
+  },
+  {
+    "func": "F4",
+    "method": "PeriodicK2",
+    "n": 10,
+    "comm_rate_mean": 0.5,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 2971560.143,
+    "final_fitness_std": 299164.2618288734
+  },
+  {
+    "func": "F4",
+    "method": "PeriodicK3",
+    "n": 10,
+    "comm_rate_mean": 0.333333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 3012424.8880000003,
+    "final_fitness_std": 277271.73911129724
+  },
+  {
+    "func": "F4",
+    "method": "PeriodicK5",
+    "n": 10,
+    "comm_rate_mean": 0.208333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 3021278.844,
+    "final_fitness_std": 301808.45684673055
+  },
+  {
+    "func": "F4",
+    "method": "FixedThreshold",
+    "n": 10,
+    "comm_rate_mean": 0.0833333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 3780218.807,
+    "final_fitness_std": 537137.6078943303
+  },
+  {
+    "func": "F4",
+    "method": "FixedThresholdNoFailSafe",
+    "n": 10,
+    "comm_rate_mean": 0.0,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 2680704.717,
+    "final_fitness_std": 222718.22649168764
+  },
+  {
+    "func": "F4",
+    "method": "RelativeThresholdFailSafe",
+    "n": 10,
+    "comm_rate_mean": 0.15833312,
+    "comm_rate_std": 0.061237096600194885,
+    "final_fitness_mean": 3945962.884,
+    "final_fitness_std": 1309958.9853484384
+  },
+  {
+    "func": "F5",
+    "method": "Full",
+    "n": 10,
+    "comm_rate_mean": 0.18333315,
+    "comm_rate_std": 0.10897233593909282,
+    "final_fitness_mean": 115751071.45,
+    "final_fitness_std": 48083295.46503868
+  },
+  {
+    "func": "F5",
+    "method": "PeriodicK2",
+    "n": 10,
+    "comm_rate_mean": 0.5,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 97857733.64,
+    "final_fitness_std": 33841436.37746043
+  },
+  {
+    "func": "F5",
+    "method": "PeriodicK3",
+    "n": 10,
+    "comm_rate_mean": 0.333333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 31226831.57,
+    "final_fitness_std": 18224032.72762728
+  },
+  {
+    "func": "F5",
+    "method": "PeriodicK5",
+    "n": 10,
+    "comm_rate_mean": 0.208333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 18154368.18,
+    "final_fitness_std": 2671646.0712462575
+  },
+  {
+    "func": "F5",
+    "method": "FixedThreshold",
+    "n": 10,
+    "comm_rate_mean": 0.0833333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 173555454.64,
+    "final_fitness_std": 94713187.43532895
+  },
+  {
+    "func": "F5",
+    "method": "FixedThresholdNoFailSafe",
+    "n": 10,
+    "comm_rate_mean": 0.0,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 3530721.742,
+    "final_fitness_std": 377172.6969308738
+  },
+  {
+    "func": "F5",
+    "method": "RelativeThresholdFailSafe",
+    "n": 10,
+    "comm_rate_mean": 0.14583318,
+    "comm_rate_std": 0.08385241499218492,
+    "final_fitness_mean": 122807531.8,
+    "final_fitness_std": 35985570.517861895
+  },
+  {
+    "func": "F6",
+    "method": "Full",
+    "n": 10,
+    "comm_rate_mean": 0.09583327,
+    "comm_rate_std": 0.03749991,
+    "final_fitness_mean": 288789476.4,
+    "final_fitness_std": 201423222.30868202
+  },
+  {
+    "func": "F6",
+    "method": "PeriodicK2",
+    "n": 10,
+    "comm_rate_mean": 0.5,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 50540943.4462,
+    "final_fitness_std": 45690438.70423355
+  },
+  {
+    "func": "F6",
+    "method": "PeriodicK3",
+    "n": 10,
+    "comm_rate_mean": 0.333333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 14719947.149,
+    "final_fitness_std": 14625615.937724385
+  },
+  {
+    "func": "F6",
+    "method": "PeriodicK5",
+    "n": 10,
+    "comm_rate_mean": 0.208333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 45677957.3203,
+    "final_fitness_std": 90711954.25421439
+  },
+  {
+    "func": "F6",
+    "method": "FixedThreshold",
+    "n": 10,
+    "comm_rate_mean": 0.0833333,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 258375413.741,
+    "final_fitness_std": 179146136.88294718
+  },
+  {
+    "func": "F6",
+    "method": "FixedThresholdNoFailSafe",
+    "n": 10,
+    "comm_rate_mean": 0.0,
+    "comm_rate_std": 0.0,
+    "final_fitness_mean": 2364.781294,
+    "final_fitness_std": 485.59010844180585
+  },
+  {
+    "func": "F6",
+    "method": "RelativeThresholdFailSafe",
+    "n": 10,
+    "comm_rate_mean": 0.14583315,
+    "comm_rate_std": 0.062499849999999996,
+    "final_fitness_mean": 222864749.161,
+    "final_fitness_std": 179089393.64958242
+  }
+]

@@ -11,9 +11,16 @@
 #   RUNS           重复次数（默认 25）
 #   NPROCS         F1–F6 填 20（默认 20）
 #   ALGO           dpso | gfpdo | both（默认 both）
+#   FUNCS          空格/逗号分隔，如 "F1" 或 "F1 F3 F5"（默认 F1–F6 全部）
+#   OPTS           LLSO / CSO / "LLSO CSO"（默认两者）
 #   SKIP_EXISTING  1=已有 final fitness 的 .log 则跳过（默认 1，续跑）
 #   FORCE          1=忽略 SKIP_EXISTING，全部重跑
 #   START_RUN      从第几次开始（默认 1，如 START_RUN=6 从 ex06 起）
+#
+# 多窗口并行（GFPDO 很慢，建议每函数开一个 WSL/CMD）:
+#   FUNCS=F1 ALGO=gfpdo bash run_baselines_f1_f6_batch.sh
+#   FUNCS=F2 ALGO=gfpdo bash run_baselines_f1_f6_batch.sh
+#   … 六个窗口可同时跑，输出目录相同、SKIP_EXISTING=1 自动续跑不冲突
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -76,8 +83,15 @@ case "$ALGO" in
   both)  ALGOS=(dpso gfpdo) ;;
 esac
 
-FUNCS=(F1 F2 F3 F4 F5 F6)
-OPTS=(LLSO CSO)
+_parse_list() {
+  # "F1,F2 F3" -> F1 F2 F3
+  echo "$1" | tr ',\t' '  ' | tr -s ' ' | sed 's/^ //;s/ $//'
+}
+
+FUNCS_RAW="${FUNCS:-F1 F2 F3 F4 F5 F6}"
+OPTS_RAW="${OPTS:-LLSO CSO}"
+read -r -a FUNCS <<< "$(_parse_list "$FUNCS_RAW")"
+read -r -a OPTS <<< "$(_parse_list "$OPTS_RAW")"
 TOTAL_JOBS=$(( (RUNS - START_RUN + 1) * ${#FUNCS[@]} * ${#OPTS[@]} * ${#ALGOS[@]} ))
 JOB_IDX=0
 BATCH_START=$SECONDS

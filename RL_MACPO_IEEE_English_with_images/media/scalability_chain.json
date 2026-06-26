@@ -1,0 +1,112 @@
+[
+  {
+    "benchmark": "F1",
+    "func": "F1",
+    "agents": 20,
+    "method": "MACPO",
+    "runs": 5,
+    "comm_rate_mean": 1.0,
+    "comm_rate_std": 0.0,
+    "fitness_mean": 18787821.82,
+    "fitness_std": 1706935.072191806
+  },
+  {
+    "benchmark": "F1",
+    "func": "F1",
+    "agents": 20,
+    "method": "RL-MACPO",
+    "runs": 5,
+    "comm_rate_mean": 0.18333306,
+    "comm_rate_std": 0.04999988,
+    "fitness_mean": 49511419.94,
+    "fitness_std": 22058920.230686996
+  },
+  {
+    "benchmark": "F7",
+    "func": "F7",
+    "agents": 40,
+    "method": "MACPO",
+    "runs": 5,
+    "comm_rate_mean": 1.0,
+    "comm_rate_std": 0.0,
+    "fitness_mean": 72437285.24,
+    "fitness_std": 6550750.532047325
+  },
+  {
+    "benchmark": "F7",
+    "func": "F7",
+    "agents": 40,
+    "method": "RL-MACPO",
+    "runs": 5,
+    "comm_rate_mean": 0.08,
+    "comm_rate_std": 0.0,
+    "fitness_mean": 95366951.94,
+    "fitness_std": 13021273.551817158
+  },
+  {
+    "benchmark": "F13",
+    "func": "F13",
+    "agents": 60,
+    "method": "MACPO",
+    "runs": 5,
+    "comm_rate_mean": 1.0,
+    "comm_rate_std": 0.0,
+    "fitness_mean": 117127829.2,
+    "fitness_std": 2566316.7025053944
+  },
+  {
+    "benchmark": "F13",
+    "func": "F13",
+    "agents": 60,
+    "method": "RL-MACPO",
+    "runs": 5,
+    "comm_rate_mean": 0.08,
+    "comm_rate_std": 0.0,
+    "fitness_mean": 114542799.2,
+    "fitness_std": 3789664.586178645
+  },
+  {
+    "benchmark": "F1S50",
+    "func": "F1S50",
+    "agents": 50,
+    "method": "MACPO",
+    "runs": 5,
+    "comm_rate_mean": 1.0,
+    "comm_rate_std": 0.0,
+    "fitness_mean": 16685983.459999999,
+    "fitness_std": 101970.76702087861
+  },
+  {
+    "benchmark": "F1S50",
+    "func": "F1S50",
+    "agents": 50,
+    "method": "RL-MACPO",
+    "runs": 5,
+    "comm_rate_mean": 0.258333,
+    "comm_rate_std": 0.06123724356957945,
+    "fitness_mean": 20864240.46,
+    "fitness_std": 4595209.888687668
+  },
+  {
+    "benchmark": "F1S100",
+    "func": "F1S100",
+    "agents": 100,
+    "method": "MACPO",
+    "runs": 5,
+    "comm_rate_mean": 1.0,
+    "comm_rate_std": 0.0,
+    "fitness_mean": 14805290.54,
+    "fitness_std": 988511.1616903323
+  },
+  {
+    "benchmark": "F1S100",
+    "func": "F1S100",
+    "agents": 100,
+    "method": "RL-MACPO",
+    "runs": 5,
+    "comm_rate_mean": 0.23333299999999998,
+    "comm_rate_std": 0.05,
+    "fitness_mean": 19543098.86,
+    "fitness_std": 2119395.4237020994
+  }
+]

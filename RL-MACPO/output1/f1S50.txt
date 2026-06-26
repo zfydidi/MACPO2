@@ -1,0 +1,1810 @@
+Windows PowerShell
+版权所有（C） Microsoft Corporation。保留所有权利。
+
+安装最新的 PowerShell，了解新功能和改进！https://aka.ms/PSWindows
+
+PS C:\Users\hp> wsl
+wsl: 检测到 localhost 代理配置，但未镜像到 WSL。NAT 模式下的 WSL 不支持 localhost 代理。
+hp@DESKTOP-K3Q5P3O:/mnt/c/Users/hp$ cd /mnt/d/zyj/MACPO2
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2$ python3 -c "from utils.chain_benchmark_codegen import ensure_scalability_benchmarks; print(ensure_scalability_benchmarks())"
+[]
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2$ ls -la RL-MACPO/Benchmarks/data/group_F1S50.txt RL-MACPO/Benchmarks/data/xopt_F1S50.txt RL-MACPO/Benchmarks/data/R50_F1S50.txt
+-rwxrwxrwx 1 hp hp 51221 Jun 26 16:01 RL-MACPO/Benchmarks/data/R50_F1S50.txt
+-rwxrwxrwx 1 hp hp 11273 Jun 26 16:00 RL-MACPO/Benchmarks/data/group_F1S50.txt
+-rwxrwxrwx 1 hp hp 40975 Jun 26 16:00 RL-MACPO/Benchmarks/data/xopt_F1S50.txt
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2$ ^C
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2$ source ../utils/wsl_mpi_env.sh
+-bash: ../utils/wsl_mpi_env.sh: No such file or directory
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2$ source ./utils/wsl_mpi_env.sh
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2$ export OMP_NUM_THREADS=1
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2$ mpirun --allow-run-as-root --mca btl_vader_single_copy_mechanism none \
+  -np 50 --oversubscribe ./build/MACPO_simplified F1S50 smoke01 AlwaysOn
+--------------------------------------------------------------------------
+mpirun was unable to launch the specified application as it could not access
+or execute an executable:
+
+Executable: ./build/MACPO_simplified
+Node: DESKTOP-K3Q5P3O
+
+while attempting to start process rank 0.
+--------------------------------------------------------------------------
+50 total processes failed to start
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2$ cd RL
+-bash: cd: RL: No such file or directory
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2$ cd RL
+RL-MACPO/                          RL_MACPO_IEEE_English_with_images/
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2$ cd RL-MACPO/
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2/RL-MACPO$ ls -la build/MACPO_simplified
+-rwxrwxrwx 1 hp hp 411744 Jun 26 14:58 build/MACPO_simplified
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2/RL-MACPO$ file build/MACPO_simplified
+build/MACPO_simplified: ELF 64-bit LSB pie executable, x86-64, version 1 (GNU/Linux), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=b666e9b7110f1a200cba46848e0116cb4add1728, for GNU/Linux 3.2.0, not stripped
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2/RL-MACPO$ cd /mnt/d/zyj/MACPO2/RL-MACPO
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2/RL-MACPO$ cd /mnt/d/zyj/MACPO2
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2$ python3 -c "from utils.chain_benchmark_codegen import ensure_scalability_benchmarks; print(ensure_scalability_benchmarks())"
+[]
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2$ cd RL-MACPO
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2/RL-MACPO$ mpirun --allow-run-as-root --mca btl_vader_single_copy_mechanism none \
+  -np 50 --oversubscribe ./build/MACPO_simplified F1S50 smoke01 AlwaysOn
+=====================================
+Reward: Final penalty-efficiency reward (dimensionless tanh)
+
+=====================================
+[LLSO] 第一次迭代完成 - 动态α调整
+  - global_fit = 8.77701e+10
+  - base_alpha = |f| / 512 = 1.71426e+08
+  - measured_conflict = 7.35443
+  - scaling_factor = 1.0 / conflict = 0.135972
+  - adjusted_alpha = base_alpha × scaling = 2.33092e+07
+  - 预期 penalty/f ≈ 0.195%
+[RL] conflict=0.00146439, trend=0, action=-0.0441588, ratio: 1 → 0.995584 (change: -0.441588%), reward=0
+[RL] conflict=0.00204262, trend=0, action=-0.0102935, ratio: 1 → 0.998971 (change: -0.102935%), reward=0
+[RL] conflict=0.00186974, trend=0, action=0.156175, ratio: 1 → 1.01562 (change: 1.56175%), reward=0
+[RL] conflict=0.00211747, trend=0, action=0.0557509, ratio: 1 → 1.00558 (change: 0.557509%), reward=0
+[RL] conflict=0.00159721, trend=0, action=-0.0809579, ratio: 1 → 0.991904 (change: -0.809579%), reward=0
+[RL] conflict=0.00158199, trend=0, action=-0.0238217, ratio: 1 → 0.997618 (change: -0.238217%), reward=0
+[RL] conflict=0.00135792, trend=0, action=0.129321, ratio: 1 → 1.01293 (change: 1.29321%), reward=0
+[RL] conflict=0.00175829, trend=0, action=-0.1045, ratio: 1 → 0.98955 (change: -1.045%), reward=0
+[RL] conflict=0.00158261, trend=0, action=0.134094, ratio: 1 → 1.01341 (change: 1.34094%), reward=0
+[RL] conflict=0.00157578, trend=0, action=0.0436706, ratio: 1 → 1.00437 (change: 0.436706%), reward=0
+[RL] conflict=0.00164833, trend=0, action=0.0112097, ratio: 1 → 1.00112 (change: 0.112097%), reward=0
+[RL] conflict=0.00131215, trend=0, action=-0.101514, ratio: 1 → 0.989849 (change: -1.01514%), reward=0
+[RL] conflict=0.00163446, trend=0, action=-0.0821467, ratio: 1 → 0.991785 (change: -0.821467%), reward=0
+[RL] conflict=0.001562, trend=0, action=-0.0194342, ratio: 1 → 0.998057 (change: -0.194342%), reward=0
+[RL] conflict=0.00165843, trend=0, action=0.0220167, ratio: 1 → 1.0022 (change: 0.220167%), reward=0
+[RL] conflict=0.00192801, trend=0, action=-0.0906252, ratio: 1 → 0.990937 (change: -0.906252%), reward=0
+[RL] conflict=0.00146978, trend=0, action=-0.115162, ratio: 1 → 0.988484 (change: -1.15162%), reward=0
+[RL] conflict=0.00140517, trend=0, action=-0.0109149, ratio: 1 → 0.998909 (change: -0.109149%), reward=0
+[RL] conflict=0.00158027, trend=0, action=-0.161556, ratio: 1 → 0.983844 (change: -1.61556%), reward=0
+[RL] conflict=0.00142912, trend=0, action=-0.10671, ratio: 1 → 0.989329 (change: -1.0671%), reward=0
+[RL] conflict=0.00192557, trend=0, action=-0.101471, ratio: 1 → 0.989853 (change: -1.01471%), reward=0
+[RL] conflict=0.00157645, trend=0, action=-0.0735227, ratio: 1 → 0.992648 (change: -0.735227%), reward=0
+[RL] conflict=0.00166019, trend=0, action=-0.138538, ratio: 1 → 0.986146 (change: -1.38538%), reward=0
+[RL] conflict=0.00151795, trend=0, action=0.102295, ratio: 1 → 1.01023 (change: 1.02295%), reward=0
+[RL] conflict=0.00139575, trend=0, action=-0.059579, ratio: 1 → 0.994042 (change: -0.59579%), reward=0
+[RL] conflict=0.00167039, trend=0, action=-0.105718, ratio: 1 → 0.989428 (change: -1.05718%), reward=0
+[RL] conflict=0.00154699, trend=0, action=0.0225598, ratio: 1 → 1.00226 (change: 0.225598%), reward=0
+[RL] conflict=0.00187429, trend=0, action=-0.00361033, ratio: 1 → 0.999639 (change: -0.0361033%), reward=0
+[RL] conflict=0.00175987, trend=0, action=0.0158441, ratio: 1 → 1.00158 (change: 0.158441%), reward=0
+[RL] conflict=0.00171034, trend=0, action=-0.00624668, ratio: 1 → 0.999375 (change: -0.0624668%), reward=0
+[RL] conflict=0.00137365, trend=0, action=-0.0945093, ratio: 1 → 0.990549 (change: -0.945093%), reward=0
+[RL] conflict=0.00215107, trend=0, action=-0.177117, ratio: 1 → 0.982288 (change: -1.77117%), reward=0
+[RL] conflict=0.00161964, trend=0, action=-0.0168014, ratio: 1 → 0.99832 (change: -0.168014%), reward=0
+[RL] conflict=0.00191496, trend=0, action=0.0943559, ratio: 1 → 1.00944 (change: 0.943559%), reward=0
+[RL] conflict=0.00176212, trend=0, action=0.0189519, ratio: 1 → 1.0019 (change: 0.189519%), reward=0
+[RL] conflict=0.00170428, trend=0, action=0.0736791, ratio: 1 → 1.00737 (change: 0.736791%), reward=0
+[RL] conflict=0.00157028, trend=0, action=0.247206, ratio: 1 → 1.02472 (change: 2.47206%), reward=0
+[RL] conflict=0.00167766, trend=0, action=-0.00907952, ratio: 1 → 0.999092 (change: -0.0907952%), reward=0
+[RL] conflict=0.0017069, trend=0, action=0.0400729, ratio: 1 → 1.00401 (change: 0.400729%), reward=0
+[RL] conflict=0.00166236, trend=0, action=0.0328914, ratio: 1 → 1.00329 (change: 0.328914%), reward=0
+[RL] conflict=0.00141189, trend=0, action=0.0867925, ratio: 1 → 1.00868 (change: 0.867925%), reward=0
+[RL] conflict=0.0019257, trend=0, action=-0.0479014, ratio: 1 → 0.99521 (change: -0.479014%), reward=0
+[RL] conflict=0.00136298, trend=0, action=0.0478561, ratio: 1 → 1.00479 (change: 0.478561%), reward=0
+[RL] conflict=0.00137337, trend=0, action=-0.0605874, ratio: 1 → 0.993941 (change: -0.605874%), reward=0
+[RL] conflict=0.00198061, trend=0, action=-0.0570563, ratio: 1 → 0.994294 (change: -0.570563%), reward=0
+[RL] conflict=0.0015992, trend=0, action=0.00229403, ratio: 1 → 1.00023 (change: 0.0229403%), reward=0
+[RL] conflict=0.00166125, trend=0, action=-0.150666, ratio: 1 → 0.984933 (change: -1.50666%), reward=0
+[RL] conflict=0.00167957, trend=0, action=-0.14575, ratio: 1 → 0.985425 (change: -1.4575%), reward=0
+[RL] conflict=0.00160888, trend=0, action=-0.0111388, ratio: 1 → 0.998886 (change: -0.111388%), reward=0
+[RL] conflict=0.00159905, trend=0, action=0.0994268, ratio: 1 → 1.00994 (change: 0.994268%), reward=0
+[RL] conflict=0.00125756, trend=-1, action=-0.140785, ratio: 0.982288 → 0.96821 (change: -1.43323%), reward=0
+[RL] conflict=0.00111532, trend=0, action=-0.0821276, ratio: 0.991785 → 0.983573 (change: -0.828078%), reward=0
+[RL] conflict=0.00115143, trend=0, action=-0.0194056, ratio: 0.998057 → 0.996116 (change: -0.194434%), reward=0
+[RL] conflict=0.00110752, trend=0, action=0.0190225, ratio: 1.0019 → 1.0038 (change: 0.189865%), reward=0
+[RL] conflict=0.00103808, trend=0, action=0.0737109, ratio: 1.00737 → 1.01474 (change: 0.731718%), reward=0
+[RL] conflict=0.00119534, trend=0, action=0.0219846, ratio: 1.0022 → 1.0044 (change: 0.219363%), reward=0
+[RL] conflict=0.000869369, trend=-1, action=-0.265875, ratio: 1.00023 → 0.973642 (change: -2.65814%), reward=0
+[RL] conflict=0.00100106, trend=0, action=-0.0733911, ratio: 0.992648 → 0.985309 (change: -0.739347%), reward=0
+[RL] conflict=0.00117759, trend=0, action=-0.104474, ratio: 0.98955 → 0.979103 (change: -1.05577%), reward=0
+[RL] conflict=0.00115392, trend=0, action=0.134041, ratio: 1.01341 → 1.02681 (change: 1.32267%), reward=0
+[RL] conflict=0.00103858, trend=0, action=0.0225695, ratio: 1.00226 → 1.00451 (change: 0.225187%), reward=0
+[RL] conflict=0.00126068, trend=0, action=-0.00361363, ratio: 0.999639 → 0.999278 (change: -0.0361494%), reward=0
+[RL] conflict=0.00117263, trend=0, action=-0.0906808, ratio: 0.990937 → 0.981869 (change: -0.915101%), reward=0
+[RL] conflict=0.00132507, trend=0, action=-0.150681, ratio: 0.984933 → 0.969865 (change: -1.52986%), reward=0
+[RL] conflict=0.00120518, trend=0, action=-0.161592, ratio: 0.983844 → 0.967685 (change: -1.64246%), reward=0
+[RL] conflict=0.00111631, trend=0, action=-0.138479, ratio: 0.986146 → 0.972298 (change: -1.40424%), reward=0
+[RL] conflict=0.00103824, trend=0, action=0.102287, ratio: 1.01023 → 1.02046 (change: 1.01251%), reward=0
+[RL] conflict=0.00114553, trend=0, action=-0.0479055, ratio: 0.99521 → 0.990419 (change: -0.481361%), reward=0
+[RL] conflict=0.00128685, trend=0, action=-0.101404, ratio: 0.989853 → 0.979712 (change: -1.02444%), reward=0
+[RL] conflict=0.000964931, trend=-1, action=-0.151832, ratio: 0.99832 → 0.983137 (change: -1.52088%), reward=0
+[RL] conflict=0.000863155, trend=-1, action=0.101124, ratio: 0.993941 → 1.00405 (change: 1.01741%), reward=0
+[RL] conflict=0.00100087, trend=0, action=-0.0111395, ratio: 0.998886 → 0.997772 (change: -0.111519%), reward=0
+[RL] conflict=0.0010065, trend=0, action=0.099452, ratio: 1.00994 → 1.01989 (change: 0.984729%), reward=0
+[RL] conflict=0.00131053, trend=-1, action=0.0176946, ratio: 0.998971 → 1.00074 (change: 0.177128%), reward=0
+[RL] conflict=0.00110912, trend=0, action=-0.105667, ratio: 0.989428 → 0.978862 (change: -1.06796%), reward=0
+[RL] conflict=0.00130977, trend=0, action=0.156235, ratio: 1.01562 → 1.03124 (change: 1.53832%), reward=0
+[RL] conflict=0.00108836, trend=-1, action=0.169783, ratio: 1.00558 → 1.02255 (change: 1.68842%), reward=0
+[RL] conflict=0.00101819, trend=0, action=-0.1015, ratio: 0.989849 → 0.979699 (change: -1.02541%), reward=0
+[RL] conflict=0.00124093, trend=0, action=0.0158552, ratio: 1.00158 → 1.00317 (change: 0.158302%), reward=0
+[RL] conflict=0.00117008, trend=0, action=-0.00625619, ratio: 0.999375 → 0.99875 (change: -0.062601%), reward=0
+[RL] conflict=0.0012306, trend=0, action=0.0400858, ratio: 1.00401 → 1.00802 (change: 0.399258%), reward=0
+[RL] conflict=0.000988839, trend=-1, action=-0.0298896, ratio: 0.989329 → 0.98634 (change: -0.30212%), reward=0
+[RL] conflict=0.00116786, trend=0, action=0.086767, ratio: 1.00868 → 1.01736 (change: 0.860204%), reward=0
+[RL] conflict=0.00109727, trend=0, action=0.032965, ratio: 1.00329 → 1.00659 (change: 0.328569%), reward=0
+[RL] conflict=0.00107533, trend=0, action=0.0478448, ratio: 1.00479 → 1.00957 (change: 0.476169%), reward=0
+[RL] conflict=0.00119194, trend=0, action=-0.0809845, ratio: 0.991904 → 0.983806 (change: -0.816455%), reward=0
+[RL] conflict=0.00114441, trend=0, action=-0.0570148, ratio: 0.994294 → 0.988593 (change: -0.573419%), reward=0
+[RL] conflict=0.00123505, trend=0, action=-0.0238116, ratio: 0.997618 → 0.995237 (change: -0.238684%), reward=0
+[RL] conflict=0.00138872, trend=0, action=0.0942939, ratio: 1.00944 → 1.01886 (change: 0.934125%), reward=0
+[RL] conflict=0.00100998, trend=0, action=0.247247, ratio: 1.02472 → 1.04945 (change: 2.41282%), reward=0
+[RL] conflict=0.00102902, trend=0, action=0.0436727, ratio: 1.00437 → 1.00873 (change: 0.434828%), reward=0
+[RL] conflict=0.00122177, trend=0, action=0.0111373, ratio: 1.00112 → 1.00223 (change: 0.111248%), reward=0
+[RL] conflict=0.00106569, trend=0, action=-0.0944972, ratio: 0.990549 → 0.981099 (change: -0.953988%), reward=0
+[RL] conflict=0.000898415, trend=-1, action=-0.0724111, ratio: 0.994042 → 0.986801 (change: -0.728451%), reward=0
+[RL] conflict=0.00102221, trend=0, action=0.129296, ratio: 1.01293 → 1.02586 (change: 1.27646%), reward=0
+[RL] conflict=0.00114526, trend=0, action=-0.0441556, ratio: 0.995584 → 0.991169 (change: -0.443515%), reward=0
+[RL] conflict=0.000944226, trend=-1, action=-0.330003, ratio: 0.988484 → 0.955483 (change: -3.33848%), reward=0
+[RL] conflict=0.000851561, trend=-1, action=0.0434312, ratio: 0.998909 → 1.00325 (change: 0.434786%), reward=0
+[RL] conflict=0.00117608, trend=0, action=-0.145775, ratio: 0.985425 → 0.970847 (change: -1.47931%), reward=0
+[RL] conflict=0.00118355, trend=0, action=-0.00904436, ratio: 0.999092 → 0.998188 (change: -0.0905257%), reward=0
+[Reward-Final] conflict_chg=-27.5441% fpure_improv=54.9425% raw=15.1334 reward=1
+[RL] conflict=0.000836082, trend=-1, action=0.139016, ratio: 1.02681 → 1.04072 (change: 1.35386%), reward=1
+[Reward-Final] conflict_chg=-33.677% fpure_improv=56.7244% raw=19.1031 reward=1
+[RL] conflict=0.000688815, trend=-1, action=0.0221808, ratio: 1.00451 → 1.00673 (change: 0.220811%), reward=1
+[Reward-Final] conflict_chg=-24.8256% fpure_improv=57.3731% raw=14.2432 reward=1
+[RL] conflict=0.000947708, trend=-1, action=-0.0743885, ratio: 0.999278 → 0.991839 (change: -0.744423%), reward=1
+[Reward-Final] conflict_chg=-34.4561% fpure_improv=63.0245% raw=21.7158 reward=1
+[RL] conflict=0.00075065, trend=-1, action=0.0191911, ratio: 0.991169 → 0.993088 (change: 0.193621%), reward=1
+[Reward-Final] conflict_chg=-37.5093% fpure_improv=58.7263% raw=22.0278 reward=1
+[RL] conflict=0.000867822, trend=-1, action=0.0539019, ratio: 1.01886 → 1.02426 (change: 0.529039%), reward=1
+[Reward-Final] conflict_chg=-37.6873% fpure_improv=63.3292% raw=23.8671 reward=1
+[RL] conflict=0.000732845, trend=-1, action=-0.161976, ratio: 0.970847 → 0.95465 (change: -1.6684%), reward=1
+[Reward-Final] conflict_chg=-33.0164% fpure_improv=56.4269% raw=18.6301 reward=1
+[RL] conflict=0.000676523, trend=-1, action=0.198633, ratio: 1.04945 → 1.06931 (change: 1.89274%), reward=1
+[Reward-Final] conflict_chg=-19.0264% fpure_improv=59.9197% raw=11.4006 reward=1
+[RL] conflict=0.000689539, trend=0, action=-0.0109215, ratio: 1.00325 → 1.00216 (change: -0.108861%), reward=1
+[Reward-Final] conflict_chg=-35.1869% fpure_improv=55.1421% raw=19.4028 reward=1
+[RL] conflict=0.000760016, trend=-1, action=0.0131417, ratio: 0.981869 → 0.983184 (change: 0.133844%), reward=1
+[Reward-Final] conflict_chg=-43.9687% fpure_improv=51.7198% raw=22.7405 reward=1
+[RL] conflict=0.000742451, trend=-1, action=-0.113798, ratio: 0.969865 → 0.958485 (change: -1.17333%), reward=1
+[Reward-Final] conflict_chg=-19.9502% fpure_improv=56.2318% raw=11.2183 reward=1
+[RL] conflict=0.000823727, trend=-1, action=-0.0798581, ratio: 1.00873 → 1.00075 (change: -0.791666%), reward=1
+[Reward-Final] conflict_chg=-33.0945% fpure_improv=62.1074% raw=20.5541 reward=1
+[RL] conflict=0.000806329, trend=-1, action=-0.164899, ratio: 0.967685 → 0.951195 (change: -1.70406%), reward=1
+[Reward-Final] conflict_chg=-32.6599% fpure_improv=53.6184% raw=17.5117 reward=1
+[RL] conflict=0.000751722, trend=-1, action=-0.101793, ratio: 0.972298 → 0.962119 (change: -1.04693%), reward=1
+[Reward-Final] conflict_chg=-37.3545% fpure_improv=57.4881% raw=21.4744 reward=1
+[RL] conflict=0.000681807, trend=-1, action=0.169804, ratio: 1.02255 → 1.03953 (change: 1.66059%), reward=1
+[Reward-Final] conflict_chg=-44.4212% fpure_improv=62.5832% raw=27.8002 reward=1
+[RL] conflict=0.0005659, trend=-1, action=-0.221758, ratio: 0.979699 → 0.957523 (change: -2.26353%), reward=1
+[Reward-Final] conflict_chg=-37.1239% fpure_improv=58.3384% raw=21.6575 reward=1
+[RL] conflict=0.000780248, trend=-1, action=0.114611, ratio: 1.00317 → 1.01463 (change: 1.14249%), reward=1
+[Reward-Final] conflict_chg=-41.6019% fpure_improv=57.3102% raw=23.8421 reward=1
+[RL] conflict=0.000683307, trend=-1, action=0.104786, ratio: 0.99875 → 1.00923 (change: 1.04918%), reward=1
+[Reward-Final] conflict_chg=-31.5361% fpure_improv=61.3965% raw=19.362 reward=1
+[RL] conflict=0.000842517, trend=-1, action=0.0538775, ratio: 1.00802 → 1.0134 (change: 0.53449%), reward=1
+[Reward-Final] conflict_chg=-31.735% fpure_improv=61.625% raw=19.5567 reward=1
+[RL] conflict=0.000708757, trend=-1, action=0.203014, ratio: 1.02046 → 1.04076 (change: 1.98944%), reward=1
+[Reward-Final] conflict_chg=-31.9597% fpure_improv=63.1517% raw=20.1831 reward=1
+[RL] conflict=0.00067281, trend=0, action=-0.106735, ratio: 0.98634 → 0.975667 (change: -1.08213%), reward=1
+[Reward-Final] conflict_chg=-32.3599% fpure_improv=55.6213% raw=17.999 reward=1
+[RL] conflict=0.000789941, trend=-1, action=-0.0593536, ratio: 1.01736 → 1.01142 (change: -0.58341%), reward=1
+[Reward-Final] conflict_chg=-42.7099% fpure_improv=54.6197% raw=23.328 reward=1
+[RL] conflict=0.000656276, trend=-1, action=-0.083926, ratio: 0.990419 → 0.982027 (change: -0.847378%), reward=1
+[Reward-Final] conflict_chg=-39.3725% fpure_improv=54.8492% raw=21.5955 reward=1
+[RL] conflict=0.000665246, trend=-1, action=-0.115474, ratio: 1.00659 → 0.995038 (change: -1.14718%), reward=1
+[Reward-Final] conflict_chg=-40.482% fpure_improv=58.8825% raw=23.8368 reward=1
+[RL] conflict=0.000574308, trend=0, action=-0.0167585, ratio: 0.983137 → 0.981461 (change: -0.170459%), reward=1
+[Reward-Final] conflict_chg=-35.3183% fpure_improv=51.3816% raw=18.1471 reward=1
+[RL] conflict=0.000661179, trend=-1, action=0.107373, ratio: 1.02586 → 1.0366 (change: 1.04666%), reward=1
+[Reward-Final] conflict_chg=-25.9749% fpure_improv=60.4442% raw=15.7003 reward=1
+[RL] conflict=0.000638951, trend=0, action=-0.0606462, ratio: 1.00405 → 0.997989 (change: -0.604013%), reward=1
+[Reward-Final] conflict_chg=-30.4993% fpure_improv=60.6577% raw=18.5002 reward=1
+[RL] conflict=0.000822576, trend=-1, action=-0.109899, ratio: 0.998188 → 0.987198 (change: -1.10099%), reward=1
+[Reward-Final] conflict_chg=-33.0584% fpure_improv=63.4829% raw=20.9864 reward=1
+[RL] conflict=0.000673769, trend=-1, action=0.094052, ratio: 1.01989 → 1.02929 (change: 0.92218%), reward=1
+[Reward-Final] conflict_chg=-37.3588% fpure_improv=55.2794% raw=20.6517 reward=1
+[RL] conflict=0.00082093, trend=-1, action=0.0177192, ratio: 1.00074 → 1.00251 (change: 0.177061%), reward=1
+[Reward-Final] conflict_chg=-28.184% fpure_improv=56.0189% raw=15.7884 reward=1
+[RL] conflict=0.000796525, trend=-1, action=-0.107767, ratio: 0.978862 → 0.968085 (change: -1.10094%), reward=1
+[Reward-Final] conflict_chg=-35.0135% fpure_improv=55.5035% raw=19.4337 reward=1
+[RL] conflict=0.000851176, trend=-1, action=0.297633, ratio: 1.03124 → 1.061 (change: 2.88616%), reward=1
+[Reward-Final] conflict_chg=-38.0049% fpure_improv=63.1615% raw=24.0045 reward=1
+[RL] conflict=0.000620492, trend=-1, action=-0.0383491, ratio: 0.997772 → 0.993937 (change: -0.384348%), reward=1
+[Reward-Final] conflict_chg=-40.8565% fpure_improv=58.6681% raw=23.9697 reward=1
+[RL] conflict=0.000743764, trend=-1, action=-0.140817, ratio: 0.96821 → 0.954128 (change: -1.4544%), reward=1
+[Reward-Final] conflict_chg=-39.2211% fpure_improv=58.844% raw=23.0792 reward=1
+[RL] conflict=0.00067788, trend=-1, action=-0.0629005, ratio: 0.983573 → 0.977283 (change: -0.639511%), reward=1
+[Reward-Final] conflict_chg=-27.1899% fpure_improv=52.4471% raw=14.2603 reward=1
+[RL] conflict=0.000806385, trend=-1, action=0.000155391, ratio: 1.0038 → 1.00381 (change: 0.00154803%), reward=1
+[Reward-Final] conflict_chg=-33.9001% fpure_improv=57.5106% raw=19.4962 reward=1
+[RL] conflict=0.000686168, trend=-1, action=-0.150028, ratio: 1.01474 → 0.999736 (change: -1.47848%), reward=1
+[Reward-Final] conflict_chg=-15.4872% fpure_improv=54.1433% raw=8.3853 reward=1
+[RL] conflict=0.000908789, trend=-1, action=0.106569, ratio: 1.00957 → 1.02023 (change: 1.05558%), reward=1
+[Reward-Final] conflict_chg=-34.3532% fpure_improv=58.1749% raw=19.9849 reward=1
+[RL] conflict=0.000782473, trend=-1, action=-0.0660681, ratio: 0.983806 → 0.977199 (change: -0.671556%), reward=1
+[Reward-Final] conflict_chg=-37.4446% fpure_improv=58.306% raw=21.8325 reward=1
+[RL] conflict=0.000747749, trend=-1, action=0.0777687, ratio: 1.0044 → 1.01218 (change: 0.77428%), reward=1
+[Reward-Final] conflict_chg=-40.5498% fpure_improv=61.954% raw=25.1223 reward=1
+[RL] conflict=0.000680356, trend=-1, action=-0.133533, ratio: 0.988593 → 0.97524 (change: -1.35074%), reward=1
+[Reward-Final] conflict_chg=-37.5791% fpure_improv=60.338% raw=22.6745 reward=1
+[Reward-Final] conflict_chg=-40.5567% fpure_improv=53.7969% raw=21.8182 reward=1
+[RL] conflict=0.000734157, trend=-1, action=0.0684627, ratio: 0.995237 → 1.00208 (change: 0.687903%), reward=1
+[Reward-Final] conflict_chg=-33.1977% fpure_improv=52.5843% raw=17.4568 reward=1
+[RL] conflict=0.000580759, trend=0, action=0.00224281, ratio: 0.973642 → 0.973866 (change: 0.0230353%), reward=1
+[Reward-Final] conflict_chg=-35.1179% fpure_improv=57.0456% raw=20.0333 reward=1
+[RL] conflict=0.00064951, trend=-1, action=0.215335, ratio: 0.985309 → 1.00684 (change: 2.18545%), reward=1
+[Reward-Final] conflict_chg=-27.3627% fpure_improv=51.6442% raw=14.1312 reward=1
+[RL] conflict=0.000855369, trend=-1, action=-0.0205377, ratio: 0.979103 → 0.977049 (change: -0.209761%), reward=1
+[Reward-Final] conflict_chg=-39.4785% fpure_improv=62.7245% raw=24.7627 reward=1
+[RL] conflict=0.000739432, trend=-1, action=0.147885, ratio: 1.00223 → 1.01702 (change: 1.47555%), reward=1
+[Reward-Final] conflict_chg=-31.5723% fpure_improv=55.9214% raw=17.6557 reward=1
+[RL] conflict=0.000729226, trend=-1, action=-0.0526518, ratio: 0.981099 → 0.975834 (change: -0.536662%), reward=1
+[Reward-Final] conflict_chg=-40.4496% fpure_improv=58.7676% raw=23.7713 reward=1
+[RL] conflict=0.000685679, trend=-1, action=0.0639661, ratio: 0.996116 → 1.00251 (change: 0.642155%), reward=1
+[Reward-Final] conflict_chg=-27.4584% fpure_improv=59.1652% raw=16.2458 reward=1
+[RL] conflict=0.000684957, trend=0, action=-0.115274, ratio: 0.955483 → 0.943956 (change: -1.20645%), reward=1
+[Reward-Final] conflict_chg=-28.6408% fpure_improv=54.2285% raw=15.5315 reward=1
+[RL] conflict=0.000560799, trend=0, action=-0.0595769, ratio: 0.986801 → 0.980843 (change: -0.603737%), reward=1
+[RL] conflict=0.000918288, trend=-1, action=-0.0786193, ratio: 0.979712 → 0.971851 (change: -0.802473%), reward=1
+[Reward-Final] conflict_chg=-42.0498% fpure_improv=56.8846% raw=23.9199 reward=1
+[RL] conflict=0.000385511, trend=0, action=0.0340239, ratio: 0.995038 → 0.998441 (change: 0.341936%), reward=1
+[Reward-Final] conflict_chg=-22.4436% fpure_improv=55.3376% raw=12.4197 reward=1
+[RL] conflict=0.000445412, trend=0, action=-0.0157637, ratio: 0.981461 → 0.979884 (change: -0.160615%), reward=1
+[Reward-Final] conflict_chg=-40.3093% fpure_improv=50.7568% raw=20.4597 reward=1
+[RL] conflict=0.000394663, trend=0, action=0.130204, ratio: 1.0366 → 1.04962 (change: 1.25607%), reward=1
+[Reward-Final] conflict_chg=-32.958% fpure_improv=60.4523% raw=19.9239 reward=1
+[RL] conflict=0.00049573, trend=0, action=0.0119733, ratio: 1.01702 → 1.01822 (change: 0.117729%), reward=1
+[Reward-Final] conflict_chg=-40.0143% fpure_improv=56.5156% raw=22.6143 reward=1
+[RL] conflict=0.00049244, trend=0, action=-0.00923512, ratio: 1.00251 → 1.00159 (change: -0.0921198%), reward=1
+[Reward-Final] conflict_chg=-38.184% fpure_improv=50.9617% raw=19.4592 reward=1
+[RL] conflict=0.000528755, trend=0, action=-0.103476, ratio: 0.977049 → 0.966701 (change: -1.05907%), reward=1
+[Reward-Final] conflict_chg=-33.1056% fpure_improv=56.5254% raw=18.7131 reward=1
+[RL] conflict=0.000569389, trend=0, action=0.157187, ratio: 1.061 → 1.07672 (change: 1.48149%), reward=1
+[Reward-Final] conflict_chg=-40.7386% fpure_improv=57.3065% raw=23.3459 reward=1
+[RL] conflict=0.000401721, trend=0, action=-0.0811316, ratio: 0.977283 → 0.969169 (change: -0.830175%), reward=1
+[Reward-Final] conflict_chg=-40.821% fpure_improv=56.2538% raw=22.9633 reward=1
+[Reward-Final] conflict_chg=-38.4659% fpure_improv=53.6563% raw=20.6393 reward=1
+[RL] conflict=0.000460121, trend=0, action=0.0229075, ratio: 1.01218 → 1.01447 (change: 0.226319%), reward=1
+[Reward-Final] conflict_chg=-41.2134% fpure_improv=50.5826% raw=20.8468 reward=1
+[RL] conflict=0.000431586, trend=0, action=-0.0228131, ratio: 1.00208 → 0.999802 (change: -0.227656%), reward=1
+[Reward-Final] conflict_chg=-35.8652% fpure_improv=51.2569% raw=18.3834 reward=1
+[RL] conflict=0.000536219, trend=0, action=0.134908, ratio: 1.04072 → 1.05421 (change: 1.2963%), reward=1
+[Reward-Final] conflict_chg=-35.4234% fpure_improv=56.5262% raw=20.0235 reward=1
+[RL] conflict=0.000444813, trend=0, action=0.0235598, ratio: 1.00673 → 1.00909 (change: 0.234023%), reward=1
+[Reward-Final] conflict_chg=-41.0613% fpure_improv=57.2822% raw=23.5208 reward=1
+[RL] conflict=0.000442424, trend=0, action=-0.0431708, ratio: 0.993088 → 0.988771 (change: -0.434713%), reward=1
+[Reward-Final] conflict_chg=-38.2707% fpure_improv=54.5772% raw=20.8871 reward=1
+[RL] conflict=0.000423264, trend=0, action=-0.0183791, ratio: 1.00251 → 1.00067 (change: -0.183331%), reward=1
+[Reward-Final] conflict_chg=-35.3012% fpure_improv=60.5765% raw=21.3842 reward=1
+[RL] conflict=0.000474142, trend=0, action=-0.144876, ratio: 0.95465 → 0.940162 (change: -1.51758%), reward=1
+[Reward-Final] conflict_chg=-38.0859% fpure_improv=51.7439% raw=19.7071 reward=1
+[RL] conflict=0.000418863, trend=0, action=0.248174, ratio: 1.06931 → 1.09413 (change: 2.32088%), reward=1
+[Reward-Final] conflict_chg=-41.3001% fpure_improv=55.6576% raw=22.9867 reward=1
+[RL] conflict=0.000404759, trend=0, action=-0.0099344, ratio: 1.00216 → 1.00117 (change: -0.0991299%), reward=1
+[Reward-Final] conflict_chg=-34.9708% fpure_improv=51.0183% raw=17.8415 reward=1
+[RL] conflict=0.000494233, trend=0, action=-0.0897588, ratio: 0.983184 → 0.974208 (change: -0.912941%), reward=1
+[Reward-Final] conflict_chg=-38.933% fpure_improv=50.5469% raw=19.6794 reward=1
+[RL] conflict=0.000453393, trend=0, action=-0.149775, ratio: 0.958485 → 0.943508 (change: -1.56262%), reward=1
+[Reward-Final] conflict_chg=-37.6699% fpure_improv=59.7421% raw=22.5048 reward=1
+[RL] conflict=0.000502585, trend=0, action=-0.160731, ratio: 0.951195 → 0.935122 (change: -1.68978%), reward=1
+[Reward-Final] conflict_chg=-39.1508% fpure_improv=51.1645% raw=20.0313 reward=1
+[RL] conflict=0.000457417, trend=0, action=-0.137456, ratio: 0.962119 → 0.948373 (change: -1.42868%), reward=1
+[Reward-Final] conflict_chg=-23.7381% fpure_improv=56.4479% raw=13.3996 reward=1
+[RL] conflict=0.000519959, trend=0, action=0.0567841, ratio: 1.03953 → 1.04521 (change: 0.546246%), reward=1
+[Reward-Final] conflict_chg=-34.955% fpure_improv=58.6242% raw=20.4921 reward=1
+[RL] conflict=0.000548016, trend=0, action=0.04108, ratio: 1.0134 → 1.01751 (change: 0.405367%), reward=1
+[Reward-Final] conflict_chg=-36.0002% fpure_improv=60.106% raw=21.6382 reward=1
+[RL] conflict=0.000430597, trend=0, action=-0.105775, ratio: 0.975667 → 0.965089 (change: -1.08414%), reward=1
+[Reward-Final] conflict_chg=-37.5177% fpure_improv=58.2439% raw=21.8518 reward=1
+[RL] conflict=0.000493573, trend=0, action=0.0876655, ratio: 1.01142 → 1.02019 (change: 0.866756%), reward=1
+[Reward-Final] conflict_chg=-28.8261% fpure_improv=58.3642% raw=16.8241 reward=1
+[RL] conflict=0.000462281, trend=0, action=-0.0723366, ratio: 1.00684 → 0.999608 (change: -0.71845%), reward=1
+[Reward-Final] conflict_chg=-38.8397% fpure_improv=58.2749% raw=22.6338 reward=1
+[RL] conflict=0.000530762, trend=0, action=0.0951614, ratio: 1.02426 → 1.03377 (change: 0.929079%), reward=1
+[Reward-Final] conflict_chg=-32.9588% fpure_improv=51.5036% raw=16.9749 reward=1
+[RL] conflict=0.000552237, trend=0, action=0.0446466, ratio: 1.00075 → 1.00521 (change: 0.446132%), reward=1
+[Reward-Final] conflict_chg=-28.4944% fpure_improv=59.4215% raw=16.9318 reward=1
+[RL] conflict=0.00040465, trend=0, action=-0.100547, ratio: 0.957523 → 0.947468 (change: -1.05007%), reward=1
+[Reward-Final] conflict_chg=-39.6101% fpure_improv=52.9299% raw=20.9656 reward=1
+[RL] conflict=0.000471191, trend=0, action=0.0168392, ratio: 1.01463 → 1.01631 (change: 0.165963%), reward=1
+[Reward-Final] conflict_chg=-29.0396% fpure_improv=56.9198% raw=16.5293 reward=1
+[RL] conflict=0.000484877, trend=0, action=-0.00529861, ratio: 1.00923 → 1.0087 (change: -0.0525016%), reward=1
+[Reward-Final] conflict_chg=-24.9821% fpure_improv=54.1734% raw=13.5337 reward=1
+[RL] conflict=0.00051384, trend=0, action=-0.114334, ratio: 0.943956 → 0.932523 (change: -1.21122%), reward=1
+[Reward-Final] conflict_chg=-44.3535% fpure_improv=57.1186% raw=25.3341 reward=1
+[RL] conflict=0.000374929, trend=0, action=0.100441, ratio: 1.02929 → 1.03934 (change: 0.975824%), reward=1
+[Reward-Final] conflict_chg=-32.6926% fpure_improv=57.5605% raw=18.818 reward=1
+[RL] conflict=0.000611682, trend=0, action=0.0487937, ratio: 1.02023 → 1.02511 (change: 0.478264%), reward=1
+[Reward-Final] conflict_chg=-33.4314% fpure_improv=57.621% raw=19.2635 reward=1
+[RL] conflict=0.000452903, trend=0, action=-0.0560203, ratio: 0.97524 → 0.969638 (change: -0.574426%), reward=1
+[Reward-Final] conflict_chg=-34.1453% fpure_improv=57.908% raw=19.7728 reward=1
+[RL] conflict=0.000369313, trend=0, action=-0.0585933, ratio: 0.980843 → 0.974984 (change: -0.597376%), reward=1
+[Reward-Final] conflict_chg=-36.6992% fpure_improv=58.6482% raw=21.5234 reward=1
+[RL] conflict=0.000448649, trend=0, action=0.103208, ratio: 1.04076 → 1.05108 (change: 0.991664%), reward=1
+[Reward-Final] conflict_chg=-17.9264% fpure_improv=57.9504% raw=10.3884 reward=1
+[RL] conflict=0.00053863, trend=0, action=-0.0469375, ratio: 0.982027 → 0.977333 (change: -0.477966%), reward=1
+[Reward-Final] conflict_chg=-39.7598% fpure_improv=57.2065% raw=22.7452 reward=1
+[RL] conflict=0.000495521, trend=0, action=-0.00802682, ratio: 0.987198 → 0.986395 (change: -0.0813092%), reward=1
+[Reward-Final] conflict_chg=-28.622% fpure_improv=56.5382% raw=16.1824 reward=1
+[RL] conflict=0.000568544, trend=0, action=-0.104659, ratio: 0.968085 → 0.957619 (change: -1.08109%), reward=1
+[Reward-Final] conflict_chg=-33.2365% fpure_improv=60.7196% raw=20.1811 reward=1
+[RL] conflict=0.000414262, trend=0, action=-0.0101616, ratio: 0.993937 → 0.992921 (change: -0.102236%), reward=1
+[Reward-Final] conflict_chg=-41.463% fpure_improv=55.8952% raw=23.1758 reward=1
+[RL] conflict=0.000435377, trend=0, action=-0.176292, ratio: 0.954128 → 0.936499 (change: -1.84767%), reward=1
+[Reward-Final] conflict_chg=-33.2378% fpure_improv=56.7828% raw=18.8734 reward=1
+[RL] conflict=0.000486847, trend=0, action=-0.0935056, ratio: 0.975834 → 0.966484 (change: -0.958212%), reward=1
+[Reward-Final] conflict_chg=-42.2245% fpure_improv=51.0944% raw=21.5744 reward=1
+[Reward-Final] conflict_chg=-28.9684% fpure_improv=52.6681% raw=15.2571 reward=1
+[RL] conflict=0.000487396, trend=0, action=0.0746908, ratio: 0.999736 → 1.00721 (change: 0.747105%), reward=1
+[Reward-Final] conflict_chg=-27.1504% fpure_improv=50.4489% raw=13.6971 reward=1
+[RL] conflict=0.000423081, trend=0, action=0.00322487, ratio: 0.973866 → 0.974189 (change: 0.0331141%), reward=1
+[Reward-Final] conflict_chg=-49.0022% fpure_improv=52.0356% raw=25.4985 reward=1
+[Reward-Final] conflict_chg=-41.6784% fpure_improv=57.172% raw=23.8284 reward=1
+[RL] conflict=0.00053556, trend=0, action=-0.100362, ratio: 0.971851 → 0.961814 (change: -1.03269%), reward=1
+[RL] conflict=0.00046306, trend=0, action=-0.0800627, ratio: 0.977199 → 0.969193 (change: -0.819308%), reward=1
+[Reward-Final] conflict_chg=-37.514% fpure_improv=57.9978% raw=21.7573 reward=1
+[RL] conflict=0.000399255, trend=0, action=-0.0596825, ratio: 0.997989 → 0.992021 (change: -0.598028%), reward=1
+[RL] conflict=0.000465893, trend=0, action=0.0200713, ratio: 1.00381 → 1.00582 (change: 0.199951%), reward=1
+[RL] conflict=0.00048331, trend=0, action=-0.00264304, ratio: 0.991839 → 0.991574 (change: -0.0266479%), reward=1
+[Reward-Final] conflict_chg=-40.8105% fpure_improv=33.245% raw=13.5675 reward=1
+[RL] conflict=0.000291473, trend=0, action=-0.00823506, ratio: 1.00159 → 1.00077 (change: -0.08222%), reward=1
+[Reward-Final] conflict_chg=-31.1258% fpure_improv=32.1146% raw=9.99594 reward=1
+[RL] conflict=0.000364176, trend=0, action=-0.102499, ratio: 0.966701 → 0.956451 (change: -1.0603%), reward=1
+[Reward-Final] conflict_chg=-48.7104% fpure_improv=32.4892% raw=15.8256 reward=1
+[RL] conflict=0.000291604, trend=0, action=-0.103665, ratio: 0.957619 → 0.947252 (change: -1.08253%), reward=1
+[Reward-Final] conflict_chg=-40.1876% fpure_improv=37.3588% raw=15.0136 reward=1
+[RL] conflict=0.00024778, trend=0, action=-0.00917194, ratio: 0.992921 → 0.992004 (change: -0.0923733%), reward=1
+[Reward-Final] conflict_chg=-29.249% fpure_improv=30.5195% raw=8.92665 reward=1
+[RL] conflict=0.000308034, trend=0, action=-0.17537, ratio: 0.936499 → 0.918962 (change: -1.87261%), reward=1
+[Reward-Final] conflict_chg=-37.5618% fpure_improv=33.0117% raw=12.3998 reward=1
+[RL] conflict=0.000355516, trend=0, action=0.158152, ratio: 1.07672 → 1.09254 (change: 1.46883%), reward=1
+[Reward-Final] conflict_chg=-27.9596% fpure_improv=25.5863% raw=7.15382 reward=0.999999
+[RL] conflict=0.000350726, trend=0, action=-0.0925273, ratio: 0.966484 → 0.957231 (change: -0.95736%), reward=0.999999
+[Reward-Final] conflict_chg=-35.7921% fpure_improv=33.8259% raw=12.107 reward=1
+[RL] conflict=0.000240734, trend=0, action=0.101417, ratio: 1.03934 → 1.04948 (change: 0.975783%), reward=1
+[Reward-Final] conflict_chg=-36.9997% fpure_improv=27.0749% raw=10.0176 reward=1
+[RL] conflict=0.000253085, trend=0, action=-0.0801489, ratio: 0.969169 → 0.961154 (change: -0.826985%), reward=1
+[Reward-Final] conflict_chg=-40.6327% fpure_improv=25.8841% raw=10.5174 reward=1
+[RL] conflict=0.000317947, trend=0, action=-0.0993692, ratio: 0.961814 → 0.951877 (change: -1.03314%), reward=1
+[Reward-Final] conflict_chg=-31.324% fpure_improv=26.5389% raw=8.31304 reward=1
+[RL] conflict=0.000420079, trend=0, action=0.0497715, ratio: 1.02511 → 1.03008 (change: 0.485526%), reward=1
+[Reward-Final] conflict_chg=-42.7999% fpure_improv=32.8671% raw=14.0671 reward=1
+[RL] conflict=0.000259061, trend=0, action=-0.0550267, ratio: 0.969638 → 0.964135 (change: -0.567498%), reward=1
+[Reward-Final] conflict_chg=-29.5547% fpure_improv=31.4937% raw=9.30789 reward=1
+[RL] conflict=0.000324133, trend=0, action=0.023887, ratio: 1.01447 → 1.01686 (change: 0.235463%), reward=1
+[Reward-Final] conflict_chg=-45.5448% fpure_improv=31.8425% raw=14.5026 reward=1
+[RL] conflict=0.000265412, trend=0, action=0.0756804, ratio: 1.00721 → 1.01477 (change: 0.75139%), reward=1
+[Reward-Final] conflict_chg=-27.8656% fpure_improv=28.4717% raw=7.93384 reward=1
+[RL] conflict=0.000356036, trend=0, action=0.088626, ratio: 1.02019 → 1.02905 (change: 0.868723%), reward=1
+[Reward-Final] conflict_chg=-36.3788% fpure_improv=30.6904% raw=11.1648 reward=1
+[RL] conflict=0.000294604, trend=0, action=-0.0790962, ratio: 0.969193 → 0.961283 (change: -0.816104%), reward=1
+[Reward-Final] conflict_chg=-25.9218% fpure_improv=31.5139% raw=8.16896 reward=1
+[RL] conflict=0.000319711, trend=0, action=-0.0218208, ratio: 0.999802 → 0.99762 (change: -0.218251%), reward=1
+[Reward-Final] conflict_chg=-38.2094% fpure_improv=36.6236% raw=13.9936 reward=1
+[RL] conflict=0.000331333, trend=0, action=0.135836, ratio: 1.05421 → 1.06779 (change: 1.28852%), reward=1
+[Reward-Final] conflict_chg=-20.3002% fpure_improv=31.203% raw=6.33427 reward=0.999994
+[RL] conflict=0.000337195, trend=0, action=0.00421053, ratio: 0.974189 → 0.97461 (change: 0.0432209%), reward=0.999994
+[Reward-Final] conflict_chg=-39.8887% fpure_improv=29.6173% raw=11.8139 reward=1
+[RL] conflict=0.000277883, trend=0, action=-0.0713145, ratio: 0.999608 → 0.992477 (change: -0.713425%), reward=1
+[Reward-Final] conflict_chg=-32.4903% fpure_improv=31.0422% raw=10.0857 reward=1
+[RL] conflict=0.000285745, trend=0, action=-0.0173802, ratio: 1.00067 → 0.998937 (change: -0.173685%), reward=1
+[Reward-Final] conflict_chg=-36.4724% fpure_improv=35.7467% raw=13.0377 reward=1
+[RL] conflict=0.000301211, trend=0, action=-0.143935, ratio: 0.940162 → 0.925769 (change: -1.53096%), reward=1
+[Reward-Final] conflict_chg=-26.6739% fpure_improv=31.9615% raw=8.52538 reward=1
+[RL] conflict=0.000307136, trend=0, action=0.249055, ratio: 1.09413 → 1.11903 (change: 2.27629%), reward=1
+[Reward-Final] conflict_chg=-38.4062% fpure_improv=31.8237% raw=12.2223 reward=1
+[RL] conflict=0.000304417, trend=0, action=-0.0887984, ratio: 0.974208 → 0.965328 (change: -0.911494%), reward=1
+[Reward-Final] conflict_chg=-30.092% fpure_improv=30.7927% raw=9.26613 reward=1
+[RL] conflict=0.000371045, trend=0, action=0.0961149, ratio: 1.03377 → 1.04338 (change: 0.92975%), reward=1
+[Reward-Final] conflict_chg=-36.3718% fpure_improv=31.0953% raw=11.3099 reward=1
+[RL] conflict=0.000288485, trend=0, action=-0.148835, ratio: 0.943508 → 0.928624 (change: -1.57747%), reward=1
+[Reward-Final] conflict_chg=-41.932% fpure_improv=40.0288% raw=16.7849 reward=1
+[RL] conflict=0.000291841, trend=0, action=-0.159812, ratio: 0.935122 → 0.919141 (change: -1.70899%), reward=1
+[Reward-Final] conflict_chg=-32.6624% fpure_improv=38.3207% raw=12.5165 reward=1
+[RL] conflict=0.000371863, trend=0, action=0.0456334, ratio: 1.00521 → 1.00978 (change: 0.453967%), reward=1
+[Reward-Final] conflict_chg=-36.6921% fpure_improv=32.1045% raw=11.7798 reward=1
+[RL] conflict=0.000256176, trend=0, action=-0.0995694, ratio: 0.947468 → 0.937511 (change: -1.0509%), reward=1
+[Reward-Final] conflict_chg=-22.6282% fpure_improv=40.9296% raw=9.26162 reward=1
+[RL] conflict=0.000364569, trend=0, action=0.0178309, ratio: 1.01631 → 1.0181 (change: 0.175446%), reward=1
+[Reward-Final] conflict_chg=-43.2682% fpure_improv=31.1584% raw=13.4817 reward=1
+[RL] conflict=0.000294982, trend=0, action=0.0577795, ratio: 1.04521 → 1.05099 (change: 0.552801%), reward=1
+[Reward-Final] conflict_chg=-29.7687% fpure_improv=28.4925% raw=8.48185 reward=1
+[RL] conflict=0.000259373, trend=0, action=-0.0576097, ratio: 0.974984 → 0.969223 (change: -0.590878%), reward=1
+[Reward-Final] conflict_chg=-47.7663% fpure_improv=40.9989% raw=19.5836 reward=1
+[RL] conflict=0.000286249, trend=0, action=0.0420738, ratio: 1.01751 → 1.02172 (change: 0.413497%), reward=1
+[Reward-Final] conflict_chg=-39.5613% fpure_improv=33.9799% raw=13.4429 reward=1
+[RL] conflict=0.000260247, trend=0, action=-0.104813, ratio: 0.965089 → 0.954608 (change: -1.08604%), reward=1
+[Reward-Final] conflict_chg=-41.9317% fpure_improv=26.0907% raw=10.9403 reward=1
+[RL] conflict=0.00028156, trend=0, action=-0.00431224, ratio: 1.0087 → 1.00827 (change: -0.0427505%), reward=1
+[Reward-Final] conflict_chg=-28.6025% fpure_improv=30.2237% raw=8.64473 reward=1
+[RL] conflict=0.000320324, trend=0, action=0.104175, ratio: 1.05108 → 1.0615 (change: 0.991126%), reward=1
+[Reward-Final] conflict_chg=-32.9712% fpure_improv=33.3273% raw=10.9884 reward=1
+[RL] conflict=0.000312282, trend=0, action=0.0210771, ratio: 1.00582 → 1.00793 (change: 0.209551%), reward=1
+[Reward-Final] conflict_chg=-35.0756% fpure_improv=25.5394% raw=8.95808 reward=1
+[RL] conflict=0.000250291, trend=0, action=0.0350292, ratio: 0.998441 → 1.00194 (change: 0.350839%), reward=1
+[Reward-Final] conflict_chg=-31.9751% fpure_improv=30.6645% raw=9.80502 reward=1
+[RL] conflict=0.000302991, trend=0, action=-0.0147684, ratio: 0.979884 → 0.978408 (change: -0.150715%), reward=1
+[Reward-Final] conflict_chg=-34.0671% fpure_improv=27.4245% raw=9.34273 reward=1
+[RL] conflict=0.000355134, trend=0, action=-0.0459527, ratio: 0.977333 → 0.972738 (change: -0.470185%), reward=1
+[Reward-Final] conflict_chg=-37.7188% fpure_improv=38.7963% raw=14.6335 reward=1
+[RL] conflict=0.000308747, trend=0, action=0.0129313, ratio: 1.01822 → 1.01951 (change: 0.126999%), reward=1
+[Reward-Final] conflict_chg=-27.7923% fpure_improv=41.6314% raw=11.5703 reward=1
+[RL] conflict=0.000357805, trend=0, action=-0.00702714, ratio: 0.986395 → 0.985692 (change: -0.0712406%), reward=1
+[Reward-Final] conflict_chg=-30.9372% fpure_improv=39.8009% raw=12.3133 reward=1
+[RL] conflict=0.000333788, trend=0, action=-0.00165386, ratio: 0.991574 → 0.991409 (change: -0.0166791%), reward=1
+[Reward-Final] conflict_chg=-35.4164% fpure_improv=31.8133% raw=11.2671 reward=1
+[RL] conflict=0.000287277, trend=0, action=0.0245517, ratio: 1.00909 → 1.01154 (change: 0.243306%), reward=1
+[Reward-Final] conflict_chg=-37.0924% fpure_improv=34.8912% raw=12.942 reward=1
+[RL] conflict=0.00028775, trend=0, action=-0.136484, ratio: 0.948373 → 0.934725 (change: -1.43914%), reward=1
+[Reward-Final] conflict_chg=-38.071% fpure_improv=33.5386% raw=12.7685 reward=1
+[RL] conflict=0.000273989, trend=0, action=-0.0421827, ratio: 0.988771 → 0.984552 (change: -0.426618%), reward=1
+[Reward-Final] conflict_chg=-38.2118% fpure_improv=31.367% raw=11.9859 reward=1
+[RL] conflict=0.000243855, trend=0, action=0.13115, ratio: 1.04962 → 1.06273 (change: 1.2495%), reward=1
+[Reward-Final] conflict_chg=-35.2783% fpure_improv=41.8556% raw=14.766 reward=1
+[RL] conflict=0.000261967, trend=0, action=-0.00894591, ratio: 1.00117 → 1.00027 (change: -0.0893549%), reward=1
+[Reward-Final] conflict_chg=-42.3224% fpure_improv=41.6252% raw=17.6168 reward=1
+[RL] conflict=0.00029637, trend=0, action=-0.1134, ratio: 0.932523 → 0.921183 (change: -1.21606%), reward=1
+[Reward-Final] conflict_chg=-39.8701% fpure_improv=31.9121% raw=12.7234 reward=1
+[RL] conflict=0.000240072, trend=0, action=-0.0587121, ratio: 0.992021 → 0.98615 (change: -0.591844%), reward=1
+[Reward-Final] conflict_chg=-37.182% fpure_improv=23.8368% raw=8.86298 reward=1
+[RL] conflict=0.000179499, trend=0, action=-0.0163834, ratio: 0.998937 → 0.997298 (change: -0.164008%), reward=1
+[Reward-Final] conflict_chg=-23.9725% fpure_improv=28.1142% raw=6.73968 reward=0.999997
+[RL] conflict=0.000229003, trend=0, action=-0.142989, ratio: 0.925769 → 0.91147 (change: -1.54454%), reward=0.999997
+[Reward-Final] conflict_chg=-29.8635% fpure_improv=25.8329% raw=7.71459 reward=1
+[RL] conflict=0.000171031, trend=0, action=0.132101, ratio: 1.06273 → 1.07594 (change: 1.24303%), reward=1
+[Reward-Final] conflict_chg=-37.876% fpure_improv=24.1494% raw=9.14683 reward=1
+[RL] conflict=0.000190805, trend=0, action=0.249935, ratio: 1.11903 → 1.14402 (change: 2.23349%), reward=1
+[Reward-Final] conflict_chg=-40.063% fpure_improv=24.5114% raw=9.82 reward=1
+[RL] conflict=0.000182458, trend=0, action=-0.0878327, ratio: 0.965328 → 0.956545 (change: -0.909875%), reward=1
+[Reward-Final] conflict_chg=-36.1378% fpure_improv=28.9683% raw=10.4685 reward=1
+[RL] conflict=0.000236958, trend=0, action=0.097071, ratio: 1.04338 → 1.05309 (change: 0.930349%), reward=1
+[Reward-Final] conflict_chg=-23.2301% fpure_improv=25.6816% raw=5.96586 reward=0.999987
+[RL] conflict=0.00022147, trend=0, action=-0.147891, ratio: 0.928624 → 0.913835 (change: -1.59258%), reward=0.999987
+[Reward-Final] conflict_chg=-32.7498% fpure_improv=23.6853% raw=7.75688 reward=1
+[RL] conflict=0.000193194, trend=0, action=0.0255423, ratio: 1.01154 → 1.0141 (change: 0.252508%), reward=1
+[Reward-Final] conflict_chg=-28.1778% fpure_improv=27.0285% raw=7.61605 reward=1
+[RL] conflict=0.000209607, trend=0, action=-0.158879, ratio: 0.919141 → 0.903253 (change: -1.72856%), reward=1
+[Reward-Final] conflict_chg=-28.9465% fpure_improv=24.7212% raw=7.15594 reward=0.999999
+[RL] conflict=0.000264221, trend=0, action=0.0466196, ratio: 1.00978 → 1.01444 (change: 0.461683%), reward=0.999999
+[Reward-Final] conflict_chg=-37.2156% fpure_improv=29.3137% raw=10.9093 reward=1
+[RL] conflict=0.000160838, trend=0, action=-0.0985941, ratio: 0.937511 → 0.927652 (change: -1.05166%), reward=1
+[Reward-Final] conflict_chg=-36.0006% fpure_improv=24.8661% raw=8.95193 reward=1
+[RL] conflict=0.000233322, trend=0, action=0.018823, ratio: 1.0181 → 1.01998 (change: 0.184884%), reward=1
+[Reward-Final] conflict_chg=-39.2453% fpure_improv=23.8067% raw=9.34302 reward=1
+[RL] conflict=0.000179215, trend=0, action=0.0587689, ratio: 1.05099 → 1.05687 (change: 0.559177%), reward=1
+[Reward-Final] conflict_chg=-29.7642% fpure_improv=30.4495% raw=9.06306 reward=1
+[RL] conflict=0.000182173, trend=0, action=-0.0566259, ratio: 0.969223 → 0.96356 (change: -0.58424%), reward=1
+[Reward-Final] conflict_chg=-36.2747% fpure_improv=26.6681% raw=9.67377 reward=1
+[RL] conflict=0.000182413, trend=0, action=0.0430631, ratio: 1.02172 → 1.02603 (change: 0.421477%), reward=1
+[Reward-Final] conflict_chg=-32.1322% fpure_improv=28.674% raw=9.21359 reward=1
+[RL] conflict=0.000176624, trend=0, action=-0.103847, ratio: 0.954608 → 0.944223 (change: -1.08785%), reward=1
+[Reward-Final] conflict_chg=-32.942% fpure_improv=30.9377% raw=10.1915 reward=1
+[RL] conflict=0.000188808, trend=0, action=-0.00332391, ratio: 1.00827 → 1.00793 (change: -0.0329665%), reward=1
+[Reward-Final] conflict_chg=-38.5049% fpure_improv=29.9387% raw=11.5279 reward=1
+[RL] conflict=0.000196984, trend=0, action=0.105142, ratio: 1.0615 → 1.07201 (change: 0.990506%), reward=1
+[Reward-Final] conflict_chg=-37.2026% fpure_improv=25.5806% raw=9.51667 reward=1
+[RL] conflict=0.000196105, trend=0, action=0.0220787, ratio: 1.00793 → 1.01014 (change: 0.219051%), reward=1
+[Reward-Final] conflict_chg=-20.7106% fpure_improv=30.84% raw=6.38713 reward=0.999994
+[RL] conflict=0.000198454, trend=0, action=0.0360235, ratio: 1.00194 → 1.00555 (change: 0.359536%), reward=0.999994
+[Reward-Final] conflict_chg=-27.1486% fpure_improv=28.4029% raw=7.71098 reward=1
+[RL] conflict=0.000174895, trend=0, action=-0.0577341, ratio: 0.98615 → 0.980376 (change: -0.585449%), reward=1
+[Reward-Final] conflict_chg=-20.1365% fpure_improv=23.8877% raw=4.81014 reward=0.999867
+[RL] conflict=0.00024198, trend=0, action=-0.0137763, ratio: 0.978408 → 0.97703 (change: -0.140803%), reward=0.999867
+[Reward-Final] conflict_chg=-39.947% fpure_improv=27.4366% raw=10.9601 reward=1
+[RL] conflict=0.000164539, trend=0, action=-0.0411951, ratio: 0.984552 → 0.980433 (change: -0.418414%), reward=1
+[Reward-Final] conflict_chg=-37.347% fpure_improv=25.7217% raw=9.60627 reward=1
+[RL] conflict=0.00016413, trend=0, action=-0.00795696, ratio: 1.00027 → 0.999476 (change: -0.079548%), reward=1
+[Reward-Final] conflict_chg=-38.2362% fpure_improv=30.2114% raw=11.5517 reward=1
+[RL] conflict=0.000219344, trend=0, action=-0.0449675, ratio: 0.972738 → 0.968241 (change: -0.462278%), reward=1
+[Reward-Final] conflict_chg=-35.3448% fpure_improv=27.3401% raw=9.66331 reward=1
+[RL] conflict=0.000199621, trend=0, action=0.0139024, ratio: 1.01951 → 1.0209 (change: 0.136363%), reward=1
+[Reward-Final] conflict_chg=-38.3024% fpure_improv=26.2241% raw=10.0444 reward=1
+[RL] conflict=0.000220757, trend=0, action=-0.00602748, ratio: 0.985692 → 0.98509 (change: -0.0611497%), reward=1
+[Reward-Final] conflict_chg=-29.0827% fpure_improv=23.4261% raw=6.81294 reward=0.999998
+[RL] conflict=0.000206705, trend=0, action=-0.00724088, ratio: 1.00077 → 1.00004 (change: -0.0723534%), reward=0.999998
+[Reward-Final] conflict_chg=-27.7173% fpure_improv=25.7923% raw=7.14893 reward=0.999999
+[RL] conflict=0.000263236, trend=0, action=-0.101525, ratio: 0.956451 → 0.946299 (change: -1.06148%), reward=0.999999
+[Reward-Final] conflict_chg=-38.7141% fpure_improv=23.5613% raw=9.12155 reward=1
+[RL] conflict=0.000178712, trend=0, action=-0.102686, ratio: 0.947252 → 0.936984 (change: -1.08404%), reward=1
+[Reward-Final] conflict_chg=-34.3636% fpure_improv=27.6779% raw=9.51114 reward=1
+[RL] conflict=0.000162634, trend=0, action=-0.00818218, ratio: 0.992004 → 0.991186 (change: -0.0824813%), reward=1
+[Reward-Final] conflict_chg=-37.8435% fpure_improv=23.9177% raw=9.0513 reward=1
+[RL] conflict=0.000191463, trend=0, action=-0.174446, ratio: 0.918962 → 0.901517 (change: -1.89829%), reward=1
+[Reward-Final] conflict_chg=-35.4372% fpure_improv=23.4674% raw=8.31618 reward=1
+[RL] conflict=0.000229531, trend=0, action=0.159107, ratio: 1.09254 → 1.10845 (change: 1.4563%), reward=1
+[Reward-Final] conflict_chg=-31.7082% fpure_improv=25.2372% raw=8.00226 reward=1
+[RL] conflict=0.000202397, trend=0, action=-0.112448, ratio: 0.921183 → 0.909938 (change: -1.2207%), reward=1
+[Reward-Final] conflict_chg=-14.5837% fpure_improv=30.9403% raw=4.51223 reward=0.999759
+[RL] conflict=0.000299578, trend=0, action=-0.0915519, ratio: 0.957231 → 0.948076 (change: -0.956424%), reward=0.999759
+[Reward-Final] conflict_chg=-27.673% fpure_improv=27.2485% raw=7.54048 reward=0.999999
+[RL] conflict=0.000174116, trend=0, action=0.102389, ratio: 1.04948 → 1.05972 (change: 0.975622%), reward=0.999999
+[Reward-Final] conflict_chg=-29.3471% fpure_improv=30.785% raw=9.03452 reward=1
+[RL] conflict=0.000178812, trend=0, action=-0.0791686, ratio: 0.961154 → 0.953238 (change: -0.823683%), reward=1
+[Reward-Final] conflict_chg=-17.0197% fpure_improv=30.6761% raw=5.22098 reward=0.999942
+[RL] conflict=0.000263833, trend=0, action=-0.0983928, ratio: 0.951877 → 0.942038 (change: -1.03367%), reward=0.999942
+[Reward-Final] conflict_chg=-29.5953% fpure_improv=30.4678% raw=9.01703 reward=1
+[RL] conflict=0.000295755, trend=0, action=0.0507518, ratio: 1.03008 → 1.03516 (change: 0.492696%), reward=1
+[Reward-Final] conflict_chg=-35.8962% fpure_improv=27.8558% raw=9.99918 reward=1
+[RL] conflict=0.000166068, trend=0, action=-0.054038, ratio: 0.964135 → 0.958731 (change: -0.560481%), reward=1
+[Reward-Final] conflict_chg=-38.7417% fpure_improv=23.8254% raw=9.23037 reward=1
+[RL] conflict=0.000198559, trend=0, action=0.0248671, ratio: 1.01686 → 1.01934 (change: 0.244549%), reward=1
+[Reward-Final] conflict_chg=-20.5267% fpure_improv=23.9173% raw=4.90943 reward=0.999891
+[RL] conflict=0.000210932, trend=0, action=0.0766617, ratio: 1.01477 → 1.02244 (change: 0.755457%), reward=0.999891
+[Reward-Final] conflict_chg=-40.5419% fpure_improv=29.8873% raw=12.1169 reward=1
+[RL] conflict=0.000211692, trend=0, action=0.0895854, ratio: 1.02905 → 1.03801 (change: 0.870565%), reward=1
+[Reward-Final] conflict_chg=-30.7855% fpure_improv=23.8917% raw=7.35516 reward=0.999999
+[RL] conflict=0.000203909, trend=0, action=-0.0781243, ratio: 0.961283 → 0.953471 (change: -0.812709%), reward=0.999999
+[Reward-Final] conflict_chg=-38.4925% fpure_improv=24.9451% raw=9.60201 reward=1
+[RL] conflict=0.000196646, trend=0, action=-0.0208281, ratio: 0.99762 → 0.995537 (change: -0.208778%), reward=1
+[Reward-Final] conflict_chg=-34.0029% fpure_improv=24.9421% raw=8.48104 reward=1
+[RL] conflict=0.00021867, trend=0, action=0.136776, ratio: 1.06779 → 1.08147 (change: 1.28093%), reward=1
+[Reward-Final] conflict_chg=-28.0572% fpure_improv=24.6849% raw=6.92591 reward=0.999998
+[RL] conflict=0.000240136, trend=0, action=-0.000664365, ratio: 0.991409 → 0.991343 (change: -0.00670122%), reward=0.999998
+[Reward-Final] conflict_chg=-33.0489% fpure_improv=25.3643% raw=8.38261 reward=1
+[RL] conflict=0.000225755, trend=0, action=0.00519488, ratio: 0.97461 → 0.975129 (change: 0.0533022%), reward=1
+[Reward-Final] conflict_chg=-42.3798% fpure_improv=25.2642% raw=10.7069 reward=1
+[RL] conflict=0.000165802, trend=0, action=-0.135517, ratio: 0.934725 → 0.921173 (change: -1.44981%), reward=1
+[Reward-Final] conflict_chg=-21.4351% fpure_improv=29.4741% raw=6.31781 reward=0.999993
+[RL] conflict=0.000218318, trend=0, action=-0.0703208, ratio: 0.992477 → 0.985445 (change: -0.708538%), reward=0.999993
+[Reward-Final] conflict_chg=-29.4587% fpure_improv=15.1586% raw=4.46553 reward=0.999736
+[RL] conflict=0.000124593, trend=0, action=-0.10288, ratio: 0.944223 → 0.933935 (change: -1.08957%), reward=0.999736
+[Reward-Final] conflict_chg=-25.0203% fpure_improv=15.9562% raw=3.9923 reward=0.999319
+[RL] conflict=0.000141568, trend=0, action=-0.00233476, ratio: 1.00793 → 1.0077 (change: -0.0231638%), reward=0.999319
+[Reward-Final] conflict_chg=-23.1975% fpure_improv=15.5897% raw=3.61643 reward=0.998556
+[RL] conflict=0.000151288, trend=0, action=0.10611, ratio: 1.07201 → 1.08262 (change: 0.989817%), reward=0.998556
+[Reward-Final] conflict_chg=-33.6921% fpure_improv=11.123% raw=3.74757 reward=0.998889
+[RL] conflict=0.000130033, trend=0, action=0.0230749, ratio: 1.01014 → 1.01244 (change: 0.228433%), reward=0.998889
+[Reward-Final] conflict_chg=-38.8964% fpure_improv=17.3719% raw=6.75706 reward=0.999997
+[RL] conflict=0.0001334, trend=0, action=-0.069321, ratio: 0.985445 → 0.978513 (change: -0.703449%), reward=0.999997
+[Reward-Final] conflict_chg=-27.0683% fpure_improv=17.4722% raw=4.72942 reward=0.999844
+[RL] conflict=0.000127554, trend=0, action=-0.0567543, ratio: 0.980376 → 0.974701 (change: -0.578903%), reward=0.999844
+[Reward-Final] conflict_chg=-37.8923% fpure_improv=11.8066% raw=4.47379 reward=0.99974
+[RL] conflict=0.000150288, trend=0, action=-0.012783, ratio: 0.97703 → 0.975752 (change: -0.130835%), reward=0.99974
+[Reward-Final] conflict_chg=-14.2935% fpure_improv=17.4401% raw=2.4928 reward=0.986422
+[RL] conflict=0.00014102, trend=0, action=-0.0402081, ratio: 0.980433 → 0.976412 (change: -0.410106%), reward=0.986422
+[Reward-Final] conflict_chg=-37.2563% fpure_improv=13.6473% raw=5.08447 reward=0.999923
+[RL] conflict=0.000102981, trend=0, action=-0.00696765, ratio: 0.999476 → 0.998779 (change: -0.069713%), reward=0.999923
+[Reward-Final] conflict_chg=-37.7354% fpure_improv=17.0202% raw=6.42265 reward=0.999995
+[RL] conflict=0.000136574, trend=0, action=-0.0439819, ratio: 0.968241 → 0.963843 (change: -0.454245%), reward=0.999995
+[Reward-Final] conflict_chg=-30.7319% fpure_improv=14.3102% raw=4.3978 reward=0.999697
+[RL] conflict=0.000138274, trend=0, action=0.0148816, ratio: 1.0209 → 1.02239 (change: 0.145769%), reward=0.999697
+[Reward-Final] conflict_chg=-29.0469% fpure_improv=13.7784% raw=4.00219 reward=0.999332
+[RL] conflict=0.000156634, trend=0, action=-0.00503298, ratio: 0.98509 → 0.984586 (change: -0.0510916%), reward=0.999332
+[Reward-Final] conflict_chg=-30.3634% fpure_improv=11.5374% raw=3.50315 reward=0.998189
+[RL] conflict=0.000143942, trend=0, action=-0.00624778, ratio: 1.00004 → 0.999416 (change: -0.0624753%), reward=0.998189
+[Reward-Final] conflict_chg=-29.8522% fpure_improv=10.8838% raw=3.24907 reward=0.996992
+[RL] conflict=0.000184654, trend=0, action=-0.100552, ratio: 0.946299 → 0.936244 (change: -1.06258%), reward=0.996992
+[Reward-Final] conflict_chg=-23.3854% fpure_improv=11.2675% raw=2.63493 reward=0.989764
+[RL] conflict=0.00013692, trend=0, action=-0.101712, ratio: 0.936984 → 0.926813 (change: -1.08553%), reward=0.989764
+[Reward-Final] conflict_chg=-29.7186% fpure_improv=14.5819% raw=4.33353 reward=0.999656
+[RL] conflict=0.000114301, trend=0, action=-0.00719236, ratio: 0.991186 → 0.990466 (change: -0.0725631%), reward=0.999656
+[Reward-Final] conflict_chg=-42.4715% fpure_improv=11.3941% raw=4.83926 reward=0.999875
+[RL] conflict=0.000110146, trend=0, action=-0.17352, ratio: 0.901517 → 0.884165 (change: -1.92475%), reward=0.999875
+[Reward-Final] conflict_chg=-41.8946% fpure_improv=11.4476% raw=4.79592 reward=0.999863
+[RL] conflict=0.00013337, trend=0, action=0.160058, ratio: 1.10845 → 1.12445 (change: 1.44398%), reward=0.999863
+[Reward-Final] conflict_chg=-35.6429% fpure_improv=13.4767% raw=4.80349 reward=0.999865
+[RL] conflict=0.000130257, trend=0, action=-0.111493, ratio: 0.909938 → 0.898789 (change: -1.22528%), reward=0.999865
+[Reward-Final] conflict_chg=-27.3001% fpure_improv=16.1032% raw=4.39617 reward=0.999696
+[RL] conflict=0.000217793, trend=0, action=-0.0905752, ratio: 0.948076 → 0.939018 (change: -0.955358%), reward=0.999696
+[Reward-Final] conflict_chg=-35.3206% fpure_improv=17.429% raw=6.15602 reward=0.999991
+[RL] conflict=0.000112617, trend=0, action=0.103362, ratio: 1.05972 → 1.07005 (change: 0.975369%), reward=0.999991
+[Reward-Final] conflict_chg=-32.2563% fpure_improv=15.84% raw=5.10939 reward=0.999927
+[RL] conflict=0.000121134, trend=0, action=-0.0781887, ratio: 0.953238 → 0.945419 (change: -0.820243%), reward=0.999927
+[Reward-Final] conflict_chg=-23.1529% fpure_improv=16.5243% raw=3.82584 reward=0.99905
+[RL] conflict=0.000202748, trend=0, action=-0.0974153, ratio: 0.942038 → 0.932297 (change: -1.03409%), reward=0.99905
+[Reward-Final] conflict_chg=-29.9563% fpure_improv=16.776% raw=5.02548 reward=0.999914
+[RL] conflict=0.000207158, trend=0, action=0.0517332, ratio: 1.03516 → 1.04033 (change: 0.499761%), reward=0.999914
+[Reward-Final] conflict_chg=-27.236% fpure_improv=17.4605% raw=4.75556 reward=0.999852
+[RL] conflict=0.000120838, trend=0, action=-0.0530514, ratio: 0.958731 → 0.953426 (change: -0.55335%), reward=0.999852
+[Reward-Final] conflict_chg=-22.9546% fpure_improv=12.5669% raw=2.88469 reward=0.993776
+[RL] conflict=0.00015298, trend=0, action=0.0258527, ratio: 1.01934 → 1.02193 (change: 0.253622%), reward=0.993776
+[Reward-Final] conflict_chg=-26.9429% fpure_improv=12.6873% raw=3.41832 reward=0.997855
+[RL] conflict=0.000154101, trend=0, action=0.0776428, ratio: 1.02244 → 1.0302 (change: 0.759387%), reward=0.997855
+[Reward-Final] conflict_chg=-31.4107% fpure_improv=17.2264% raw=5.41092 reward=0.99996
+[RL] conflict=0.000145198, trend=0, action=0.0905527, ratio: 1.03801 → 1.04706 (change: 0.87237%), reward=0.99996
+[Reward-Final] conflict_chg=-12.2259% fpure_improv=11.1112% raw=1.35845 reward=0.876032
+[RL] conflict=0.000178979, trend=0, action=-0.0771478, ratio: 0.953471 → 0.945756 (change: -0.809126%), reward=0.876032
+[Reward-Final] conflict_chg=-28.9123% fpure_improv=11.7849% raw=3.40728 reward=0.997807
+[RL] conflict=0.000139791, trend=0, action=-0.0198373, ratio: 0.995537 → 0.993553 (change: -0.199262%), reward=0.997807
+[Reward-Final] conflict_chg=-45.1264% fpure_improv=11.9798% raw=5.40607 reward=0.99996
+[RL] conflict=0.000119992, trend=0, action=0.137718, ratio: 1.08147 → 1.09524 (change: 1.27343%), reward=0.99996
+[Reward-Final] conflict_chg=-30.5638% fpure_improv=12.8877% raw=3.93898 reward=0.999242
+[RL] conflict=0.000166741, trend=0, action=0.000325237, ratio: 0.991343 → 0.991375 (change: 0.00328077%), reward=0.999242
+[Reward-Final] conflict_chg=-14.2706% fpure_improv=11.3399% raw=1.61826 reward=0.924372
+[RL] conflict=0.000193539, trend=0, action=0.00618321, ratio: 0.975129 → 0.975748 (change: 0.0634091%), reward=0.924372
+[Reward-Final] conflict_chg=-30.8727% fpure_improv=11.5107% raw=3.55366 reward=0.998363
+[RL] conflict=0.000114614, trend=0, action=-0.134557, ratio: 0.921173 → 0.907718 (change: -1.46072%), reward=0.998363
+[Reward-Final] conflict_chg=-19.7498% fpure_improv=16.2937% raw=3.21797 reward=0.996799
+[RL] conflict=0.00015926, trend=0, action=0.037016, ratio: 1.00555 → 1.00925 (change: 0.368119%), reward=0.996799
+[Reward-Final] conflict_chg=-29.8463% fpure_improv=12.2399% raw=3.65315 reward=0.998658
+[RL] conflict=0.000125925, trend=0, action=-0.0153902, ratio: 0.997298 → 0.995759 (change: -0.154319%), reward=0.998658
+[Reward-Final] conflict_chg=-47.0048% fpure_improv=14.8756% raw=6.99223 reward=0.999998
+[RL] conflict=0.000121361, trend=0, action=-0.142044, ratio: 0.91147 → 0.897265 (change: -1.5584%), reward=0.999998
+[Reward-Final] conflict_chg=-31.211% fpure_improv=10.8391% raw=3.38298 reward=0.997698
+[RL] conflict=0.000117651, trend=0, action=0.133053, ratio: 1.07594 → 1.08925 (change: 1.23661%), reward=0.997698
+[Reward-Final] conflict_chg=-27.6888% fpure_improv=12.5632% raw=3.4786 reward=0.998098
+[RL] conflict=0.000137974, trend=0, action=0.25081, ratio: 1.14402 → 1.16911 (change: 2.19234%), reward=0.998098
+[Reward-Final] conflict_chg=-36.716% fpure_improv=12.2313% raw=4.49083 reward=0.999749
+[RL] conflict=0.000115467, trend=0, action=-0.0868626, ratio: 0.956545 → 0.947858 (change: -0.908088%), reward=0.999749
+[Reward-Final] conflict_chg=-38.1527% fpure_improv=17.4502% raw=6.65773 reward=0.999997
+[RL] conflict=0.000146552, trend=0, action=0.0980319, ratio: 1.05309 → 1.06289 (change: 0.930897%), reward=0.999997
+[Reward-Final] conflict_chg=-35.8686% fpure_improv=11.0008% raw=3.94583 reward=0.999253
+[RL] conflict=0.000142032, trend=0, action=-0.146947, ratio: 0.913835 → 0.899141 (change: -1.60803%), reward=0.999253
+[Reward-Final] conflict_chg=-19.4849% fpure_improv=11.089% raw=2.16068 reward=0.973785
+[RL] conflict=0.00015555, trend=0, action=0.0265317, ratio: 1.0141 → 1.01675 (change: 0.261629%), reward=0.973785
+[Reward-Final] conflict_chg=-40.9041% fpure_improv=14.0849% raw=5.7613 reward=0.99998
+[RL] conflict=0.000123869, trend=0, action=-0.157946, ratio: 0.903253 → 0.887459 (change: -1.74863%), reward=0.99998
+[Reward-Final] conflict_chg=-14.7099% fpure_improv=12.4589% raw=1.83269 reward=0.950088
+[RL] conflict=0.000225355, trend=0, action=0.0476055, ratio: 1.01444 → 1.0192 (change: 0.469279%), reward=0.950088
+[Reward-Final] conflict_chg=-22.9028% fpure_improv=13.2297% raw=3.02997 reward=0.995342
+[RL] conflict=0.000179885, trend=0, action=0.0198135, ratio: 1.01998 → 1.02196 (change: 0.194254%), reward=0.995342
+[Reward-Final] conflict_chg=-26.2201% fpure_improv=11.0135% raw=2.88774 reward=0.993814
+[RL] conflict=0.000132225, trend=0, action=0.0597545, ratio: 1.05687 → 1.06284 (change: 0.565393%), reward=0.993814
+[Reward-Final] conflict_chg=-27.9968% fpure_improv=15.7281% raw=4.40337 reward=0.999701
+[RL] conflict=0.00013117, trend=0, action=-0.055642, ratio: 0.96356 → 0.957996 (change: -0.577462%), reward=0.999701
+[Reward-Final] conflict_chg=-32.3355% fpure_improv=13.9127% raw=4.49875 reward=0.999753
+[RL] conflict=0.000123429, trend=0, action=0.044051, ratio: 1.02603 → 1.03043 (change: 0.429336%), reward=0.999753
+[Reward-Final] conflict_chg=-19.8802% fpure_improv=15.4017% raw=3.06188 reward=0.995629
+[RL] conflict=0.000128863, trend=0, action=-0.0976215, ratio: 0.927652 → 0.91789 (change: -1.05235%), reward=0.995629
+[Reward-Final] conflict_chg=-22.7805% fpure_improv=13.7387% raw=3.12974 reward=0.996183
+[RL] conflict=0.000120115, trend=0, action=0.0274951, ratio: 1.01675 → 1.0195 (change: 0.270421%), reward=0.996183
+[Reward-Final] conflict_chg=-22.1581% fpure_improv=8.04614% raw=1.78287 reward=0.945003
+[RL] conflict=9.64219e-05, trend=0, action=-0.157007, ratio: 0.887459 → 0.871758 (change: -1.76917%), reward=0.945003
+[Reward-Final] conflict_chg=-25.9344% fpure_improv=7.61388% raw=1.97461 reward=0.962189
+[RL] conflict=9.14184e-05, trend=0, action=0.0450378, ratio: 1.03043 → 1.03493 (change: 0.437077%), reward=0.962189
+[Reward-Final] conflict_chg=-26.9806% fpure_improv=6.01906% raw=1.62398 reward=0.925199
+[RL] conflict=0.000164553, trend=0, action=0.0485421, ratio: 1.0192 → 1.02405 (change: 0.476276%), reward=0.925199
+[Reward-Final] conflict_chg=-31.8842% fpure_improv=5.97783% raw=1.90598 reward=0.956747
+[RL] conflict=0.00012253, trend=0, action=0.0207993, ratio: 1.02196 → 1.02404 (change: 0.203523%), reward=0.956747
+[Reward-Final] conflict_chg=-18.6709% fpure_improv=13.0078% raw=2.42867 reward=0.984578
+[RL] conflict=0.000107537, trend=0, action=0.0607327, ratio: 1.06284 → 1.06892 (change: 0.571418%), reward=0.984578
+[Reward-Final] conflict_chg=-36.0891% fpure_improv=11.2259% raw=4.05132 reward=0.999395
+[RL] conflict=8.3832e-05, trend=0, action=-0.0546582, ratio: 0.957996 → 0.95253 (change: -0.570547%), reward=0.999395
+[Reward-Final] conflict_chg=-29.5875% fpure_improv=7.21991% raw=2.13619 reward=0.972487
+[RL] conflict=9.15597e-05, trend=0, action=0.0240669, ratio: 1.01244 → 1.01485 (change: 0.237711%), reward=0.972487
+[Reward-Final] conflict_chg=-31.5097% fpure_improv=9.46207% raw=2.98147 reward=0.994869
+[RL] conflict=8.53339e-05, trend=0, action=-0.101912, ratio: 0.933935 → 0.923744 (change: -1.09121%), reward=0.994869
+[Reward-Final] conflict_chg=-21.2423% fpure_improv=12.7687% raw=2.71237 reward=0.991226
+[RL] conflict=0.000111496, trend=0, action=-0.00134597, ratio: 1.0077 → 1.00757 (change: -0.0133568%), reward=0.991226
+[Reward-Final] conflict_chg=-32.5761% fpure_improv=10.5269% raw=3.42926 reward=0.997901
+[RL] conflict=0.000102005, trend=0, action=0.107075, ratio: 1.08262 → 1.09333 (change: 0.989036%), reward=0.997901
+[Reward-Final] conflict_chg=-14.3206% fpure_improv=9.93642% raw=1.42295 reward=0.890213
+[RL] conflict=0.000110409, trend=0, action=-0.0966533, ratio: 0.91789 → 0.908224 (change: -1.053%), reward=0.890213
+[Reward-Final] conflict_chg=-38.147% fpure_improv=13.5481% raw=5.16819 reward=0.999935
+[RL] conflict=8.2512e-05, trend=0, action=-0.0683287, ratio: 0.978513 → 0.97168 (change: -0.698291%), reward=0.999935
+[Reward-Final] conflict_chg=-33.9822% fpure_improv=12.2698% raw=4.16956 reward=0.999522
+[RL] conflict=8.42084e-05, trend=0, action=-0.0557742, ratio: 0.974701 → 0.969123 (change: -0.572219%), reward=0.999522
+[Reward-Final] conflict_chg=-29.8251% fpure_improv=10.2565% raw=3.05902 reward=0.995604
+[RL] conflict=0.000105464, trend=0, action=-0.0117917, ratio: 0.975752 → 0.974572 (change: -0.120848%), reward=0.995604
+[Reward-Final] conflict_chg=-26.281% fpure_improv=11.3886% raw=2.99304 reward=0.994986
+[RL] conflict=0.000103959, trend=0, action=-0.0392343, ratio: 0.976412 → 0.972489 (change: -0.401821%), reward=0.994986
+[Reward-Final] conflict_chg=-19.7128% fpure_improv=6.65696% raw=1.31227 reward=0.864849
+[RL] conflict=8.26807e-05, trend=0, action=-0.005978, ratio: 0.998779 → 0.998181 (change: -0.0598531%), reward=0.864849
+[Reward-Final] conflict_chg=-16.4872% fpure_improv=14.4572% raw=2.38359 reward=0.983135
+[RL] conflict=0.000114057, trend=0, action=-0.0429958, ratio: 0.963843 → 0.959543 (change: -0.446087%), reward=0.983135
+[Reward-Final] conflict_chg=-21.2435% fpure_improv=8.41834% raw=1.78835 reward=0.945586
+[RL] conflict=0.000108899, trend=0, action=0.0158659, ratio: 1.02239 → 1.02398 (change: 0.155184%), reward=0.945586
+[Reward-Final] conflict_chg=-32.9863% fpure_improv=7.13515% raw=2.35362 reward=0.982102
+[RL] conflict=0.000104966, trend=0, action=-0.00404001, ratio: 0.984586 → 0.984182 (change: -0.0410325%), reward=0.982102
+[Reward-Final] conflict_chg=-36.5466% fpure_improv=14.735% raw=5.38514 reward=0.999958
+[RL] conflict=9.1336e-05, trend=0, action=-0.00525697, ratio: 0.999416 → 0.99889 (change: -0.0526005%), reward=0.999958
+[Reward-Final] conflict_chg=-17.486% fpure_improv=7.66585% raw=1.34045 reward=0.87178
+[RL] conflict=0.000152366, trend=0, action=-0.0995828, ratio: 0.936244 → 0.926285 (change: -1.06364%), reward=0.87178
+[Reward-Final] conflict_chg=-30.1298% fpure_improv=14.2754% raw=4.30116 reward=0.999633
+[RL] conflict=9.56659e-05, trend=0, action=-0.100749, ratio: 0.926813 → 0.916738 (change: -1.08704%), reward=0.999633
+[Reward-Final] conflict_chg=-35.8296% fpure_improv=8.74949% raw=3.13491 reward=0.996222
+[RL] conflict=7.33476e-05, trend=0, action=-0.00620283, ratio: 0.990466 → 0.989846 (change: -0.0626254%), reward=0.996222
+[Reward-Final] conflict_chg=-24.1624% fpure_improv=11.176% raw=2.7004 reward=0.991015
+[RL] conflict=8.35318e-05, trend=0, action=-0.172589, ratio: 0.884165 → 0.866907 (change: -1.952%), reward=0.991015
+[Reward-Final] conflict_chg=-32.4433% fpure_improv=14.6056% raw=4.73853 reward=0.999847
+[RL] conflict=9.01003e-05, trend=0, action=0.161002, ratio: 1.12445 → 1.14055 (change: 1.43183%), reward=0.999847
+[Reward-Final] conflict_chg=-30.3183% fpure_improv=6.24794% raw=1.89427 reward=0.955744
+[RL] conflict=9.07649e-05, trend=0, action=-0.110533, ratio: 0.898789 → 0.887735 (change: -1.2298%), reward=0.955744
+[Reward-Final] conflict_chg=-28.4066% fpure_improv=13.479% raw=3.82891 reward=0.999056
+[RL] conflict=0.000155925, trend=0, action=-0.0895989, ratio: 0.939018 → 0.930058 (change: -0.954177%), reward=0.999056
+[Reward-Final] conflict_chg=-29.5229% fpure_improv=11.243% raw=3.31924 reward=0.997385
+[RL] conflict=7.93691e-05, trend=0, action=0.104332, ratio: 1.07005 → 1.08049 (change: 0.975016%), reward=0.997385
+[Reward-Final] conflict_chg=-24.9731% fpure_improv=11.9938% raw=2.99523 reward=0.995008
+[RL] conflict=9.0883e-05, trend=0, action=-0.0772095, ratio: 0.945419 → 0.937698 (change: -0.81667%), reward=0.995008
+[Reward-Final] conflict_chg=-29.4692% fpure_improv=14.4348% raw=4.25381 reward=0.999596
+[RL] conflict=0.000143, trend=0, action=-0.0964385, ratio: 0.932297 → 0.922653 (change: -1.03442%), reward=0.999596
+[Reward-Final] conflict_chg=-23.8584% fpure_improv=14.5754% raw=3.47745 reward=0.998094
+[RL] conflict=0.000157733, trend=0, action=0.0527159, ratio: 1.04033 → 1.0456 (change: 0.506722%), reward=0.998094
+[Reward-Final] conflict_chg=-20.291% fpure_improv=11.7424% raw=2.38265 reward=0.983103
+[RL] conflict=9.63185e-05, trend=0, action=-0.0520658, ratio: 0.953426 → 0.948219 (change: -0.546091%), reward=0.983103
+[Reward-Final] conflict_chg=-36.2202% fpure_improv=8.89482% raw=3.22172 reward=0.996823
+[RL] conflict=9.75705e-05, trend=0, action=0.0268314, ratio: 1.02193 → 1.02461 (change: 0.262557%), reward=0.996823
+[Reward-Final] conflict_chg=-28.7285% fpure_improv=8.55118% raw=2.45663 reward=0.98541
+[RL] conflict=0.00010983, trend=0, action=0.0786209, ratio: 1.0302 → 1.03807 (change: 0.763159%), reward=0.98541
+[Reward-Final] conflict_chg=-23.2019% fpure_improv=14.0961% raw=3.27057 reward=0.997118
+[RL] conflict=0.000111509, trend=0, action=0.091523, ratio: 1.04706 → 1.05622 (change: 0.874093%), reward=0.997118
+[Reward-Final] conflict_chg=-27.8383% fpure_improv=12.1272% raw=3.37601 reward=0.997666
+[RL] conflict=0.000129154, trend=0, action=-0.0762939, ratio: 0.945756 → 0.938126 (change: -0.806698%), reward=0.997666
+[Reward-Final] conflict_chg=-31.704% fpure_improv=8.40938% raw=2.66611 reward=0.99038
+[RL] conflict=9.54718e-05, trend=0, action=-0.0188489, ratio: 0.993553 → 0.991668 (change: -0.189712%), reward=0.99038
+[Reward-Final] conflict_chg=-28.9968% fpure_improv=6.32156% raw=1.83305 reward=0.950124
+[RL] conflict=8.51981e-05, trend=0, action=0.138666, ratio: 1.09524 → 1.10911 (change: 1.26608%), reward=0.950124
+[Reward-Final] conflict_chg=-19.0146% fpure_improv=5.89647% raw=1.12119 reward=0.807981
+[RL] conflict=0.000135036, trend=0, action=0.00131432, ratio: 0.991375 → 0.991507 (change: 0.0132575%), reward=0.807981
+[Reward-Final] conflict_chg=-3.42292% fpure_improv=8.38692% raw=0.287077 reward=0.279443
+[RL] conflict=0.000186914, trend=0, action=0.00709793, ratio: 0.975748 → 0.976457 (change: 0.0727435%), reward=0.279443
+[Reward-Final] conflict_chg=-21.7743% fpure_improv=6.74689% raw=1.46909 reward=0.899404
+[RL] conflict=8.96578e-05, trend=0, action=-0.133601, ratio: 0.907718 → 0.894357 (change: -1.47184%), reward=0.899404
+[Reward-Final] conflict_chg=-22.2995% fpure_improv=14.0545% raw=3.13409 reward=0.996216
+[RL] conflict=0.000123746, trend=0, action=0.0380048, ratio: 1.00925 → 1.01305 (change: 0.376565%), reward=0.996216
+[Reward-Final] conflict_chg=-39.168% fpure_improv=9.47122% raw=3.70969 reward=0.998802
+[RL] conflict=7.66027e-05, trend=0, action=-0.0143985, ratio: 0.995759 → 0.994319 (change: -0.144598%), reward=0.998802
+[Reward-Final] conflict_chg=-15.9861% fpure_improv=9.08088% raw=1.45168 reward=0.896024
+[RL] conflict=0.00010196, trend=0, action=-0.141094, ratio: 0.897265 → 0.883156 (change: -1.57249%), reward=0.896024
+[Reward-Final] conflict_chg=-21.9503% fpure_improv=8.02614% raw=1.76176 reward=0.9427
+[RL] conflict=9.1826e-05, trend=0, action=0.134004, ratio: 1.08925 → 1.10265 (change: 1.23024%), reward=0.9427
+[Reward-Final] conflict_chg=-34.4771% fpure_improv=8.40764% raw=2.89871 reward=0.993948
+[RL] conflict=9.04042e-05, trend=0, action=0.251682, ratio: 1.16911 → 1.19427 (change: 2.15277%), reward=0.993948
+[Reward-Final] conflict_chg=-28.9122% fpure_improv=8.38999% raw=2.42573 reward=0.984487
+[RL] conflict=8.20828e-05, trend=0, action=-0.08589, ratio: 0.947858 → 0.939269 (change: -0.906148%), reward=0.984487
+[Reward-Final] conflict_chg=-28.1163% fpure_improv=12.9038% raw=3.62809 reward=0.998589
+[RL] conflict=0.000105347, trend=0, action=0.0989982, ratio: 1.06289 → 1.07279 (change: 0.931403%), reward=0.998589
+[Reward-Final] conflict_chg=-27.8735% fpure_improv=8.26779% raw=2.30452 reward=0.980274
+[RL] conflict=0.000102443, trend=0, action=-0.146001, ratio: 0.899141 → 0.88454 (change: -1.62379%), reward=0.980274
+[Reward-Final] conflict_chg=-39.3713% fpure_improv=9.64145% raw=3.79596 reward=0.998991
+[RL] conflict=5.53758e-05, trend=0, action=-0.00426524, ratio: 0.99889 → 0.998464 (change: -0.0426997%), reward=0.998991
+[Reward-Final] conflict_chg=-15.0065% fpure_improv=6.6899% raw=1.00392 reward=0.763235
+[RL] conflict=0.000129501, trend=0, action=-0.0987356, ratio: 0.926285 → 0.916412 (change: -1.06593%), reward=0.763235
+[Reward-Final] conflict_chg=-0.479757% fpure_improv=9.67023% raw=0.0463936 reward=0.0463603
+[RL] conflict=8.9668e-05, trend=0, action=0.161942, ratio: 1.14055 → 1.15675 (change: 1.41985%), reward=0.0463603
+[Reward-Final] conflict_chg=-30.7358% fpure_improv=2.95385% raw=0.90789 reward=0.720118
+[RL] conflict=6.28676e-05, trend=0, action=-0.109614, ratio: 0.887735 → 0.876774 (change: -1.23475%), reward=0.720118
+[Reward-Final] conflict_chg=-20.7735% fpure_improv=7.3325% raw=1.52322 reward=0.909257
+[RL] conflict=6.28813e-05, trend=0, action=0.105299, ratio: 1.08049 → 1.09102 (change: 0.97455%), reward=0.909257
+[Reward-Final] conflict_chg=-25.4391% fpure_improv=1.94126% raw=0.49384 reward=0.457259
+[RL] conflict=6.77632e-05, trend=0, action=-0.0762351, ratio: 0.937698 → 0.930074 (change: -0.813003%), reward=0.457259
+[Reward-Final] conflict_chg=-26.1072% fpure_improv=2.71655% raw=0.709215 reward=0.610185
+[RL] conflict=0.000105667, trend=0, action=-0.095463, ratio: 0.922653 → 0.913106 (change: -1.03466%), reward=0.610185
+[Reward-Final] conflict_chg=-15.1762% fpure_improv=3.6479% raw=0.553613 reward=0.503223
+[RL] conflict=0.000133795, trend=0, action=0.0536976, ratio: 1.0456 → 1.05097 (change: 0.513556%), reward=0.503223
+[Reward-Final] conflict_chg=-18.8298% fpure_improv=7.9037% raw=1.48825 reward=0.903002
+[RL] conflict=7.91982e-05, trend=0, action=0.0278156, ratio: 1.02461 → 1.02739 (change: 0.271474%), reward=0.903002
+[Reward-Final] conflict_chg=-18.114% fpure_improv=5.49555% raw=0.995465 reward=0.759683
+[RL] conflict=9.13105e-05, trend=0, action=0.0924917, ratio: 1.05622 → 1.06547 (change: 0.875689%), reward=0.759683
+[Reward-Final] conflict_chg=-17.2626% fpure_improv=4.66338% raw=0.80502 reward=0.666834
+[RL] conflict=7.41805e-05, trend=0, action=-0.13274, ratio: 0.894357 → 0.881083 (change: -1.4842%), reward=0.666834
+[Reward-Final] conflict_chg=-19.1019% fpure_improv=8.23295% raw=1.57265 reward=0.917446
+[RL] conflict=6.19701e-05, trend=0, action=-0.0134091, ratio: 0.994319 → 0.992979 (change: -0.134857%), reward=0.917446
+[Reward-Final] conflict_chg=-7.43666% fpure_improv=7.37585% raw=0.548517 reward=0.499408
+[RL] conflict=8.49972e-05, trend=0, action=0.134904, ratio: 1.10265 → 1.11614 (change: 1.22345%), reward=0.499408
+[Reward-Final] conflict_chg=-29.3112% fpure_improv=7.67332% raw=2.24914 reward=0.977989
+[RL] conflict=6.39057e-05, trend=0, action=0.252548, ratio: 1.19427 → 1.21953 (change: 2.11465%), reward=0.977989
+[Reward-Final] conflict_chg=-32.5074% fpure_improv=7.75191% raw=2.51995 reward=0.987134
+[RL] conflict=5.53998e-05, trend=0, action=-0.0849314, ratio: 0.939269 → 0.930776 (change: -0.904229%), reward=0.987134
+[Reward-Final] conflict_chg=-28.8557% fpure_improv=9.71461% raw=2.80322 reward=0.992679
+[RL] conflict=8.5455e-05, trend=0, action=0.0284804, ratio: 1.0195 → 1.02235 (change: 0.279357%), reward=0.992679
+[Reward-Final] conflict_chg=-21.861% fpure_improv=6.85415% raw=1.49838 reward=0.904856
+[RL] conflict=7.14334e-05, trend=0, action=0.045987, ratio: 1.03493 → 1.03953 (change: 0.444347%), reward=0.904856
+[Reward-Final] conflict_chg=-9.29597% fpure_improv=9.61808% raw=0.894093 reward=0.71341
+[RL] conflict=9.75407e-05, trend=0, action=0.0617008, ratio: 1.06892 → 1.07509 (change: 0.577228%), reward=0.71341
+[Reward-Final] conflict_chg=-18.091% fpure_improv=2.93469% raw=0.530913 reward=0.486079
+[RL] conflict=6.8666e-05, trend=0, action=-0.0536745, ratio: 0.95253 → 0.947163 (change: -0.563494%), reward=0.486079
+[Reward-Final] conflict_chg=-11.9991% fpure_improv=7.3476% raw=0.881645 reward=0.707243
+[RL] conflict=7.50946e-05, trend=0, action=-0.100947, ratio: 0.923744 → 0.913649 (change: -1.09281%), reward=0.707243
+[Reward-Final] conflict_chg=-16.2871% fpure_improv=5.89325% raw=0.95984 reward=0.744205
+[RL] conflict=9.24268e-05, trend=0, action=-0.0957873, ratio: 0.908224 → 0.898646 (change: -1.05467%), reward=0.744205
+[Reward-Final] conflict_chg=-18.6538% fpure_improv=6.21732% raw=1.15977 reward=0.820964
+[RL] conflict=6.71204e-05, trend=0, action=-0.0673443, ratio: 0.97168 → 0.964946 (change: -0.693071%), reward=0.820964
+[Reward-Final] conflict_chg=-34.5592% fpure_improv=7.31221% raw=2.52704 reward=0.987315
+[RL] conflict=6.80314e-05, trend=0, action=-0.0382519, ratio: 0.972489 → 0.968663 (change: -0.39334%), reward=0.987315
+[Reward-Final] conflict_chg=-30.8121% fpure_improv=4.03886% raw=1.24446 reward=0.846722
+[RL] conflict=5.7205e-05, trend=0, action=-0.00512209, ratio: 0.998181 → 0.997669 (change: -0.0513143%), reward=0.846722
+[Reward-Final] conflict_chg=-17.2748% fpure_improv=9.3945% raw=1.62288 reward=0.925041
+[RL] conflict=0.000106843, trend=0, action=-0.075319, ratio: 0.938126 → 0.930595 (change: -0.802866%), reward=0.925041
+[Reward-Final] conflict_chg=-24.5712% fpure_improv=7.86596% raw=1.93276 reward=0.958956
+[RL] conflict=7.20132e-05, trend=0, action=-0.0178684, ratio: 0.991668 → 0.989881 (change: -0.180185%), reward=0.958956
+[Reward-Final] conflict_chg=-21.8118% fpure_improv=3.59748% raw=0.784673 reward=0.655381
+[RL] conflict=6.66149e-05, trend=0, action=0.139569, ratio: 1.10911 → 1.12306 (change: 1.25839%), reward=0.655381
+[Reward-Final] conflict_chg=-29.0612% fpure_improv=6.73905% raw=1.95845 reward=0.960971
+[RL] conflict=7.47317e-05, trend=0, action=0.099964, ratio: 1.07279 → 1.08279 (change: 0.931811%), reward=0.960971
+[Reward-Final] conflict_chg=-10.0687% fpure_improv=2.74603% raw=0.276489 reward=0.269652
+[RL] conflict=0.000147984, trend=0, action=0.0494538, ratio: 1.02405 → 1.029 (change: 0.482922%), reward=0.269652
+[Reward-Final] conflict_chg=-24.5739% fpure_improv=1.46015% raw=0.358815 reward=0.34417
+[RL] conflict=8.40968e-05, trend=0, action=-0.00036514, ratio: 1.00757 → 1.00753 (change: -0.00362398%), reward=0.34417
+[Reward-Final] conflict_chg=-29.9981% fpure_improv=8.79716% raw=2.63898 reward=0.989846
+[RL] conflict=7.62317e-05, trend=0, action=0.016796, ratio: 1.02398 → 1.02566 (change: 0.164027%), reward=0.989846
+[Reward-Final] conflict_chg=-25.405% fpure_improv=2.34598% raw=0.595996 reward=0.534194
+[Reward-Final] conflict_chg=-13.7351% fpure_improv=8.64201% raw=1.18699 reward=0.829643
+[RL] conflict=9.09786e-05, trend=0, action=-0.0108058, ratio: 0.974572 → 0.973492 (change: -0.110877%), reward=0.829643
+[Reward-Final] conflict_chg=-23.3031% fpure_improv=7.77165% raw=1.81103 reward=0.947937
+[RL] conflict=7.85704e-05, trend=0, action=-0.145072, ratio: 0.88454 → 0.870033 (change: -1.64009%), reward=0.947937
+[Reward-Final] conflict_chg=0.216413% fpure_improv=7.23931% raw=-0.0156668 reward=-0.0156655
+[RL] conflict=9.65269e-05, trend=0, action=-0.0510977, ratio: 0.948219 → 0.94311 (change: -0.53888%), reward=-0.0156655
+[Reward-Final] conflict_chg=-21.8199% fpure_improv=1.95133% raw=0.425777 reward=0.401786
+[RL] conflict=9.67445e-05, trend=0, action=0.0389917, ratio: 1.01305 → 1.01695 (change: 0.384895%), reward=0.401786
+[Reward-Final] conflict_chg=-37.6485% fpure_improv=8.42245% raw=3.17093 reward=0.996484
+[RL] conflict=6.35734e-05, trend=0, action=-0.140243, ratio: 0.883156 → 0.869132 (change: -1.58798%), reward=0.996484
+[RL] conflict=9.14011e-05, trend=0, action=0.0217463, ratio: 1.02404 → 1.02622 (change: 0.212358%), reward=0.534194
+[Reward-Final] conflict_chg=-8.93757% fpure_improv=2.28801% raw=0.204492 reward=0.201689
+[RL] conflict=0.000122967, trend=0, action=0.00211415, ratio: 0.991507 → 0.991718 (change: 0.0213226%), reward=0.201689
+[Reward-Final] conflict_chg=-15.5623% fpure_improv=7.90818% raw=1.2307 reward=0.842781
+[RL] conflict=0.000157826, trend=0, action=0.00737309, ratio: 0.976457 → 0.977195 (change: 0.0755085%), reward=0.842781
+[Reward-Final] conflict_chg=-30.7112% fpure_improv=4.32706% raw=1.32889 reward=0.868978
+[RL] conflict=7.06777e-05, trend=0, action=0.10804, ratio: 1.09333 → 1.10413 (change: 0.988176%), reward=0.868978
+[Reward-Final] conflict_chg=-14.9946% fpure_improv=5.74977% raw=0.862154 reward=0.697366
+[RL] conflict=7.78307e-05, trend=0, action=0.02503, ratio: 1.01485 → 1.01735 (change: 0.246637%), reward=0.697366
+[Reward-Final] conflict_chg=-24.0195% fpure_improv=7.06646% raw=1.69732 reward=0.935074
+[RL] conflict=6.3982e-05, trend=0, action=-0.0547923, ratio: 0.969123 → 0.963644 (change: -0.56538%), reward=0.935074
+[Reward-Final] conflict_chg=-26.5595% fpure_improv=4.61211% raw=1.22495 reward=0.84111
+[RL] conflict=8.37637e-05, trend=0, action=-0.0420261, ratio: 0.959543 → 0.955341 (change: -0.437981%), reward=0.84111
+[Reward-Final] conflict_chg=-30.3099% fpure_improv=5.42345% raw=1.64384 reward=0.928008
+[RL] conflict=7.31508e-05, trend=0, action=-0.00306549, ratio: 0.984182 → 0.983876 (change: -0.0311476%), reward=0.928008
+[Reward-Final] conflict_chg=-20.108% fpure_improv=9.71345% raw=1.95318 reward=0.960566
+[RL] conflict=7.64294e-05, trend=0, action=-0.0997769, ratio: 0.916738 → 0.90676 (change: -1.08839%), reward=0.960566
+[Reward-Final] conflict_chg=-24.5738% fpure_improv=8.93137% raw=2.19478 reward=0.975492
+[RL] conflict=5.53233e-05, trend=0, action=-0.00521666, ratio: 0.989846 → 0.989325 (change: -0.0527017%), reward=0.975492
+[Reward-Final] conflict_chg=-17.1277% fpure_improv=9.05341% raw=1.55064 reward=0.913891
+[RL] conflict=6.92247e-05, trend=0, action=-0.171666, ratio: 0.866907 → 0.84974 (change: -1.98021%), reward=0.913891
+[Reward-Final] conflict_chg=-14.5071% fpure_improv=1.49087% raw=0.216282 reward=0.212971
+[RL] conflict=0.000133305, trend=0, action=-0.0886246, ratio: 0.930058 → 0.921196 (change: -0.952893%), reward=0.212971
+[Reward-Final] conflict_chg=-19.5542% fpure_improv=7.71188% raw=1.508 reward=0.906583
+[RL] conflict=8.83535e-05, trend=0, action=0.0795855, ratio: 1.03807 → 1.04602 (change: 0.766671%), reward=0.906583
+[Reward-Final] conflict_chg=-27.1985% fpure_improv=8.05638% raw=2.19121 reward=0.975318
+[RL] conflict=7.01965e-05, trend=0, action=-0.156119, ratio: 0.871758 → 0.856146 (change: -1.79085%), reward=0.975318
+[Reward-Final] conflict_chg=-16.9884% fpure_improv=4.34332% raw=0.737862 reward=0.627852
+[RL] conflict=0.000131014, trend=0, action=0.008206, ratio: 0.977195 → 0.978015 (change: 0.083975%), reward=0.627852
+[Reward-Final] conflict_chg=-16.9099% fpure_improv=4.1805% raw=0.706919 reward=0.608741
+[RL] conflict=7.3413e-05, trend=0, action=0.0804725, ratio: 1.04602 → 1.05407 (change: 0.769317%), reward=0.608741
+[Reward-Final] conflict_chg=-5.91417% fpure_improv=-2.52619% raw=-0.149403 reward=-0.148301
+[RL] conflict=8.04011e-05, trend=0, action=0.0294617, ratio: 1.02235 → 1.02529 (change: 0.288177%), reward=-0.148301
+[Reward-Final] conflict_chg=-8.06386% fpure_improv=3.93715% raw=0.317486 reward=0.307232
+[RL] conflict=6.56731e-05, trend=0, action=0.0468792, ratio: 1.03953 → 1.04422 (change: 0.450964%), reward=0.307232
+[Reward-Final] conflict_chg=-17.0047% fpure_improv=5.52203% raw=0.939003 reward=0.734764
+[RL] conflict=5.86592e-05, trend=0, action=0.108881, ratio: 1.10413 → 1.11502 (change: 0.986117%), reward=0.734764
+[Reward-Final] conflict_chg=-26.843% fpure_improv=5.3727% raw=1.4422 reward=0.894139
+[RL] conflict=5.02339e-05, trend=0, action=-0.053196, ratio: 0.947163 → 0.941843 (change: -0.561635%), reward=0.894139
+[Reward-Final] conflict_chg=-28.3889% fpure_improv=5.83238% raw=1.65575 reward=0.929643
+[RL] conflict=5.3776e-05, trend=0, action=-0.100262, ratio: 0.913649 → 0.903623 (change: -1.09738%), reward=0.929643
+[Reward-Final] conflict_chg=-24.7778% fpure_improv=5.70693% raw=1.41405 reward=0.888352
+[RL] conflict=6.95254e-05, trend=0, action=-0.0950628, ratio: 0.898646 → 0.889139 (change: -1.05784%), reward=0.888352
+[Reward-Final] conflict_chg=-13.7642% fpure_improv=1.13413% raw=0.156104 reward=0.154848
+[RL] conflict=6.71179e-05, trend=0, action=0.0257207, ratio: 1.01735 → 1.01992 (change: 0.252819%), reward=0.154848
+[Reward-Final] conflict_chg=-26.3922% fpure_improv=5.82642% raw=1.53772 reward=0.911737
+[RL] conflict=4.6795e-05, trend=0, action=-0.139296, ratio: 0.869132 → 0.855202 (change: -1.6027%), reward=0.911737
+[Reward-Final] conflict_chg=-17.0332% fpure_improv=7.00914% raw=1.19388 reward=0.831779
+[RL] conflict=5.64434e-05, trend=0, action=-0.0372771, ratio: 0.968663 → 0.964936 (change: -0.38483%), reward=0.831779
+[Reward-Final] conflict_chg=-27.9975% fpure_improv=7.94417% raw=2.22417 reward=0.976875
+[RL] conflict=4.60686e-05, trend=0, action=-0.0538735, ratio: 0.963644 → 0.958257 (change: -0.55906%), reward=0.976875
+[Reward-Final] conflict_chg=-21.8775% fpure_improv=8.29016% raw=1.81368 reward=0.948204
+[RL] conflict=6.54383e-05, trend=0, action=-0.0411964, ratio: 0.955341 → 0.951221 (change: -0.431222%), reward=0.948204
+[Reward-Final] conflict_chg=-27.975% fpure_improv=1.21214% raw=0.339095 reward=0.326669
+[RL] conflict=6.55273e-05, trend=0, action=-0.00998354, ratio: 0.973492 → 0.972494 (change: -0.102554%), reward=0.326669
+[Reward-Final] conflict_chg=-15.8414% fpure_improv=-3.28629% raw=-0.520595 reward=-0.478159
+[RL] conflict=4.66035e-05, trend=0, action=-0.00327582, ratio: 0.998464 → 0.998136 (change: -0.0328086%), reward=-0.478159
+[Reward-Final] conflict_chg=-10.1988% fpure_improv=-2.95779% raw=-0.301658 reward=-0.292829
+[RL] conflict=6.86346e-05, trend=0, action=-0.0988438, ratio: 0.90676 → 0.896876 (change: -1.09008%), reward=-0.292829
+[Reward-Final] conflict_chg=-22.8553% fpure_improv=5.64731% raw=1.29071 reward=0.859312
+[RL] conflict=4.2679e-05, trend=0, action=-0.00425099, ratio: 0.989325 → 0.988899 (change: -0.0429686%), reward=0.859312
+[Reward-Final] conflict_chg=-9.73805% fpure_improv=1.98535% raw=0.193334 reward=0.190961
+[RL] conflict=0.00011689, trend=0, action=-0.0979939, ratio: 0.916412 → 0.906612 (change: -1.06932%), reward=0.190961
+[Reward-Final] conflict_chg=-5.9177% fpure_improv=-3.19838% raw=-0.18927 reward=-0.187042
+[RL] conflict=8.43617e-05, trend=0, action=0.161986, ratio: 1.15675 → 1.17295 (change: 1.40036%), reward=-0.187042
+[Reward-Final] conflict_chg=-21.5693% fpure_improv=0.05828% raw=0.0125706 reward=0.0125699
+[RL] conflict=5.42934e-05, trend=0, action=-0.170814, ratio: 0.84974 → 0.832658 (change: -2.01019%), reward=0.0125699
+[Reward-Final] conflict_chg=-16.5008% fpure_improv=1.19725% raw=0.197556 reward=0.195025
+[RL] conflict=5.24939e-05, trend=0, action=-0.108919, ratio: 0.876774 → 0.865882 (change: -1.24227%), reward=0.195025
+[Reward-Final] conflict_chg=-42.4348% fpure_improv=6.81741% raw=2.89295 reward=0.993878
+[RL] conflict=3.61977e-05, trend=0, action=0.10618, ratio: 1.09102 → 1.10164 (change: 0.973224%), reward=0.993878
+[Reward-Final] conflict_chg=-10.3886% fpure_improv=7.09581% raw=0.737156 reward=0.627424
+[RL] conflict=9.46894e-05, trend=0, action=-0.0948686, ratio: 0.913106 → 0.90362 (change: -1.03897%), reward=0.627424
+[Reward-Final] conflict_chg=-19.7402% fpure_improv=3.69109% raw=0.728628 reward=0.622225
+[RL] conflict=6.30604e-05, trend=0, action=-0.144173, ratio: 0.870033 → 0.855616 (change: -1.6571%), reward=0.622225
+[Reward-Final] conflict_chg=-24.8618% fpure_improv=7.75013% raw=1.92682 reward=0.958476
+[RL] conflict=0.000100531, trend=0, action=0.0541916, ratio: 1.05097 → 1.05639 (change: 0.515633%), reward=0.958476
+[Reward-Final] conflict_chg=-12.475% fpure_improv=5.89392% raw=0.735268 reward=0.626277
+[RL] conflict=0.000116675, trend=0, action=-0.0884163, ratio: 0.921196 → 0.912354 (change: -0.959799%), reward=0.626277
+[Reward-Final] conflict_chg=-15.29% fpure_improv=3.37913% raw=0.516669 reward=0.475125
+[RL] conflict=6.70888e-05, trend=0, action=0.0287073, ratio: 1.02739 → 1.03026 (change: 0.279419%), reward=0.475125
+[Reward-Final] conflict_chg=-18.9375% fpure_improv=2.08891% raw=0.395588 reward=0.376167
+[RL] conflict=4.63718e-05, trend=0, action=-0.00428398, ratio: 0.997669 → 0.997241 (change: -0.0429399%), reward=0.376167
+[Reward-Final] conflict_chg=-17.3058% fpure_improv=0.469015% raw=0.0811666 reward=0.0809888
+[RL] conflict=7.55834e-05, trend=0, action=0.022275, ratio: 1.02622 → 1.02844 (change: 0.21706%), reward=0.0809888
+[Reward-Final] conflict_chg=-18.1163% fpure_improv=-0.00943592% raw=-0.00170944 reward=-0.00170944
+[RL] conflict=0.00010069, trend=0, action=0.0023137, ratio: 0.991718 → 0.991949 (change: 0.0233302%), reward=-0.00170944
+[Reward-Final] conflict_chg=-28.4418% fpure_improv=8.60999% raw=2.44883 reward=0.985183
+[RL] conflict=6.53402e-05, trend=0, action=0.0932283, ratio: 1.06547 → 1.07479 (change: 0.875001%), reward=0.985183
+[Reward-Final] conflict_chg=-8.83016% fpure_improv=7.42853% raw=0.655951 reward=0.575663
+[RL] conflict=8.80034e-05, trend=0, action=-0.0511127, ratio: 0.94311 → 0.937998 (change: -0.541959%), reward=0.575663
+[Reward-Final] conflict_chg=-38.1982% fpure_improv=0.431535% raw=0.164839 reward=0.163362
+[RL] conflict=4.58449e-05, trend=0, action=-0.1321, ratio: 0.881083 → 0.867873 (change: -1.49929%), reward=0.163362
+[Reward-Final] conflict_chg=-15.5145% fpure_improv=6.44316% raw=0.999624 reward=0.761436
+[RL] conflict=8.17351e-05, trend=0, action=0.0393902, ratio: 1.01695 → 1.02089 (change: 0.387338%), reward=0.761436
+[Reward-Final] conflict_chg=-28.9429% fpure_improv=2.35685% raw=0.682142 reward=0.59291
+[RL] conflict=4.40342e-05, trend=0, action=-0.0124999, ratio: 0.992979 → 0.991729 (change: -0.125883%), reward=0.59291
+[Reward-Final] conflict_chg=-19.8215% fpure_improv=2.874% raw=0.569669 reward=0.515116
+[RL] conflict=6.81494e-05, trend=0, action=0.13538, ratio: 1.11614 → 1.12968 (change: 1.21293%), reward=0.515116
+[Reward-Final] conflict_chg=-10.5615% fpure_improv=4.69282% raw=0.495631 reward=0.458674
+[RL] conflict=5.71563e-05, trend=0, action=0.253398, ratio: 1.21953 → 1.24487 (change: 2.07783%), reward=0.458674
+[Reward-Final] conflict_chg=-30.1301% fpure_improv=3.03812% raw=0.915387 reward=0.723708
+[RL] conflict=5.11104e-05, trend=0, action=-0.00214521, ratio: 0.983876 → 0.983661 (change: -0.0218036%), reward=0.723708
+[Reward-Final] conflict_chg=-8.47494% fpure_improv=-0.181675% raw=-0.0153968 reward=-0.0153956
+[RL] conflict=0.000135443, trend=0, action=0.0497195, ratio: 1.029 → 1.03397 (change: 0.483183%), reward=-0.0153956
+[Reward-Final] conflict_chg=-13.9251% fpure_improv=8.64441% raw=1.20374 reward=0.834792
+[RL] conflict=5.77738e-05, trend=0, action=-0.0665366, ratio: 0.964946 → 0.958292 (change: -0.689538%), reward=0.834792
+[Reward-Final] conflict_chg=-26.562% fpure_improv=5.51964% raw=1.46613 reward=0.898836
+[RL] conflict=6.1759e-05, trend=0, action=-2.48048e-05, ratio: 1.00753 → 1.00753 (change: -0.000246194%), reward=0.898836
+[Reward-Final] conflict_chg=-16.6044% fpure_improv=5.35128% raw=0.88855 reward=0.710677
+[RL] conflict=5.65114e-05, trend=0, action=-0.0757872, ratio: 0.930074 → 0.922496 (change: -0.814851%), reward=0.710677
+[Reward-Final] conflict_chg=-1.68329% fpure_improv=-0.997218% raw=-0.0167861 reward=-0.0167845
+[RL] conflict=0.000105045, trend=0, action=-0.0744135, ratio: 0.930595 → 0.923153 (change: -0.799634%), reward=-0.0167845
+[Reward-Final] conflict_chg=-19.1526% fpure_improv=-0.0277057% raw=-0.00530638 reward=-0.00530633
+[RL] conflict=5.38564e-05, trend=0, action=0.140191, ratio: 1.12306 → 1.13708 (change: 1.2483%), reward=-0.00530633
+[Reward-Final] conflict_chg=-22.3616% fpure_improv=4.88461% raw=1.09228 reward=0.797708
+[RL] conflict=4.30115e-05, trend=0, action=-0.0839689, ratio: 0.930776 → 0.922379 (change: -0.902139%), reward=0.797708
+[Reward-Final] conflict_chg=-26.2672% fpure_improv=-1.87272% raw=-0.49191 reward=-0.455731
+[RL] conflict=7.19195e-05, trend=0, action=0.0624031, ratio: 1.07509 → 1.08133 (change: 0.580447%), reward=-0.455731
+[Reward-Final] conflict_chg=-30.5035% fpure_improv=4.6991% raw=1.43339 reward=0.89236
+[RL] conflict=4.87841e-05, trend=0, action=-0.155201, ratio: 0.856146 → 0.840626 (change: -1.81279%), reward=0.89236
+[Reward-Final] conflict_chg=-9.01687% fpure_improv=8.39597% raw=0.757053 reward=0.639338
+[RL] conflict=6.79933e-05, trend=0, action=0.100896, ratio: 1.08279 → 1.09288 (change: 0.931813%), reward=0.639338
+[Reward-Final] conflict_chg=-17.1371% fpure_improv=5.27398% raw=0.903804 reward=0.718145
+[RL] conflict=6.31678e-05, trend=0, action=0.0177731, ratio: 1.02566 → 1.02744 (change: 0.173285%), reward=0.718145
+[Reward-Final] conflict_chg=-22.5886% fpure_improv=4.75829% raw=1.07483 reward=0.791275
+[RL] conflict=5.57464e-05, trend=0, action=-0.0169192, ratio: 0.989881 → 0.988189 (change: -0.170921%), reward=0.791275
+[Reward-Final] conflict_chg=-35.4529% fpure_improv=2.86414% raw=1.01542 reward=0.767995
+[RL] conflict=5.27576e-05, trend=0, action=0.0401455, ratio: 1.02089 → 1.0249 (change: 0.393241%), reward=0.767995
+[Reward-Final] conflict_chg=-30.0211% fpure_improv=-3.87779% raw=-1.16415 reward=-0.822389
+[RL] conflict=3.08146e-05, trend=0, action=-0.0119121, ratio: 0.991729 → 0.990537 (change: -0.120115%), reward=-0.822389
+[Reward-Final] conflict_chg=-2.59264% fpure_improv=-8.01979% raw=-0.207924 reward=-0.204979
+[RL] conflict=0.000102321, trend=0, action=-0.0744301, ratio: 0.923153 → 0.91571 (change: -0.806259%), reward=-0.204979
+[Reward-Final] conflict_chg=-2.01014% fpure_improv=-8.27629% raw=-0.166365 reward=-0.164847
+[RL] conflict=7.04738e-05, trend=0, action=0.0619554, ratio: 1.08133 → 1.08752 (change: 0.572958%), reward=-0.164847
+[Reward-Final] conflict_chg=-20.3004% fpure_improv=-8.30256% raw=-1.68545 reward=-0.933566
+[RL] conflict=4.29233e-05, trend=0, action=0.140185, ratio: 1.13708 → 1.1511 (change: 1.23285%), reward=-0.933566
+[Reward-Final] conflict_chg=-15.9405% fpure_improv=0.393026% raw=0.0626504 reward=0.0625686
+[RL] conflict=0.000110129, trend=0, action=0.00882643, ratio: 0.978015 → 0.978898 (change: 0.0902484%), reward=0.0625686
+[Reward-Final] conflict_chg=-29.6328% fpure_improv=-0.372677% raw=-0.110435 reward=-0.109988
+[RL] conflict=5.16586e-05, trend=0, action=0.0810684, ratio: 1.05407 → 1.06218 (change: 0.769098%), reward=-0.109988
+[Reward-Final] conflict_chg=-15.9764% fpure_improv=0.466818% raw=0.0745808 reward=0.0744428
+[RL] conflict=4.09901e-05, trend=0, action=-0.15436, ratio: 0.840626 → 0.82519 (change: -1.83625%), reward=0.0744428
+[Reward-Final] conflict_chg=-7.46975% fpure_improv=-7.98298% raw=-0.596308 reward=-0.534418
+[RL] conflict=7.43953e-05, trend=0, action=0.0293152, ratio: 1.02529 → 1.02822 (change: 0.285921%), reward=-0.534418
+[Reward-Final] conflict_chg=-15.3547% fpure_improv=1.31537% raw=0.201971 reward=0.199268
+[RL] conflict=3.64072e-05, trend=0, action=-0.0831906, ratio: 0.922379 → 0.91406 (change: -0.901913%), reward=0.199268
+[Reward-Final] conflict_chg=-28.0425% fpure_improv=1.7183% raw=0.481854 reward=0.447727
+[RL] conflict=4.22097e-05, trend=0, action=0.109591, ratio: 1.11502 → 1.12598 (change: 0.982856%), reward=0.447727
+[Reward-Final] conflict_chg=-12.5468% fpure_improv=-2.79467% raw=-0.35064 reward=-0.336943
+[RL] conflict=4.46977e-05, trend=0, action=-0.00142829, ratio: 0.983661 → 0.983518 (change: -0.0145201%), reward=-0.336943
+[Reward-Final] conflict_chg=-16.3909% fpure_improv=2.27143% raw=0.372309 reward=0.35601
+[RL] conflict=4.49616e-05, trend=0, action=-0.0993601, ratio: 0.903623 → 0.893687 (change: -1.09957%), reward=0.35601
+[Reward-Final] conflict_chg=-4.29471% fpure_improv=1.99827% raw=0.0858199 reward=0.0856098
+[RL] conflict=6.65395e-05, trend=0, action=-0.0941987, ratio: 0.889139 → 0.879719 (change: -1.05944%), reward=0.0856098
+[Reward-Final] conflict_chg=-16.2334% fpure_improv=-5.98555% raw=-0.97166 reward=-0.749433
+[RL] conflict=5.62223e-05, trend=0, action=0.0258749, ratio: 1.01992 → 1.02251 (change: 0.253695%), reward=-0.749433
+[Reward-Final] conflict_chg=-34.7759% fpure_improv=4.94286% raw=1.71892 reward=0.937733
+[Reward-Final] conflict_chg=-0.494704% fpure_improv=-5.67934% raw=-0.0280959 reward=-0.0280885
+[RL] conflict=6.52031e-05, trend=0, action=-0.00966019, ratio: 0.972494 → 0.971528 (change: -0.0993342%), reward=-0.0280885
+[Reward-Final] conflict_chg=-15.666% fpure_improv=0.78634% raw=0.123188 reward=0.122569
+[RL] conflict=4.82022e-05, trend=0, action=0.253796, ratio: 1.24487 → 1.27025 (change: 2.03874%), reward=0.122569
+[Reward-Final] conflict_chg=-23.7808% fpure_improv=-6.47539% raw=-1.5399 reward=-0.912103
+[RL] conflict=3.55208e-05, trend=0, action=-0.00374862, ratio: 0.998136 → 0.997761 (change: -0.0375562%), reward=-0.912103
+[Reward-Final] conflict_chg=-16.0705% fpure_improv=-7.37469% raw=-1.18515 reward=-0.829068
+[RL] conflict=5.76047e-05, trend=0, action=-0.0991271, ratio: 0.896876 → 0.886963 (change: -1.10525%), reward=-0.829068
+[Reward-Final] conflict_chg=-8.45775% fpure_improv=-4.29872% raw=-0.363575 reward=-0.348359
+[RL] conflict=0.000107004, trend=0, action=-0.0978079, ratio: 0.906612 → 0.896832 (change: -1.07883%), reward=-0.348359
+[Reward-Final] conflict_chg=-15.8355% fpure_improv=-6.7736% raw=-1.07263 reward=-0.79045
+[RL] conflict=7.10026e-05, trend=0, action=0.161812, ratio: 1.17295 → 1.18913 (change: 1.37953%), reward=-0.79045
+[Reward-Final] conflict_chg=4.42215% fpure_improv=-7.12897% raw=0.315254 reward=0.305209
+[RL] conflict=5.66944e-05, trend=0, action=-0.170802, ratio: 0.832658 → 0.815578 (change: -2.05129%), reward=0.305209
+[Reward-Final] conflict_chg=-8.02123% fpure_improv=-6.27501% raw=-0.503333 reward=-0.464734
+[RL] conflict=4.82832e-05, trend=0, action=-0.108731, ratio: 0.865882 → 0.855009 (change: -1.25572%), reward=-0.464734
+[Reward-Final] conflict_chg=-2.60984% fpure_improv=1.83415% raw=0.0478683 reward=0.0478318
+[RL] conflict=6.01472e-05, trend=0, action=0.000865014, ratio: 1.00753 → 1.00761 (change: 0.00858551%), reward=0.0478318
+[Reward-Final] conflict_chg=-20.0488% fpure_improv=5.97341% raw=1.1976 reward=0.83292
+[RL] conflict=2.89405e-05, trend=0, action=0.107143, ratio: 1.10164 → 1.11235 (change: 0.972579%), reward=0.83292
+[Reward-Final] conflict_chg=-26.1013% fpure_improv=-0.895172% raw=-0.233651 reward=-0.22949
+[RL] conflict=4.66008e-05, trend=0, action=-0.143583, ratio: 0.855616 → 0.841258 (change: -1.67813%), reward=-0.22949
+[Reward-Final] conflict_chg=-7.94891% fpure_improv=2.27325% raw=0.180699 reward=0.178757
+[RL] conflict=0.000107401, trend=0, action=-0.0878055, ratio: 0.912354 → 0.903574 (change: -0.962406%), reward=0.178757
+[Reward-Final] conflict_chg=-14.9213% fpure_improv=1.5892% raw=0.237129 reward=0.232782
+[RL] conflict=4.80792e-05, trend=0, action=-0.0750913, ratio: 0.922496 → 0.914986 (change: -0.814001%), reward=0.232782
+[Reward-Final] conflict_chg=-10.9049% fpure_improv=-7.58686% raw=-0.827341 reward=-0.679046
+[RL] conflict=6.73411e-05, trend=0, action=0.0223553, ratio: 1.02844 → 1.03068 (change: 0.21737%), reward=-0.679046
+[Reward-Final] conflict_chg=-13.2536% fpure_improv=-8.41041% raw=-1.11468 reward=-0.805711
+[RL] conflict=8.73449e-05, trend=0, action=0.00231193, ratio: 0.991949 → 0.992181 (change: 0.023307%), reward=-0.805711
+[Reward-Final] conflict_chg=-2.29345% fpure_improv=5.50511% raw=0.126257 reward=0.125591
+[RL] conflict=6.38416e-05, trend=0, action=0.0941867, ratio: 1.07479 → 1.08421 (change: 0.876328%), reward=0.125591
+[Reward-Final] conflict_chg=-20.8947% fpure_improv=6.10019% raw=1.27461 reward=0.855043
+[RL] conflict=6.96154e-05, trend=0, action=-0.0505448, ratio: 0.937998 → 0.932944 (change: -0.538858%), reward=0.855043
+[Reward-Final] conflict_chg=-21.1473% fpure_improv=-7.37649% raw=-1.55993 reward=-0.915409
+[RL] conflict=3.61499e-05, trend=0, action=-0.131943, ratio: 0.867873 → 0.854679 (change: -1.5203%), reward=-0.915409
+[Reward-Final] conflict_chg=-17.9763% fpure_improv=1.55738% raw=0.27996 reward=0.272868
+[RL] conflict=4.12037e-05, trend=0, action=-0.0523157, ratio: 0.941843 → 0.936612 (change: -0.55546%), reward=0.272868
+[Reward-Final] conflict_chg=-4.74371% fpure_improv=2.38224% raw=0.113006 reward=0.112528
+[RL] conflict=4.45751e-05, trend=0, action=-0.138427, ratio: 0.855202 → 0.841359 (change: -1.61865%), reward=0.112528
+[Reward-Final] conflict_chg=-24.2478% fpure_improv=6.15595% raw=1.49268 reward=0.903817
+[RL] conflict=3.48979e-05, trend=0, action=-0.0529128, ratio: 0.958257 → 0.952966 (change: -0.552177%), reward=0.903817
+[RL] conflict=4.26815e-05, trend=0, action=-0.0402609, ratio: 0.951221 → 0.947195 (change: -0.423255%), reward=0.937733
+[Reward-Final] conflict_chg=-17.5914% fpure_improv=6.10959% raw=1.07476 reward=0.791248
+[RL] conflict=5.60323e-05, trend=0, action=0.101515, ratio: 1.09288 → 1.10303 (change: 0.928873%), reward=0.791248
+[Reward-Final] conflict_chg=-13.9987% fpure_improv=1.55522% raw=0.217711 reward=0.214335
+[RL] conflict=5.43251e-05, trend=0, action=0.0184821, ratio: 1.02744 → 1.02928 (change: 0.179886%), reward=0.214335
+[Reward-Final] conflict_chg=-10.8884% fpure_improv=1.16871% raw=0.127254 reward=0.126571
+[RL] conflict=4.96765e-05, trend=0, action=-0.0161361, ratio: 0.988189 → 0.986576 (change: -0.163289%), reward=0.126571
+[Reward-Final] conflict_chg=-21.7837% fpure_improv=-1.03185% raw=-0.224776 reward=-0.221065
+[RL] conflict=5.1367e-05, trend=0, action=0.0471824, ratio: 1.04422 → 1.04894 (change: 0.451843%), reward=-0.221065
+[Reward-Final] conflict_chg=-32.1317% fpure_improv=5.9006% raw=1.89596 reward=0.955891
+[RL] conflict=3.921e-05, trend=0, action=-0.0657131, ratio: 0.958292 → 0.951721 (change: -0.685732%), reward=0.955891
+[Reward-Final] conflict_chg=-14.7686% fpure_improv=3.55087% raw=0.524416 reward=0.481101
+[RL] conflict=8.0705e-05, trend=0, action=-0.094257, ratio: 0.90362 → 0.894194 (change: -1.0431%), reward=0.481101
+[Reward-Final] conflict_chg=-23.0141% fpure_improv=4.26785% raw=0.982208 reward=0.75402
+[Reward-Final] conflict_chg=-4.90157% fpure_improv=-2.00961% raw=-0.0985024 reward=-0.0981851
+[Reward-Final] conflict_chg=-32.1637% fpure_improv=-4.61489% raw=-1.48432 reward=-0.902274
+[RL] conflict=3.14569e-05, trend=0, action=-0.00391172, ratio: 0.997241 → 0.996849 (change: -0.0392255%), reward=-0.902274
+[RL] conflict=7.73949e-05, trend=0, action=0.0551341, ratio: 1.05639 → 1.06191 (change: 0.521909%), reward=0.75402
+[RL] conflict=6.38004e-05, trend=0, action=0.0291767, ratio: 1.03026 → 1.03318 (change: 0.283196%), reward=-0.0981851
+[Reward-Final] conflict_chg=5.99042% fpure_improv=-8.65884% raw=0.518701 reward=0.476697
+[RL] conflict=0.000143556, trend=0, action=0.0497043, ratio: 1.03397 → 1.03894 (change: 0.480713%), reward=0.476697
+[Reward-Final] conflict_chg=-21.1862% fpure_improv=-2.52759% raw=-0.5355 reward=-0.489574
+[RL] conflict=5.37112e-05, trend=0, action=0.13587, ratio: 1.12968 → 1.14327 (change: 1.20273%), reward=-0.489574
+[Reward-Final] conflict_chg=-30.929% fpure_improv=6.01806% raw=1.86132 reward=0.952801
+[RL] conflict=3.8986e-05, trend=0, action=-0.0364557, ratio: 0.964936 → 0.96129 (change: -0.377804%), reward=0.952801
+[Reward-Final] conflict_chg=-21.8547% fpure_improv=2.18033% raw=0.476505 reward=0.44344
+[RL] conflict=3.33516e-05, trend=0, action=-0.0034003, ratio: 0.988899 → 0.988559 (change: -0.0343847%), reward=0.44344
+[Reward-Final] conflict_chg=-14.0227% fpure_improv=2.61507% raw=0.366704 reward=0.351105
+[RL] conflict=3.86568e-05, trend=0, action=-0.0990147, ratio: 0.893687 → 0.883785 (change: -1.10793%), reward=0.351105
+[Reward-Final] conflict_chg=-13.9055% fpure_improv=2.25257% raw=0.313231 reward=0.303374
+[RL] conflict=5.72868e-05, trend=0, action=-0.094115, ratio: 0.879719 → 0.870308 (change: -1.06983%), reward=0.303374
+[Reward-Final] conflict_chg=-19.483% fpure_improv=8.37552% raw=1.63181 reward=0.926318
+[RL] conflict=4.52685e-05, trend=0, action=0.0251351, ratio: 1.02251 → 1.02503 (change: 0.245818%), reward=0.926318
+[Reward-Final] conflict_chg=3.366% fpure_improv=-5.31799% raw=0.179004 reward=0.177116
+[RL] conflict=3.67164e-05, trend=0, action=-0.00465164, ratio: 0.997761 → 0.997296 (change: -0.0466208%), reward=0.177116
+[Reward-Final] conflict_chg=-3.78433% fpure_improv=-5.05015% raw=-0.191115 reward=-0.188821
+[RL] conflict=5.54247e-05, trend=0, action=-0.0999317, ratio: 0.886963 → 0.87697 (change: -1.12667%), reward=-0.188821
+[Reward-Final] conflict_chg=-11.2928% fpure_improv=8.14231% raw=0.919496 reward=0.725659
+[RL] conflict=9.492e-05, trend=0, action=-0.0981458, ratio: 0.896832 → 0.887017 (change: -1.09436%), reward=0.725659
+[Reward-Final] conflict_chg=3.90124% fpure_improv=-5.24269% raw=0.20453 reward=0.201725
+[RL] conflict=7.37726e-05, trend=0, action=0.161069, ratio: 1.18913 → 1.20524 (change: 1.35451%), reward=0.201725
+[Reward-Final] conflict_chg=-15.961% fpure_improv=-2.92169% raw=-0.466331 reward=-0.43523
+[RL] conflict=4.76454e-05, trend=0, action=-0.170518, ratio: 0.815578 → 0.798526 (change: -2.09076%), reward=-0.43523
+[Reward-Final] conflict_chg=-11.6357% fpure_improv=-0.0346582% raw=-0.00403274 reward=-0.00403272
+[RL] conflict=5.31486e-05, trend=0, action=0.000912244, ratio: 1.00761 → 1.00771 (change: 0.0090535%), reward=-0.00403272
+[Reward-Final] conflict_chg=-22.0367% fpure_improv=0.52602% raw=0.115917 reward=0.115401
+[RL] conflict=3.05694e-05, trend=0, action=-0.0647728, ratio: 0.951721 → 0.945243 (change: -0.680587%), reward=0.115401
+[Reward-Final] conflict_chg=-25.3702% fpure_improv=3.47595% raw=0.881855 reward=0.707347
+[RL] conflict=2.15982e-05, trend=0, action=0.107949, ratio: 1.11235 → 1.12314 (change: 0.970459%), reward=0.707347
+[Reward-Final] conflict_chg=-22.2023% fpure_improv=-1.13637% raw=-0.2523 reward=-0.24708
+[RL] conflict=6.27866e-05, trend=0, action=-0.0937872, ratio: 0.894194 → 0.884815 (change: -1.04885%), reward=-0.24708
+[Reward-Final] conflict_chg=-7.1277% fpure_improv=1.3764% raw=0.0981055 reward=0.097792
+[RL] conflict=5.20385e-05, trend=0, action=0.102281, ratio: 1.10303 → 1.11326 (change: 0.927277%), reward=0.097792
+[Reward-Final] conflict_chg=0.82993% fpure_improv=0.563256% raw=-0.00467463 reward=-0.0046746
+[RL] conflict=4.84782e-05, trend=0, action=-0.0748634, ratio: 0.914986 → 0.9075 (change: -0.818191%), reward=-0.0046746
+[Reward-Final] conflict_chg=-9.26235% fpure_improv=6.10503% raw=0.565469 reward=0.512024
+[Reward-Final] conflict_chg=-5.30783% fpure_improv=6.79479% raw=0.360656 reward=0.345792
+[RL] conflict=8.27088e-05, trend=0, action=0.00151426, ratio: 0.992181 → 0.992332 (change: 0.015262%), reward=0.345792
+[Reward-Final] conflict_chg=-12.7497% fpure_improv=-0.233666% raw=-0.0297917 reward=-0.0297829
+[RL] conflict=5.5702e-05, trend=0, action=0.094308, ratio: 1.08421 → 1.09364 (change: 0.869834%), reward=-0.0297829
+[Reward-Final] conflict_chg=-16.3923% fpure_improv=2.85422% raw=0.467874 reward=0.43648
+[RL] conflict=5.82038e-05, trend=0, action=-0.049702, ratio: 0.932944 → 0.927974 (change: -0.532744%), reward=0.43648
+[Reward-Final] conflict_chg=-28.4257% fpure_improv=3.18783% raw=0.906164 reward=0.719286
+[RL] conflict=3.88828e-05, trend=0, action=0.0186916, ratio: 1.02928 → 1.03115 (change: 0.181598%), reward=0.719286
+[Reward-Final] conflict_chg=-2.28059% fpure_improv=7.43458% raw=0.169552 reward=0.167946
+[RL] conflict=0.000140282, trend=0, action=0.0501739, ratio: 1.03894 → 1.04396 (change: 0.482933%), reward=0.167946
+[Reward-Final] conflict_chg=-23.6285% fpure_improv=-1.05245% raw=-0.248679 reward=-0.243677
+[RL] conflict=2.35335e-05, trend=0, action=-0.0127256, ratio: 0.990537 → 0.989265 (change: -0.128471%), reward=-0.243677
+[Reward-Final] conflict_chg=-10.4405% fpure_improv=-4.27442% raw=-0.446272 reward=-0.41883
+[RL] conflict=6.3116e-05, trend=0, action=0.0617938, ratio: 1.08752 → 1.0937 (change: 0.568208%), reward=-0.41883
+[Reward-Final] conflict_chg=-18.0695% fpure_improv=7.96019% raw=1.43836 reward=0.893368
+[RL] conflict=3.51672e-05, trend=0, action=0.139295, ratio: 1.1511 → 1.16503 (change: 1.21011%), reward=0.893368
+[Reward-Final] conflict_chg=-15.9023% fpure_improv=5.71303% raw=0.908505 reward=0.720414
+[RL] conflict=9.26163e-05, trend=0, action=0.00888749, ratio: 0.978898 → 0.979787 (change: 0.0907907%), reward=0.720414
+[Reward-Final] conflict_chg=3.76611% fpure_improv=1.10584% raw=-0.0416473 reward=-0.0416232
+[RL] conflict=5.36041e-05, trend=0, action=0.0809609, ratio: 1.06218 → 1.07027 (change: 0.762215%), reward=-0.0416232
+[Reward-Final] conflict_chg=-15.2766% fpure_improv=-0.795135% raw=-0.12147 reward=-0.120876
+[RL] conflict=3.61612e-05, trend=0, action=-0.0393355, ratio: 0.947195 → 0.943261 (change: -0.415285%), reward=-0.120876
+[Reward-Final] conflict_chg=10.028% fpure_improv=3.41481% raw=-0.342439 reward=-0.329653
+[RL] conflict=4.51006e-05, trend=0, action=-0.15429, ratio: 0.82519 → 0.809761 (change: -1.86975%), reward=-0.329653
+[Reward-Final] conflict_chg=-15.4081% fpure_improv=-4.73118% raw=-0.728987 reward=-0.622445
+[RL] conflict=6.29324e-05, trend=0, action=0.0287873, ratio: 1.02822 → 1.0311 (change: 0.279971%), reward=-0.622445
+[Reward-Final] conflict_chg=8.22241% fpure_improv=4.56797% raw=-0.375598 reward=-0.358878
+[RL] conflict=5.37611e-05, trend=0, action=-0.0160109, ratio: 0.986576 → 0.984975 (change: -0.162288%), reward=-0.358878
+[Reward-Final] conflict_chg=3.34074% fpure_improv=3.39455% raw=-0.113403 reward=-0.112919
+[RL] conflict=3.76234e-05, trend=0, action=-0.0829959, ratio: 0.91406 → 0.905761 (change: -0.907992%), reward=-0.112919
+[Reward-Final] conflict_chg=-30.9051% fpure_improv=3.02472% raw=0.934795 reward=0.732822
+[RL] conflict=2.30442e-05, trend=0, action=-0.00296132, ratio: 0.988559 → 0.988263 (change: -0.0299559%), reward=0.732822
+[Reward-Final] conflict_chg=0.0292949% fpure_improv=8.29781% raw=-0.00243084 reward=-0.00243083
+[RL] conflict=3.61605e-05, trend=0, action=-0.132818, ratio: 0.854679 → 0.841397 (change: -1.55401%), reward=-0.00243083
+[Reward-Final] conflict_chg=-4.03437% fpure_improv=3.29518% raw=0.13294 reward=0.132162
+[RL] conflict=3.74132e-05, trend=0, action=-0.0355149, ratio: 0.96129 → 0.957739 (change: -0.36945%), reward=0.132162
+[Reward-Final] conflict_chg=-5.11595% fpure_improv=5.41697% raw=0.27713 reward=0.270246
+[RL] conflict=4.58131e-05, trend=0, action=-0.109181, ratio: 0.855009 → 0.844091 (change: -1.27695%), reward=0.270246
+[Reward-Final] conflict_chg=-19.1856% fpure_improv=6.75121% raw=1.29526 reward=0.860498
+[RL] conflict=3.76601e-05, trend=0, action=-0.143802, ratio: 0.841258 → 0.826877 (change: -1.70936%), reward=0.860498
+[Reward-Final] conflict_chg=-23.1446% fpure_improv=4.77258% raw=1.10459 reward=0.802143
+[RL] conflict=2.41763e-05, trend=0, action=-0.00480501, ratio: 0.996849 → 0.996369 (change: -0.048202%), reward=0.802143
+[Reward-Final] conflict_chg=1.01449% fpure_improv=-0.553516% raw=0.00561539 reward=0.00561533
+[RL] conflict=0.00010849, trend=0, action=-0.0876312, ratio: 0.903574 → 0.894811 (change: -0.969829%), reward=0.00561533
+[Reward-Final] conflict_chg=3.99912% fpure_improv=-1.09856% raw=0.0439328 reward=0.0439046
+[RL] conflict=8.049e-05, trend=0, action=0.0558761, ratio: 1.06191 → 1.06749 (change: 0.526187%), reward=0.0439046
+[Reward-Final] conflict_chg=-14.0785% fpure_improv=-0.93859% raw=-0.132139 reward=-0.131376
+[RL] conflict=4.53301e-05, trend=0, action=0.0409043, ratio: 1.0249 → 1.02899 (change: 0.399105%), reward=-0.131376
+[Reward-Final] conflict_chg=0.140843% fpure_improv=-3.67123% raw=0.00517065 reward=0.00517061
+[RL] conflict=0.000102465, trend=0, action=-0.0746308, ratio: 0.91571 → 0.908247 (change: -0.815005%), reward=0.00517061
+[Reward-Final] conflict_chg=-19.1707% fpure_improv=1.76424% raw=0.338217 reward=0.325885
+[RL] conflict=3.41177e-05, trend=0, action=0.110023, ratio: 1.12598 → 1.13698 (change: 0.977132%), reward=0.325885
+[Reward-Final] conflict_chg=-20.9305% fpure_improv=4.20755% raw=0.880661 reward=0.70675
+[RL] conflict=3.53422e-05, trend=0, action=-0.00176119, ratio: 0.983518 → 0.983342 (change: -0.0179071%), reward=0.70675
+[Reward-Final] conflict_chg=-10.4671% fpure_improv=0.00537451% raw=0.000562555 reward=0.000562554
+[RL] conflict=5.71223e-05, trend=0, action=0.0290792, ratio: 1.03318 → 1.03609 (change: 0.281453%), reward=0.000562554
+[Reward-Final] conflict_chg=0.16373% fpure_improv=1.18289% raw=-0.00193674 reward=-0.00193674
+[RL] conflict=4.12711e-05, trend=0, action=-0.052047, ratio: 0.936612 → 0.931407 (change: -0.555694%), reward=-0.00193674
+[Reward-Final] conflict_chg=-11.6254% fpure_improv=7.58772% raw=0.882106 reward=0.707473
+[RL] conflict=4.7467e-05, trend=0, action=0.135403, ratio: 1.14327 → 1.15681 (change: 1.18435%), reward=0.707473
+[Reward-Final] conflict_chg=-25.003% fpure_improv=3.75044% raw=0.937721 reward=0.734174
+[RL] conflict=3.85237e-05, trend=0, action=0.0469649, ratio: 1.04894 → 1.05364 (change: 0.447737%), reward=0.734174
+[Reward-Final] conflict_chg=-7.70732% fpure_improv=2.85716% raw=0.22021 reward=0.216718
+[RL] conflict=4.11396e-05, trend=0, action=-0.13832, ratio: 0.841359 → 0.827527 (change: -1.64401%), reward=0.216718
+[Reward-Final] conflict_chg=-15.3011% fpure_improv=2.18982% raw=0.335068 reward=0.323067
+[RL] conflict=2.95581e-05, trend=0, action=-0.0520233, ratio: 0.952966 → 0.947763 (change: -0.54591%), reward=0.323067
+[Reward-Final] conflict_chg=-17.7189% fpure_improv=-2.03956% raw=-0.361388 reward=-0.346436
+[RL] conflict=5.36498e-05, trend=0, action=-0.00968752, ratio: 0.971528 → 0.970559 (change: -0.0997143%), reward=-0.346436
+[Reward-Final] conflict_chg=-13.0376% fpure_improv=2.23635% raw=0.291565 reward=0.283575
+[RL] conflict=4.19178e-05, trend=0, action=0.253903, ratio: 1.27025 → 1.29564 (change: 1.99885%), reward=0.283575
+[RL] conflict=6.11037e-05, trend=0, action=0.0216838, ratio: 1.03068 → 1.03285 (change: 0.210384%), reward=0.512024
+[Reward-Final] conflict_chg=2.20997% fpure_improv=0.481071% raw=-0.0106315 reward=-0.0106311
+[RL] conflict=5.49492e-05, trend=0, action=-0.0163661, ratio: 0.984975 → 0.983338 (change: -0.166157%), reward=-0.0106311
+[Reward-Final] conflict_chg=9.27745% fpure_improv=-15.4172% raw=1.43032 reward=0.891733
+[RL] conflict=0.000111972, trend=0, action=-0.0746251, ratio: 0.908247 → 0.900785 (change: -0.821639%), reward=0.891733
+[Reward-Final] conflict_chg=-5.06851% fpure_improv=-0.562357% raw=-0.0285031 reward=-0.0284954
+[RL] conflict=3.57165e-05, trend=0, action=-0.0831063, ratio: 0.905761 → 0.89745 (change: -0.917531%), reward=-0.0284954
+[Reward-Final] conflict_chg=-21.688% fpure_improv=0.0961007% raw=0.0208424 reward=0.0208393
+[RL] conflict=3.02728e-05, trend=0, action=-0.0986741, ratio: 0.883785 → 0.873918 (change: -1.11649%), reward=0.0208393
+[Reward-Final] conflict_chg=2.8098% fpure_improv=-7.61057% raw=0.213842 reward=0.210641
+[RL] conflict=5.87274e-05, trend=0, action=0.0290798, ratio: 1.03609 → 1.039 (change: 0.280669%), reward=0.210641
+[Reward-Final] conflict_chg=-11.3497% fpure_improv=0.47499% raw=0.05391 reward=0.0538579
+[RL] conflict=4.20796e-05, trend=0, action=0.136077, ratio: 1.15681 → 1.17041 (change: 1.17632%), reward=0.0538579
+[Reward-Final] conflict_chg=-6.51284% fpure_improv=0.277558% raw=0.0180769 reward=0.018075
+[RL] conflict=5.35558e-05, trend=0, action=-0.0938198, ratio: 0.870308 → 0.860926 (change: -1.07801%), reward=0.018075
+[Reward-Final] conflict_chg=-4.28377% fpure_improv=-12.2219% raw=-0.523559 reward=-0.480442
+[RL] conflict=3.51436e-05, trend=0, action=-0.00447622, ratio: 0.997296 → 0.996849 (change: -0.0448836%), reward=-0.480442
+[Reward-Final] conflict_chg=-1.41776% fpure_improv=0.0191702% raw=0.000271788 reward=0.000271788
+[RL] conflict=9.35742e-05, trend=0, action=-0.0974409, ratio: 0.887017 → 0.877273 (change: -1.09852%), reward=0.000271788
+[Reward-Final] conflict_chg=2.54284% fpure_improv=-12.6794% raw=0.322419 reward=0.311692
+[RL] conflict=7.56485e-05, trend=0, action=0.161258, ratio: 1.20524 → 1.22136 (change: 1.33798%), reward=0.311692
+[Reward-Final] conflict_chg=-29.4037% fpure_improv=-0.49568% raw=-0.145748 reward=-0.144725
+[RL] conflict=2.64123e-05, trend=0, action=-0.0353842, ratio: 0.957739 → 0.9542 (change: -0.369456%), reward=-0.144725
+[Reward-Final] conflict_chg=-16.0084% fpure_improv=-0.476135% raw=-0.0762216 reward=-0.0760744
+[RL] conflict=2.56757e-05, trend=0, action=-0.0646584, ratio: 0.945243 → 0.938777 (change: -0.68404%), reward=-0.0760744
+[Reward-Final] conflict_chg=-20.553% fpure_improv=-0.975309% raw=-0.200455 reward=-0.197813
+[RL] conflict=3.63971e-05, trend=0, action=-0.108921, ratio: 0.844091 → 0.833199 (change: -1.29039%), reward=-0.197813
+[Reward-Final] conflict_chg=-10.2721% fpure_improv=-0.798658% raw=-0.0820389 reward=-0.0818554
+[RL] conflict=2.16929e-05, trend=0, action=-0.00401095, ratio: 0.996369 → 0.995968 (change: -0.0402557%), reward=-0.0818554
+[Reward-Final] conflict_chg=-13.4457% fpure_improv=-0.467782% raw=-0.0628965 reward=-0.0628137
+[RL] conflict=5.43445e-05, trend=0, action=-0.0940267, ratio: 0.884815 → 0.875412 (change: -1.06267%), reward=-0.0628137
+[Reward-Final] conflict_chg=-1.14198% fpure_improv=0.282023% raw=0.00322064 reward=0.00322063
+[RL] conflict=4.79246e-05, trend=0, action=-0.0748679, ratio: 0.9075 → 0.900013 (change: -0.824991%), reward=0.00322063
+[Reward-Final] conflict_chg=12.9193% fpure_improv=-0.371624% raw=0.0480113 reward=0.0479745
+[RL] conflict=4.39062e-05, trend=0, action=0.019404, ratio: 1.03115 → 1.03309 (change: 0.188178%), reward=0.0479745
+[Reward-Final] conflict_chg=2.92977% fpure_improv=-1.20156% raw=0.0352031 reward=0.0351886
+[RL] conflict=0.000144392, trend=0, action=0.0503393, ratio: 1.04396 → 1.04899 (change: 0.482197%), reward=0.0351886
+[Reward-Final] conflict_chg=-3.02534% fpure_improv=-10.4475% raw=-0.316073 reward=-0.305952
+[RL] conflict=2.28216e-05, trend=0, action=-0.0129667, ratio: 0.989265 → 0.987968 (change: -0.131074%), reward=-0.305952
+[Reward-Final] conflict_chg=-26.4631% fpure_improv=-15.3835% raw=-4.07095 reward=-0.999418
+[RL] conflict=4.64135e-05, trend=0, action=0.0613832, ratio: 1.0937 → 1.09984 (change: 0.561243%), reward=-0.999418
+[Reward-Final] conflict_chg=-24.2827% fpure_improv=-1.0696% raw=-0.259727 reward=-0.25404
+[RL] conflict=2.66277e-05, trend=0, action=0.140145, ratio: 1.16503 → 1.17904 (change: 1.20293%), reward=-0.25404
+[Reward-Final] conflict_chg=-17.7742% fpure_improv=-0.441547% raw=-0.0784813 reward=-0.0783205
+[RL] conflict=3.70843e-05, trend=0, action=-0.154601, ratio: 0.809761 → 0.794301 (change: -1.90922%), reward=-0.0783205
+[Reward-Final] conflict_chg=-15.7189% fpure_improv=-0.524303% raw=-0.0824145 reward=-0.0822284
+[RL] conflict=1.82032e-05, trend=0, action=0.108633, ratio: 1.12314 → 1.13401 (change: 0.967224%), reward=-0.0822284
+[Reward-Final] conflict_chg=-10.5676% fpure_improv=-2.33913% raw=-0.247191 reward=-0.242276
+[RL] conflict=3.7488e-05, trend=0, action=0.254149, ratio: 1.29564 → 1.32105 (change: 1.96158%), reward=-0.242276
+[Reward-Final] conflict_chg=-13.4985% fpure_improv=-0.544959% raw=-0.0735611 reward=-0.0734287
+[RL] conflict=4.8183e-05, trend=0, action=0.0942782, ratio: 1.09364 → 1.10307 (change: 0.862061%), reward=-0.0734287
+[Reward-Final] conflict_chg=1.35002% fpure_improv=-0.563858% raw=0.00761222 reward=0.00761208
+[RL] conflict=8.15767e-05, trend=0, action=0.0559194, ratio: 1.06749 → 1.07309 (change: 0.523838%), reward=0.00761208
+[Reward-Final] conflict_chg=-10.8133% fpure_improv=-4.77624% raw=-0.516471 reward=-0.474972
+[RL] conflict=4.78077e-05, trend=0, action=0.0809205, ratio: 1.07027 → 1.07837 (change: 0.756072%), reward=-0.474972
+[Reward-Final] conflict_chg=-33.1737% fpure_improv=-0.58537% raw=-0.194189 reward=-0.191784
+[RL] conflict=2.41651e-05, trend=0, action=-0.0394549, ratio: 0.943261 → 0.939316 (change: -0.418282%), reward=-0.191784
+[Reward-Final] conflict_chg=10.9577% fpure_improv=-14.6737% raw=1.60791 reward=0.92285
+[RL] conflict=6.98283e-05, trend=0, action=0.0281719, ratio: 1.0311 → 1.03392 (change: 0.273221%), reward=0.92285
+[Reward-Final] conflict_chg=-22.0266% fpure_improv=0.383932% raw=0.0845671 reward=0.0843661
+[RL] conflict=2.66028e-05, trend=0, action=0.110338, ratio: 1.13698 → 1.14802 (change: 0.970445%), reward=0.0843661
+[Reward-Final] conflict_chg=-21.2394% fpure_improv=-0.637732% raw=-0.135451 reward=-0.134628
+[RL] conflict=2.78357e-05, trend=0, action=-0.00106098, ratio: 0.983342 → 0.983236 (change: -0.0107895%), reward=-0.134628
+[Reward-Final] conflict_chg=-23.7799% fpure_improv=0.38417% raw=0.0913555 reward=0.0911022
+[RL] conflict=3.14569e-05, trend=0, action=-0.0520489, ratio: 0.931407 → 0.926202 (change: -0.55882%), reward=0.0911022
+[Reward-Final] conflict_chg=-22.8599% fpure_improv=-0.519327% raw=-0.118718 reward=-0.118163
+[RL] conflict=2.97172e-05, trend=0, action=0.0476888, ratio: 1.05364 → 1.0584 (change: 0.452611%), reward=-0.118163
+[Reward-Final] conflict_chg=1.62635% fpure_improv=-0.433962% raw=0.00705775 reward=0.00705764
+[RL] conflict=4.60047e-05, trend=0, action=0.026051, ratio: 1.02503 → 1.02763 (change: 0.254149%), reward=0.00705764
+[Reward-Final] conflict_chg=-17.3034% fpure_improv=-0.809829% raw=-0.140128 reward=-0.139218
+[RL] conflict=2.99035e-05, trend=0, action=-0.132819, ratio: 0.841397 → 0.828115 (change: -1.57856%), reward=-0.139218
+[Reward-Final] conflict_chg=-30.0153% fpure_improv=-13.6284% raw=-4.09061 reward=-0.99944
+[RL] conflict=3.87888e-05, trend=0, action=-0.100113, ratio: 0.87697 → 0.866958 (change: -1.14158%), reward=-0.99944
+[Reward-Final] conflict_chg=-16.9257% fpure_improv=0.81614% raw=0.138138 reward=0.137266
+[RL] conflict=3.12859e-05, trend=0, action=-0.142984, ratio: 0.826877 → 0.812579 (change: -1.72921%), reward=0.137266
+[Reward-Final] conflict_chg=-9.01633% fpure_improv=-0.102914% raw=-0.00927908 reward=-0.00927881
+[RL] conflict=9.87084e-05, trend=0, action=-0.0876254, ratio: 0.894811 → 0.886048 (change: -0.979262%), reward=-0.00927881
+[Reward-Final] conflict_chg=-20.1639% fpure_improv=-0.421319% raw=-0.0849543 reward=-0.0847505
+[RL] conflict=4.15455e-05, trend=0, action=0.102375, ratio: 1.11326 → 1.1235 (change: 0.919598%), reward=-0.0847505
+[Reward-Final] conflict_chg=-13.5386% fpure_improv=-1.21344% raw=-0.164283 reward=-0.162821
+[RL] conflict=7.15111e-05, trend=0, action=0.00185653, ratio: 0.992332 → 0.992518 (change: 0.0187088%), reward=-0.162821
+[Reward-Final] conflict_chg=5.18463% fpure_improv=-0.445124% raw=0.023078 reward=0.0230739
+[RL] conflict=6.12215e-05, trend=0, action=-0.0492721, ratio: 0.927974 → 0.923046 (change: -0.530965%), reward=0.0230739
+[Reward-Final] conflict_chg=-22.3695% fpure_improv=-0.305902% raw=-0.0684287 reward=-0.0683221
+[RL] conflict=3.519e-05, trend=0, action=0.040776, ratio: 1.02899 → 1.03307 (change: 0.396271%), reward=-0.0683221
+[Reward-Final] conflict_chg=-6.34354% fpure_improv=0.881581% raw=0.0559235 reward=0.0558652
+[RL] conflict=8.67411e-05, trend=0, action=0.00960028, ratio: 0.979787 → 0.980747 (change: 0.0979834%), reward=0.0558652
+[Reward-Final] conflict_chg=-13.5154% fpure_improv=-1.12707% raw=-0.152328 reward=-0.151161
+[RL] conflict=5.28453e-05, trend=0, action=0.0221904, ratio: 1.03285 → 1.03507 (change: 0.214847%), reward=-0.151161
+[Reward-Final] conflict_chg=-24.0978% fpure_improv=-0.266057% raw=-0.0641137 reward=-0.064026
+[RL] conflict=1.7491e-05, trend=0, action=-0.00223584, ratio: 0.988263 → 0.98804 (change: -0.022624%), reward=-0.064026
+[Reward-Final] conflict_chg=-0.916991% fpure_improv=-0.103239% raw=-0.000946695 reward=-0.000946695
+[RL] conflict=4.07623e-05, trend=0, action=-0.138114, ratio: 0.827527 → 0.813716 (change: -1.66899%), reward=-0.000946695
+[Reward-Final] conflict_chg=-5.46321% fpure_improv=-0.410766% raw=-0.022441 reward=-0.0224372
+[RL] conflict=2.79433e-05, trend=0, action=-0.0517053, ratio: 0.947763 → 0.942593 (change: -0.545551%), reward=-0.0224372
+[Reward-Final] conflict_chg=-7.22243% fpure_improv=-12.8779% raw=-0.930098 reward=-0.730639
+[RL] conflict=4.9775e-05, trend=0, action=-0.0100303, ratio: 0.970559 → 0.969556 (change: -0.103345%), reward=-0.730639
+[Reward-Final] conflict_chg=-31.5139% fpure_improv=-14.5873% raw=-4.59702 reward=-0.999797
+[RL] conflict=3.26304e-05, trend=0, action=-0.170925, ratio: 0.798526 → 0.781434 (change: -2.14051%), reward=-0.999797
+[Reward-Final] conflict_chg=-0.544868% fpure_improv=0.106432% raw=0.000579912 reward=0.000579912
+[RL] conflict=5.2859e-05, trend=0, action=0.000908247, ratio: 1.00771 → 1.0078 (change: 0.00901302%), reward=0.000579912
+[Reward-Final] conflict_chg=-15.6305% fpure_improv=1.81909% raw=0.284333 reward=0.276911
+[RL] conflict=3.88139e-05, trend=0, action=0.0260587, ratio: 1.02763 → 1.03024 (change: 0.25358%), reward=0.276911
+[Reward-Final] conflict_chg=-17.2058% fpure_improv=2.24143% raw=0.385655 reward=0.367609
+[RL] conflict=4.43411e-05, trend=0, action=-0.0938017, ratio: 0.860926 → 0.851546 (change: -1.08954%), reward=0.367609
+[Reward-Final] conflict_chg=-14.8428% fpure_improv=3.02331% raw=0.448745 reward=0.420867
+[RL] conflict=2.54649e-05, trend=0, action=-0.132952, ratio: 0.828115 → 0.81482 (change: -1.60548%), reward=0.420867
+[Reward-Final] conflict_chg=6.57901% fpure_improv=9.03479% raw=-0.5944 reward=-0.533053
+[RL] conflict=3.74557e-05, trend=0, action=-0.00495196, ratio: 0.996849 → 0.996353 (change: -0.0496761%), reward=-0.533053
+[Reward-Final] conflict_chg=4.14535% fpure_improv=9.14468% raw=-0.379079 reward=-0.361908
+[RL] conflict=7.87845e-05, trend=0, action=0.161551, ratio: 1.22136 → 1.23752 (change: 1.32271%), reward=-0.361908
+[Reward-Final] conflict_chg=6.98636% fpure_improv=4.96728% raw=-0.347032 reward=-0.33374
+[RL] conflict=3.96752e-05, trend=0, action=-0.154675, ratio: 0.794301 → 0.778833 (change: -1.94731%), reward=-0.33374
+[Reward-Final] conflict_chg=-18.2212% fpure_improv=9.29307% raw=1.6933 reward=0.934567
+[RL] conflict=3.1721e-05, trend=0, action=-0.101083, ratio: 0.866958 → 0.85685 (change: -1.16595%), reward=0.934567
+[Reward-Final] conflict_chg=-4.90443% fpure_improv=-4.15807% raw=-0.20393 reward=-0.201149
+[RL] conflict=5.16792e-05, trend=0, action=-0.0940875, ratio: 0.875412 → 0.866004 (change: -1.07478%), reward=-0.201149
+[Reward-Final] conflict_chg=-5.99374% fpure_improv=0.265371% raw=0.0159057 reward=0.0159043
+[RL] conflict=3.52411e-05, trend=0, action=0.253939, ratio: 1.32105 → 1.34645 (change: 1.92225%), reward=0.0159043
+[Reward-Final] conflict_chg=-13.1096% fpure_improv=-3.8689% raw=-0.507199 reward=-0.46776
+[RL] conflict=4.18664e-05, trend=0, action=0.0942062, ratio: 1.10307 → 1.11249 (change: 0.85404%), reward=-0.46776
+[Reward-Final] conflict_chg=6.42885% fpure_improv=-1.03841% raw=0.0667576 reward=0.0666586
+[RL] conflict=5.10056e-05, trend=0, action=-0.0748649, ratio: 0.900013 → 0.892527 (change: -0.83182%), reward=0.0666586
+[Reward-Final] conflict_chg=-21.4525% fpure_improv=4.68621% raw=1.00531 reward=0.763814
+[RL] conflict=3.44872e-05, trend=0, action=0.0194499, ratio: 1.03309 → 1.03504 (change: 0.188268%), reward=0.763814
+[Reward-Final] conflict_chg=2.71435% fpure_improv=3.5279% raw=-0.0957595 reward=-0.0954679
+[RL] conflict=2.3441e-05, trend=0, action=-0.0132695, ratio: 0.987968 → 0.986641 (change: -0.134311%), reward=-0.0954679
+[Reward-Final] conflict_chg=-5.03947% fpure_improv=8.82704% raw=0.444836 reward=0.417645
+[RL] conflict=4.40745e-05, trend=0, action=0.0604012, ratio: 1.09984 → 1.10588 (change: 0.549182%), reward=0.417645
+[Reward-Final] conflict_chg=-16.9923% fpure_improv=1.01772% raw=0.172934 reward=0.171231
+[RL] conflict=3.96841e-05, trend=0, action=0.0804567, ratio: 1.07837 → 1.08641 (change: 0.746098%), reward=0.171231
+[Reward-Final] conflict_chg=4.56647% fpure_improv=-0.495791% raw=0.0226402 reward=0.0226363
+[RL] conflict=5.74584e-05, trend=0, action=-0.0163767, ratio: 0.983338 → 0.9817 (change: -0.166542%), reward=0.0226363
+[Reward-Final] conflict_chg=9.40395% fpure_improv=9.25162% raw=-0.870018 reward=-0.701383
+[RL] conflict=7.6395e-05, trend=0, action=0.029084, ratio: 1.03392 → 1.03683 (change: 0.281298%), reward=-0.701383
+[Reward-Final] conflict_chg=-27.972% fpure_improv=7.94343% raw=2.22193 reward=0.976772
+[RL] conflict=8.06509e-05, trend=0, action=-0.073754, ratio: 0.900785 → 0.893409 (change: -0.818775%), reward=0.976772
+[Reward-Final] conflict_chg=-27.528% fpure_improv=-0.210716% raw=-0.058006 reward=-0.057941
+[RL] conflict=2.58844e-05, trend=0, action=-0.0831349, ratio: 0.89745 → 0.889137 (change: -0.926346%), reward=-0.057941
+[Reward-Final] conflict_chg=-20.8751% fpure_improv=1.17531% raw=0.245347 reward=0.24054
+[RL] conflict=2.10494e-05, trend=0, action=0.11042, ratio: 1.14802 → 1.15906 (change: 0.961827%), reward=0.24054
+[Reward-Final] conflict_chg=-2.43977% fpure_improv=5.6334% raw=0.137442 reward=0.136583
+[RL] conflict=2.71566e-05, trend=0, action=-0.00119421, ratio: 0.983236 → 0.983117 (change: -0.0121457%), reward=0.136583
+[Reward-Final] conflict_chg=-5.28453% fpure_improv=2.1152% raw=0.111778 reward=0.111315
+[RL] conflict=5.56239e-05, trend=0, action=0.0292878, ratio: 1.039 → 1.04193 (change: 0.281885%), reward=0.111315
+[Reward-Final] conflict_chg=-16.9629% fpure_improv=0.0552494% raw=0.00937192 reward=0.00937165
+[RL] conflict=2.61208e-05, trend=0, action=-0.0519592, ratio: 0.926202 → 0.921006 (change: -0.560992%), reward=0.00937165
+[Reward-Final] conflict_chg=-8.15376% fpure_improv=5.27905% raw=0.430441 reward=0.40569
+[RL] conflict=2.72941e-05, trend=0, action=0.0475724, ratio: 1.0584 → 1.06316 (change: 0.449472%), reward=0.40569
+[Reward-Final] conflict_chg=-4.34353% fpure_improv=5.81174% raw=0.252434 reward=0.247206
+[RL] conflict=6.8405e-05, trend=0, action=0.00169533, ratio: 0.992518 → 0.992687 (change: 0.0170811%), reward=0.247206
+[Reward-Final] conflict_chg=1.84739% fpure_improv=-0.609938% raw=0.0112679 reward=0.0112675
+[RL] conflict=6.23525e-05, trend=0, action=-0.0492494, ratio: 0.923046 → 0.918121 (change: -0.533553%), reward=0.0112675
+[Reward-Final] conflict_chg=-4.63666% fpure_improv=-3.6547% raw=-0.169456 reward=-0.167853
+[RL] conflict=3.35583e-05, trend=0, action=0.0407088, ratio: 1.03307 → 1.03714 (change: 0.394057%), reward=-0.167853
+[Reward-Final] conflict_chg=8.82123% fpure_improv=-4.38791% raw=0.387068 reward=0.36883
+[RL] conflict=8.87728e-05, trend=0, action=0.0559272, ratio: 1.07309 → 1.07868 (change: 0.521181%), reward=0.36883
+[Reward-Final] conflict_chg=-8.49628% fpure_improv=-0.608042% raw=-0.0516609 reward=-0.051615
+[RL] conflict=7.93713e-05, trend=0, action=0.00965521, ratio: 0.980747 → 0.981712 (change: 0.0984476%), reward=-0.051615
+[Reward-Final] conflict_chg=-1.61452% fpure_improv=6.14566% raw=0.0992232 reward=0.0988989
+[RL] conflict=5.19921e-05, trend=0, action=0.0220409, ratio: 1.03507 → 1.03727 (change: 0.212942%), reward=0.0988989
+[Reward-Final] conflict_chg=-15.7077% fpure_improv=3.16162% raw=0.496617 reward=0.459452
+[RL] conflict=2.55177e-05, trend=0, action=-0.098654, ratio: 0.873918 → 0.864053 (change: -1.12887%), reward=0.459452
+[Reward-Final] conflict_chg=-21.6554% fpure_improv=4.3542% raw=0.942918 reward=0.73656
+[RL] conflict=1.37033e-05, trend=0, action=-0.00229923, ratio: 0.98804 → 0.98781 (change: -0.0232706%), reward=0.73656
+[Reward-Final] conflict_chg=-9.99367% fpure_improv=3.86784% raw=0.386539 reward=0.368373
+[RL] conflict=3.66887e-05, trend=0, action=-0.138115, ratio: 0.813716 → 0.799905 (change: -1.69733%), reward=0.368373
+[Reward-Final] conflict_chg=-0.0351937% fpure_improv=-2.049% raw=-0.000721119 reward=-0.000721119
+[RL] conflict=5.28404e-05, trend=0, action=0.00090882, ratio: 1.0078 → 1.00789 (change: 0.0090179%), reward=-0.000721119
+[Reward-Final] conflict_chg=3.41131% fpure_improv=5.11123% raw=-0.17436 reward=-0.172614
+[RL] conflict=5.1473e-05, trend=0, action=-0.0107535, ratio: 0.969556 → 0.96848 (change: -0.110912%), reward=-0.172614
+[Reward-Final] conflict_chg=109.587% fpure_improv=6.65355% raw=-7.2914 reward=-0.999999
+[RL] conflict=6.83892e-05, trend=0, action=-0.171856, ratio: 0.781434 → 0.764248 (change: -2.19924%), reward=-0.999999
+[Reward-Final] conflict_chg=-1.58564% fpure_improv=-0.484944% raw=-0.00768945 reward=-0.0076893
+[RL] conflict=3.07898e-05, trend=0, action=-0.142854, ratio: 0.812579 → 0.798294 (change: -1.75803%), reward=-0.0076893
+[Reward-Final] conflict_chg=-1.20289% fpure_improv=-2.9349% raw=-0.0353036 reward=-0.0352889
+[RL] conflict=9.75211e-05, trend=0, action=-0.0876344, ratio: 0.886048 → 0.877285 (change: -0.989048%), reward=-0.0352889
+[Reward-Final] conflict_chg=-10.0252% fpure_improv=-2.2696% raw=-0.227533 reward=-0.223686
+[RL] conflict=3.73804e-05, trend=0, action=0.102292, ratio: 1.1235 → 1.13373 (change: 0.910483%), reward=-0.223686
+[Reward-Final] conflict_chg=-1.78633% fpure_improv=6.17263% raw=0.110264 reward=0.109819
+[RL] conflict=3.57469e-05, trend=0, action=-0.109112, ratio: 0.833199 → 0.822288 (change: -1.30956%), reward=0.109819
+[Reward-Final] conflict_chg=-9.11279% fpure_improv=5.96665% raw=0.543728 reward=0.495805
+[RL] conflict=1.9716e-05, trend=0, action=-0.004092, ratio: 0.995968 → 0.995559 (change: -0.0410857%), reward=0.495805
+[Reward-Final] conflict_chg=-22.7939% fpure_improv=-1.37062% raw=-0.312417 reward=-0.302635
+[RL] conflict=2.15739e-05, trend=0, action=-0.0517279, ratio: 0.942593 → 0.93742 (change: -0.548783%), reward=-0.302635
+[Reward-Final] conflict_chg=-25.196% fpure_improv=-4.2959% raw=-1.0824 reward=-0.794086
+[RL] conflict=1.80765e-05, trend=0, action=-0.0396442, ratio: 0.939316 → 0.935351 (change: -0.422054%), reward=-0.794086
+[Reward-Final] conflict_chg=4.64761% fpure_improv=0.747985% raw=-0.0347635 reward=-0.0347495
+[RL] conflict=9.79232e-05, trend=0, action=-0.0974408, ratio: 0.877273 → 0.867529 (change: -1.11072%), reward=-0.0347495
+[Reward-Final] conflict_chg=-18.2043% fpure_improv=0.117023% raw=0.0213032 reward=0.0213
+[RL] conflict=1.48894e-05, trend=0, action=0.108554, ratio: 1.13401 → 1.14486 (change: 0.957259%), reward=0.0213
+[Reward-Final] conflict_chg=-10.8657% fpure_improv=-3.15489% raw=-0.342803 reward=-0.329977
+[RL] conflict=2.28859e-05, trend=0, action=-0.0647325, ratio: 0.938777 → 0.932304 (change: -0.68954%), reward=-0.329977
+[Reward-Final] conflict_chg=-7.69745% fpure_improv=5.14609% raw=0.396117 reward=0.376622
+[RL] conflict=0.000133278, trend=0, action=0.050374, ratio: 1.04899 → 1.05403 (change: 0.480213%), reward=0.376622
+[Reward-Final] conflict_chg=-5.11859% fpure_improv=4.18362% raw=0.214142 reward=0.210928
+[RL] conflict=2.52647e-05, trend=0, action=0.139903, ratio: 1.17904 → 1.19303 (change: 1.18658%), reward=0.210928
+[Reward-Final] conflict_chg=6.5692% fpure_improv=-0.0955246% raw=0.0062752 reward=0.00627512
+[RL] conflict=2.81474e-05, trend=0, action=-0.0355272, ratio: 0.9542 → 0.950647 (change: -0.372324%), reward=0.00627512
+[Reward-Final] conflict_chg=8.28743% fpure_improv=-0.0424228% raw=0.00351576 reward=0.00351575
+[RL] conflict=4.5567e-05, trend=0, action=0.136129, ratio: 1.17041 → 1.18403 (change: 1.16308%), reward=0.00351575
+[Reward-Final] conflict_chg=-9.52813% fpure_improv=-0.210699% raw=-0.0200757 reward=-0.020073
+[RL] conflict=2.3632e-05, trend=0, action=-0.0519499, ratio: 0.921006 → 0.915811 (change: -0.564056%), reward=-0.020073
+[Reward-Final] conflict_chg=5.94902% fpure_improv=0.445208% raw=-0.0264855 reward=-0.0264793
+[RL] conflict=3.88713e-05, trend=0, action=-0.137764, ratio: 0.799905 → 0.786128 (change: -1.72225%), reward=-0.0264793
+[Reward-Final] conflict_chg=-26.1047% fpure_improv=-13.0032% raw=-3.39444 reward=-0.99775
+[RL] conflict=2.86816e-05, trend=0, action=0.0263336, ratio: 1.03024 → 1.03287 (change: 0.255607%), reward=-0.99775
+[Reward-Final] conflict_chg=-10.2748% fpure_improv=0.331837% raw=0.0340955 reward=0.0340822
+[RL] conflict=3.97852e-05, trend=0, action=-0.0934439, ratio: 0.851546 → 0.842201 (change: -1.09734%), reward=0.0340822
+[Reward-Final] conflict_chg=-5.90631% fpure_improv=-14.4275% raw=-0.852131 reward=-0.692181
+[RL] conflict=2.39609e-05, trend=0, action=-0.13255, ratio: 0.81482 → 0.801565 (change: -1.62674%), reward=-0.692181
+[Reward-Final] conflict_chg=-19.3002% fpure_improv=-1.82648% raw=-0.352515 reward=-0.338604
+[RL] conflict=1.45876e-05, trend=0, action=-0.0404279, ratio: 0.935351 → 0.931309 (change: -0.432222%), reward=-0.338604
+[Reward-Final] conflict_chg=-9.74809% fpure_improv=6.27446% raw=0.61164 reward=0.545281
+[RL] conflict=3.38045e-05, trend=0, action=-0.00547947, ratio: 0.996353 → 0.995806 (change: -0.0549952%), reward=0.545281
+[Reward-Final] conflict_chg=-5.18212% fpure_improv=-0.787746% raw=-0.0408219 reward=-0.0407993
+[RL] conflict=5.01022e-05, trend=0, action=0.000908058, ratio: 1.00789 → 1.00798 (change: 0.00900952%), reward=-0.0407993
+[Reward-Final] conflict_chg=-31.5134% fpure_improv=17.1865% raw=5.41606 reward=0.99996
+[RL] conflict=3.52521e-05, trend=0, action=-0.0109237, ratio: 0.96848 → 0.967388 (change: -0.112792%), reward=0.99996
+[Reward-Final] conflict_chg=-22.4241% fpure_improv=-15.2918% raw=-3.42905 reward=-0.9979
+[RL] conflict=1.95993e-05, trend=0, action=0.140103, ratio: 1.19303 → 1.20704 (change: 1.17434%), reward=-0.9979
+[Reward-Final] conflict_chg=8.44773% fpure_improv=7.09574% raw=-0.599428 reward=-0.536643
+[RL] conflict=8.544e-05, trend=0, action=0.16121, ratio: 1.23752 → 1.25364 (change: 1.30269%), reward=-0.536643
+[Reward-Final] conflict_chg=-7.78431% fpure_improv=0.298932% raw=0.0232698 reward=0.0232656
+[RL] conflict=1.37304e-05, trend=0, action=0.108575, ratio: 1.14486 → 1.15572 (change: 0.948362%), reward=0.0232656
+[Reward-Final] conflict_chg=-17.6663% fpure_improv=-2.56328% raw=-0.452835 reward=-0.424227
+[RL] conflict=3.26661e-05, trend=0, action=-0.154991, ratio: 0.778833 → 0.763334 (change: -1.99004%), reward=-0.424227
+[Reward-Final] conflict_chg=-3.3539% fpure_improv=-1.16056% raw=-0.038924 reward=-0.0389043
+[RL] conflict=3.61267e-05, trend=0, action=0.102075, ratio: 1.13373 → 1.14393 (change: 0.900353%), reward=-0.0389043
+[Reward-Final] conflict_chg=8.81538% fpure_improv=-12.0822% raw=1.06509 reward=0.787606
+[RL] conflict=3.88982e-05, trend=0, action=-0.109005, ratio: 0.822288 → 0.811387 (change: -1.32564%), reward=0.787606
+[Reward-Final] conflict_chg=-6.63575% fpure_improv=16.9837% raw=1.127 reward=0.809989
+[RL] conflict=6.3851e-05, trend=0, action=-0.172789, ratio: 0.764248 → 0.746969 (change: -2.26091%), reward=0.809989
+[Reward-Final] conflict_chg=-10.9091% fpure_improv=-6.24746% raw=-0.681542 reward=-0.592521
+[RL] conflict=2.74309e-05, trend=0, action=-0.142861, ratio: 0.798294 → 0.784007 (change: -1.78958%), reward=-0.592521
+[Reward-Final] conflict_chg=1.7147% fpure_improv=8.93149% raw=-0.153148 reward=-0.151962
+[RL] conflict=3.22649e-05, trend=0, action=-0.100176, ratio: 0.85685 → 0.846833 (change: -1.16912%), reward=-0.151962
+[Reward-Final] conflict_chg=4.04755% fpure_improv=-11.1177% raw=0.449996 reward=0.421896
+[RL] conflict=0.000101887, trend=0, action=-0.0974748, ratio: 0.867529 → 0.857781 (change: -1.12359%), reward=0.421896
+[Reward-Final] conflict_chg=-4.05122% fpure_improv=-1.06999% raw=-0.0433477 reward=-0.0433206
+[RL] conflict=9.35703e-05, trend=0, action=-0.0876686, ratio: 0.877285 → 0.868518 (change: -0.999318%), reward=-0.0433206
+[Reward-Final] conflict_chg=-5.73503% fpure_improv=-1.57555% raw=-0.0903579 reward=-0.0901128
+[RL] conflict=4.87154e-05, trend=0, action=-0.0942828, ratio: 0.866004 → 0.856575 (change: -1.08871%), reward=-0.0901128
+[Reward-Final] conflict_chg=-14.4382% fpure_improv=-4.73266% raw=-0.68331 reward=-0.593667
+[RL] conflict=2.33534e-05, trend=0, action=0.0479723, ratio: 1.06316 → 1.06796 (change: 0.451223%), reward=-0.593667
+[Reward-Final] conflict_chg=-8.37584% fpure_improv=7.581% raw=0.634972 reward=0.561467
+[RL] conflict=3.22893e-05, trend=0, action=0.253953, ratio: 1.34645 → 1.37184 (change: 1.8861%), reward=0.561467
+[Reward-Final] conflict_chg=-20.3592% fpure_improv=-1.76324% raw=-0.358981 reward=-0.344317
+[RL] conflict=3.33427e-05, trend=0, action=0.0937503, ratio: 1.11249 → 1.12186 (change: 0.84271%), reward=-0.344317
+[Reward-Final] conflict_chg=3.2392% fpure_improv=-0.500354% raw=0.0162074 reward=0.016206
+[RL] conflict=5.26578e-05, trend=0, action=-0.0747997, ratio: 0.892527 → 0.885047 (change: -0.838067%), reward=0.016206
+[Reward-Final] conflict_chg=11.5679% fpure_improv=-15.0401% raw=1.73983 reward=0.940207
+[RL] conflict=7.63181e-05, trend=0, action=0.0019401, ratio: 0.992687 → 0.992881 (change: 0.0195439%), reward=0.940207
+[Reward-Final] conflict_chg=36.6246% fpure_improv=-1.53767% raw=0.563166 reward=0.510322
+[RL] conflict=3.12678e-05, trend=0, action=-0.0650583, ratio: 0.932304 → 0.925798 (change: -0.697823%), reward=0.510322
+[Reward-Final] conflict_chg=17.6721% fpure_improv=-0.958968% raw=0.16947 reward=0.167866
+[RL] conflict=4.05818e-05, trend=0, action=0.0202065, ratio: 1.03504 → 1.03706 (change: 0.195225%), reward=0.167866
+[Reward-Final] conflict_chg=-7.18429% fpure_improv=16.2529% raw=1.16765 reward=0.823519
+[RL] conflict=2.17569e-05, trend=0, action=-0.0133639, ratio: 0.986641 → 0.985305 (change: -0.135448%), reward=0.823519
+[Reward-Final] conflict_chg=1.31682% fpure_improv=-0.218985% raw=0.00288364 reward=0.00288363
+[RL] conflict=6.31735e-05, trend=0, action=-0.0492384, ratio: 0.918121 → 0.913198 (change: -0.536295%), reward=0.00288363
+[Reward-Final] conflict_chg=-9.22459% fpure_improv=-1.33869% raw=-0.123489 reward=-0.122865
+[RL] conflict=3.04627e-05, trend=0, action=0.0405435, ratio: 1.03714 → 1.04119 (change: 0.390917%), reward=-0.122865
+[Reward-Final] conflict_chg=-3.82822% fpure_improv=13.7594% raw=0.526742 reward=0.482887
+[RL] conflict=4.23872e-05, trend=0, action=0.0608118, ratio: 1.10588 → 1.11196 (change: 0.549895%), reward=0.482887
+[Reward-Final] conflict_chg=15.7839% fpure_improv=-15.512% raw=2.4484 reward=0.98517
+[RL] conflict=0.000154314, trend=0, action=0.0507449, ratio: 1.05403 → 1.0591 (change: 0.481437%), reward=0.98517
+[Reward-Final] conflict_chg=-13.2458% fpure_improv=-0.688869% raw=-0.0912462 reward=-0.0909938
+[RL] conflict=1.87163e-05, trend=0, action=-0.0520262, ratio: 0.93742 → 0.932217 (change: -0.554993%), reward=-0.0909938
+[Reward-Final] conflict_chg=-3.55541% fpure_improv=-1.75096% raw=-0.0622539 reward=-0.0621736
+[RL] conflict=8.56165e-05, trend=0, action=0.0562899, ratio: 1.07868 → 1.08431 (change: 0.521842%), reward=-0.0621736
+[Reward-Final] conflict_chg=8.72759% fpure_improv=11.1983% raw=-0.977344 reward=-0.751914
+[RL] conflict=4.31476e-05, trend=0, action=0.0806239, ratio: 1.08641 → 1.09447 (change: 0.742111%), reward=-0.751914
+[Reward-Final] conflict_chg=5.81163% fpure_improv=-8.85369% raw=0.514543 reward=0.473477
+[RL] conflict=4.82151e-05, trend=0, action=0.136132, ratio: 1.18403 → 1.19764 (change: 1.14974%), reward=0.473477
+[Reward-Final] conflict_chg=14.4284% fpure_improv=-3.2836% raw=0.47377 reward=0.441241
+[RL] conflict=9.08234e-05, trend=0, action=0.0096047, ratio: 0.981712 → 0.982673 (change: 0.0978362%), reward=0.441241
+[Reward-Final] conflict_chg=-21.2356% fpure_improv=0.0649363% raw=0.0137896 reward=0.0137887
+[RL] conflict=4.52568e-05, trend=0, action=-0.0163539, ratio: 0.9817 → 0.980065 (change: -0.166588%), reward=0.0137887
+[Reward-Final] conflict_chg=14.6069% fpure_improv=11.3273% raw=-1.65457 reward=-0.929482
+[RL] conflict=8.75539e-05, trend=0, action=0.0283905, ratio: 1.03683 → 1.03967 (change: 0.273821%), reward=-0.929482
+[Reward-Final] conflict_chg=2.8394% fpure_improv=15.7627% raw=-0.447566 reward=-0.419896
+[RL] conflict=8.29409e-05, trend=0, action=-0.0727972, ratio: 0.893409 → 0.886129 (change: -0.814825%), reward=-0.419896
+[Reward-Final] conflict_chg=34.9803% fpure_improv=3.75253% raw=-1.31265 reward=-0.864944
+[RL] conflict=3.49389e-05, trend=0, action=-0.0831908, ratio: 0.889137 → 0.880817 (change: -0.935636%), reward=-0.864944
+[Reward-Final] conflict_chg=-1.3205% fpure_improv=-13.8764% raw=-0.183238 reward=-0.181214
+[RL] conflict=5.13055e-05, trend=0, action=0.0221388, ratio: 1.03727 → 1.03948 (change: 0.213433%), reward=-0.181214
+[Reward-Final] conflict_chg=-1.67534% fpure_improv=0.0750259% raw=0.00125694 reward=0.00125694
+[RL] conflict=2.06967e-05, trend=0, action=0.110652, ratio: 1.15906 → 1.17013 (change: 0.95467%), reward=0.00125694
+[Reward-Final] conflict_chg=-19.7821% fpure_improv=-7.24641% raw=-1.4335 reward=-0.892381
+[RL] conflict=2.17844e-05, trend=0, action=-0.00105861, ratio: 0.983117 → 0.983011 (change: -0.0107679%), reward=-0.892381
+[Reward-Final] conflict_chg=-5.52208% fpure_improv=14.1985% raw=0.784055 reward=0.655028
+[RL] conflict=5.25523e-05, trend=0, action=0.0293976, ratio: 1.04193 → 1.04487 (change: 0.282147%), reward=0.655028
+[Reward-Final] conflict_chg=-7.73244% fpure_improv=0.13969% raw=0.0108015 reward=0.010801
+[RL] conflict=2.59709e-05, trend=0, action=-0.0355209, ratio: 0.950647 → 0.947095 (change: -0.37365%), reward=0.010801
+[Reward-Final] conflict_chg=-3.12345% fpure_improv=0.495158% raw=0.015466 reward=0.0154648
+[RL] conflict=2.47206e-05, trend=0, action=-0.0982079, ratio: 0.864053 → 0.854232 (change: -1.1366%), reward=0.0154648
+[Reward-Final] conflict_chg=-11.4546% fpure_improv=0.0155743% raw=0.00178398 reward=0.00178398
+[RL] conflict=1.21336e-05, trend=0, action=-0.00157005, ratio: 0.98781 → 0.987653 (change: -0.0158942%), reward=0.00178398
+[Reward-Final] conflict_chg=-16.4046% fpure_improv=-9.79633% raw=-1.60705 reward=-0.922722
+[RL] conflict=1.64817e-05, trend=0, action=-0.0036012, ratio: 0.995559 → 0.995198 (change: -0.0361726%), reward=-0.922722
+[Reward-Final] conflict_chg=22.2703% fpure_improv=3.87468% raw=-0.862902 reward=-0.69775
+[RL] conflict=6.12601e-05, trend=0, action=0.000867864, ratio: 1.00798 → 1.00806 (change: 0.00860994%), reward=-0.69775
+[Reward-Final] conflict_chg=-1.00019% fpure_improv=1.44482% raw=0.014451 reward=0.01445
+[RL] conflict=3.48995e-05, trend=0, action=-0.00993395, ratio: 0.967388 → 0.966395 (change: -0.102688%), reward=0.01445
+[Reward-Final] conflict_chg=-16.1231% fpure_improv=-2.93482% raw=-0.473184 reward=-0.440768
+[RL] conflict=1.64393e-05, trend=0, action=0.139153, ratio: 1.20704 → 1.22096 (change: 1.15284%), reward=-0.440768
+[Reward-Final] conflict_chg=3.28399% fpure_improv=-2.26702% raw=0.0744484 reward=0.0743112
+[RL] conflict=8.82458e-05, trend=0, action=0.160705, ratio: 1.25364 → 1.26971 (change: 1.28191%), reward=0.0743112
+[Reward-Final] conflict_chg=-5.15641% fpure_improv=0.0300219% raw=0.00154805 reward=0.00154805
+[RL] conflict=3.09817e-05, trend=0, action=-0.155391, ratio: 0.763334 → 0.747795 (change: -2.03569%), reward=0.00154805
+[Reward-Final] conflict_chg=-9.8977% fpure_improv=2.09476% raw=0.207333 reward=0.204412
+[RL] conflict=3.2551e-05, trend=0, action=0.102037, ratio: 1.14393 → 1.15414 (change: 0.891986%), reward=0.204412
+[Reward-Final] conflict_chg=-7.02815% fpure_improv=-4.55375% raw=-0.320044 reward=-0.309547
+[RL] conflict=3.61643e-05, trend=0, action=-0.108244, ratio: 0.811387 → 0.800563 (change: -1.33406%), reward=-0.309547
+[Reward-Final] conflict_chg=-18.5765% fpure_improv=0.751786% raw=0.139656 reward=0.138755
+[RL] conflict=5.19897e-05, trend=0, action=-0.172035, ratio: 0.746969 → 0.729766 (change: -2.3031%), reward=0.138755
+[Reward-Final] conflict_chg=-4.83751% fpure_improv=-1.91147% raw=-0.0924674 reward=-0.0922048
+[RL] conflict=3.07041e-05, trend=0, action=-0.100323, ratio: 0.846833 → 0.8368 (change: -1.18469%), reward=-0.0922048
+[Reward-Final] conflict_chg=-2.72402% fpure_improv=1.84334% raw=0.0502129 reward=0.0501707
+[RL] conflict=9.91113e-05, trend=0, action=-0.0970648, ratio: 0.857781 → 0.848075 (change: -1.13158%), reward=0.0501707
+[Reward-Final] conflict_chg=-6.0475% fpure_improv=3.78365% raw=0.228816 reward=0.224905
+[RL] conflict=8.79116e-05, trend=0, action=-0.0877106, ratio: 0.868518 → 0.859747 (change: -1.00989%), reward=0.224905
+[Reward-Final] conflict_chg=-17.2356% fpure_improv=3.23081% raw=0.556849 reward=0.505636
+[RL] conflict=4.0319e-05, trend=0, action=-0.0943696, ratio: 0.856575 → 0.847138 (change: -1.10171%), reward=0.505636
+[Reward-Final] conflict_chg=3.16348% fpure_improv=3.8145% raw=-0.120671 reward=-0.120089
+[RL] conflict=5.43236e-05, trend=0, action=-0.0747839, ratio: 0.885047 → 0.877568 (change: -0.844971%), reward=-0.120089
+[Reward-Final] conflict_chg=-0.220719% fpure_improv=-4.77727% raw=-0.0105444 reward=-0.010544
+[RL] conflict=7.61496e-05, trend=0, action=0.0028709, ratio: 0.992881 → 0.993168 (change: 0.0289148%), reward=-0.010544
+[Reward-Final] conflict_chg=-14.9508% fpure_improv=1.02861% raw=0.153786 reward=0.152585
+[RL] conflict=3.45145e-05, trend=0, action=0.0203715, ratio: 1.03706 → 1.0391 (change: 0.196436%), reward=0.152585
+[Reward-Final] conflict_chg=-15.6058% fpure_improv=2.07126% raw=0.323236 reward=0.31243
+[RL] conflict=1.83616e-05, trend=0, action=-0.0125486, ratio: 0.985305 → 0.98405 (change: -0.127358%), reward=0.31243
+[Reward-Final] conflict_chg=-14.3368% fpure_improv=-0.71633% raw=-0.102699 reward=-0.102339
+[RL] conflict=3.63102e-05, trend=0, action=0.0612866, ratio: 1.11196 → 1.11809 (change: 0.551158%), reward=-0.102339
+[Reward-Final] conflict_chg=2.10189% fpure_improv=-4.0914% raw=0.0859968 reward=0.0857854
+[RL] conflict=0.000157558, trend=0, action=0.0517152, ratio: 1.0591 → 1.06428 (change: 0.488292%), reward=0.0857854
+[Reward-Final] conflict_chg=-3.52356% fpure_improv=-3.70914% raw=-0.130694 reward=-0.129955
+[RL] conflict=1.59009e-05, trend=0, action=-0.00451467, ratio: 0.995198 → 0.994747 (change: -0.0453645%), reward=-0.129955
+[Reward-Final] conflict_chg=-9.41448% fpure_improv=3.18447% raw=0.299802 reward=0.291131
+[RL] conflict=4.36759e-05, trend=0, action=0.136584, ratio: 1.19764 → 1.2113 (change: 1.14044%), reward=0.291131
+[Reward-Final] conflict_chg=3.35296% fpure_improv=4.5263% raw=-0.151765 reward=-0.150611
+[RL] conflict=4.67742e-05, trend=0, action=-0.0163403, ratio: 0.980065 → 0.978431 (change: -0.166727%), reward=-0.150611
+[Reward-Final] conflict_chg=2.5037% fpure_improv=-1.37852% raw=0.0345139 reward=0.0345002
+[RL] conflict=8.9746e-05, trend=0, action=0.0274717, ratio: 1.03967 → 1.04242 (change: 0.264236%), reward=0.0345002
+[Reward-Final] conflict_chg=-6.41683% fpure_improv=0.0146677% raw=0.000941204 reward=0.000941203
+[RL] conflict=7.76188e-05, trend=0, action=-0.0732089, ratio: 0.886129 → 0.878809 (change: -0.826164%), reward=0.000941203
+[Reward-Final] conflict_chg=-12.6352% fpure_improv=4.20778% raw=0.531662 reward=0.48665
+[RL] conflict=3.05243e-05, trend=0, action=-0.0840357, ratio: 0.880817 → 0.872414 (change: -0.954064%), reward=0.48665
+[Reward-Final] conflict_chg=-1.78045% fpure_improv=-4.93117% raw=-0.087797 reward=-0.0875721
+[RL] conflict=5.03921e-05, trend=0, action=0.0219596, ratio: 1.03948 → 1.04168 (change: 0.211254%), reward=-0.0875721
+[Reward-Final] conflict_chg=-18.7058% fpure_improv=3.31083% raw=0.619318 reward=0.550653
+[RL] conflict=1.68252e-05, trend=0, action=0.110653, ratio: 1.17013 → 1.18119 (change: 0.945652%), reward=0.550653
+[Reward-Final] conflict_chg=-1.30232% fpure_improv=2.64236% raw=0.0344119 reward=0.0343983
+[RL] conflict=5.18679e-05, trend=0, action=0.0300449, ratio: 1.04487 → 1.04787 (change: 0.287548%), reward=0.0343983
+[Reward-Final] conflict_chg=-3.35506% fpure_improv=2.57507% raw=0.0863952 reward=0.0861808
+[RL] conflict=2.50995e-05, trend=0, action=-0.0355103, ratio: 0.947095 → 0.943544 (change: -0.374939%), reward=0.0861808
+[Reward-Final] conflict_chg=2.49747% fpure_improv=2.60207% raw=-0.0649859 reward=-0.0648946
+[RL] conflict=2.5338e-05, trend=0, action=-0.0981928, ratio: 0.854232 → 0.844413 (change: -1.14949%), reward=-0.0648946
+[Reward-Final] conflict_chg=-19.7911% fpure_improv=3.6138% raw=0.715211 reward=0.613934
+[RL] conflict=1.89549e-05, trend=0, action=-0.0519697, ratio: 0.915811 → 0.910614 (change: -0.567471%), reward=0.613934
+[Reward-Final] conflict_chg=1.30876% fpure_improv=0.233463% raw=-0.00305546 reward=-0.00305545
+[RL] conflict=2.9057e-05, trend=0, action=0.0253471, ratio: 1.03287 → 1.0354 (change: 0.245404%), reward=-0.00305545
+[Reward-Final] conflict_chg=0.496178% fpure_improv=2.96022% raw=-0.014688 reward=-0.0146869
+[RL] conflict=3.99826e-05, trend=0, action=-0.0934107, ratio: 0.842201 → 0.83286 (change: -1.10913%), reward=-0.0146869
+[Reward-Final] conflict_chg=-2.79413% fpure_improv=-1.43222% raw=-0.0400181 reward=-0.0399967
+[RL] conflict=2.32914e-05, trend=0, action=-0.133211, ratio: 0.801565 → 0.788244 (change: -1.66189%), reward=-0.0399967
+[Reward-Final] conflict_chg=-2.82958% fpure_improv=-2.41417% raw=-0.068311 reward=-0.0682049
+[RL] conflict=3.28479e-05, trend=0, action=-0.00493962, ratio: 0.995806 → 0.995312 (change: -0.0496043%), reward=-0.0682049
+[Reward-Final] conflict_chg=-23.6412% fpure_improv=2.08788% raw=0.493599 reward=0.457068
+[RL] conflict=2.38757e-05, trend=0, action=-0.0645556, ratio: 0.925798 → 0.919343 (change: -0.697297%), reward=0.457068
+[Reward-Final] conflict_chg=4.55036% fpure_improv=-1.21121% raw=0.0551142 reward=0.0550585
+[RL] conflict=2.4416e-05, trend=0, action=0.0473872, ratio: 1.06796 → 1.0727 (change: 0.443717%), reward=0.0550585
+[Reward-Final] conflict_chg=-11.6881% fpure_improv=3.72495% raw=0.435377 reward=0.409805
+[RL] conflict=2.85153e-05, trend=0, action=0.254441, ratio: 1.37184 → 1.39729 (change: 1.85474%), reward=0.409805
+[Reward-Final] conflict_chg=0.776586% fpure_improv=2.22973% raw=-0.0173158 reward=-0.0173141
+[RL] conflict=3.36017e-05, trend=0, action=0.0934153, ratio: 1.12186 → 1.1312 (change: 0.832682%), reward=-0.0173141
+[Reward-Final] conflict_chg=-10.7169% fpure_improv=3.55685% raw=0.381185 reward=0.363736
+[RL] conflict=2.7198e-05, trend=0, action=0.0404227, ratio: 1.04119 → 1.04524 (change: 0.388234%), reward=0.363736
+[Reward-Final] conflict_chg=-17.0006% fpure_improv=-2.53% raw=-0.430115 reward=-0.405417
+[RL] conflict=1.80809e-05, trend=0, action=-0.0019418, ratio: 0.983011 → 0.982817 (change: -0.0197536%), reward=-0.405417
+[Reward-Final] conflict_chg=-5.43033% fpure_improv=3.18894% raw=0.17317 reward=0.171459
+[RL] conflict=4.08045e-05, trend=0, action=0.0798891, ratio: 1.09447 → 1.10246 (change: 0.729931%), reward=0.171459
+[Reward-Final] conflict_chg=-30.9692% fpure_improv=2.5032% raw=0.77522 reward=0.649955
+[RL] conflict=1.00699e-05, trend=0, action=-0.0407621, ratio: 0.931309 → 0.927232 (change: -0.437686%), reward=0.649955
+[Reward-Final] conflict_chg=2.18154% fpure_improv=2.8584% raw=-0.0623573 reward=-0.0622766
+[RL] conflict=8.74843e-05, trend=0, action=0.0562288, ratio: 1.08431 → 1.08993 (change: 0.518569%), reward=-0.0622766
+[Reward-Final] conflict_chg=-12.2762% fpure_improv=4.53244% raw=0.556411 reward=0.50531
+[RL] conflict=7.96737e-05, trend=0, action=0.0100409, ratio: 0.982673 → 0.983677 (change: 0.102179%), reward=0.50531
+[Reward-Final] conflict_chg=7.352% fpure_improv=2.2222% raw=-0.163376 reward=-0.161938
+[RL] conflict=4.17291e-05, trend=0, action=-0.137789, ratio: 0.786128 → 0.772349 (change: -1.75275%), reward=-0.161938
+[Reward-Final] conflict_chg=-15.942% fpure_improv=2.65273% raw=0.422898 reward=0.399369
+[RL] conflict=1.15415e-05, trend=0, action=0.108597, ratio: 1.15572 → 1.16658 (change: 0.939648%), reward=0.399369
+[Reward-Final] conflict_chg=6.22418% fpure_improv=4.10072% raw=-0.255236 reward=-0.249834
+[RL] conflict=2.91382e-05, trend=0, action=-0.143424, ratio: 0.784007 → 0.769665 (change: -1.82938%), reward=-0.249834
+[Reward-Final] conflict_chg=-9.20985% fpure_improv=2.41028% raw=0.221983 reward=0.218408
+[RL] conflict=5.73553e-05, trend=0, action=-0.0492352, ratio: 0.913198 → 0.908274 (change: -0.539152%), reward=0.218408
+[Reward-Final] conflict_chg=-13.9807% fpure_improv=2.22373% raw=0.310893 reward=0.30125
+[RL] conflict=1.60996e-05, trend=0, action=-0.052116, ratio: 0.932217 → 0.927006 (change: -0.559054%), reward=0.30125
+[Reward-Final] conflict_chg=-0.594129% fpure_improv=1.73654% raw=0.0103173 reward=0.0103169
+[RL] conflict=1.20615e-05, trend=0, action=-0.00156828, ratio: 0.987653 → 0.987496 (change: -0.0158789%), reward=0.0103169
+[Reward-Final] conflict_chg=3.78967% fpure_improv=3.26543% raw=-0.123749 reward=-0.123121
+[RL] conflict=3.58225e-05, trend=0, action=0.0205227, ratio: 1.0391 → 1.04115 (change: 0.197505%), reward=-0.123121
+[Reward-Final] conflict_chg=-3.55779% fpure_improv=2.98209% raw=0.106097 reward=0.1057
+[RL] conflict=3.24062e-05, trend=0, action=0.0933983, ratio: 1.1312 → 1.14054 (change: 0.825656%), reward=0.1057
+[Reward-Final] conflict_chg=-19.4549% fpure_improv=-4.62472% raw=-0.899736 reward=-0.716169
+[RL] conflict=1.47893e-05, trend=0, action=-0.0122392, ratio: 0.98405 → 0.982826 (change: -0.124376%), reward=-0.716169
+[Reward-Final] conflict_chg=9.92118% fpure_improv=-7.88893% raw=0.782675 reward=0.654239
+[RL] conflict=3.99126e-05, trend=0, action=0.0611859, ratio: 1.11809 → 1.12421 (change: 0.547236%), reward=0.654239
+[Reward-Final] conflict_chg=-9.61832% fpure_improv=3.28663% raw=0.316118 reward=0.305993
+[RL] conflict=9.10138e-06, trend=0, action=-0.0401207, ratio: 0.927232 → 0.92322 (change: -0.432693%), reward=0.305993
+[Reward-Final] conflict_chg=18.7579% fpure_improv=2.68396% raw=-0.503456 reward=-0.464831
+[RL] conflict=1.4324e-05, trend=0, action=-0.00155806, ratio: 0.987496 → 0.98734 (change: -0.0157779%), reward=-0.464831
+[Reward-Final] conflict_chg=1.04407% fpure_improv=3.45355% raw=-0.0360576 reward=-0.036042
+[RL] conflict=8.83977e-05, trend=0, action=0.0561676, ratio: 1.08993 → 1.09555 (change: 0.515332%), reward=-0.036042
+[Reward-Final] conflict_chg=-1.74064% fpure_improv=7.92277% raw=0.137907 reward=0.137039
+[RL] conflict=4.29157e-05, trend=0, action=0.136861, ratio: 1.2113 → 1.22498 (change: 1.12987%), reward=0.137039
+[Reward-Final] conflict_chg=-0.341717% fpure_improv=4.76985% raw=0.0162994 reward=0.0162979
+[RL] conflict=4.66144e-05, trend=0, action=-0.0164893, ratio: 0.978431 → 0.976782 (change: -0.168528%), reward=0.0162979
+[Reward-Final] conflict_chg=1.83789% fpure_improv=-7.4746% raw=0.137375 reward=0.136517
+[RL] conflict=9.13955e-05, trend=0, action=0.0275058, ratio: 1.04242 → 1.04517 (change: 0.263866%), reward=0.136517
+[Reward-Final] conflict_chg=-8.16391% fpure_improv=-7.88672% raw=-0.643865 reward=-0.567525
+[RL] conflict=7.1282e-05, trend=0, action=-0.0732084, ratio: 0.878809 → 0.871488 (change: -0.833041%), reward=-0.567525
+[Reward-Final] conflict_chg=-14.8216% fpure_improv=3.17859% raw=0.471119 reward=0.439103
+[RL] conflict=2.60001e-05, trend=0, action=-0.0835609, ratio: 0.872414 → 0.864058 (change: -0.957813%), reward=0.439103
+[Reward-Final] conflict_chg=-1.84746% fpure_improv=7.70365% raw=0.142322 reward=0.141369
+[RL] conflict=4.94611e-05, trend=0, action=0.021873, ratio: 1.04168 → 1.04387 (change: 0.209978%), reward=0.141369
+[Reward-Final] conflict_chg=-17.1743% fpure_improv=3.40521% raw=0.584821 reward=0.52616
+[RL] conflict=2.25269e-05, trend=0, action=0.0407823, ratio: 1.04524 → 1.04931 (change: 0.390173%), reward=0.52616
+[Reward-Final] conflict_chg=10.565% fpure_improv=2.27969% raw=-0.240849 reward=-0.236297
+[RL] conflict=1.86028e-05, trend=0, action=0.111185, ratio: 1.18119 → 1.19231 (change: 0.941297%), reward=-0.236297
+[Reward-Final] conflict_chg=2.64611% fpure_improv=-2.70439% raw=0.071561 reward=0.0714391
+[RL] conflict=5.32404e-05, trend=0, action=0.030079, ratio: 1.04787 → 1.05088 (change: 0.287049%), reward=0.0714391
+[Reward-Final] conflict_chg=-12.2151% fpure_improv=0.935026% raw=0.114215 reward=0.11372
+[RL] conflict=2.20336e-05, trend=0, action=-0.0354251, ratio: 0.943544 → 0.940002 (change: -0.375447%), reward=0.11372
+[Reward-Final] conflict_chg=-3.78326% fpure_improv=1.60128% raw=0.0605808 reward=0.0605068
+[RL] conflict=1.54905e-05, trend=0, action=-0.0518194, ratio: 0.927006 → 0.921824 (change: -0.558998%), reward=0.0605068
+[Reward-Final] conflict_chg=-8.40436% fpure_improv=5.69865% raw=0.478935 reward=0.44539
+[RL] conflict=1.65613e-05, trend=0, action=-0.00234305, ratio: 0.982817 → 0.982582 (change: -0.0238402%), reward=0.44539
+[Reward-Final] conflict_chg=-0.208553% fpure_improv=2.13987% raw=0.00446277 reward=0.00446274
+[RL] conflict=2.52852e-05, trend=0, action=-0.0982559, ratio: 0.844413 → 0.834587 (change: -1.1636%), reward=0.00446274
+[Reward-Final] conflict_chg=2.22754% fpure_improv=6.09437% raw=-0.135754 reward=-0.134927
+[RL] conflict=8.14485e-05, trend=0, action=0.0105411, ratio: 0.983677 → 0.984731 (change: 0.10716%), reward=-0.134927
+[Reward-Final] conflict_chg=-2.86678% fpure_improv=2.49681% raw=0.0715782 reward=0.0714562
+[RL] conflict=1.84115e-05, trend=0, action=-0.0513651, ratio: 0.910614 → 0.905478 (change: -0.564071%), reward=0.0714562
+[Reward-Final] conflict_chg=-6.66006% fpure_improv=8.72148% raw=0.580855 reward=0.523287
+[RL] conflict=2.71218e-05, trend=0, action=0.0253443, ratio: 1.0354 → 1.03794 (change: 0.244776%), reward=0.523287
+[Reward-Final] conflict_chg=-5.71311% fpure_improv=2.14479% raw=0.122534 reward=0.121925
+[RL] conflict=3.76983e-05, trend=0, action=-0.0934249, ratio: 0.83286 → 0.823518 (change: -1.12174%), reward=0.121925
+[Reward-Final] conflict_chg=-20.2039% fpure_improv=-0.654834% raw=-0.132302 reward=-0.131536
+[RL] conflict=3.25604e-05, trend=0, action=0.0800571, ratio: 1.10246 → 1.11047 (change: 0.726166%), reward=-0.131536
+[Reward-Final] conflict_chg=8.18308% fpure_improv=8.80003% raw=-0.720114 reward=-0.61698
+[RL] conflict=2.51973e-05, trend=0, action=-0.13325, ratio: 0.788244 → 0.774919 (change: -1.69046%), reward=-0.61698
+[Reward-Final] conflict_chg=-4.8463% fpure_improv=8.48966% raw=0.411435 reward=0.38969
+[RL] conflict=0.000149922, trend=0, action=0.0517997, ratio: 1.06428 → 1.06946 (change: 0.486713%), reward=0.38969
+[Reward-Final] conflict_chg=-9.28599% fpure_improv=3.0095% raw=0.279462 reward=0.272407
+[RL] conflict=5.55715e-05, trend=0, action=0.000176992, ratio: 1.00806 → 1.00808 (change: 0.00175576%), reward=0.272407
+[Reward-Final] conflict_chg=0.532914% fpure_improv=-6.22281% raw=0.0331622 reward=0.03315
+[RL] conflict=3.50855e-05, trend=0, action=-0.00991966, ratio: 0.966395 → 0.965403 (change: -0.102646%), reward=0.03315
+[Reward-Final] conflict_chg=-9.0931% fpure_improv=8.71251% raw=0.792237 reward=0.659675
+[RL] conflict=1.49444e-05, trend=0, action=0.138733, ratio: 1.22096 → 1.23483 (change: 1.13626%), reward=0.659675
+[Reward-Final] conflict_chg=-7.29719% fpure_improv=-6.31628% raw=-0.460911 reward=-0.430827
+[RL] conflict=8.18063e-05, trend=0, action=0.160776, ratio: 1.26971 → 1.28579 (change: 1.26624%), reward=-0.430827
+[Reward-Final] conflict_chg=-6.92837% fpure_improv=4.01488% raw=0.278166 reward=0.271207
+[RL] conflict=2.88351e-05, trend=0, action=-0.15539, ratio: 0.747795 → 0.732256 (change: -2.07797%), reward=0.271207
+[Reward-Final] conflict_chg=8.46455% fpure_improv=2.07815% raw=-0.175906 reward=-0.174113
+[RL] conflict=3.53063e-05, trend=0, action=0.102236, ratio: 1.15414 → 1.16436 (change: 0.88582%), reward=-0.174113
+[Reward-Final] conflict_chg=-6.29716% fpure_improv=7.14566% raw=0.449974 reward=0.421878
+[RL] conflict=3.3887e-05, trend=0, action=-0.108544, ratio: 0.800563 → 0.789708 (change: -1.35585%), reward=0.421878
+[Reward-Final] conflict_chg=-24.7205% fpure_improv=-7.33807% raw=-1.81401 reward=-0.948237
+[RL] conflict=3.91376e-05, trend=0, action=-0.171906, ratio: 0.729766 → 0.712575 (change: -2.35563%), reward=-0.948237
+[Reward-Final] conflict_chg=-8.23294% fpure_improv=-6.86373% raw=-0.565087 reward=-0.511742
+[RL] conflict=2.81762e-05, trend=0, action=-0.100413, ratio: 0.8368 → 0.826759 (change: -1.19996%), reward=-0.511742
+[Reward-Final] conflict_chg=-16.3302% fpure_improv=8.44037% raw=1.37833 reward=0.880577
+[RL] conflict=8.29262e-05, trend=0, action=-0.0970153, ratio: 0.848075 → 0.838373 (change: -1.14395%), reward=0.880577
+[Reward-Final] conflict_chg=-10.449% fpure_improv=3.23673% raw=0.338207 reward=0.325875
+[RL] conflict=7.87257e-05, trend=0, action=-0.087491, ratio: 0.859747 → 0.850998 (change: -1.01764%), reward=0.325875
+[Reward-Final] conflict_chg=-29.5635% fpure_improv=2.56216% raw=0.757466 reward=0.639582
+[RL] conflict=1.68171e-05, trend=0, action=-0.0641052, ratio: 0.919343 → 0.912932 (change: -0.697294%), reward=0.639582
+[Reward-Final] conflict_chg=-22.4081% fpure_improv=4.8556% raw=1.08805 reward=0.796164
+[RL] conflict=1.89448e-05, trend=0, action=0.0474416, ratio: 1.0727 → 1.07744 (change: 0.442265%), reward=0.796164
+[Reward-Final] conflict_chg=17.5172% fpure_improv=1.3478% raw=-0.236098 reward=-0.231806
+[RL] conflict=3.35104e-05, trend=0, action=0.254796, ratio: 1.39729 → 1.42277 (change: 1.8235%), reward=-0.231806
+[Reward-Final] conflict_chg=13.7258% fpure_improv=3.48645% raw=-0.478542 reward=-0.445075
+[RL] conflict=4.58531e-05, trend=0, action=-0.0938784, ratio: 0.847138 → 0.837751 (change: -1.10818%), reward=-0.445075
+[Reward-Final] conflict_chg=-2.20012% fpure_improv=2.75241% raw=0.0605562 reward=0.0604823
+[RL] conflict=5.31284e-05, trend=0, action=-0.0749014, ratio: 0.877568 → 0.870078 (change: -0.853511%), reward=0.0604823
+[Reward-Final] conflict_chg=-18.5562% fpure_improv=-6.05497% raw=-1.12357 reward=-0.808809
+[RL] conflict=2.67526e-05, trend=0, action=-0.00500683, ratio: 0.995312 → 0.994811 (change: -0.0503042%), reward=-0.808809
+[Reward-Final] conflict_chg=-7.81239% fpure_improv=8.151% raw=0.636788 reward=0.562708
+[RL] conflict=7.02005e-05, trend=0, action=0.00286042, ratio: 0.993168 → 0.993454 (change: 0.028801%), reward=0.562708
+[Reward-Final] conflict_chg=2.05525% fpure_improv=6.47419% raw=-0.13306 reward=-0.132281
+[RL] conflict=1.62277e-05, trend=0, action=-0.00464332, ratio: 0.994747 → 0.994283 (change: -0.0466784%), reward=-0.132281
+[Reward-Final] conflict_chg=8.90008% fpure_improv=2.30945% raw=-0.205543 reward=-0.202696
+[RL] conflict=4.5443e-05, trend=0, action=-0.137943, ratio: 0.772349 → 0.758555 (change: -1.78602%), reward=-0.202696
+[Reward-Final] conflict_chg=-3.31913% fpure_improv=0.824773% raw=0.0273753 reward=0.0273685
+[RL] conflict=1.11584e-05, trend=0, action=0.108983, ratio: 1.16658 → 1.17748 (change: 0.934212%), reward=0.0273685
+[Reward-Final] conflict_chg=-0.351932% fpure_improv=7.14468% raw=0.0251444 reward=0.0251391
+[RL] conflict=2.90357e-05, trend=0, action=-0.143662, ratio: 0.769665 → 0.755299 (change: -1.86655%), reward=0.0251391
+[Reward-Final] conflict_chg=13.4314% fpure_improv=1.20285% raw=-0.16156 reward=-0.160168
+[RL] conflict=6.5059e-05, trend=0, action=-0.0490204, ratio: 0.908274 → 0.903372 (change: -0.53971%), reward=-0.160168
+[RL] conflict=3.72071e-05, trend=0, action=-0.0933063, ratio: 0.823518 → 0.814187 (change: -1.13302%), reward=0.00374879
+[RL] conflict=1.49837e-05, trend=0, action=-0.00477428, ratio: 0.994283 → 0.993805 (change: -0.0480174%), reward=-0.819486
+[RL] conflict=8.45213e-05, trend=0, action=0.160371, ratio: 1.28579 → 1.30182 (change: 1.24726%), reward=0.605118
+[RL] conflict=3.72923e-05, trend=0, action=-0.108135, ratio: 0.789708 → 0.778895 (change: -1.36931%), reward=0.940954
+[RL] conflict=7.24887e-05, trend=0, action=-0.0961592, ratio: 0.838373 → 0.828758 (change: -1.14697%), reward=-0.87224
+[RL] conflict=4.65447e-05, trend=0, action=-0.0943114, ratio: 0.837751 → 0.82832 (change: -1.12577%), reward=0.0609725
+[RL] conflict=2.50848e-05, trend=0, action=-0.00580742, ratio: 0.994811 → 0.99423 (change: -0.0583772%), reward=-0.852053
+[RL] conflict=1.04749e-05, trend=0, action=0.10901, ratio: 1.17748 → 1.18838 (change: 0.92579%), reward=-0.033444
+[RL] conflict=1.39767e-05, trend=0, action=-0.0129479, ratio: 0.982826 → 0.981531 (change: -0.131742%), reward=-0.835703
+[RL] conflict=8.66316e-05, trend=0, action=0.0561321, ratio: 1.09555 → 1.10116 (change: 0.512366%), reward=-0.0838502
+[RL] conflict=4.19278e-05, trend=0, action=0.136992, ratio: 1.22498 → 1.23868 (change: 1.11832%), reward=-0.178173
+[RL] conflict=5.38685e-05, trend=0, action=0.0301497, ratio: 1.05088 → 1.05389 (change: 0.2869%), reward=0.203164
+[RL] conflict=1.91095e-05, trend=0, action=-0.0353128, ratio: 0.940002 → 0.936471 (change: -0.375667%), reward=-0.103214
+[RL] conflict=2.59481e-05, trend=0, action=-0.0982515, ratio: 0.834587 → 0.824762 (change: -1.17725%), reward=-0.0156463
+[RL] conflict=9.6304e-05, trend=0, action=0.0276407, ratio: 1.04517 → 1.04793 (change: 0.264462%), reward=0.875101
+[RL] conflict=1.67509e-05, trend=0, action=-0.0512947, ratio: 0.905478 → 0.900348 (change: -0.566494%), reward=-0.0995761
+[RL] conflict=2.29362e-05, trend=0, action=-0.133839, ratio: 0.774919 → 0.761535 (change: -1.72713%), reward=-0.893987
+[RL] conflict=1.80079e-05, trend=0, action=0.0482263, ratio: 1.07744 → 1.08226 (change: 0.4476%), reward=-0.405464
+[RL] conflict=2.89786e-05, trend=0, action=0.254595, ratio: 1.42277 → 1.44823 (change: 1.78944%), reward=-0.817051
+[RL] conflict=3.27084e-05, trend=0, action=0.0935012, ratio: 1.14054 → 1.14989 (change: 0.819796%), reward=0.0364182
+[RL] conflict=2.49879e-05, trend=0, action=-0.100909, ratio: 0.826759 → 0.816668 (change: -1.22053%), reward=-0.989039
+[RL] conflict=1.61496e-05, trend=0, action=0.110957, ratio: 1.19231 → 1.2034 (change: 0.930604%), reward=-0.0449339
+[RL] conflict=2.38982e-05, trend=0, action=0.025862, ratio: 1.03794 → 1.04053 (change: 0.249167%), reward=-0.922999
+[RL] conflict=2.9657e-05, trend=0, action=0.0799287, ratio: 1.11047 → 1.11846 (change: 0.719774%), reward=-0.812018
+[RL] conflict=4.63893e-05, trend=0, action=-0.138136, ratio: 0.758555 → 0.744741 (change: -1.82104%), reward=-0.00743584
+[RL] conflict=3.0647e-05, trend=0, action=-0.172791, ratio: 0.712575 → 0.695296 (change: -2.42488%), reward=-0.999987
+[RL] conflict=8.09786e-05, trend=0, action=-0.0871733, ratio: 0.850998 → 0.84228 (change: -1.02437%), reward=0.0920608
+[RL] conflict=2.59971e-05, trend=0, action=-0.143638, ratio: 0.755299 → 0.740935 (change: -1.90174%), reward=-0.516663
+[RL] conflict=2.33024e-05, trend=0, action=0.0413013, ratio: 1.04931 → 1.05344 (change: 0.393603%), reward=0.127121
+[RL] conflict=1.37973e-05, trend=0, action=-0.0517599, ratio: 0.921824 → 0.916648 (change: -0.561495%), reward=-0.217787
+[RL] conflict=7.52438e-05, trend=0, action=0.0104073, ratio: 0.984731 → 0.985772 (change: 0.105686%), reward=-0.299032
+[RL] conflict=5.68799e-05, trend=0, action=-0.0491778, ratio: 0.903372 → 0.898454 (change: -0.544381%), reward=-0.163553
+[RL] conflict=3.12349e-05, trend=0, action=-0.00988669, ratio: 0.965403 → 0.964414 (change: -0.10241%), reward=-0.992583
+[RL] conflict=9.25115e-06, trend=0, action=-0.0398187, ratio: 0.92322 → 0.919238 (change: -0.431303%), reward=0.0684463
+[RL] conflict=0.000102652, trend=0, action=-0.0737622, ratio: 0.871488 → 0.864112 (change: -0.846394%), reward=1
+[RL] conflict=3.18036e-05, trend=0, action=-0.0831317, ratio: 0.864058 → 0.855745 (change: -0.962109%), reward=0.839253
+[RL] conflict=0.000158338, trend=0, action=0.0521834, ratio: 1.06946 → 1.07467 (change: 0.487944%), reward=0.790916
+[RL] conflict=5.48653e-05, trend=0, action=0.000446663, ratio: 1.00808 → 1.00813 (change: 0.00443081%), reward=-0.033142
+[RL] conflict=1.7686e-05, trend=0, action=0.139361, ratio: 1.23483 → 1.24877 (change: 1.12858%), reward=0.997275
+[RL] conflict=1.81021e-05, trend=0, action=-0.0634775, ratio: 0.912932 → 0.906584 (change: -0.695314%), reward=0.256171
+[RL] conflict=5.10187e-05, trend=0, action=-0.0748421, ratio: 0.870078 → 0.862594 (change: -0.860177%), reward=-0.0748608
+[RL] conflict=3.48209e-05, trend=0, action=0.0204007, ratio: 1.04115 → 1.04319 (change: 0.195944%), reward=-0.0725287
+[RL] conflict=3.395e-05, trend=0, action=0.0618291, ratio: 1.12421 → 1.13039 (change: 0.549979%), reward=-0.999395
+[RL] conflict=4.7205e-05, trend=0, action=-0.0164732, ratio: 0.976782 → 0.975135 (change: -0.168648%), reward=0.0502718
+[RL] conflict=4.1866e-05, trend=0, action=0.102068, ratio: 1.16436 → 1.17457 (change: 0.876599%), reward=0.474022
+[RL] conflict=4.85924e-05, trend=0, action=0.0220128, ratio: 1.04387 → 1.04607 (change: 0.210877%), reward=-0.31944
+[RL] conflict=1.55233e-05, trend=0, action=-0.00190205, ratio: 0.982582 → 0.982392 (change: -0.0193577%), reward=-0.639204
+[RL] conflict=1.28935e-05, trend=0, action=-0.00201824, ratio: 0.98734 → 0.987138 (change: -0.0204412%), reward=-0.0660354
+[RL] conflict=2.78941e-05, trend=0, action=-0.155134, ratio: 0.732256 → 0.716743 (change: -2.11858%), reward=-0.173881
+[RL] conflict=6.74049e-05, trend=0, action=0.00341748, ratio: 0.993454 → 0.993796 (change: 0.0344%), reward=-0.649152
+[RL] conflict=2.10239e-05, trend=0, action=-0.144129, ratio: 0.740935 → 0.726522 (change: -1.94523%), reward=0.213064
+[RL] conflict=2.65392e-05, trend=0, action=-0.101868, ratio: 0.816668 → 0.806481 (change: -1.24737%), reward=-0.367432
+[RL] conflict=4.18168e-05, trend=0, action=0.136822, ratio: 1.23868 → 1.25237 (change: 1.10458%), reward=0.00287034
+[RL] conflict=5.51518e-05, trend=0, action=0.0303505, ratio: 1.05389 → 1.05693 (change: 0.287985%), reward=-0.187993
+[RL] conflict=2.28499e-05, trend=0, action=0.0414268, ratio: 1.05344 → 1.05759 (change: 0.393251%), reward=-0.0215428
+[RL] conflict=5.11561e-05, trend=0, action=0.0216968, ratio: 1.04607 → 1.04824 (change: 0.207413%), reward=-0.109677
+[RL] conflict=1.70146e-05, trend=0, action=-0.0354147, ratio: 0.936471 → 0.932929 (change: -0.378172%), reward=-0.340303
+[RL] conflict=1.27098e-05, trend=0, action=-0.0519745, ratio: 0.916648 → 0.91145 (change: -0.567006%), reward=-0.174566
+[RL] conflict=0.000105703, trend=0, action=0.0285055, ratio: 1.04793 → 1.05078 (change: 0.272017%), reward=-0.622608
+[RL] conflict=1.48957e-05, trend=0, action=0.110913, ratio: 1.2034 → 1.2145 (change: 0.921663%), reward=-0.17338
+[RL] conflict=7.82933e-05, trend=0, action=0.0101114, ratio: 0.985772 → 0.986783 (change: 0.102574%), reward=-0.0586998
+[RL] conflict=2.36925e-05, trend=0, action=0.0249495, ratio: 1.04053 → 1.04302 (change: 0.239777%), reward=0.0119591
+[RL] conflict=1.47006e-05, trend=0, action=-0.0513928, ratio: 0.900348 → 0.895209 (change: -0.57081%), reward=-0.292746
+[RL] conflict=0.000156612, trend=0, action=0.0529622, ratio: 1.07467 → 1.07997 (change: 0.492821%), reward=0.0210211
+[RL] conflict=6.19246e-05, trend=0, action=-0.0493392, ratio: 0.898454 → 0.89352 (change: -0.549157%), reward=0.245642
+[RL] conflict=3.59402e-05, trend=0, action=-0.0933026, ratio: 0.814187 → 0.804857 (change: -1.14596%), reward=-0.0606848
+[RL] conflict=5.37454e-05, trend=0, action=0.000413832, ratio: 1.00813 → 1.00817 (change: 0.00410496%), reward=-0.0425178
+[RL] conflict=1.60243e-05, trend=0, action=-0.00558553, ratio: 0.993805 → 0.993247 (change: -0.0562034%), reward=-0.139927
+[RL] conflict=2.50251e-05, trend=0, action=0.0791351, ratio: 1.11846 → 1.12638 (change: 0.707535%), reward=0.7632
+[RL] conflict=8.56406e-05, trend=0, action=0.160939, ratio: 1.30182 → 1.31792 (change: 1.23626%), reward=-0.0686866
+[RL] conflict=4.24188e-05, trend=0, action=-0.138143, ratio: 0.744741 → 0.730927 (change: -1.85492%), reward=-0.0340742
+[RL] conflict=2.46613e-05, trend=0, action=0.0935358, ratio: 1.14989 → 1.15925 (change: 0.813431%), reward=-0.117465
+[RL] conflict=3.40392e-05, trend=0, action=-0.107226, ratio: 0.778895 → 0.768172 (change: -1.37664%), reward=0.180165
+[RL] conflict=2.36981e-05, trend=0, action=-0.173724, ratio: 0.695296 → 0.677924 (change: -2.49856%), reward=0.978838
+[RL] conflict=2.17913e-05, trend=0, action=-0.134693, ratio: 0.761535 → 0.748066 (change: -1.7687%), reward=0.0794294
+[RL] conflict=1.7485e-05, trend=0, action=0.0478267, ratio: 1.08226 → 1.08705 (change: 0.441914%), reward=0.048525
+[RL] conflict=7.88969e-05, trend=0, action=-0.0970072, ratio: 0.828758 → 0.819057 (change: -1.17051%), reward=-0.105684
+[RL] conflict=4.6824e-05, trend=0, action=-0.0942521, ratio: 0.82832 → 0.818894 (change: -1.13787%), reward=0.00390943
+[RL] conflict=3.11972e-05, trend=0, action=-0.0108691, ratio: 0.964414 → 0.963327 (change: -0.112702%), reward=0.0119246
+[RL] conflict=2.22531e-05, trend=0, action=-0.00665075, ratio: 0.99423 → 0.993565 (change: -0.0668935%), reward=0.488272
+[RL] conflict=5.2235e-05, trend=0, action=-0.0749155, ratio: 0.862594 → 0.855103 (change: -0.86849%), reward=0.0569683
+[RL] conflict=2.97138e-05, trend=0, action=0.253887, ratio: 1.44823 → 1.47361 (change: 1.75309%), reward=-0.12036
+[RL] conflict=1.15699e-05, trend=0, action=0.108977, ratio: 1.18838 → 1.19928 (change: 0.917025%), reward=0.341328
+[RL] conflict=7.8684e-05, trend=0, action=-0.0870835, ratio: 0.84228 → 0.833572 (change: -1.0339%), reward=-0.0459492
+[RL] conflict=6.27199e-05, trend=0, action=0.00277481, ratio: 0.993796 → 0.994074 (change: 0.0279213%), reward=0.140363
+[RL] conflict=1.54912e-05, trend=0, action=-0.00253485, ratio: 0.982392 → 0.982139 (change: -0.0258029%), reward=0.00392519
+[RL] conflict=1.54482e-05, trend=0, action=-0.0137751, ratio: 0.981531 → 0.980154 (change: -0.140343%), reward=-0.747811
+[RL] conflict=8.1231e-05, trend=0, action=0.0560493, ratio: 1.10116 → 1.10676 (change: 0.509003%), reward=-0.0216827
+[RL] conflict=4.27441e-05, trend=0, action=0.0608466, ratio: 1.13039 → 1.13648 (change: 0.53828%), reward=-0.977889
+[RL] conflict=2.57501e-05, trend=0, action=-0.0982667, ratio: 0.824762 → 0.814935 (change: -1.19146%), reward=-0.00859976
+[RL] conflict=0.00011396, trend=0, action=-0.072782, ratio: 0.864112 → 0.856833 (change: -0.842276%), reward=-0.783533
+[RL] conflict=8.30661e-06, trend=0, action=-0.0397512, ratio: 0.919238 → 0.915263 (change: -0.432436%), reward=-0.0283435
+[RL] conflict=1.27177e-05, trend=0, action=-0.00208362, ratio: 0.987138 → 0.98693 (change: -0.0211077%), reward=0.00401614
+[RL] conflict=2.4672e-05, trend=0, action=-0.0632274, ratio: 0.906584 → 0.900262 (change: -0.697424%), reward=0.326973
+[RL] conflict=2.16571e-05, trend=0, action=-0.0823129, ratio: 0.855745 → 0.847513 (change: -0.961886%), reward=0.779801
+[RL] conflict=1.56185e-05, trend=0, action=0.140311, ratio: 1.24877 → 1.2628 (change: 1.12359%), reward=0.205184
+[RL] conflict=2.19466e-05, trend=0, action=-0.155299, ratio: 0.716743 → 0.701213 (change: -2.16673%), reward=0.278299
+[RL] conflict=4.7034e-05, trend=0, action=-0.0164235, ratio: 0.975135 → 0.973492 (change: -0.168423%), reward=0.00778012
+[RL] conflict=3.65573e-05, trend=0, action=0.0203293, ratio: 1.04319 → 1.04522 (change: 0.194876%), reward=-0.0439836
+[RL] conflict=4.71418e-05, trend=0, action=0.102528, ratio: 1.17457 → 1.18482 (change: 0.8729%), reward=0.194478
+[RL] conflict=1.92543e-05, trend=0, action=-0.062905, ratio: 0.900262 → 0.893971 (change: -0.698741%), reward=-0.506388
+[RL] conflict=1.37366e-05, trend=0, action=-0.0516811, ratio: 0.895209 → 0.890041 (change: -0.577308%), reward=-0.077705
+[RL] conflict=0.000151478, trend=0, action=0.0529829, ratio: 1.07997 → 1.08527 (change: 0.490596%), reward=0.0069155
+[RL] conflict=5.76236e-05, trend=0, action=-0.049097, ratio: 0.89352 → 0.888611 (change: -0.549478%), reward=-0.0345979
+[RL] conflict=3.81675e-05, trend=0, action=-0.0933617, ratio: 0.804857 → 0.795521 (change: -1.15998%), reward=0.0293548
+[RL] conflict=4.99819e-05, trend=0, action=0.000371673, ratio: 1.00817 → 1.00821 (change: 0.00368662%), reward=-0.157894
+[RL] conflict=7.74527e-06, trend=0, action=-0.0397792, ratio: 0.915263 → 0.911285 (change: -0.43462%), reward=-0.232461
+[RL] conflict=2.06158e-05, trend=0, action=-0.155036, ratio: 0.701213 → 0.685709 (change: -2.21097%), reward=-0.00214795
+[RL] conflict=1.61225e-05, trend=0, action=-0.00572404, ratio: 0.993247 → 0.992674 (change: -0.0576296%), reward=-0.00354332
+[RL] conflict=2.52136e-05, trend=0, action=0.0798813, ratio: 1.12638 → 1.13436 (change: 0.709188%), reward=0.0128375
+[RL] conflict=8.66253e-05, trend=0, action=0.160875, ratio: 1.31792 → 1.334 (change: 1.22068%), reward=0.0271717
+[RL] conflict=2.59228e-05, trend=0, action=0.0934217, ratio: 1.15925 → 1.16859 (change: 0.805883%), reward=0.158425
+[RL] conflict=3.63272e-05, trend=0, action=-0.107051, ratio: 0.768172 → 0.757467 (change: -1.39358%), reward=-0.0450231
+[RL] conflict=1.66286e-05, trend=0, action=-0.0815515, ratio: 0.847513 → 0.839358 (change: -0.962245%), reward=-0.393299
+[RL] conflict=1.81687e-05, trend=0, action=-0.134616, ratio: 0.748066 → 0.734604 (change: -1.79952%), reward=-0.125523
+[RL] conflict=1.84997e-05, trend=0, action=0.0478745, ratio: 1.08705 → 1.09183 (change: 0.440409%), reward=-0.0103375
+[RL] conflict=8.30134e-05, trend=0, action=-0.09711, ratio: 0.819057 → 0.809346 (change: -1.18563%), reward=0.101264
+[RL] conflict=4.90524e-05, trend=0, action=-0.0942485, ratio: 0.818894 → 0.809469 (change: -1.15092%), reward=0.167378
+[RL] conflict=3.50495e-05, trend=0, action=-0.0108575, ratio: 0.963327 → 0.962241 (change: -0.112708%), reward=0.366954
+[RL] conflict=2.09776e-05, trend=0, action=-0.00616734, ratio: 0.993565 → 0.992948 (change: -0.0620728%), reward=-0.125676
+[RL] conflict=5.23174e-05, trend=0, action=-0.0748597, ratio: 0.855103 → 0.847617 (change: -0.875447%), reward=0.00269788
+[RL] conflict=3.13611e-05, trend=0, action=0.253782, ratio: 1.47361 → 1.49899 (change: 1.72217%), reward=0.088456
+[RL] conflict=4.55448e-05, trend=0, action=-0.0164157, ratio: 0.973492 → 0.971851 (change: -0.168627%), reward=-0.0679588
+[RL] conflict=5.13132e-05, trend=0, action=0.102717, ratio: 1.18482 → 1.19509 (change: 0.866942%), reward=0.161009
+[RL] conflict=1.43897e-05, trend=0, action=0.140506, ratio: 1.2628 → 1.27685 (change: 1.11265%), reward=-0.0169829
+[RL] conflict=1.44247e-05, trend=0, action=-0.00253089, ratio: 0.982139 → 0.981886 (change: -0.0257692%), reward=0.027581
+[RL] conflict=1.36503e-05, trend=0, action=-0.014515, ratio: 0.980154 → 0.978702 (change: -0.148089%), reward=-0.295325
+[RL] conflict=7.97446e-05, trend=0, action=0.056028, ratio: 1.10676 → 1.11237 (change: 0.506232%), reward=-0.066598
+[RL] conflict=4.03066e-05, trend=0, action=0.0598857, ratio: 1.13648 → 1.14246 (change: 0.526942%), reward=-0.192473
+[RL] conflict=0.000117888, trend=0, action=-0.0735493, ratio: 0.856833 → 0.849478 (change: -0.858385%), reward=0.121939
+[RL] conflict=2.36938e-05, trend=0, action=-0.0982751, ratio: 0.814935 → 0.805108 (change: -1.20593%), reward=-0.0262402
+[RL] conflict=3.96167e-05, trend=0, action=0.0202863, ratio: 1.04522 → 1.04725 (change: 0.194086%), reward=0.0157445
+[RL] conflict=1.71384e-05, trend=0, action=-0.143927, ratio: 0.726522 → 0.712129 (change: -1.98104%), reward=-0.442759
+[RL] conflict=2.5581e-05, trend=0, action=-0.102225, ratio: 0.806481 → 0.796259 (change: -1.26754%), reward=-0.0972625
+[RL] conflict=4.38277e-05, trend=0, action=0.136825, ratio: 1.25237 → 1.26605 (change: 1.09253%), reward=0.114233
+[RL] conflict=5.43467e-05, trend=0, action=0.0301647, ratio: 1.05693 → 1.05994 (change: 0.285399%), reward=-0.030466
+[RL] conflict=2.21651e-05, trend=0, action=0.0414057, ratio: 1.05759 → 1.06173 (change: 0.39151%), reward=-0.09724
+[RL] conflict=5.32015e-05, trend=0, action=0.0215883, ratio: 1.04824 → 1.0504 (change: 0.205948%), reward=-0.0259813
+[RL] conflict=1.39716e-05, trend=0, action=-0.0357507, ratio: 0.932929 → 0.929354 (change: -0.38321%), reward=-0.0124423
+[RL] conflict=0.000106501, trend=0, action=0.0278901, ratio: 1.05078 → 1.05357 (change: 0.265423%), reward=0.0233655
+[RL] conflict=1.51813e-05, trend=0, action=0.110746, ratio: 1.2145 → 1.22557 (change: 0.911867%), reward=0.0145933
+[RL] conflict=2.34302e-05, trend=0, action=0.0249613, ratio: 1.04302 → 1.04552 (change: 0.239318%), reward=-0.0151215
+[RL] conflict=4.47464e-05, trend=0, action=-0.138176, ratio: 0.730927 → 0.71711 (change: -1.89042%), reward=0.0155092
+[RL] conflict=1.03908e-05, trend=0, action=0.109307, ratio: 1.19928 → 1.21021 (change: 0.911444%), reward=0.0112843
+[RL] conflict=1.28708e-05, trend=0, action=-0.0521464, ratio: 0.91145 → 0.906236 (change: -0.572125%), reward=0.0141525
+[RL] conflict=8.8532e-05, trend=0, action=0.0100539, ratio: 0.986783 → 0.987788 (change: 0.101885%), reward=0.312293
+[RL] conflict=2.15096e-05, trend=0, action=-0.172812, ratio: 0.677924 → 0.660643 (change: -2.54913%), reward=-0.308598
+[RL] conflict=1.16721e-05, trend=0, action=-0.00207964, ratio: 0.98693 → 0.986722 (change: -0.0210719%), reward=-0.0213703
+[RL] conflict=8.30181e-05, trend=0, action=-0.0871284, ratio: 0.833572 → 0.824859 (change: -1.04524%), reward=0.153529
+[RL] conflict=6.26215e-05, trend=0, action=0.00291377, ratio: 0.994074 → 0.994365 (change: 0.0293114%), reward=0.000784641
+Completed [LLSO]: iterations=23, evals=150552, final fitness=1.02481e+09, total time=37614ms
+hp@DESKTOP-K3Q5P3O:/mnt/d/zyj/MACPO2/RL-MACPO$

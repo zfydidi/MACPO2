@@ -594,7 +594,7 @@ Table~\ref{tab:macpo_style_all} reports F1--F6 fitness under a unified 25-run pr
 
 LLSO and CSO are shown side by side to test whether relative method ordering remains stable when only the intra-agent local search engine changes. The row--column grouping is kept close to the MACPO reference \cite{ref_macpo} so that readers can compare entries across the two works directly. Within each optimizer block, the three MACPO-family columns, \textbf{MACPO}, \textbf{RL Only}, and \textbf{RL-MACPO}, form the aligned comparison: they share the same implementation, evaluation budget, and reporting protocol, and differ only in whether RL-based adaptive penalty control and conflict-gated communication are enabled.
 
-\paragraph{External reference columns (GFPDO$^{\dagger}$/DPSO$^{\dagger}$).} Following the MACPO paper layout \cite{ref_macpo}, Table~\ref{tab:macpo_style_all} keeps GFPDO \cite{ref_gfpdo} and DPSO \cite{ref_dpso} in the main table for cross-method scale context. Their mean/median/std entries are \emph{literature anchors} transcribed from \cite{ref_macpo}; we did not re-execute those baselines under the present RL-MACPO evaluation protocol. Accordingly, no significance symbols are attached to GFPDO/DPSO cells, and all statistical tests in the table apply only to the aligned MACPO-family trio (\textbf{MACPO}, \textbf{RL Only}, \textbf{RL-MACPO}). Readers should treat GFPDO/DPSO as order-of-magnitude references, not as paired competitors in our 25-run study.
+\paragraph{External reference columns (GFPDO$^{\dagger}$/DPSO$^{\dagger}$).} Following the MACPO paper layout \cite{ref_macpo}, Table~\ref{tab:macpo_style_all} keeps GFPDO \cite{ref_gfpdo} and DPSO \cite{ref_dpso} for cross-method scale context. GFPDO entries are \emph{single-run pilots} per function (MACPO GFPDO executable); DPSO entries are recomputed from a 25-run batch under the same evaluation budget. No significance symbols are attached to these columns; all statistical tests apply only to \textbf{MACPO}, \textbf{RL Only}, and \textbf{RL-MACPO}.
 
 For each function and embedded optimizer, we report mean, median, standard deviation, $p$-value against MACPO, and win/tie/loss counts. For MACPO versus RL-MACPO on the same 25 matched runs, we use Wilcoxon signed-rank tests on paired differences for the LLSO block and Mann--Whitney U tests for the CSO block, following \cite{ref_macpo}. Unless noted otherwise, the RL-MACPO row corresponds to the default \emph{Full} configuration, which includes RL-based adaptive penalty control, conflict-gated communication, the $\mathrm{variable\_switch}$ mechanism, and the variable selection for negotiation module. The \emph{NoSelection} ablation disables only the variable selection for negotiation module and is not used for this row.
 
@@ -605,7 +605,7 @@ F1--F6 should be read as a structured benchmark family rather than as isolated c
 \tiny
 \setlength{\tabcolsep}{1.8pt}
 \renewcommand{\arraystretch}{1.00}
-\caption{Final global objective $F$ (Eq.~\protect\eqref{eq:global_objective}) on F1--F6: mean, median, standard deviation, and $p$-value over 25 independent runs, for LLSO (left five columns) and CSO (right five columns). \textbf{MACPO} and \textbf{RL-MACPO} use logged \texttt{f\_pure} (last row per run) from archived trajectories. \textbf{GFPDO$^{\dagger}$} and \textbf{DPSO$^{\dagger}$} are transcribed from \cite{ref_macpo} (not re-run here; $p$-values and w/t/l omitted). Tests for RL-MACPO vs.\ MACPO only: paired Wilcoxon signed-rank (LLSO), Mann--Whitney U (CSO). * RL-MACPO better; \# worse ($p<0.05$). Bold: better mean in each MACPO vs.\ RL-MACPO pair. Communication rate and evaluation count: Table~\ref{tab:f1f6_comm_eva}.}
+\caption{Final global objective $F$ (Eq.~\protect\eqref{eq:global_objective}) on F1--F6: mean, median, standard deviation, and $p$-value over 25 independent runs, for LLSO (left five columns) and CSO (right five columns). \textbf{MACPO} and \textbf{RL-MACPO} use logged \texttt{f\_pure} (last row per run) from archived trajectories. \textbf{GFPDO$^{\dagger}$}: one-run pilot per function under the MACPO GFPDO executable; \textbf{DPSO$^{\dagger}$}: 25-run batch under the MACPO DPSO executable (same evaluation budget). No significance tests for external columns. Tests for RL-MACPO vs.\ MACPO only: paired Wilcoxon signed-rank (LLSO), Mann--Whitney U (CSO). * RL-MACPO better; \# worse ($p<0.05$). Bold: better mean in each MACPO vs.\ RL-MACPO pair.}
 \label{tab:macpo_style_all}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llccccc|ccccc}
@@ -615,39 +615,39 @@ F1--F6 should be read as a structured benchmark family rather than as isolated c
 & & \textbf{GFPDO$^{\dagger}$} & \textbf{DPSO$^{\dagger}$} & \textbf{MACPO} & \textbf{RL Only} & \textbf{RL-MACPO} & \textbf{GFPDO$^{\dagger}$} & \textbf{DPSO$^{\dagger}$} & \textbf{MACPO} & \textbf{RL Only} & \textbf{RL-MACPO} \\
 \midrule
 \multirow{4}{*}{F1}
-& mean    & 8.46E+8 & 2.25E+10 & 1.98E+7 & 2.07E+7 & \textbf{6.43E+6} & 2.06E+10 & 3.65E+10 & 2.33E+7 & 2.02E+7 & \textbf{1.25E+7} \\
-& median  & 8.29E+8 & 2.23E+10 & 2.00E+7 & 1.97E+7 & \textbf{6.48E+6} & 2.06E+10 & 3.72E+10 & 2.24E+7 & 2.00E+7 & \textbf{1.27E+7} \\
-& std     & 8.46E+7 & 2.66E+9 & 1.71E+6 & 3.58E+6 & \textbf{3.52E+5} & 3.15E+9 & 4.15E+9 & 2.98E+6 & 1.34E+6 & \textbf{6.26E+5} \\
+& mean    & 3.00E+9 & 4.57E+10 & 1.98E+7 & 2.07E+7 & \textbf{6.43E+6} & 4.73E+10 & 8.84E+10 & 2.33E+7 & 2.02E+7 & \textbf{1.25E+7} \\
+& median  & 3.00E+9 & 4.65E+10 & 2.00E+7 & 1.97E+7 & \textbf{6.48E+6} & 4.73E+10 & 8.82E+10 & 2.24E+7 & 2.00E+7 & \textbf{1.27E+7} \\
+& std     & 0 & 4.82E+9 & 1.71E+6 & 3.58E+6 & \textbf{3.52E+5} & 0 & 4.27E+9 & 2.98E+6 & 1.34E+6 & \textbf{6.26E+5} \\
 & p-value & --- & --- & - & 5.46e-01 & 2.98e-08* & --- & --- & - & 2.41e-05* & 6.90e-10* \\
 \midrule
 \multirow{4}{*}{F2}
-& mean    & 9.43E+6 & 5.61E+10 & 5.05E+4 & 4.76E+4 & \textbf{3.32E+3} & 2.37E+9 & 2.69E+10 & 6.95E+4 & 6.43E+4 & \textbf{9.11E+3} \\
-& median  & 9.26E+6 & 1.34E+10 & 4.83E+4 & 4.35E+4 & \textbf{3.33E+3} & 7.07E+8 & 5.56E+9 & 6.81E+4 & 6.38E+4 & \textbf{9.09E+3} \\
-& std     & 4.13E+6 & 9.39E+10 & 6.23E+3 & 9.67E+3 & \textbf{1.33E+2} & 4.34E+9 & 6.51E+10 & 5.90E+3 & 6.98E+3 & \textbf{8.06E+2} \\
+& mean    & 2.20E+7 & 6.82E+9 & 5.05E+4 & 4.76E+4 & \textbf{3.32E+3} & 1.61E+10 & 1.55E+11 & 6.95E+4 & 6.43E+4 & \textbf{9.11E+3} \\
+& median  & 2.20E+7 & 6.98E+9 & 4.83E+4 & 4.35E+4 & \textbf{3.33E+3} & 1.61E+10 & 1.49E+11 & 6.81E+4 & 6.38E+4 & \textbf{9.09E+3} \\
+& std     & 0 & 3.13E+9 & 6.23E+3 & 9.67E+3 & \textbf{1.33E+2} & 0 & 4.84E+10 & 5.90E+3 & 6.98E+3 & \textbf{8.06E+2} \\
 & p-value & --- & --- & - & 5.46e-01 & 2.98e-08* & --- & --- & - & 2.41e-05* & 7.07e-10* \\
 \midrule
 \multirow{4}{*}{F3}
-& mean    & 5.86E+10 & 3.86E+10 & 4.03E+9 & 5.89E+9 & \textbf{6.35E+2} & 1.04E+11 & 3.99E+10 & 1.51E+9 & 2.66E+9 & \textbf{6.70E+2} \\
-& median  & 5.83E+10 & 3.87E+10 & 4.05E+9 & 5.86E+9 & \textbf{6.32E+2} & 1.03E+11 & 3.97E+10 & 1.51E+9 & 2.60E+9 & \textbf{6.45E+2} \\
-& std     & 4.22E+9 & 5.62E+8 & 4.79E+8 & 7.13E+8 & \textbf{3.12E+1} & 3.92E+9 & 1.12E+9 & 8.57E+7 & 2.64E+8 & \textbf{2.63E+2} \\
+& mean    & 6.07E+10 & 2.19E+11 & 4.03E+9 & 5.89E+9 & \textbf{6.35E+2} & 3.36E+11 & 6.08E+11 & 1.51E+9 & 2.66E+9 & \textbf{6.70E+2} \\
+& median  & 6.07E+10 & 2.18E+11 & 4.05E+9 & 5.86E+9 & \textbf{6.32E+2} & 3.36E+11 & 6.00E+11 & 1.51E+9 & 2.60E+9 & \textbf{6.45E+2} \\
+& std     & 0 & 4.54E+9 & 4.79E+8 & 7.13E+8 & \textbf{3.12E+1} & 0 & 3.64E+10 & 8.57E+7 & 2.64E+8 & \textbf{2.63E+2} \\
 & p-value & --- & --- & - & 5.46e-01 & 2.98e-08* & --- & --- & - & 2.41e-05* & 6.98e-10* \\
 \midrule
 \multirow{4}{*}{F4}
-& mean    & 4.53E+8 & 1.68E+10 & 3.17E+6 & 3.01E+6 & \textbf{2.58E+6} & 8.62E+9 & 1.89E+10 & 7.30E+6 & 6.98E+6 & \textbf{5.80E+6} \\
-& median  & 4.67E+8 & 1.67E+10 & 3.14E+6 & 2.98E+6 & \textbf{2.61E+6} & 7.43E+9 & 1.82E+10 & 7.16E+6 & 6.90E+6 & \textbf{5.80E+6} \\
-& std     & 6.74E+7 & 2.33E+9 & 3.59E+5 & 2.71E+5 & \textbf{1.29E+5} & 3.16E+9 & 4.13E+9 & 7.53E+5 & 9.53E+5 & \textbf{3.82E+5} \\
+& mean    & 9.28E+8 & 2.43E+10 & 3.17E+6 & 3.01E+6 & \textbf{2.58E+6} & 3.09E+10 & 6.35E+10 & 7.30E+6 & 6.98E+6 & \textbf{5.80E+6} \\
+& median  & 9.28E+8 & 2.42E+10 & 3.14E+6 & 2.98E+6 & \textbf{2.61E+6} & 3.09E+10 & 6.14E+10 & 7.16E+6 & 6.90E+6 & \textbf{5.80E+6} \\
+& std     & 0 & 3.32E+9 & 3.59E+5 & 2.71E+5 & \textbf{1.29E+5} & 0 & 6.59E+9 & 7.53E+5 & 9.53E+5 & \textbf{3.82E+5} \\
 & p-value & --- & --- & - & 5.46e-01 & 8.94e-08* & --- & --- & - & 2.41e-05* & 1.82e-09* \\
 \midrule
 \multirow{4}{*}{F5}
-& mean    & 2.11E+10 & 2.65E+10 & 1.97E+8 & 4.24E+8 & \textbf{3.50E+6} & 5.60E+10 & 4.30E+10 & 2.50E+7 & 4.98E+7 & \textbf{6.61E+6} \\
-& median  & 2.05E+10 & 2.68E+10 & 1.98E+8 & 4.10E+8 & \textbf{3.52E+6} & 5.57E+10 & 4.31E+10 & 2.50E+7 & 4.75E+7 & \textbf{6.66E+6} \\
-& std     & 2.24E+9 & 1.87E+9 & 3.91E+7 & 1.08E+8 & \textbf{1.40E+5} & 3.77E+9 & 4.11E+9 & 1.75E+6 & 1.31E+7 & \textbf{5.02E+5} \\
+& mean    & 2.67E+10 & 8.55E+10 & 1.97E+8 & 4.24E+8 & \textbf{3.50E+6} & 1.45E+11 & 1.98E+11 & 2.50E+7 & 4.98E+7 & \textbf{6.61E+6} \\
+& median  & 2.67E+10 & 8.72E+10 & 1.98E+8 & 4.10E+8 & \textbf{3.52E+6} & 1.45E+11 & 1.98E+11 & 2.50E+7 & 4.75E+7 & \textbf{6.66E+6} \\
+& std     & 0 & 1.19E+10 & 3.91E+7 & 1.08E+8 & \textbf{1.40E+5} & 0 & 2.28E+10 & 1.75E+6 & 1.31E+7 & \textbf{5.02E+5} \\
 & p-value & --- & --- & - & 5.46e-01 & 2.98e-08* & --- & --- & - & 2.41e-05* & 7.07e-10* \\
 \midrule
 \multirow{4}{*}{F6}
-& mean    & 4.00E+10 & 2.72E+10 & 1.62E+8 & 1.50E+8 & \textbf{2.47E+3} & 5.23E+10 & 4.00E+10 & 3.40E+6 & 4.29E+5 & \textbf{5.56E+3} \\
-& median  & 3.93E+10 & 2.71E+10 & 5.04E+7 & 1.36E+8 & \textbf{2.47E+3} & 5.22E+10 & 3.27E+10 & 6.51E+5 & 3.73E+5 & \textbf{5.20E+3} \\
-& std     & 4.31E+9 & 2.87E+9 & 2.20E+8 & 1.47E+8 & \textbf{1.02E+2} & 4.16E+9 & 2.24E+10 & 6.80E+6 & 1.87E+5 & \textbf{9.78E+2} \\
+& mean    & 2.50E+10 & 8.94E+10 & 1.62E+8 & 1.50E+8 & \textbf{2.47E+3} & 2.05E+11 & 3.98E+11 & 3.40E+6 & 4.29E+5 & \textbf{5.56E+3} \\
+& median  & 2.50E+10 & 9.06E+10 & 5.04E+7 & 1.36E+8 & \textbf{2.47E+3} & 2.05E+11 & 3.96E+11 & 6.51E+5 & 3.73E+5 & \textbf{5.20E+3} \\
+& std     & 0 & 1.30E+10 & 2.20E+8 & 1.47E+8 & \textbf{1.02E+2} & 0 & 6.25E+10 & 6.80E+6 & 1.87E+5 & \textbf{9.78E+2} \\
 & p-value & --- & --- & - & 5.46e-01 & 2.98e-08* & --- & --- & - & 2.41e-05* & 7.08e-10* \\
 \midrule
 \multicolumn{2}{c}{w/t/l} & --- & --- & - & 1/3/2 & 6/0/0 & --- & --- & - & 3/1/2 & 6/0/0 \\
@@ -1197,20 +1197,24 @@ F5 & P-5 & 20.8\% & 2.54E+7{\scriptsize $\pm$1.07E+7} & 6.04 \\
 
 % --- BEGIN SCALABILITY TABLE ---
 \subsubsection{Benchmark-scale scalability}
-Table~\ref{tab:scalability_chain} summarizes the MACPO benchmark tiers (20/40/60 agents on F1/F7/F13). Communication reduction remains large at moderate scale while final fitness stays favorable for RL-MACPO.
+Table~\ref{tab:scalability_chain} summarizes MACPO benchmark tiers (20/40/60 agents on F1/F7/F13) and extended F1-chain pilots (50/100 agents), each with 5 independent runs. Communication reduction remains large at moderate scale; fitness trade-offs on the shortest pilot (F1, 20 agents) are discussed below.
 
 \begin{table}[!t]
 \centering
 \scriptsize
-\caption{Scalability across MACPO chain-scale tiers (LLSO, 25 runs unless noted). Agents / dimension follow the original MACPO benchmark \cite{ref_macpo}. RL-MACPO (\emph{Full}) communication rate and final $F$ vs.\ always-on MACPO.}
+\caption{Scalability across MACPO chain-scale tiers (LLSO). F1/F7/F13 and F1S50/F1S100: 5-run pilots. RL-MACPO (\emph{Full}) communication rate and final $F$ vs.\ always-on MACPO.}
 \label{tab:scalability_chain}
 \begin{tabular}{@{}lrrcccc@{}}
 \toprule
 \textbf{Tier} & \textbf{Agents} & \textbf{Dim.} & \textbf{MACPO comm.} & \textbf{RL comm.} & \textbf{MACPO $F$} & \textbf{RL $F$} \\
 \midrule
-F1 & 20 & 905 & 100.0\% & 20.8\% ($-$79\%) & 1.98E+7 & \textbf{6.43E+6} \\
-F7 & 40 & 3400 & 100.0\% & 8.0\% ($-$92\%) & 2.30E+9 & \textbf{1.44E+7} \\
-F13 & 60 & 10200 & 100.0\% & 7.7\% ($-$92\%) & 6.96E+9 & \textbf{2.91E+7} \\
+F1 (5r) & 20 & 905 & 100.0\% & 18.3\% ($-$82\%) & 1.88E+7 & 4.95E+7 \\
+F7 (5r) & 40 & 3400 & 100.0\% & 8.0\% ($-$92\%) & 7.24E+7 & 9.54E+7 \\
+F13 (5r) & 60 & 10200 & 100.0\% & 8.0\% ($-$92\%) & 1.17E+8 & \textbf{1.15E+8} \\
+\midrule
+\multicolumn{7}{l}{\textit{Additional chain-scale pilots (5 runs, LLSO):}} \\
+F1S50 & 50 & 2550 & 100.0\% & 25.8\% & 1.67E+7 & 2.09E+7{\scriptsize $\pm$4.60E+6} \\
+F1S100 & 100 & 5100 & 100.0\% & 23.3\% & 1.48E+7 & 1.95E+7{\scriptsize $\pm$2.12E+6} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1220,7 +1224,47 @@ F13 & 60 & 10200 & 100.0\% & 7.7\% ($-$92\%) & 6.96E+9 & \textbf{2.91E+7} \\
 \paragraph{Threshold-triggered baselines.}
 Table~\ref{tab:threshold_baseline} compares fixed- and relative-threshold event-triggered rules (pilot; generate via \texttt{scripts/run\_comm\_baselines.py}).
 
-% Threshold baseline table pending: run scripts/run_comm_baselines.py --methods FixedThreshold,FixedThresholdNoFailSafe,RelativeThresholdFailSafe
+\begin{table}[!t]
+\centering
+\scriptsize
+\caption{Event-triggered / threshold communication baselines on F1--F6 (LLSO pilot). Fixed absolute thresholds without fail-safe can collapse communication; relative threshold + fail-safe matches the production gate.}
+\label{tab:threshold_baseline}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Func.} & \textbf{Method} & \textbf{Comm.} & \textbf{Final $F$} \\
+\midrule
+F1 & RL gated (Full) & 17.1\% & 4.49E+7{\scriptsize $\pm$2.57E+7} \\
+ & Fixed threshold & 8.3\% & 7.88E+7{\scriptsize $\pm$4.04E+7} \\
+ & Fixed thresh.\ (no fail-safe) & 0.0\% & 6.49E+6{\scriptsize $\pm$4.69E+5} \\
+ & Relative + fail-safe & 17.1\% & 6.61E+7{\scriptsize $\pm$3.60E+7} \\
+\midrule
+F2 & RL gated (Full) & 17.1\% & 3.09E+4{\scriptsize $\pm$2.64E+3} \\
+ & Fixed threshold & 8.3\% & 4.03E+4{\scriptsize $\pm$2.40E+4} \\
+ & Fixed thresh.\ (no fail-safe) & 0.0\% & 3.15E+3{\scriptsize $\pm$7.69E+2} \\
+ & Relative + fail-safe & 12.1\% & 3.26E+4{\scriptsize $\pm$3.76E+3} \\
+\midrule
+F3 & RL gated (Full) & 8.3\% & 1.51E+9{\scriptsize $\pm$4.27E+8} \\
+ & Fixed threshold & 8.3\% & 1.47E+9{\scriptsize $\pm$4.11E+8} \\
+ & Fixed thresh.\ (no fail-safe) & 0.0\% & 5.68E+2{\scriptsize $\pm$2.04E+2} \\
+ & Relative + fail-safe & 8.3\% & 1.40E+9{\scriptsize $\pm$3.56E+8} \\
+\midrule
+F4 & RL gated (Full) & 15.8\% & 3.97E+6{\scriptsize $\pm$2.17E+6} \\
+ & Fixed threshold & 8.3\% & 3.78E+6{\scriptsize $\pm$5.37E+5} \\
+ & Fixed thresh.\ (no fail-safe) & 0.0\% & 2.68E+6{\scriptsize $\pm$2.23E+5} \\
+ & Relative + fail-safe & 15.8\% & 3.95E+6{\scriptsize $\pm$1.31E+6} \\
+\midrule
+F5 & RL gated (Full) & 18.3\% & 1.16E+8{\scriptsize $\pm$4.81E+7} \\
+ & Fixed threshold & 8.3\% & 1.74E+8{\scriptsize $\pm$9.47E+7} \\
+ & Fixed thresh.\ (no fail-safe) & 0.0\% & 3.53E+6{\scriptsize $\pm$3.77E+5} \\
+ & Relative + fail-safe & 14.6\% & 1.23E+8{\scriptsize $\pm$3.60E+7} \\
+\midrule
+F6 & RL gated (Full) & 9.6\% & 2.89E+8{\scriptsize $\pm$2.01E+8} \\
+ & Fixed threshold & 8.3\% & 2.58E+8{\scriptsize $\pm$1.79E+8} \\
+ & Fixed thresh.\ (no fail-safe) & 0.0\% & 2.36E+3{\scriptsize $\pm$4.86E+2} \\
+ & Relative + fail-safe & 14.6\% & 2.23E+8{\scriptsize $\pm$1.79E+8} \\
+\bottomrule
+\end{tabular}
+\end{table}
 % --- END THRESHOLD BASELINE ---
 
 

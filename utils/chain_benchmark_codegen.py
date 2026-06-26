@@ -72,6 +72,11 @@ def benchmark_data_complete(name: str) -> bool:
     return g.is_file() and x.is_file() and r.is_file()
 
 
+def is_synthetic_scalability_benchmark(name: str) -> bool:
+    """仅 F1S50/F1S100 由 chain_benchmark_codegen 生成 data；F1/F7/F13 用 CEC 自带数据。"""
+    return name in ("F1S50", "F1S100")
+
+
 def write_benchmark_data_files(name: str, n_agents: int, *, seed: int | None = None) -> list[str]:
     """Write group/xopt/R50 data files for a chain benchmark. Returns paths written."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)

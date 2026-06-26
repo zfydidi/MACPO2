@@ -1,0 +1,130 @@
+{
+  "runs": 25,
+  "algorithms": {
+    "dpso": {
+      "out_dir": "/Users/zhangyingjie/Project/MACPO2/MACPO_sourcecode/output_baselines_dpso_25runs",
+      "functions": {
+        "F1": {
+          "LLSO": {
+            "n_completed": 25,
+            "n_expected": 25,
+            "missing": [],
+            "mean": 45700712000.0,
+            "median": 46525700000.0,
+            "std": 4818235038.140696,
+            "n": 25.0
+          },
+          "CSO": {
+            "n_completed": 25,
+            "n_expected": 25,
+            "missing": [],
+            "mean": 88363044000.0,
+            "median": 88218100000.0,
+            "std": 4273562921.6225033,
+            "n": 25.0
+          }
+        },
+        "F2": {
+          "LLSO": {
+            "n_completed": 25,
+            "n_expected": 25,
+            "missing": [],
+            "mean": 6820129200.0,
+            "median": 6978550000.0,
+            "std": 3134186673.6389523,
+            "n": 25.0
+          },
+          "CSO": {
+            "n_completed": 25,
+            "n_expected": 25,
+            "missing": [],
+            "mean": 155140312000.0,
+            "median": 149470000000.0,
+            "std": 48424205663.019745,
+            "n": 25.0
+          }
+        },
+        "F3": {
+          "LLSO": {
+            "n_completed": 25,
+            "n_expected": 25,
+            "missing": [],
+            "mean": 218528960000.0,
+            "median": 218377000000.0,
+            "std": 4538282241.847312,
+            "n": 25.0
+          },
+          "CSO": {
+            "n_completed": 25,
+            "n_expected": 25,
+            "missing": [],
+            "mean": 608222960000.0,
+            "median": 599514000000.0,
+            "std": 36440928031.404465,
+            "n": 25.0
+          }
+        },
+        "F4": {
+          "LLSO": {
+            "n_completed": 25,
+            "n_expected": 25,
+            "missing": [],
+            "mean": 24312272000.0,
+            "median": 24248300000.0,
+            "std": 3318402688.4833207,
+            "n": 25.0
+          },
+          "CSO": {
+            "n_completed": 25,
+            "n_expected": 25,
+            "missing": [],
+            "mean": 63511556000.0,
+            "median": 61444700000.0,
+            "std": 6591202454.223863,
+            "n": 25.0
+          }
+        },
+        "F5": {
+          "LLSO": {
+            "n_completed": 25,
+            "n_expected": 25,
+            "missing": [],
+            "mean": 85522500000.0,
+            "median": 87222200000.0,
+            "std": 11946467713.617275,
+            "n": 25.0
+          },
+          "CSO": {
+            "n_completed": 25,
+            "n_expected": 25,
+            "missing": [],
+            "mean": 197703120000.0,
+            "median": 197540000000.0,
+            "std": 22812029199.37929,
+            "n": 25.0
+          }
+        },
+        "F6": {
+          "LLSO": {
+            "n_completed": 25,
+            "n_expected": 25,
+            "missing": [],
+            "mean": 89419372000.0,
+            "median": 90648500000.0,
+            "std": 12990690320.075375,
+            "n": 25.0
+          },
+          "CSO": {
+            "n_completed": 25,
+            "n_expected": 25,
+            "missing": [],
+            "mean": 398147800000.0,
+            "median": 395586000000.0,
+            "std": 62484847197.80736,
+            "n": 25.0
+          }
+        }
+      }
+    }
+  }
+}

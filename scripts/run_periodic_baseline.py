@@ -18,6 +18,51 @@ JSON_OUT = ROOT / "RL_MACPO_IEEE_English_with_images" / "media" / "periodic_base
 
 METHODS = ("Full", "PeriodicK2", "PeriodicK3", "PeriodicK5")
 FUNCS = ("F1", "F2", "F5")
+EXID_PREFIX = "per"
+
+
+def aggregate_periodic_rows(
+    funcs: tuple[str, ...],
+    methods: tuple[str, ...],
+    runs: int,
+    output_dir: Path,
+    exid_prefix: str = EXID_PREFIX,
+) -> list[dict]:
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+    from scripts.run_comm_baselines import parse_cost_stats, parse_final_fitness
+
+    rows: list[dict] = []
+    for func in funcs:
+        for method in methods:
+            comms: list[float] = []
+            fits: list[float] = []
+            for rid in range(1, runs + 1):
+                exid = f"{exid_prefix}_{method}_r{rid:02d}"
+                out_file = output_dir / f"{func}_LLSO_final_{exid}.txt"
+                if not out_file.is_file():
+                    continue
+                text = out_file.read_text(encoding="utf-8", errors="replace")
+                stats = parse_cost_stats(text)
+                fit = parse_final_fitness(text)
+                if stats:
+                    comms.append(stats["comm_rate"])
+                if fit is not None:
+                    fits.append(fit)
+            cm, cs = summarize(comms)
+            fm, fs = summarize(fits)
+            rows.append(
+                {
+                    "func": func,
+                    "method": method,
+                    "n": len(fits),
+                    "comm_rate_mean": cm,
+                    "comm_rate_std": cs,
+                    "final_fitness_mean": fm,
+                    "final_fitness_std": fs,
+                }
+            )
+    return rows
 
 
 def parse_cost_stats(text: str) -> dict | None:
@@ -62,7 +107,29 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", type=int, default=10)
     ap.add_argument("--np", type=str, default="20")
+    ap.add_argument(
+        "--output-dir",
+        type=Path,
+        default=RLMACPO / "output",
+        help="MACPO_simplified 输出 .txt 目录",
+    )
+    ap.add_argument(
+        "--aggregate-only",
+        action="store_true",
+        help="仅从已有 per_* 输出汇总 JSON，不启动 MPI",
+    )
     args = ap.parse_args()
+
+    output_dir = args.output_dir.resolve()
+    if args.aggregate_only:
+        if not output_dir.is_dir():
+            raise SystemExit(f"aggregate-only: 目录不存在 {output_dir}")
+        rows = aggregate_periodic_rows(FUNCS, METHODS, args.runs, output_dir)
+        JSON_OUT.parent.mkdir(parents=True, exist_ok=True)
+        JSON_OUT.write_text(json.dumps(rows, indent=2), encoding="utf-8")
+        print(f"aggregate-only from {output_dir}")
+        print(f"Wrote {JSON_OUT} ({len(rows)} rows)")
+        return
 
     raw = OUT / "raw"
     raw.mkdir(parents=True, exist_ok=True)

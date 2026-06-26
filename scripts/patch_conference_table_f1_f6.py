@@ -75,6 +75,10 @@ def _maybe_bold(val: float, bold: bool) -> str:
     return f"\\textbf{{{s}}}" if bold else s
 
 
+def _ext_std(val: float) -> str:
+    return "---" if val == 0 else fmt_sci_tex(val)
+
+
 def _block(fn: str, llso_macpo: dict, llso_rl: dict, cso_macpo: dict, cso_rl: dict) -> str:
     lm, lr = llso_macpo[fn], llso_rl[fn]
     cm, cr = cso_macpo[fn], cso_rl[fn]
@@ -102,9 +106,9 @@ def _block(fn: str, llso_macpo: dict, llso_rl: dict, cso_macpo: dict, cso_rl: di
                 f"& {fmt_sci_tex(gcr[1])} & {_maybe_bold(cr['median'], rl_better_c)} \\\\"
             ),
             (
-                f"& std     & {fmt_sci_tex(gfm[2])} & {fmt_sci_tex(gfd[2])} & {fmt_sci_tex(lm['std'])} "
+                f"& std     & {_ext_std(gfm[2])} & {fmt_sci_tex(gfd[2])} & {fmt_sci_tex(lm['std'])} "
                 f"& {fmt_sci_tex(gfr[2])} & {_maybe_bold(lr['std'], rl_better_l)} "
-                f"& {fmt_sci_tex(gcm[2])} & {fmt_sci_tex(gcd[2])} & {fmt_sci_tex(cm['std'])} "
+                f"& {_ext_std(gcm[2])} & {fmt_sci_tex(gcd[2])} & {fmt_sci_tex(cm['std'])} "
                 f"& {fmt_sci_tex(gcr[2])} & {_maybe_bold(cr['std'], rl_better_c)} \\\\"
             ),
             (
@@ -194,8 +198,9 @@ def main() -> None:
         r"mean, median, standard deviation, and $p$-value over 25 independent runs, for LLSO (left five columns) "
         r"and CSO (right five columns). \textbf{MACPO} and \textbf{RL-MACPO} use logged \texttt{f\_pure} "
         r"(last row per run) from archived trajectories. "
-        r"\textbf{GFPDO$^{\dagger}$} and \textbf{DPSO$^{\dagger}$} are transcribed from \cite{ref_macpo} "
-        r"(not re-run here; $p$-values and w/t/l omitted). "
+        r"\textbf{GFPDO$^{\dagger}$}: one-run pilot per function under the MACPO GFPDO executable; "
+        r"\textbf{DPSO$^{\dagger}$}: 25-run batch under the MACPO DPSO executable (same evaluation budget). "
+        r"No significance tests for external columns. "
         r"Tests for RL-MACPO vs.\ MACPO only: paired Wilcoxon signed-rank (LLSO), Mann--Whitney U (CSO). "
         r"* RL-MACPO better; \# worse ($p<0.05$). Bold: better mean in each MACPO vs.\ RL-MACPO pair.}"
     )
@@ -216,6 +221,31 @@ def main() -> None:
         r"Typical end-of-run evaluation counts are $145{,}729$ (MACPO LLSO) and $150{,}348$ (RL-MACPO LLSO)."
     )
     anchor = r"\paragraph{Replication checklist (figures and tables).}"
+    ext_para = (
+        r"\paragraph{External reference columns (GFPDO$^{\dagger}$/DPSO$^{\dagger}$).} "
+        r"Following the MACPO paper layout \cite{ref_macpo}, Table~\ref{tab:macpo_style_all} "
+        r"keeps GFPDO \cite{ref_gfpdo} and DPSO \cite{ref_dpso} for cross-method scale context. "
+        r"GFPDO entries are \emph{single-run pilots} per function (MACPO GFPDO executable); "
+        r"DPSO entries are recomputed from a 25-run batch under the same evaluation budget. "
+        r"No significance symbols are attached to these columns; all statistical tests apply only "
+        r"to \textbf{MACPO}, \textbf{RL Only}, and \textbf{RL-MACPO}."
+    )
+    old_ext = (
+        r"\paragraph{External reference columns (GFPDO$^{\dagger}$/DPSO$^{\dagger}$).} "
+        r"Following the MACPO paper layout \cite{ref_macpo}, Table~\ref{tab:macpo_style_all} "
+        r"keeps GFPDO \cite{ref_gfpdo} and DPSO \cite{ref_dpso} in the main table for cross-method scale context. "
+        r"Their mean/median/std entries are \emph{literature anchors} transcribed from \cite{ref_macpo}; "
+        r"we did not re-execute those baselines under the present RL-MACPO evaluation protocol. "
+        r"Accordingly, no significance symbols are attached to GFPDO/DPSO cells, and all statistical tests "
+        r"in the table apply only to the aligned MACPO-family trio (\textbf{MACPO}, \textbf{RL Only}, "
+        r"\textbf{RL-MACPO}). Readers should treat GFPDO/DPSO as order-of-magnitude references, "
+        r"not as paired competitors in our 25-run study."
+    )
+    if old_ext in tex:
+        tex = tex.replace(old_ext, ext_para, 1)
+    elif ext_para not in tex and anchor in tex:
+        tex = tex.replace(anchor, ext_para + "\n\n" + anchor, 1)
+
     if footnote not in tex and anchor in tex:
         tex = tex.replace(anchor, footnote + "\n\n" + anchor, 1)
 
