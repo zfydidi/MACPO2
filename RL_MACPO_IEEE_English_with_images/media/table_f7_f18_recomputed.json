@@ -367,5 +367,5 @@
       }
     }
   },
-  "metric_note": "\\paragraph{F7--F18 data sources and metrics.} Table~\\ref{tab:macpo_rl_mean_f1_f18} MACPO entries are recomputed from \\texttt{MACPO\\_original\\_output/\\{LLSO,CSO\\}/F*/LLSO\\_F*\\_exp*.log} (penalized \\texttt{final fitness}). RL-MACPO entries use last-row \\texttt{f\\_pure} from \\texttt{MACPO2\\_deployment/output/\\{LLSO,CSO\\}/F*/F*\\_exp*.txt}. Both sides share the same 25-run evaluation-budget protocol; only the logged objective field differs because the MACPO baseline archive lacks \\texttt{f\\_pure} trajectories beyond F6."
+  "metric_note": "\\paragraph{F7--F18 data sources and metrics.} Table~\\ref{tab:macpo_rl_mean_f1_f18} MACPO entries are recomputed from \\texttt{MACPO\\_original\\_output/\\{LLSO,CSO\\}/F*/} completion logs; RL-MACPO entries use last-row \\texttt{f\\_pure} from \\texttt{MACPO2\\_deployment/output/}. Both sides share the same 25-run evaluation-budget protocol and the same objective $F$ in Eq.~\\eqref{eq:global_objective}. RL-MACPO reaches \\texttt{f\\_pure}$\\approx$\\texttt{f\\_penalty} at the budget end; MACPO endpoints still include residual overlap penalty when static negotiation does not converge. We did not post-hoc re-evaluate MACPO $f_{\\mathrm{pure}}$ on F7--F18 because the baseline archive does not store final assembled solutions."
 }

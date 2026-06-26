@@ -1,0 +1,62 @@
+{
+  "F1": {
+    "macpo_comm_rate": 1.0,
+    "rl_comm_rate_mean": 0.208333,
+    "rl_comm_rate_std": 0.0,
+    "comm_reduction_pct": 79.1667,
+    "macpo_eva_mean": 145729.0,
+    "macpo_eva_std": 0.0,
+    "rl_eva_mean": 150348.0,
+    "rl_eva_std": 0.0
+  },
+  "F2": {
+    "macpo_comm_rate": 1.0,
+    "rl_comm_rate_mean": 0.223333,
+    "rl_comm_rate_std": 0.040620192023179805,
+    "comm_reduction_pct": 77.6667,
+    "macpo_eva_mean": 145729.0,
+    "macpo_eva_std": 0.0,
+    "rl_eva_mean": 150348.0,
+    "rl_eva_std": 0.0
+  },
+  "F3": {
+    "macpo_comm_rate": 1.0,
+    "rl_comm_rate_mean": 0.0833333,
+    "rl_comm_rate_std": 0.0,
+    "comm_reduction_pct": 91.66667,
+    "macpo_eva_mean": 145729.0,
+    "macpo_eva_std": 0.0,
+    "rl_eva_mean": 150348.0,
+    "rl_eva_std": 0.0
+  },
+  "F4": {
+    "macpo_comm_rate": 1.0,
+    "rl_comm_rate_mean": 0.0833333,
+    "rl_comm_rate_std": 0.0,
+    "comm_reduction_pct": 91.66667,
+    "macpo_eva_mean": 145729.0,
+    "macpo_eva_std": 0.0,
+    "rl_eva_mean": 150348.0,
+    "rl_eva_std": 0.0
+  },
+  "F5": {
+    "macpo_comm_rate": 1.0,
+    "rl_comm_rate_mean": 0.0833333,
+    "rl_comm_rate_std": 0.0,
+    "comm_reduction_pct": 91.66667,
+    "macpo_eva_mean": 145729.0,
+    "macpo_eva_std": 0.0,
+    "rl_eva_mean": 150348.0,
+    "rl_eva_std": 0.0
+  },
+  "F6": {
+    "macpo_comm_rate": 1.0,
+    "rl_comm_rate_mean": 0.0833333,
+    "rl_comm_rate_std": 0.0,
+    "comm_reduction_pct": 91.66667,
+    "macpo_eva_mean": 145729.0,
+    "macpo_eva_std": 0.0,
+    "rl_eva_mean": 150348.0,
+    "rl_eva_std": 0.0
+  }
+}

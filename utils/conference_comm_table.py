@@ -58,8 +58,11 @@ def build_periodic_baseline_table_tex(rows: list[dict[str, Any]]) -> str:
         r"\centering",
         r"\scriptsize",
         r"\caption{Conflict-gated RL-MACPO (\emph{Full}) vs.\ fixed-interval communication baselines "
-        r"on F1, F2, and F5 (LLSO, 10 runs). \emph{Periodic-$K$}: negotiate every $K$ outer loops, "
-        r"RL penalty on, CI gate disabled. Lower final $F$ is better.}",
+        r"on F1, F2, and F5 (LLSO, 10-run pilot, separate from the 25-run main table). "
+        r"\emph{Periodic-$K$}: negotiate every $K$ outer loops (RL penalty on, CI gate off). "
+        r"Lower final $F$ is better. See Table~\ref{tab:comm_efficiency_f125} for joint "
+        r"fitness--communication scoring; no fitness bolding here because raw fitness alone "
+        r"favors higher-communication periodic rules on some functions.}",
         r"\label{tab:periodic_baseline}",
         r"\begin{tabular}{@{}llcc@{}}",
         r"\toprule",
@@ -78,11 +81,6 @@ def build_periodic_baseline_table_tex(rows: list[dict[str, Any]]) -> str:
         by_func.setdefault(r["func"], []).append(r)
     for func in ("F1", "F2", "F5"):
         group = {r["method"]: r for r in by_func.get(func, [])}
-        best_f = None
-        for m in order:
-            if m in group and group[m].get("final_fitness_mean") is not None:
-                v = float(group[m]["final_fitness_mean"])
-                best_f = v if best_f is None else min(best_f, v)
         for m in order:
             r = group.get(m)
             if not r:
@@ -98,8 +96,6 @@ def build_periodic_baseline_table_tex(rows: list[dict[str, Any]]) -> str:
                 f_cell = fmt_sci_tex(float(fm))
                 if fs is not None and float(fs) > 0:
                     f_cell += f"{{\\scriptsize $\\pm${fmt_sci_tex(float(fs))}}}"
-                if best_f is not None and float(fm) == best_f:
-                    f_cell = f"\\textbf{{{f_cell}}}"
             lines.append(f"{func} & {labels.get(m, m)} & {comm} & {f_cell} \\\\")
         if func != "F5":
             lines.append(r"\midrule")

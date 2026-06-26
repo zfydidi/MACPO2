@@ -55,11 +55,11 @@ while IFS=$'\t' read -r pip kind _; do
     wsl_root=$(win_to_wsl_root "$win_path" "${wsl_path_extra:-}")
     if [[ "$kind" == baselines_dpso ]]; then
       line=$(wsl_run "$pass" "$ssh_user" "$ip" \
-        "cd ${wsl_root} && grep -E 'Batch complete|^\\[60/' logs/dpso_mac_ssh.log 2>/dev/null | tail -1; find MACPO_sourcecode/output_baselines_dpso_5runs -name '*.txt' 2>/dev/null | wc -l | xargs echo -n files:")
+        "cd ${wsl_root} && tail -1 logs/baselines_dpso*.log logs/dpso_mac_ssh.log 2>/dev/null | tail -1; n=\$(grep -l 'final fitness=' MACPO_sourcecode/output_baselines_dpso_25runs/*.log 2>/dev/null | wc -l); echo -n done=\${n}/300")
       label="DPSO"
     else
       line=$(wsl_run "$pass" "$ssh_user" "$ip" \
-        "cd ${wsl_root} && grep -E '^\[|final fitness|Batch complete' logs/gfpdo_1run.log logs/gfpdo_mac_ssh.log 2>/dev/null | tail -2; find MACPO_sourcecode/output_baselines_gfpdo_1run MACPO_sourcecode/output_baselines_gfpdo_5runs -name '*.txt' 2>/dev/null | wc -l | xargs echo -n files:")
+        "cd ${wsl_root} && tail -1 logs/baselines_gfpdo*.log logs/gfpdo_mac_ssh.log 2>/dev/null | tail -1; n=\$(grep -l 'final fitness=' MACPO_sourcecode/output_baselines_gfpdo_25runs/*.log 2>/dev/null | wc -l); echo -n done=\${n}/300")
       label="GFPDO"
     fi
     printf "%-16s %-5s %s\n" "$pip" "$label" "$(echo "$line" | tr '\n' ' ' | sed 's/  */ /g')"

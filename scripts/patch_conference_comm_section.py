@@ -42,7 +42,8 @@ def main() -> None:
         r"Table~\ref{tab:comm_rate_f1_f18} reports the fraction of outer loops that trigger "
         r"neighbor negotiation under the same 25-run LLSO protocol as the main fitness tables. "
         r"MACPO negotiates every round ($100\%$). RL-MACPO reduces this rate by roughly "
-        r"$40$--$60\%$ on F1--F18 while preserving or improving final fitness "
+        r"$78$--$92\%$ on F1--F18 (absolute trigger rate $7.7$--$22.3\%$) while preserving or "
+        r"improving final fitness "
         r"(Tables~\ref{tab:macpo_style_all} and~\ref{tab:macpo_rl_mean_f1_f18})."
     )
     comm_block = "\n".join([comm_para, "", comm_table])

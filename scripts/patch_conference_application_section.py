@@ -9,7 +9,7 @@ _REPO = Path(__file__).resolve().parents[1]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-from utils.application_experiment_table import build_application_section_tex  # noqa: E402
+from utils.application_experiment_table import build_full_application_section_tex  # noqa: E402
 
 TEX = _REPO / "RL_MACPO_IEEE_English_with_images" / "conference_en_ready.tex"
 BEGIN = "% --- BEGIN APPLICATION CASES ---"
@@ -17,7 +17,7 @@ END = "% --- END APPLICATION CASES ---"
 
 
 def main() -> None:
-    section = build_application_section_tex()
+    section = build_full_application_section_tex()
     block = f"{BEGIN}\n{section}\n{END}\n"
     tex = TEX.read_text(encoding="utf-8")
 

@@ -1,0 +1,90 @@
+# 通信基线 + Scalability 远程 WSL 手动跑法
+# Mac 打包见下方「传输」；跑完 Mac 拉回见「回传」。
+
+## 0) WSL 公共环境（每个终端先执行一次）
+
+cd /mnt/e/zyj/MACPO2    # 按你机器实际路径改，建议 ~/Project/MACPO2
+
+export OMP_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export OMPI_ALLOW_RUN_AS_ROOT=1
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+
+# 降 CPU 优先级（尽量不占满宿主机）
+alias runslow='nice -n 19 ionice -c 3'
+
+## 1) 一次性编译（单线程编译更慢、更省 CPU）
+
+cd RL-MACPO
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=mpicxx
+cmake --build build -j1
+test -x build/MACPO_simplified && echo OK
+cd ..
+
+## 2) 通信基线 comm_baselines（F1–F6，每函数可开独立 WSL 窗口）
+
+# 单函数 × 全方法，10 runs，每次 run 后睡 30s
+runslow python3 scripts/run_comm_baselines.py --funcs F1 --runs 10 --np 20 --skip-existing --sleep-sec 30
+runslow python3 scripts/run_comm_baselines.py --funcs F2 --runs 10 --np 20 --skip-existing --sleep-sec 30
+runslow python3 scripts/run_comm_baselines.py --funcs F3 --runs 10 --np 20 --skip-existing --sleep-sec 30
+runslow python3 scripts/run_comm_baselines.py --funcs F4 --runs 10 --np 20 --skip-existing --sleep-sec 30
+runslow python3 scripts/run_comm_baselines.py --funcs F5 --runs 10 --np 20 --skip-existing --sleep-sec 30
+runslow python3 scripts/run_comm_baselines.py --funcs F6 --runs 10 --np 20 --skip-existing --sleep-sec 30
+
+# 或按方法拆开（同一函数多机并行时）
+# runslow python3 scripts/run_comm_baselines.py --funcs F1 --methods Full,PeriodicK2,PeriodicK3 --runs 10 --sleep-sec 30
+# runslow python3 scripts/run_comm_baselines.py --funcs F1 --methods PeriodicK5,FixedThreshold,FixedThresholdNoFailSafe,RelativeThresholdFailSafe --runs 10 --sleep-sec 30
+
+## 3) Scalability（单机多窗口并行：每窗口一个 benchmark）
+
+# F1S50/F1S100 首次跑前必须生成 data 文件（否则会 segfault）：
+python3 -c "from utils.chain_benchmark_codegen import ensure_scalability_benchmarks; print(ensure_scalability_benchmarks())"
+test -f RL-MACPO/Benchmarks/data/group_F1S50.txt && echo F1S50_data_OK
+
+# 每个 CMD/WSL 窗口先执行一次公共环境（见 §0），再开一条：
+mkdir -p logs
+
+# 方式 A：包装脚本（推荐，自动 MPI + logs）
+bash scripts/run_scalability_experiments_wsl.sh F1
+bash scripts/run_scalability_experiments_wsl.sh F7
+bash scripts/run_scalability_experiments_wsl.sh F13
+bash scripts/run_scalability_experiments_wsl.sh F1S50
+bash scripts/run_scalability_experiments_wsl.sh F1S100
+
+# 方式 B：nohup 后台（5 个窗口各跑一条）
+LOG=logs/scale_F1_$(date +%Y%m%d_%H%M%S).log
+nohup nice -n 19 ionice -c 3 python3 scripts/run_scalability_experiments.py \
+  --benchmarks F1 --runs 5 --sleep-sec 60 > "$LOG" 2>&1 &
+echo "PID=$! LOG=$LOG"
+
+LOG=logs/scale_F7_$(date +%Y%m%d_%H%M%S).log
+nohup nice -n 19 ionice -c 3 python3 scripts/run_scalability_experiments.py \
+  --benchmarks F7 --runs 5 --sleep-sec 60 > "$LOG" 2>&1 &
+
+LOG=logs/scale_F13_$(date +%Y%m%d_%H%M%S).log
+nohup nice -n 19 ionice -c 3 python3 scripts/run_scalability_experiments.py \
+  --benchmarks F13 --runs 5 --sleep-sec 60 > "$LOG" 2>&1 &
+
+LOG=logs/scale_F1S50_$(date +%Y%m%d_%H%M%S).log
+nohup nice -n 19 ionice -c 3 python3 scripts/run_scalability_experiments.py \
+  --benchmarks F1S50 --runs 5 --sleep-sec 90 > "$LOG" 2>&1 &
+
+LOG=logs/scale_F1S100_$(date +%Y%m%d_%H%M%S).log
+nohup nice -n 19 ionice -c 3 python3 scripts/run_scalability_experiments.py \
+  --benchmarks F1S100 --runs 5 --sleep-sec 120 > "$LOG" 2>&1 &
+
+# 每个 benchmark：MACPO + RL-MACPO 各 5 runs → 共 10 次 MPI 任务
+# 输出汇总：RL_MACPO_IEEE_English_with_images/media/scalability_chain.json
+
+## 4) 后台跑 + 日志（单函数示例）
+
+mkdir -p logs
+nohup bash -lc 'runslow python3 scripts/run_comm_baselines.py --funcs F3 --runs 10 --skip-existing --sleep-sec 30' \
+  > logs/comm_baselines_F3_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+tail -f logs/comm_baselines_F3_*.log
+
+## 5) Mac 回传后更新论文
+
+# bash scripts/lan_fetch_results.sh --comm-baselines   # 若已扩展 fetch 脚本
+python3 scripts/patch_conference_comm_policy.py

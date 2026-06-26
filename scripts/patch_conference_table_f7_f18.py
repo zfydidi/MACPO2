@@ -35,7 +35,7 @@ NEW_CAPTION = (
     r"Both methods report the same $F(\mathbf{X})$ at the budget endpoint. "
     r"\textbf{MACPO$^{\ddagger}$:} mean $\pm$ sample std of archived endpoint $F$ "
     r"(still penalized when overlap inconsistency remains). "
-    r"\textbf{RL-MACPO:} mean of last logged \texttt{f\_pure}, which equals \texttt{f\_penalty} "
+    r"\textbf{RL-MACPO:} mean $\pm$ sample std of last logged \texttt{f\_pure}, which equals \texttt{f\_penalty} "
     r"in all archived runs. Lower is better; \textbf{bold}: better mean within each pair. "
     r"Large gaps on F9/F15 reflect MACPO failing to eliminate constraint violation under "
     r"static penalties, not mixed metrics. Last row: w/t/l.}"
@@ -58,8 +58,12 @@ FOOTNOTE = (
 def _row(fn: str, llso_m: dict, llso_r: dict, cso_m: dict, cso_r: dict) -> str:
     rl_better_l = llso_r["mean"] < llso_m["mean"]
     rl_better_c = cso_r["mean"] < cso_m["mean"]
-    rl_l = f"\\textbf{{{fmt_sci_tex(llso_r['mean'])}}}" if rl_better_l else fmt_sci_tex(llso_r["mean"])
-    rl_c = f"\\textbf{{{fmt_sci_tex(cso_r['mean'])}}}" if rl_better_c else fmt_sci_tex(cso_r["mean"])
+    rl_l = fmt_macpo_cell(llso_r["mean"], llso_r["std"])
+    rl_c = fmt_macpo_cell(cso_r["mean"], cso_r["std"])
+    if rl_better_l:
+        rl_l = f"\\textbf{{{rl_l}}}"
+    if rl_better_c:
+        rl_c = f"\\textbf{{{rl_c}}}"
     return (
         f"{fn} & {fmt_macpo_cell(llso_m['mean'], llso_m['std'])} & {rl_l} & "
         f"{fmt_macpo_cell(cso_m['mean'], cso_m['std'])} & {rl_c} \\\\"

@@ -164,6 +164,11 @@ int main(int argc, char* argv[]) {
             cfg.gating_mode = 3;
             cfg.threshold_mode = 0;
             cfg.use_variable_filter = false;
+        } else if (expConfig == "FixedThresholdNoFailSafe") {
+            cfg.gating_mode = 3;
+            cfg.threshold_mode = 0;
+            cfg.enable_fail_safe = false;
+            cfg.use_variable_filter = false;
         } else if (expConfig == "RelativeThreshold") {
             cfg.gating_mode = 3;
             cfg.threshold_mode = 1;
@@ -240,6 +245,10 @@ int main(int argc, char* argv[]) {
         if (env_fs != nullptr) {
             cfg.enable_fail_safe = true;
             cfg.fail_safe_k = atoi(env_fs);
+        }
+        const char* env_no_fs = getenv("MACPO_DISABLE_FAILSAFE");
+        if (env_no_fs != nullptr && (env_no_fs[0] == '1' || env_no_fs[0] == 'y' || env_no_fs[0] == 'Y')) {
+            cfg.enable_fail_safe = false;
         }
         // Full 或未知配置使用默认
         ((EnhancedRLPenaltyEvaluator*)Evaluator)->set_experiment_config(cfg);

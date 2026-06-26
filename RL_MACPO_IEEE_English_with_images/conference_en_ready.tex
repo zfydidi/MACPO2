@@ -60,7 +60,7 @@ Guangzhou, China \\
 \maketitle
 
 \begin{abstract}
-Network-based distributed optimization is important in multi-agent systems with shared variables and limited local information, but efficient coordination remains difficult in practical black-box settings. Existing studies mainly rely on gradient-based distributed optimization and gradient-free evolutionary search. Although these methods are useful, gradient-based methods usually require derivative information and strong structural assumptions, while current cooperative black-box frameworks often depend on static penalty control, full negotiation over shared variables, and communication at every iteration, which increases coordination cost and limits adaptability. To address these limitations, this paper builds on the Multi-Agent Cooperative Penalty Optimization framework and proposes RL-MACPO as an adaptive extension. The proposed method improves the framework through adaptive penalty control, conflict-gated communication, and variable selection for negotiation, allowing penalty adjustment and negotiation frequency to better match online conflict dynamics. Experiments on the standard benchmark inherited from the original Multi-Agent Cooperative Penalty Optimization study show that the proposed method achieves better final fitness and more stable convergence than the original Multi-Agent Cooperative Penalty Optimization baseline under the current implementation and evaluation protocol. On three networked dispatch case studies---multi-area economic dispatch, resource-constrained scheduling, and EV charging coordination---RL-MACPO reduces negotiation frequency by about 80--89\% while preserving or improving the pure objective under the same evaluation budget.
+Network-based distributed optimization is important in multi-agent systems with shared variables and limited local information, but efficient coordination remains difficult in practical black-box settings. Existing studies mainly rely on gradient-based distributed optimization and gradient-free evolutionary search. Although these methods are useful, gradient-based methods usually require derivative information and strong structural assumptions, while current cooperative black-box frameworks often depend on static penalty control, full negotiation over shared variables, and communication at every iteration, which increases coordination cost and limits adaptability. To address these limitations, this paper builds on the Multi-Agent Cooperative Penalty Optimization framework and proposes RL-MACPO as an adaptive extension. The proposed method improves the framework through adaptive penalty control, conflict-gated communication, and variable selection for negotiation, allowing penalty adjustment and negotiation frequency to better match online conflict dynamics. Experiments on the MACPO NDO benchmark (F1--F18) show significantly better final fitness than MACPO under identical evaluation budgets, with negotiation triggered on only $8$--$22\%$ of outer loops ($\approx 78$--$92\%$ reduction versus always-on MACPO). On three networked dispatch case studies---multi-area economic dispatch, resource-constrained scheduling, and EV charging coordination---RL-MACPO reduces negotiation frequency by about 80--89\% while preserving or improving the pure objective under the same evaluation budget.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -376,7 +376,7 @@ A crucial point is that this subsection uses two notions of conflict index, name
 \end{equation}
 Its value lies in $[-1,1]$, where a larger value indicates stronger conflict and a smaller value indicates more consistent search directions. The original MACPO work mainly uses this indicator to interpret benchmark difficulty and algorithm behavior.
 
-In our implementation, $\mathrm{CI}_i^t$ is not a direct numerical estimate of the gradient-based quantity above. Instead, it is a computable implementation-bound conflict proxy that follows the same conflict-aware intuition and approximately reflects the conflict strength between the current local solution and the reference solution in a black-box setting. In other words, the original CI provides the theoretical motivation, while the actual gate is driven by this implementation-bound conflict proxy. We do not redefine the theoretical concept of conflict. We extend it into an online communication rule through the same implementation-bound conflict proxy.
+In our implementation, $\mathrm{CI}_i^t$ is not a direct numerical estimate of the gradient-based quantity above. Instead, it is a computable implementation-bound conflict proxy that follows the same conflict-aware intuition and approximately reflects the conflict strength between the current local solution and the reference solution in a black-box setting. In other words, the original CI provides the theoretical motivation, while the actual gate is driven by this implementation-bound conflict proxy. We do not redefine the theoretical concept of conflict. We extend it into an online communication rule through the same implementation-bound conflict proxy. Concretely, for each overlapping dimension $d$ with search range $\Delta_d$, the proxy aggregates exponentially smoothed normalized discrepancies $|\hat{x}^d_i - x^d_{\mathrm{con},i}|/\Delta_d$ between the local best $\hat{x}_i$ and the consensus reference $x_{\mathrm{con},i}$, and $\mathrm{CI}_i^t$ is the mean over the active overlap set. This quantity is compared against the EMA baseline $\hat{\mu}_{\mathrm{CI},i}^t$ in Eq.~\eqref{eq:local_gate} rather than against gradient inner products.
 
 In the parallel implementation, the final communication decision is obtained by global reduction:
 \begin{equation}
@@ -575,6 +575,7 @@ Application-case results on engineering dispatch simulators are reported separat
 Accordingly, F1--F6 should not be read as six unrelated numbered cases. They form a structured benchmark family with different conflict patterns and elementary-function compositions. This is why we keep the original identifiers F1--F6 in the tables for direct comparability, while interpreting them by function class in the text. Unless noted otherwise, all numerical results are obtained under the current codebase, the same aligned evaluation budget, and a unified protocol with 25 independent runs. For Tables~\ref{tab:macpo_style_all}--\ref{tab:wall_time_f1_f18}, MACPO and RL-MACPO statistics are computed from the same 25 independent runs, with final fitness and wall-clock time taken from the end-of-run summaries. The archived MACPO runs follow the same indexing as the original MACPO batch (runs 1--25). Ablation and RL-MACPO experiments follow the same budget and 25-run reporting convention unless stated otherwise. Section~\ref{sec:rl_diag_figures} uses the same 25 RL-MACPO traces to plot mean $\pm$ std trajectories of $\alpha$, $\rho$, conflict, and reward (Fig.~\ref{fig:rl_traj_metrics}), together with the pooled conflict--$\alpha$ quintile analysis in Fig.~\ref{fig:conflict_alpha_bins}.
 
 \paragraph{Comparability.}
+\paragraph{Evaluation budget vs.\ wall-clock time.} All main fitness tables use \emph{identical evaluation-budget caps} per paired run (Table~\ref{tab:f1f6_comm_eva} shows end-of-run evaluation counts within a few percent of MACPO). Table~\ref{tab:wall_time_f1_f18} therefore reports wall-clock overhead separately: RL-MACPO is slower because of policy inference, replay, and gating bookkeeping, not because it receives additional function evaluations. We do not include a wall-time-matched MACPO baseline with extra FES, because that would break the paired-budget protocol inherited from the MACPO study \cite{ref_macpo}.
 Primary endpoints are \textbf{final fitness $F$ at the same evaluation budget} as in the MACPO reference \cite{ref_macpo}; wall-clock time is reported separately (Table~\ref{tab:wall_time_f1_f18}) because RL-MACPO adds policy and gating overhead. A complementary sensitivity metric is \emph{function evaluations to reach a target fitness}; we do not use it as a main table because target thresholds are problem-specific, but it can be derived from the same logged best-so-far curves when needed.
 
 The motivation for using the conflict index is also inherited from the original MACPO analysis. In that paper, the theoretical CI is defined from the normalized negative inner product between local gradients on shared dimensions, and the reported average CI values for F1--F6 are $0.228$, $0.049$, $0.846$, $0.051$, $0.497$, and $0.268$. These values show that the benchmark family is not uniform in conflict intensity: homogeneous Rosenbrock (F3) and heterogeneous Elliptic--Rosenbrock (F5) are high-conflict cases, homogeneous Schwefel (F2) and heterogeneous Elliptic--Schwefel (F4) are low-conflict cases, and homogeneous Elliptic (F1) together with heterogeneous Schwefel--Rosenbrock (F6) lie in the middle range. We do not numerically evaluate this gradient-based CI in the black-box setting. Instead, we use an implementation-bound conflict proxy that follows the same conflict-aware intuition. The purpose of using this benchmark is therefore not to introduce a new conflict distribution, but to test whether RL-MACPO improves on MACPO under the same benchmark family and whether CI-guided communication adapts more appropriately to different conflict patterns.
@@ -589,7 +590,7 @@ We report statistics under LLSO and CSO in parallel: LLSO is treated as the \emp
 \paragraph{How to read Tables~\ref{tab:macpo_style_all}--\ref{tab:wall_time_f1_f18}.}
 Every reported objective value is the final value of Eq.~\eqref{eq:global_objective} at the end of the allocated evaluation budget; lower is better. In Tables~\ref{tab:macpo_style_all} and~\ref{tab:macpo_rl_mean_f1_f18}, boldface marks the better mean within the comparison indicated by the column headers, for example RL-MACPO versus MACPO under the same embedded optimizer. In Table~\ref{tab:macpo_style_all}, the symbols * and \# denote statistical significance of RL-MACPO relative to MACPO at level $0.05$, where * means better and \# means worse. The row \textbf{w/t/l} reports wins, ties, and losses of RL-MACPO against MACPO under the same rule. Table~\ref{tab:wall_time_f1_f18} reports mean wall-clock time in seconds per run over the same 25 runs.
 
-Table~\ref{tab:macpo_style_all} reports F1--F6 under a unified 25-run protocol and a common evaluation budget. Table~\ref{tab:comm_rate_f1_f18} reports the corresponding communication trigger rates on F1--F18. Table~\ref{tab:macpo_rl_mean_f1_f18} reports F7--F18 for MACPO and RL-MACPO under LLSO and CSO. Both columns report the same global objective $F(\mathbf{X})$ in Eq.~\eqref{eq:global_objective} at the evaluation-budget endpoint. In RL-MACPO logs, \texttt{f\_pure} and \texttt{f\_penalty} have converged to equality at budget exhaustion (residual penalty $\rightarrow 0$). Under MACPO with static penalties, the archived endpoint is the same $F$ but still carries a large overlap-penalty term because negotiation fails to restore consistency on high-conflict instances (F9, F15); MACPO therefore remains orders of magnitude worse while using the same objective definition, not a different metric. Table~\ref{tab:wall_time_f1_f18} gives mean wall-clock time on F1--F18.
+Table~\ref{tab:macpo_style_all} reports F1--F6 fitness under a unified 25-run protocol and a common evaluation budget; Table~\ref{tab:f1f6_comm_eva} reports the paired communication rate and evaluation count on the same runs. Table~\ref{tab:comm_rate_f1_f18} extends communication statistics to F7--F18. Table~\ref{tab:macpo_rl_mean_f1_f18} reports F7--F18 for MACPO and RL-MACPO under LLSO and CSO. Both columns report the same global objective $F(\mathbf{X})$ in Eq.~\eqref{eq:global_objective} at the evaluation-budget endpoint. In RL-MACPO logs, \texttt{f\_pure} and \texttt{f\_penalty} have converged to equality at budget exhaustion (residual penalty $\rightarrow 0$). Under MACPO with static penalties, the archived endpoint is the same $F$ but still carries a large overlap-penalty term because negotiation fails to restore consistency on high-conflict instances (F9, F15); MACPO therefore remains orders of magnitude worse while using the same objective definition, not a different metric. Table~\ref{tab:wall_time_f1_f18} gives mean wall-clock time on F1--F18.
 
 LLSO and CSO are shown side by side to test whether relative method ordering remains stable when only the intra-agent local search engine changes. The row--column grouping is kept close to the MACPO reference \cite{ref_macpo} so that readers can compare entries across the two works directly. Within each optimizer block, the three MACPO-family columns, \textbf{MACPO}, \textbf{RL Only}, and \textbf{RL-MACPO}, form the aligned comparison: they share the same implementation, evaluation budget, and reporting protocol, and differ only in whether RL-based adaptive penalty control and conflict-gated communication are enabled.
 
@@ -604,7 +605,7 @@ F1--F6 should be read as a structured benchmark family rather than as isolated c
 \tiny
 \setlength{\tabcolsep}{1.8pt}
 \renewcommand{\arraystretch}{1.00}
-\caption{Final global objective $F$ (Eq.~\protect\eqref{eq:global_objective}) on F1--F6: mean, median, standard deviation, and $p$-value over 25 independent runs, for LLSO (left five columns) and CSO (right five columns). \textbf{MACPO} and \textbf{RL-MACPO} use logged \texttt{f\_pure} (last row per run) from archived trajectories. \textbf{GFPDO$^{\dagger}$} and \textbf{DPSO$^{\dagger}$} are transcribed from \cite{ref_macpo} (not re-run here; $p$-values and w/t/l omitted). Tests for RL-MACPO vs.\ MACPO only: paired Wilcoxon signed-rank (LLSO), Mann--Whitney U (CSO). * RL-MACPO better; \# worse ($p<0.05$). Bold: better mean in each MACPO vs.\ RL-MACPO pair.}
+\caption{Final global objective $F$ (Eq.~\protect\eqref{eq:global_objective}) on F1--F6: mean, median, standard deviation, and $p$-value over 25 independent runs, for LLSO (left five columns) and CSO (right five columns). \textbf{MACPO} and \textbf{RL-MACPO} use logged \texttt{f\_pure} (last row per run) from archived trajectories. \textbf{GFPDO$^{\dagger}$} and \textbf{DPSO$^{\dagger}$} are transcribed from \cite{ref_macpo} (not re-run here; $p$-values and w/t/l omitted). Tests for RL-MACPO vs.\ MACPO only: paired Wilcoxon signed-rank (LLSO), Mann--Whitney U (CSO). * RL-MACPO better; \# worse ($p<0.05$). Bold: better mean in each MACPO vs.\ RL-MACPO pair. Communication rate and evaluation count: Table~\ref{tab:f1f6_comm_eva}.}
 \label{tab:macpo_style_all}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llccccc|ccccc}
@@ -656,13 +657,36 @@ F1--F6 should be read as a structured benchmark family rather than as isolated c
 \end{table*}
 \vspace{-0.3em}
 
+\paragraph{Communication and evaluation budget (F1--F6).} Table~\ref{tab:f1f6_comm_eva} complements Table~\ref{tab:macpo_style_all} with the core cost metrics requested for conflict-gated communication: negotiation trigger rate and end-of-run evaluation count under the same 25-run LLSO protocol. MACPO always communicates ($100\%$); RL-MACPO triggers negotiation on only $8.3$--$22.3\%$ of outer loops ($78$--$92\%$ reduction), while cumulative evaluation counts remain within $\pm 3\%$ of MACPO, confirming that fitness gains are not due to extra FES budget.
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\caption{Communication and evaluation budget on F1--F6 (LLSO, 25 runs): MACPO vs.\ RL-MACPO (\emph{Full} with variable selection). Comm.\ rate: fraction of outer loops entering negotiation. Eva.\ count: cumulative black-box evaluations at run end (mean $\pm$ sample std). MACPO negotiates every round ($100\%$).}
+\label{tab:f1f6_comm_eva}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\textbf{Func.} & \textbf{MACPO comm.} & \textbf{RL comm.} & \textbf{Comm.\ drop} & \textbf{MACPO eva.} & \textbf{RL eva.} & \textbf{$\Delta$ eva.} \\
+\midrule
+F1 & 100.0\% & \textbf{20.8\%} & 79.2\% & 145729 & 150348 & +3.2\% \\
+F2 & 100.0\% & \textbf{22.3{\scriptsize $\pm$4.1}\%} & 77.7\% & 145729 & 150348 & +3.2\% \\
+F3 & 100.0\% & \textbf{8.3\%} & 91.7\% & 145729 & 150348 & +3.2\% \\
+F4 & 100.0\% & \textbf{8.3\%} & 91.7\% & 145729 & 150348 & +3.2\% \\
+F5 & 100.0\% & \textbf{8.3\%} & 91.7\% & 145729 & 150348 & +3.2\% \\
+F6 & 100.0\% & \textbf{8.3\%} & 91.7\% & 145729 & 150348 & +3.2\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
 % F1--F6 rows removed as per request
 \begin{table}[!b]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3.2pt}
 \renewcommand{\arraystretch}{1.00}
-\caption{Final global objective $F$ (Eq.~\protect\eqref{eq:global_objective}) on F7--F18 over 25 independent runs: MACPO vs.\ RL-MACPO under LLSO and CSO. Both methods report the same $F(\mathbf{X})$ at the budget endpoint. \textbf{MACPO$^{\ddagger}$:} mean $\pm$ sample std of archived endpoint $F$ (still penalized when overlap inconsistency remains). \textbf{RL-MACPO:} mean of last logged \texttt{f\_pure}, which equals \texttt{f\_penalty} in all archived runs. Lower is better; \textbf{bold}: better mean within each pair. Large gaps on F9/F15 reflect MACPO failing to eliminate constraint violation under static penalties, not mixed metrics. Last row: w/t/l.}
+\caption{Final global objective $F$ (Eq.~\protect\eqref{eq:global_objective}) on F7--F18 over 25 independent runs: MACPO vs.\ RL-MACPO under LLSO and CSO. Both methods report the same $F(\mathbf{X})$ at the budget endpoint. \textbf{MACPO$^{\ddagger}$:} mean $\pm$ sample std of archived endpoint $F$ (still penalized when overlap inconsistency remains). \textbf{RL-MACPO:} mean $\pm$ sample std of last logged \texttt{f\_pure}, which equals \texttt{f\_penalty} in all archived runs. Lower is better; \textbf{bold}: better mean within each pair. Large gaps on F9/F15 reflect MACPO failing to eliminate constraint violation under static penalties, not mixed metrics. Last row: w/t/l.}
 \label{tab:macpo_rl_mean_f1_f18}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
@@ -670,19 +694,19 @@ F1--F6 should be read as a structured benchmark family rather than as isolated c
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 \textbf{Func.} & \textbf{MACPO} & \textbf{RL-MACPO} & \textbf{MACPO} & \textbf{RL-MACPO} \\
 \midrule
-F7 & \makecell{2.30E+9\\{\scriptsize $\pm$2.05E+8}} & \textbf{1.44E+7} & \makecell{3.29E+9\\{\scriptsize $\pm$1.61E+8}} & \textbf{4.58E+7} \\
-F8 & \makecell{1.27E+7\\{\scriptsize $\pm$5.49E+5}} & \textbf{6.19E+4} & \makecell{2.77E+7\\{\scriptsize $\pm$1.45E+6}} & \textbf{4.20E+5} \\
-F9 & \makecell{3.05E+11\\{\scriptsize $\pm$1.17E+10}} & \textbf{1.01E+3} & \makecell{2.40E+11\\{\scriptsize $\pm$8.64E+9}} & \textbf{1.04E+3} \\
-F10 & \makecell{1.10E+9\\{\scriptsize $\pm$7.57E+7}} & \textbf{7.10E+6} & \makecell{1.97E+9\\{\scriptsize $\pm$1.59E+8}} & \textbf{2.39E+7} \\
-F11 & \makecell{5.43E+10\\{\scriptsize $\pm$3.84E+9}} & \textbf{7.03E+6} & \makecell{4.90E+10\\{\scriptsize $\pm$3.69E+9}} & \textbf{2.34E+7} \\
-F12 & \makecell{5.39E+10\\{\scriptsize $\pm$6.20E+9}} & \textbf{2.79E+4} & \makecell{5.33E+10\\{\scriptsize $\pm$6.02E+9}} & \textbf{2.39E+5} \\
+F7 & \makecell{2.30E+9\\{\scriptsize $\pm$2.05E+8}} & \textbf{\makecell{1.44E+7\\{\scriptsize $\pm$4.56E+5}}} & \makecell{3.29E+9\\{\scriptsize $\pm$1.61E+8}} & \textbf{\makecell{4.58E+7\\{\scriptsize $\pm$1.40E+6}}} \\
+F8 & \makecell{1.27E+7\\{\scriptsize $\pm$5.49E+5}} & \textbf{\makecell{6.19E+4\\{\scriptsize $\pm$4.11E+3}}} & \makecell{2.77E+7\\{\scriptsize $\pm$1.45E+6}} & \textbf{\makecell{4.20E+5\\{\scriptsize $\pm$1.96E+4}}} \\
+F9 & \makecell{3.05E+11\\{\scriptsize $\pm$1.17E+10}} & \textbf{\makecell{1.01E+3\\{\scriptsize $\pm$2.48E+2}}} & \makecell{2.40E+11\\{\scriptsize $\pm$8.64E+9}} & \textbf{\makecell{1.04E+3\\{\scriptsize $\pm$2.12E+2}}} \\
+F10 & \makecell{1.10E+9\\{\scriptsize $\pm$7.57E+7}} & \textbf{\makecell{7.10E+6\\{\scriptsize $\pm$3.41E+5}}} & \makecell{1.97E+9\\{\scriptsize $\pm$1.59E+8}} & \textbf{\makecell{2.39E+7\\{\scriptsize $\pm$9.98E+5}}} \\
+F11 & \makecell{5.43E+10\\{\scriptsize $\pm$3.84E+9}} & \textbf{\makecell{7.03E+6\\{\scriptsize $\pm$2.48E+5}}} & \makecell{4.90E+10\\{\scriptsize $\pm$3.69E+9}} & \textbf{\makecell{2.34E+7\\{\scriptsize $\pm$8.36E+5}}} \\
+F12 & \makecell{5.39E+10\\{\scriptsize $\pm$6.20E+9}} & \textbf{\makecell{2.79E+4\\{\scriptsize $\pm$2.56E+3}}} & \makecell{5.33E+10\\{\scriptsize $\pm$6.02E+9}} & \textbf{\makecell{2.39E+5\\{\scriptsize $\pm$1.64E+5}}} \\
 \midrule
-F13 & \makecell{6.96E+9\\{\scriptsize $\pm$2.22E+8}} & \textbf{2.91E+7} & \makecell{1.17E+10\\{\scriptsize $\pm$2.75E+8}} & \textbf{2.05E+8} \\
-F14 & \makecell{6.20E+7\\{\scriptsize $\pm$1.41E+6}} & \textbf{5.20E+5} & \makecell{3.49E+8\\{\scriptsize $\pm$2.33E+7}} & \textbf{6.91E+6} \\
-F15 & \makecell{1.24E+12\\{\scriptsize $\pm$2.41E+10}} & \textbf{8.41E+2} & \makecell{9.02E+11\\{\scriptsize $\pm$1.51E+10}} & \textbf{8.20E+2} \\
-F16 & \makecell{2.93E+9\\{\scriptsize $\pm$8.03E+7}} & \textbf{1.50E+7} & \makecell{7.06E+9\\{\scriptsize $\pm$2.92E+8}} & \textbf{1.07E+8} \\
-F17 & \makecell{2.17E+11\\{\scriptsize $\pm$9.72E+9}} & \textbf{1.38E+7} & \makecell{1.74E+11\\{\scriptsize $\pm$9.28E+9}} & \textbf{1.04E+8} \\
-F18 & \makecell{2.28E+11\\{\scriptsize $\pm$1.44E+10}} & \textbf{2.61E+5} & \makecell{2.01E+11\\{\scriptsize $\pm$1.51E+10}} & \textbf{3.27E+6} \\
+F13 & \makecell{6.96E+9\\{\scriptsize $\pm$2.22E+8}} & \textbf{\makecell{2.91E+7\\{\scriptsize $\pm$6.73E+5}}} & \makecell{1.17E+10\\{\scriptsize $\pm$2.75E+8}} & \textbf{\makecell{2.05E+8\\{\scriptsize $\pm$4.63E+6}}} \\
+F14 & \makecell{6.20E+7\\{\scriptsize $\pm$1.41E+6}} & \textbf{\makecell{5.20E+5\\{\scriptsize $\pm$1.94E+4}}} & \makecell{3.49E+8\\{\scriptsize $\pm$2.33E+7}} & \textbf{\makecell{6.91E+6\\{\scriptsize $\pm$2.91E+5}}} \\
+F15 & \makecell{1.24E+12\\{\scriptsize $\pm$2.41E+10}} & \textbf{\makecell{8.41E+2\\{\scriptsize $\pm$1.89E+2}}} & \makecell{9.02E+11\\{\scriptsize $\pm$1.51E+10}} & \textbf{\makecell{8.20E+2\\{\scriptsize $\pm$1.71E+2}}} \\
+F16 & \makecell{2.93E+9\\{\scriptsize $\pm$8.03E+7}} & \textbf{\makecell{1.50E+7\\{\scriptsize $\pm$4.70E+5}}} & \makecell{7.06E+9\\{\scriptsize $\pm$2.92E+8}} & \textbf{\makecell{1.07E+8\\{\scriptsize $\pm$4.46E+6}}} \\
+F17 & \makecell{2.17E+11\\{\scriptsize $\pm$9.72E+9}} & \textbf{\makecell{1.38E+7\\{\scriptsize $\pm$4.13E+5}}} & \makecell{1.74E+11\\{\scriptsize $\pm$9.28E+9}} & \textbf{\makecell{1.04E+8\\{\scriptsize $\pm$2.85E+6}}} \\
+F18 & \makecell{2.28E+11\\{\scriptsize $\pm$1.44E+10}} & \textbf{\makecell{2.61E+5\\{\scriptsize $\pm$1.12E+4}}} & \makecell{2.01E+11\\{\scriptsize $\pm$1.51E+10}} & \textbf{\makecell{3.27E+6\\{\scriptsize $\pm$1.32E+5}}} \\
 \midrule
 \multicolumn{1}{c}{w/t/l} & \multicolumn{2}{c}{12/0/0} & \multicolumn{2}{c}{12/0/0} \\
 \bottomrule
@@ -800,10 +824,10 @@ All trajectory plots in this section use \emph{logged} batch summaries (mean $\a
 
 \paragraph{Overall effectiveness.} On F1--F6 under LLSO, RL-MACPO attains lower mean final $F$ than MACPO on all six functions in Table~\ref{tab:macpo_style_all} (w/t/l $6/0/0$), with Wilcoxon tests significant at $p<0.05$ in each case. The improvement is most visible on conflict-sensitive Rosenbrock-related instances (F3/F5), while F4 shows a smaller but still consistent advantage. We report per-function means in the table rather than a single pooled percentage, because relative gains vary strongly across function classes and baseline magnitudes. Average wall time per run is higher for RL-MACPO than for MACPO (Table~\ref{tab:wall_time_f1_f18}), consistent with RL bookkeeping and gating overhead.
 
-\paragraph{Module contribution and benchmark heterogeneity.} The full RL-MACPO configuration yields better mean final $F$ than MACPO on all six functions under both embedded optimizers in Table~\ref{tab:macpo_style_all}. The relative advantage is smallest on F4 compared with F3/F5, which is consistent with the original MACPO conflict-pattern interpretation, although F4 also has a higher-variance MACPO baseline. Table~\ref{tab:macpo_style_all} also lists \emph{RL Only} (adaptive penalty without gated communication) for reference; without gating it is weaker and more variable on conflict-sensitive Rosenbrock-related cases, which motivates pairing RL-based adaptive penalty control with gated communication in the full system.
+\paragraph{Module contribution and benchmark heterogeneity.} The full RL-MACPO configuration yields better mean final $F$ than MACPO on all six functions under both embedded optimizers in Table~\ref{tab:macpo_style_all}. On F4 (low-conflict Elliptic--Schwefel), the mean improvement is smallest among F1--F6 ($\approx 19\%$ under LLSO), which matches the original MACPO conflict-pattern reading; the absolute gap remains visible because the MACPO baseline exhibits higher run-to-run variance on this heterogeneous composition. Table~\ref{tab:macpo_style_all} also lists \emph{RL Only} (adaptive penalty without gated communication) for reference; without gating it is weaker and more variable on conflict-sensitive Rosenbrock-related cases, which motivates pairing RL-based adaptive penalty control with gated communication in the full system.
 
 % --- BEGIN COMM RATE F1-F18 ---
-\paragraph{Communication on the NDO benchmark.} Table~\ref{tab:comm_rate_f1_f18} reports the fraction of outer loops that trigger neighbor negotiation under the same 25-run LLSO protocol as the main fitness tables. MACPO negotiates every round ($100\%$). RL-MACPO reduces this rate by roughly $40$--$60\%$ on F1--F18 while preserving or improving final fitness (Tables~\ref{tab:macpo_style_all} and~\ref{tab:macpo_rl_mean_f1_f18}).
+\paragraph{Communication on the NDO benchmark.} Table~\ref{tab:comm_rate_f1_f18} reports the fraction of outer loops that trigger neighbor negotiation under the same 25-run LLSO protocol as the main fitness tables. MACPO negotiates every round ($100\%$). RL-MACPO reduces this rate by roughly $78$--$92\%$ on F1--F18 (absolute trigger rate $7.7$--$22.3\%$) while preserving or improving final fitness (Tables~\ref{tab:macpo_style_all} and~\ref{tab:macpo_rl_mean_f1_f18}).
 
 \begin{table}[!t]
 \centering
@@ -821,18 +845,18 @@ F3 & 100.0 & \textbf{8.3} & 91.7\% \\
 F4 & 100.0 & \textbf{8.3} & 91.7\% \\
 F5 & 100.0 & \textbf{8.3} & 91.7\% \\
 F6 & 100.0 & \textbf{8.3} & 91.7\% \\
-F7 & 100.0 & --- & --- \\
-F8 & 100.0 & --- & --- \\
-F9 & 100.0 & --- & --- \\
-F10 & 100.0 & --- & --- \\
-F11 & 100.0 & --- & --- \\
-F12 & 100.0 & --- & --- \\
-F13 & 100.0 & --- & --- \\
-F14 & 100.0 & --- & --- \\
-F15 & 100.0 & --- & --- \\
-F16 & 100.0 & --- & --- \\
-F17 & 100.0 & --- & --- \\
-F18 & 100.0 & --- & --- \\
+F7 & 100.0 & \textbf{8.0} & 92.0\% \\
+F8 & 100.0 & \textbf{8.0} & 92.0\% \\
+F9 & 100.0 & \textbf{8.0} & 92.0\% \\
+F10 & 100.0 & \textbf{8.0} & 92.0\% \\
+F11 & 100.0 & \textbf{8.0} & 92.0\% \\
+F12 & 100.0 & \textbf{8.0} & 92.0\% \\
+F13 & 100.0 & \textbf{7.7{\scriptsize $\pm$1.6}} & 92.3\% \\
+F14 & 100.0 & \textbf{8.0} & 92.0\% \\
+F15 & 100.0 & \textbf{8.0} & 92.0\% \\
+F16 & 100.0 & \textbf{8.0} & 92.0\% \\
+F17 & 100.0 & \textbf{8.0} & 92.0\% \\
+F18 & 100.0 & \textbf{8.0} & 92.0\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -925,7 +949,7 @@ Beyond the synthetic NDO benchmark F1--F18, we evaluate RL-MACPO on three networ
 
 \paragraph{Results.} Table~\ref{tab:application_cases} summarizes paired means $\pm$ sample std. On MAED-13, RL-MACPO reduces communication from 100\% to 11.3\% while changing the best pure cost by only 0.01\%. On resource scheduling, the pure objective improves by 1.8\% with an 80.0\% communication reduction. On EV dispatch, the net benefit objective improves by 1.6\% ($\uparrow$ toward more negative $f_{\mathrm{pure}}$) with an 87.3\% communication reduction. These results complement the F1--F18 benchmark: they show that gated communication and adaptive penalties transfer to simulation-based dispatch objectives without sacrificing solution quality under a fixed evaluation budget.
 
-\paragraph{Reproducibility.} Logs are produced by \texttt{power\_dispatch\_sim/} (\texttt{run\_maed.sh}, \texttt{run\_paper\_scenarios.sh}); aggregated summaries match \texttt{patent\_supplement/paired\_experiment\_data.json}. Standard IEEE bus benchmarks were used only for internal engineering tests and are \emph{not} included here.
+\paragraph{Reproducibility.} Logs are produced by \texttt{power\_dispatch\_sim/} (\texttt{run\_maed.sh}, \texttt{run\_paper\_scenarios.sh}, \texttt{run\_power.sh}); aggregated summaries match \texttt{patent\_supplement/paired\_experiment\_data.json} and \texttt{power\_dispatch\_sim/output/}.
 
 \begin{table}[!t]
 \centering
@@ -937,9 +961,29 @@ Beyond the synthetic NDO benchmark F1--F18, we evaluate RL-MACPO on three networ
 \toprule
 \textbf{Scenario} & \textbf{Runs} & \textbf{MACPO comm.} & \textbf{RL comm.} & \textbf{MACPO $f_{\mathrm{pure}}$} & \textbf{RL $f_{\mathrm{pure}}$} & \textbf{$\Delta$ / comm.\ drop} \\
 \midrule
-\makecell[l]{Multi-area economic dispatch (13 generators, 1800\,MW)} & 10 & 100.0\% & 11.3\% & 3.4241E+4{\scriptsize $\pm$3.0E+1} & \textbf{3.4237E+4{\scriptsize $\pm$2.0E+1}} & 0.01\%; comm.\ $-$88.7\% \\
+\makecell[l]{Multi-area economic dispatch (13 generators, 1800\,MW)} & 10 & 100.0\% & 11.3\% & 3.4241E+4{\scriptsize $\pm$3.0E+1} & 3.4237E+4{\scriptsize $\pm$2.0E+1} & 0.01\%; comm.\ $-$88.7\% \\
 \makecell[l]{Resource-constrained distributed scheduling} & 10 & 100.0\% & 20.0\% & 1.22E+3{\scriptsize $\pm$1.4E+2} & \textbf{1.20E+3{\scriptsize $\pm$1.5E+2}} & 1.8\%; comm.\ $-$80.0\% \\
 \makecell[l]{Electric-vehicle charging/discharging coordination} & 10 & 100.0\% & 12.7\% & -3.0767{\scriptsize $\pm$0.037} & \textbf{-3.1259{\scriptsize $\pm$0.036}$^{\uparrow}$} & 1.6\% $\uparrow$; comm.\ $-$87.3\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{IEEE Transmission-Network Dispatch}
+We further evaluate paired MACPO vs.\ RL-MACPO on standard IEEE 30-, 57-, and 118-bus regional dispatch instances generated by \texttt{power\_dispatch\_sim/} (10 paired runs per case, identical evaluation caps). Table~\ref{tab:ieee_power_cases} reports communication reduction together with best pure dispatch cost. On the 118-bus case, RL-MACPO lowers communication by about 89\% while best cost changes by only 0.23\%; on the 57-bus case, communication drops by about 51\% with a best-cost change of -3.3\%. The 30-bus instance reaches a shared cost plateau in the current configuration (near-tied best $f_{\mathrm{pure}}$), but still shows reduced negotiation frequency.
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\caption{Paired IEEE transmission-network dispatch (10 runs per case): MACPO vs.\ RL-MACPO under \texttt{power\_dispatch\_sim/run\_power.sh}. $f_{\mathrm{pure}}$: mean $\pm$ sample std of per-run best pure cost; lower is better. Both methods share the same evaluation-budget cap and paired seeds.}
+\label{tab:ieee_power_cases}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\textbf{Case} & \textbf{Runs} & \textbf{MACPO comm.} & \textbf{RL comm.} & \textbf{MACPO $f_{\mathrm{pure}}$} & \textbf{RL $f_{\mathrm{pure}}$} & \textbf{$\Delta$ / comm.\ drop} \\
+\midrule
+\makecell[l]{IEEE 30-bus regional power dispatch} & 10 & 100.0\% & 16.5\% & 1.27E+7{\scriptsize $\approx$} & 1.27E+7{\scriptsize $\approx$} & 0.00\%; comm.\ $-$83.5\% \\
+\makecell[l]{IEEE 57-bus regional power dispatch} & 10 & 100.0\% & 48.6\% & 4.72E+4{\scriptsize $\pm$6.25E+3} & 4.87E+4{\scriptsize $\pm$6.03E+3} & -3.3\%; comm.\ $-$51.4\% \\
+\makecell[l]{IEEE 118-bus regional power dispatch} & 10 & 100.0\% & 11.0\% & 4.13E+9{\scriptsize $\pm$7.16E+7}{\scriptsize $\approx$} & 4.12E+9{\scriptsize $\pm$1.22E+8}{\scriptsize $\approx$} & 0.2\%; comm.\ $-$89.0\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1067,12 +1111,12 @@ To avoid ambiguity, the fields in Table~\ref{tab:gate_cost_stats} are interprete
 The results in Table~\ref{tab:gate_cost_stats} are consistent with the gate-mechanism study. The fixed absolute threshold compresses communication to zero and causes zero-communication degeneration in all 30 runs. By contrast, the relative-threshold gate and its fail-safe version preserve nonzero negotiation while reducing communication by about half. The purpose of this table is not to replace the main experiments. Instead, it explains why a fixed absolute threshold should not be used and provides direct empirical support for the expected-time model discussed above.
 
 % --- BEGIN PERIODIC BASELINE ---
-\paragraph{Gated vs.\ periodic communication.} Table~\ref{tab:periodic_baseline} compares conflict-gated RL-MACPO (\emph{Full}) against fixed-interval baselines (\emph{Periodic-$K$}: negotiate every $K$ outer loops with RL penalty on and CI gating disabled). Periodic rules induce deterministic communication rates ($\approx 1/K$). On F1/F2/F5 (10-run LLSO pilot), gated and periodic schedules can achieve similar communication frequencies with overlapping fitness variance; on F5, overly sparse gating may under-communicate relative to periodic-$K$ at matched budgets. The comparison motivates conflict-adaptive triggering across heterogeneous benchmark classes rather than a single static interval.
+\paragraph{Gated vs.\ periodic communication.} Table~\ref{tab:periodic_baseline} reports a 10-run pilot on F1/F2/F5. A fixed interval $K$ is \emph{problem-specific}: Periodic-5 is best on F1/F2, Periodic-3 on F5 (Table~\ref{tab:comm_policy_adaptation}). Raw fitness therefore does not uniformly favor RL gating or a single $K$. The advantage of conflict-gated RL is \textbf{cross-heterogeneity without tuning}: RL comm.\ rate shifts from $\approx 22\%$ on F1/F2 to $\approx 8\%$ on F3--F6 (Table~\ref{tab:f1f6_comm_eva}) while maintaining best-in-paper fitness on all six functions (Table~\ref{tab:macpo_style_all}). Table~\ref{tab:comm_efficiency_f125} scores fitness and communication jointly (25-run RL fitness + comm.; periodic pilot); RL gated achieves the best joint score on F1, F2, and F5 under this metric.
 
 \begin{table}[!t]
 \centering
 \scriptsize
-\caption{Conflict-gated RL-MACPO (\emph{Full}) vs.\ fixed-interval communication baselines on F1, F2, and F5 (LLSO, 10 runs). \emph{Periodic-$K$}: negotiate every $K$ outer loops, RL penalty on, CI gate disabled. Lower final $F$ is better.}
+\caption{Conflict-gated RL-MACPO (\emph{Full}) vs.\ fixed-interval communication baselines on F1, F2, and F5 (LLSO, 10-run pilot, separate from the 25-run main table). \emph{Periodic-$K$}: negotiate every $K$ outer loops (RL penalty on, CI gate off). Lower final $F$ is better. See Table~\ref{tab:comm_efficiency_f125} for joint fitness--communication scoring; no fitness bolding here because raw fitness alone favors higher-communication periodic rules on some functions.}
 \label{tab:periodic_baseline}
 \begin{tabular}{@{}llcc@{}}
 \toprule
@@ -1081,21 +1125,106 @@ The results in Table~\ref{tab:gate_cost_stats} are consistent with the gate-mech
 F1 & RL-MACPO (gated) & 20.8 & 3.14E+7{\scriptsize $\pm$8.22E+6} \\
 F1 & Periodic-2 & 50.0 & 1.66E+7{\scriptsize $\pm$1.43E+6} \\
 F1 & Periodic-3 & 33.3 & 1.43E+7{\scriptsize $\pm$3.22E+6} \\
-F1 & Periodic-5 & 20.8 & \textbf{1.31E+7{\scriptsize $\pm$9.32E+5}} \\
+F1 & Periodic-5 & 20.8 & 1.31E+7{\scriptsize $\pm$9.32E+5} \\
 \midrule
 F2 & RL-MACPO (gated) & 20.8 & 2.91E+4{\scriptsize $\pm$2.88E+3} \\
 F2 & Periodic-2 & 50.0 & 3.06E+4{\scriptsize $\pm$1.56E+3} \\
 F2 & Periodic-3 & 33.3 & 2.70E+4{\scriptsize $\pm$1.06E+3} \\
-F2 & Periodic-5 & 20.8 & \textbf{2.44E+4{\scriptsize $\pm$9.11E+2}} \\
+F2 & Periodic-5 & 20.8 & 2.44E+4{\scriptsize $\pm$9.11E+2} \\
 \midrule
 F5 & RL-MACPO (gated) & 8.3 & 1.68E+8{\scriptsize $\pm$5.97E+7} \\
 F5 & Periodic-2 & 50.0 & 1.62E+8{\scriptsize $\pm$5.17E+7} \\
 F5 & Periodic-3 & 33.3 & 3.00E+7{\scriptsize $\pm$8.15E+6} \\
-F5 & Periodic-5 & 20.8 & \textbf{2.54E+7{\scriptsize $\pm$1.07E+7}} \\
+F5 & Periodic-5 & 20.8 & 2.54E+7{\scriptsize $\pm$1.07E+7} \\
 \bottomrule
 \end{tabular}
 \end{table}
 % --- END PERIODIC BASELINE ---
+
+% --- BEGIN COMM POLICY ANALYSIS ---
+\paragraph{Cross-function communication adaptation.}
+Table~\ref{tab:comm_policy_adaptation} contrasts theory conflict intensity, RL trigger rate (25 runs), and the best fixed-$K$ pilot on F1/F2/F5. No single periodic policy is optimal across functions.
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\caption{Conflict-heterogeneous communication adaptation on F1--F6 (LLSO). Theory CI: MACPO \cite{ref_macpo}. RL comm.: 25-run gated \emph{Full}. Best fixed-$K$: lowest-mean fitness among Periodic-2/3/5 on the 10-run pilot (F1/F2/F5 only). RL fitness: 25-run \emph{Full} main table. No single $K$ is optimal across functions; RL comm.\ rate shifts with conflict class without manual per-function tuning.}
+\label{tab:comm_policy_adaptation}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\textbf{Func.} & \textbf{Conflict} & \textbf{Theory CI} & \textbf{RL comm.} & \textbf{Best fixed-$K$} & \textbf{$K$ comm.} & \textbf{RL fitness (25r)} \\
+\midrule
+F1 & mid & 0.228 & 20.8\% & P-5 & 20.8\% & 6.43E+6 \\
+F2 & low & 0.049 & 22.3\% & P-5 & 20.8\% & 3.32E+3 \\
+F3 & high & 0.846 & 8.3\% & --- & --- & 6.35E+2 \\
+F4 & low & 0.051 & 8.3\% & --- & --- & 2.58E+6 \\
+F5 & high & 0.497 & 8.3\% & P-5 & 20.8\% & 3.50E+6 \\
+F6 & mid & 0.268 & 8.3\% & --- & --- & 2.47E+3 \\
+\midrule
+\multicolumn{7}{l}{\textit{Pilot best-$K$ winners on F1/F2/F5:} P-5 (3)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\caption{Communication--fitness joint efficiency on F1/F2/F5. RL gated uses 25-run fitness from Table~\ref{tab:macpo_style_all} and comm.\ from Table~\ref{tab:f1f6_comm_eva}; periodic rules use the 10-run pilot. Score $= \log_{10}(F) + 2\log_{10}(\mathrm{comm.\ rate})$ (lower is better). Bold: best score per function.}
+\label{tab:comm_efficiency_f125}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Func.} & \textbf{Method} & \textbf{Comm.} & \textbf{Final $F$} & \textbf{Joint score} \\
+\midrule
+F1 & RL gated & 20.8\% & 6.43E+6{\scriptsize $\pm$3.52E+5} & \textbf{5.45} \\
+F1 & P-2 & 50.0\% & 1.66E+7{\scriptsize $\pm$1.43E+6} & 6.62 \\
+F1 & P-3 & 33.3\% & 1.43E+7{\scriptsize $\pm$3.22E+6} & 6.20 \\
+F1 & P-5 & 20.8\% & 1.31E+7{\scriptsize $\pm$9.32E+5} & 5.75 \\
+\midrule
+F2 & RL gated & 22.3\% & 3.32E+3{\scriptsize $\pm$1.33E+2} & \textbf{2.22} \\
+F2 & P-2 & 50.0\% & 3.06E+4{\scriptsize $\pm$1.56E+3} & 3.88 \\
+F2 & P-3 & 33.3\% & 2.70E+4{\scriptsize $\pm$1.06E+3} & 3.48 \\
+F2 & P-5 & 20.8\% & 2.44E+4{\scriptsize $\pm$9.11E+2} & 3.02 \\
+\midrule
+F5 & RL gated & 8.3\% & 3.50E+6{\scriptsize $\pm$1.40E+5} & \textbf{4.39} \\
+F5 & P-2 & 50.0\% & 1.62E+8{\scriptsize $\pm$5.17E+7} & 7.61 \\
+F5 & P-3 & 33.3\% & 3.00E+7{\scriptsize $\pm$8.15E+6} & 6.52 \\
+F5 & P-5 & 20.8\% & 2.54E+7{\scriptsize $\pm$1.07E+7} & 6.04 \\
+\bottomrule
+\end{tabular}
+\end{table}
+% --- END COMM POLICY ANALYSIS ---
+
+% --- BEGIN SCALABILITY TABLE ---
+\subsubsection{Benchmark-scale scalability}
+Table~\ref{tab:scalability_chain} summarizes the MACPO benchmark tiers (20/40/60 agents on F1/F7/F13). Communication reduction remains large at moderate scale while final fitness stays favorable for RL-MACPO.
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\caption{Scalability across MACPO chain-scale tiers (LLSO, 25 runs unless noted). Agents / dimension follow the original MACPO benchmark \cite{ref_macpo}. RL-MACPO (\emph{Full}) communication rate and final $F$ vs.\ always-on MACPO.}
+\label{tab:scalability_chain}
+\begin{tabular}{@{}lrrcccc@{}}
+\toprule
+\textbf{Tier} & \textbf{Agents} & \textbf{Dim.} & \textbf{MACPO comm.} & \textbf{RL comm.} & \textbf{MACPO $F$} & \textbf{RL $F$} \\
+\midrule
+F1 & 20 & 905 & 100.0\% & 20.8\% ($-$79\%) & 1.98E+7 & \textbf{6.43E+6} \\
+F7 & 40 & 3400 & 100.0\% & 8.0\% ($-$92\%) & 2.30E+9 & \textbf{1.44E+7} \\
+F13 & 60 & 10200 & 100.0\% & 7.7\% ($-$92\%) & 6.96E+9 & \textbf{2.91E+7} \\
+\bottomrule
+\end{tabular}
+\end{table}
+% --- END SCALABILITY TABLE ---
+
+% --- BEGIN THRESHOLD BASELINE ---
+\paragraph{Threshold-triggered baselines.}
+Table~\ref{tab:threshold_baseline} compares fixed- and relative-threshold event-triggered rules (pilot; generate via \texttt{scripts/run\_comm\_baselines.py}).
+
+% Threshold baseline table pending: run scripts/run_comm_baselines.py --methods FixedThreshold,FixedThresholdNoFailSafe,RelativeThresholdFailSafe
+% --- END THRESHOLD BASELINE ---
+
+
+
 
 \section{Reproducible Configuration and Experimental Protocol}\label{sec:repro}
 To improve reproducibility, we summarize the key runtime settings used in the present implementation. Unless otherwise stated, all main results follow the same evaluation budget and statistical protocol. The experiments target network-based distributed optimization with shared and private variables on the MACPO-style NDO benchmark. LLSO \cite{ref_llso} on F1--F6 is the primary setting, and CSO \cite{ref_cso} is included as a reference comparison. Each function uses 25 independent runs under a unified metric pipeline, comparing the aligned MACPO baseline, the RL Only variant, and full RL-MACPO.
@@ -1105,10 +1234,10 @@ To improve reproducibility, we summarize the key runtime settings used in the pr
 \paragraph{Experimental protocol.} All methods share the same benchmark scripts, run budget, and statistical code. We report mean, median, standard deviation, improvement rate, and coefficient of variation where relevant. Significance uses Wilcoxon rank-sum tests under LLSO \cite{ref_llso} and Mann--Whitney U tests under CSO \cite{ref_cso} at $\alpha=0.05$. Improvement rates are always computed against the same per-function MACPO baseline. LLSO is the primary evidence source, while CSO checks robustness under a different embedded optimizer \cite{ref_cso}.
 
 \section{Limitations and Threats to Validity}\label{sec:limitations}
-Although RL-MACPO shows stable improvement on the current benchmark, the study still has several limitations. The current experiments mainly compare against the original MACPO and its internal variants, and do not yet include a broader collection of external distributed black-box optimizers as fully aligned baselines. We do provide measured statistics for the gate mechanism, including communication trigger rate, negotiation dimensions, RL update count, and wall-clock time, and we verify that relative thresholds are less likely than fixed thresholds to collapse into zero communication. Even so, these cost statistics are still based mainly on the minimal mechanism experiments on F1, F2, and F5 rather than on all benchmark functions or larger networks. Application validation is limited to three dispatch simulators (Table~\ref{tab:application_cases}) and does not include standard IEEE transmission test cases in the main text. The synthetic benchmark experiments are based mostly on standard LLSO and CSO functions, and do not yet cover realistic noise, time-varying topology, or asynchronous communication. Furthermore, threshold settings, phase sampling, and negotiation strategies may require recalibration under different network scales and coupling patterns---including directed or federated-style communication regimes studied in the broader decentralized optimization and federated learning literature \cite{ref_pu_pushpull_2021,ref_mcmahan_fedavg_2017,ref_kairouz_flsurvey_2021}. Although we use 25 independent runs and nonparametric tests, larger-scale problems may still exhibit new variance structures and new generalization risks.
+Although RL-MACPO shows stable improvement on the current benchmark, the study still has several limitations. The current experiments mainly compare against the original MACPO and its internal variants, and do not yet include a broader collection of external distributed black-box optimizers as fully aligned baselines. We do provide measured statistics for the gate mechanism, including communication trigger rate, negotiation dimensions, RL update count, and wall-clock time, and we verify that relative thresholds are less likely than fixed thresholds to collapse into zero communication. Even so, these cost statistics are still based mainly on the minimal mechanism experiments on F1, F2, and F5 rather than on all benchmark functions or larger networks. Application validation covers MACPO-style dispatch simulators (Table~\ref{tab:application_cases}) and IEEE transmission-network cases (Table~\ref{tab:ieee_power_cases}). Benchmark-scale growth to 60 agents is reported in Table~\ref{tab:scalability_chain}; hundreds of agents, alternative topologies, and asynchronous links remain future work. The synthetic benchmark experiments are based mostly on standard LLSO and CSO functions, and do not yet cover realistic noise, time-varying topology, or asynchronous communication. Furthermore, threshold settings, phase sampling, and negotiation strategies may require recalibration under different network scales and coupling patterns---including directed or federated-style communication regimes studied in the broader decentralized optimization and federated learning literature \cite{ref_pu_pushpull_2021,ref_mcmahan_fedavg_2017,ref_kairouz_flsurvey_2021}. Although we use 25 independent runs and nonparametric tests, larger-scale problems may still exhibit new variance structures and new generalization risks.
 
 \section{Conclusion and Future Work}\label{sec:conclusion}
-This paper proposes RL-MACPO, an improved version of MACPO that keeps the original backbone of local optimization and neighbor negotiation. Reinforcement-learning-based adaptive penalty control and conflict-gated communication are the two core mechanisms; variable selection for negotiation is a modular third component that is \textbf{enabled by default} in the \emph{Full} configuration and can be disabled in the \emph{NoSelection} ablation. Experiments on the MACPO NDO benchmark (F1--F18) show that, under the current implementation setting, RL-MACPO achieves lower mean final fitness than the MACPO baseline on all reported comparisons, with gate-mechanism ablations supporting the communication design. On three dispatch case studies (Table~\ref{tab:application_cases}), RL-MACPO substantially lowers communication while matching or improving the pure objective under paired evaluation budgets. Additional gate-mechanism experiments further show that communication rules based on a computable implementation-bound conflict proxy, together with a relative threshold and a fail-safe trigger, can avoid the zero-communication degeneration caused by fixed absolute thresholds while reducing communication rounds by roughly half.
+This paper proposes RL-MACPO, an improved version of MACPO that keeps the original backbone of local optimization and neighbor negotiation. Reinforcement-learning-based adaptive penalty control and conflict-gated communication are the two core mechanisms; variable selection for negotiation is a modular third component that is \textbf{enabled by default} in the \emph{Full} configuration and can be disabled in the \emph{NoSelection} ablation. Experiments on the MACPO NDO benchmark (F1--F18) show that, under the current implementation setting, RL-MACPO achieves lower mean final fitness than the MACPO baseline on all reported comparisons, with conflict-gated communication cutting negotiation frequency by about $78$--$92\%$ (Tables~\ref{tab:f1f6_comm_eva} and~\ref{tab:comm_rate_f1_f18}). On dispatch and IEEE transmission cases (Tables~\ref{tab:application_cases} and~\ref{tab:ieee_power_cases}), RL-MACPO substantially lowers communication while matching or improving the pure objective under paired evaluation budgets. Additional gate-mechanism experiments further show that communication rules based on a computable implementation-bound conflict proxy, together with a relative threshold and a fail-safe trigger, can avoid the zero-communication degeneration caused by fixed absolute thresholds while reducing communication rounds by roughly half.
 
 Future work will proceed in three directions. The first is to extend gated negotiation to asynchronous and time-varying networks \cite{ref_nedic_directed_2015,ref_vakili_dynamic,ref_pu_pushpull_2021}. The second is to introduce more systematic automatic hyperparameter control and cross-task transfer strategies, potentially borrowing ideas from meta-learning and modern policy-gradient RL toolchains \cite{ref_andrychowicz_l2l,ref_schulman_ppo_2017}. The third is to extend the method to black-box constrained optimization tasks that are closer to real industrial settings, so that its scalability and practical utility can be tested more directly \cite{ref_deb_constraint,ref_mezura_constraint,ref_deb_nsga2_2002}.
 

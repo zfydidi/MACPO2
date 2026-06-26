@@ -9,7 +9,7 @@ source "$(dirname "$0")/lan_hosts_lib.sh"
 HOSTS_FILE="$ROOT/scripts/lan_hosts.local.tsv"
 TASK="${TASK:-comm_f13_f18}"
 FUNCS="${FUNCS:-F13,F14,F15,F16,F17,F18}"
-BASELINE_RUNS="${BASELINE_RUNS:-5}"
+BASELINE_RUNS="${BASELINE_RUNS:-25}"
 STOP_OLD="${STOP_OLD:-0}"
 FILTER_HOST=""
 RUN_ALL=false
@@ -78,7 +78,15 @@ sync_remote_scripts() {
   if [[ "$TASK" == comm_f13_f18 ]]; then
     rels=(scripts/run_comm_rate_f1_f18.sh)
   else
-    rels=(MACPO_sourcecode/run_baselines_f1_f6_batch.sh MACPO_sourcecode/GFPDO_overlap.cpp MACPO_sourcecode/DPSO1.cpp)
+    rels=(
+      MACPO_sourcecode/run_baselines_f1_f6_batch.sh
+      scripts/run_baselines_wsl.sh
+      utils/wsl_mpi_env.sh
+      utils/baseline_log_stats.py
+      scripts/aggregate_baselines_f1_f6.py
+      MACPO_sourcecode/GFPDO_overlap.cpp
+      MACPO_sourcecode/DPSO1.cpp
+    )
   fi
   for rel in "${rels[@]}"; do
     if ! sshpass -p "$pass" scp "${SSH_OPTS[@]}" "$ROOT/$rel" "${ssh_user}@${ip}:${scp_win}/$rel" 2>/dev/null; then
@@ -131,13 +139,13 @@ SCRIPT
     mac_log_tag="comm_${FUNCS}"
   elif [[ "$TASK" == baselines_dpso || "$TASK" == baselines_gfpdo ]]; then
     if [[ "$TASK" == baselines_dpso ]]; then
-      algo=dpso; out_sub=output_baselines_dpso_5runs; bin=MACPO_sourcecode/build/DPSO1; target=DPSO1
+      algo=dpso; out_sub=output_baselines_dpso_25runs; bin=MACPO_sourcecode/build/DPSO1; target=DPSO1
       unit="macpo-dpso-${slug}"
     else
-      algo=gfpdo; out_sub=output_baselines_gfpdo_5runs; bin=MACPO_sourcecode/build/GFPDO_overlap; target=GFPDO_overlap
+      algo=gfpdo; out_sub=output_baselines_gfpdo_25runs; bin=MACPO_sourcecode/build/GFPDO_overlap; target=GFPDO_overlap
       unit="macpo-gfpdo-${slug}"
     fi
-    inner="cd ${wsl_root}/MACPO_sourcecode && export OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 && ALGO=${algo} RUNS=${BASELINE_RUNS} OUT=./${out_sub} bash run_baselines_f1_f6_batch.sh > ${wsl_root}/logs/baselines_${algo}_\\\$(date +%Y%m%d_%H%M%S).log 2>&1"
+    inner="cd ${wsl_root}/MACPO_sourcecode && export OMP_NUM_THREADS=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 && ALGO=${algo} RUNS=${BASELINE_RUNS} OUT=./${out_sub} bash run_baselines_f1_f6_batch.sh > ${wsl_root}/logs/baselines_${algo}_\\\$(date +%Y%m%d_%H%M%S).log 2>&1"
     cat > "$runner_local" <<SCRIPT
 #!/usr/bin/env bash
 set -euo pipefail
@@ -150,7 +158,7 @@ if [[ ! -x ${bin} ]]; then
 fi
 $(launch_block "$unit" "$inner")
 SCRIPT
-    mac_inner="cd MACPO_sourcecode && ALGO=${algo} RUNS=${BASELINE_RUNS} OUT=./${out_sub} bash run_baselines_f1_f6_batch.sh > logs/${algo}_mac_ssh.log 2>&1"
+    mac_inner="cd MACPO_sourcecode && export OMP_NUM_THREADS=1 && ALGO=${algo} RUNS=${BASELINE_RUNS} OUT=./${out_sub} bash run_baselines_f1_f6_batch.sh > logs/${algo}_mac_ssh.log 2>&1"
     mac_log_tag="${algo}"
   else
     echo "未知 TASK: $TASK"; exit 1

@@ -80,14 +80,14 @@ fetch_baselines() {
   local wsl_root out_sub
   wsl_root=$(win_to_wsl_root "$win_path" "")
   if [[ "$algo" == "dpso" ]]; then
-    out_sub="MACPO_sourcecode/output_baselines_dpso_5runs"
+    out_sub="MACPO_sourcecode/output_baselines_dpso_25runs"
   else
-    out_sub="MACPO_sourcecode/output_baselines_gfpdo_5runs"
+    out_sub="MACPO_sourcecode/output_baselines_gfpdo_25runs"
   fi
   local tgz_name="macpo_${algo}_${ip}.tgz"
   local scp_tgz
   scp_tgz=$(echo "$win_path" | sed 's|\\|/|g')"/tmp/${tgz_name}"
-  local local_out="$ROOT/MACPO_sourcecode/output_baselines_5runs_${algo}"
+  local local_out="$ROOT/MACPO_sourcecode/output_baselines_${algo}_25runs"
 
   echo "==> [$ip] 拉取 ${algo} 基线"
   pack_cmd="wsl.exe bash -lc \"cd '${wsl_root}' && mkdir -p tmp && tar czf tmp/${tgz_name} '${out_sub}' 2>/dev/null || true\""
@@ -98,7 +98,7 @@ fetch_baselines() {
   }
   mkdir -p "$local_out"
   tar xzf "/tmp/${tgz_name}" -C "$ROOT" --strip-components=2 2>/dev/null || tar xzf "/tmp/${tgz_name}" -C "$ROOT/MACPO_sourcecode"
-  echo "    已保存到 MACPO_sourcecode/output_baselines_5runs_${algo}/"
+  echo "    已保存到 MACPO_sourcecode/output_baselines_${algo}_25runs/"
 }
 
 mkdir -p "$LOCAL_COMM"
@@ -113,7 +113,7 @@ if [[ "$FETCH_BASELINES" == true ]]; then
     algo="${kind#baselines_}"
     fetch_baselines "$ip" "$pass" "$win_path" "$algo"
   done < <(grep -v '^#' "$PLAN" | grep -v '^$')
-  echo "基线拉回完成。"
+  echo "基线拉回完成。运行: python3 scripts/aggregate_baselines_f1_f6.py"
   exit 0
 fi
 
