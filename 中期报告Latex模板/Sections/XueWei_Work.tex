@@ -1,9 +1,7 @@
 \hypersetup{linkcolor=black,citecolor=black,urlcolor=black}
 \newcommand{\rcite}[1]{\textsuperscript{\cite{#1}}}
 
-\begin{titlepage}
-    \section{学位论文工作}
-    \vspace{-18pt}
+\section{学位论文工作}
     \begin{center}
     \renewcommand{\arraystretch}{1.45}
     \begin{tabular}{|C{0.7cm}|C{1.5cm}|C{2.168cm}|C{2.165cm}|C{3.2cm}|C{3.0cm}|C{1cm}|}
@@ -51,25 +49,25 @@
     \par
 \textbf{1.3 黑箱约束优化与惩罚机制}
 \par
-惩罚函数法是黑箱约束优化的常用手段；可行性规则、$\varepsilon$-约束法、随机排序及自适应惩罚等机制虽缓解了参数敏感问题\rcite{deb2000,takahama2006,runarsson2000,li2019,wang2014,mezuramontes2011,karafotias2015}，但在冲突强度动态变化时，静态惩罚仍难以兼顾可行引导与搜索效率。因此，本课题将惩罚参数自适应调节作为核心改进方向之一。
+惩罚函数法是黑箱约束优化的常用手段；可行性规则、$\varepsilon$-约束法、随机排序及自适应惩罚等机制虽缓解了参数敏感问题\rcite{coello2002,deb2000,takahama2006,runarsson2000,li2019,wang2014,mezuramontes2011,karafotias2015}，但在冲突强度动态变化时，静态惩罚仍难以兼顾可行引导与搜索效率。因此，本课题将惩罚参数自适应调节作为核心改进方向之一。
 
 \par
 \indent
 \textbf{1.4 多智能体协同进化与分布式黑箱优化}
 \par
-协同进化通过子问题划分与多智能体并行演化处理高维黑箱问题\rcite{potter1994,omidvar2014,li2012survey,yang2008,li2012pso,omidvar2017,ding2024}，代表性工作包括协同粒子群优化（Distributed Particle Swarm Optimization，DPSO）、分组适应度惩罚分布式优化（Group Fitness Penalty Distributed Optimization，GFPDO）等。MACPO\rcite{chen2024macpo}将协同进化与惩罚函数结合，CEC2010/2013 大规模基准\rcite{tang2009,li2013cec}及层化学习群优化算法（Level-based Learning Swarm Optimizer，LLSO）/竞争群优化算法（Competitive Swarm Optimizer，CSO）嵌入优化器\rcite{yang2018llso,cheng2015cso}构成了本课题可直接对接的评测体系。现有 MACPO 类方法中惩罚参数与协同策略多依赖静态规则\rcite{yang2008,li2012pso}，为本课题引入 RL 惩罚调控与门控通信留下了明确改进空间。
+协同进化通过子问题划分与多智能体并行演化处理高维黑箱问题\rcite{back1996,potter1994,omidvar2014,li2012survey}。DPSO、GFPDO 等工作将协同进化引入分布式场景\rcite{yang2008,li2012pso,kennedy1995,omidvar2017}；MACPO\rcite{chen2024macpo}进一步将惩罚函数与多智能体协商结合，并依托 CEC2013 大规模基准\rcite{tang2009,li2013cec}开展评测。尽管上述方法提高了大规模黑箱优化效率，但多数工作仍采用固定惩罚参数与固定通信策略，无法根据冲突演化动态调整协调强度；同时，全量共享变量协商带来的通信冗余问题尚未得到充分解决。因此，本课题拟从惩罚调控与通信机制两个方面开展改进，并对接 LLSO/CSO 等嵌入优化器\rcite{yang2018llso,cheng2015cso,ding2024}完成实验验证。
 
     \par
     \indent
     \textbf{1.5 强化学习赋能优化算法}
     \par
-    强化学习已被用于优化算法中的参数控制、算子选择与决策调节\rcite{karafotias2015,sutton2018,latorre2023,song2024,mnih2015}，但多集中于无约束或简单约束问题，对分布式黑箱约束优化中惩罚参数与协同策略的学习机制研究仍较有限\rcite{yi2019,shahrampour2018}。因此，将轻量级 RL 嵌入 MACPO 外循环，是本课题拟突破的关键技术路径。
+    强化学习（Reinforcement Learning，RL）已被用于优化算法中的参数控制、算子选择与决策调节\rcite{karafotias2015,sutton2018,latorre2023,song2024,mnih2015}，但多集中于无约束或简单约束问题，对分布式黑箱约束优化中惩罚参数与协同策略的学习机制研究仍较有限\rcite{yi2019,shahrampour2018}。因此，将 RL 嵌入 MACPO 外循环，是本课题拟突破的关键技术路径。
 
 \par
 \indent
 \textbf{1.6 相关方法对比与本研究定位}
 \par
-为清晰展示不同方法的技术特点，下表总结了分布式约束优化相关方法在问题结构、黑箱适应性、梯度依赖、约束处理与智能调控等维度的差异。本课题在 MACPO 框架上引入轻量级强化学习（Reinforcement Learning，RL）惩罚调控、冲突门控通信与变量重要性筛选，在智能调控、黑箱适应性与不依赖梯度三个维度上形成完整覆盖。由此，本研究定位于：在黑箱 NDO 场景下，以学习机制补强 MACPO 静态惩罚与全量通信的短板。
+为清晰展示不同方法的技术特点，下表总结了分布式约束优化相关方法在问题结构、黑箱适应性、梯度依赖、约束处理与智能调控等维度的差异。本课题在 MACPO 框架上引入 RL 惩罚调控、冲突门控通信与变量重要性筛选，在智能调控、黑箱适应性与不依赖梯度三个维度上形成完整覆盖。由此，本研究定位于：在黑箱 NDO 场景下，以学习机制补强 MACPO 静态惩罚与全量通信的短板。
 
 
 }}
@@ -77,31 +75,19 @@
     \hline
     \end{tabular}
     \end{center}
-    \end{titlepage}
 
 
+\clearpage
+\EnableSectionPageBorder
 
-\begin{titlepage}
-    \makeatletter
-    \AddToShipoutPictureBG*{
-        \begin{tikzpicture}[overlay,remember picture]
-            \draw [line width=1pt]
-            ($ (current page.north west) + (1.95cm,-2.1cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.95cm,1.75cm) $);
-        \end{tikzpicture}
-    }
-    \makeatother
-\small
-\noindent\textbf{(续)}
+\vspace{0.2cm}
 \par
 \indent
 \textbf{1.7 研究现状总结}
 \par
-综合调研，现有研究存在以下不足：（1）传统分布式凸优化难以适应黑箱、非凸复杂约束；（2）惩罚机制多采用静态规则，缺乏对冲突动态变化的感知；（3）协同策略依赖预设规则；（4）RL 尚未深度融入分布式约束优化核心调控机制。据此，本课题确定“RL 自适应惩罚 + EMA-Top-$k$ 变量筛选 + 三层门控通信”的技术路线，其中 EMA/Top-$k$ 指基于指数滑动平均（Exponential Moving Average, EMA）的变量重要性筛选。本人已完成上述方向的系统文献调研与选题论证，明确了后续算法设计与实验验证的切入点。
-\begin{center}
-\footnotesize
-\begin{tabular}{lccccccc}
+综合调研，现有研究存在以下不足：（1）传统分布式凸优化难以适应黑箱、非凸复杂约束；（2）惩罚机制多采用静态规则，缺乏对冲突动态变化的感知；（3）协同策略依赖预设规则；（4）RL 尚未深度融入分布式约束优化核心调控机制。据此，本课题确定“RL 自适应惩罚 + EMA/Top-$R$\% 变量筛选 + 三层门控通信”的技术路线，其中 EMA/Top-$R$\% 指基于指数滑动平均（Exponential Moving Average, EMA）的变量重要性按比例筛选。本人已完成上述方向的系统文献调研与选题论证，明确了后续算法设计与实验验证的切入点。
+\WideTable{%
+\begin{tabularx}{\linewidth}{@{}l *{7}{>{\centering\arraybackslash}X}@{}}
 \hline
 \textbf{算法} & \textbf{类别} & \textbf{问题结构} & \textbf{黑箱} & \textbf{梯度} & \textbf{约束} & \textbf{智能调控} & \textbf{适用性} \\
 \hline
@@ -113,8 +99,7 @@ GFPDO & 黑箱进化 & 异构 & $\checkmark$ & $\times$ & 惩罚 & $\times$ & �
 MACPO & 黑箱进化 & 异构 & $\checkmark$ & $\times$ & 惩罚 & $\times$ & 黑箱+非凸 \\
 \textbf{本研究} & 黑箱进化 & 异构 & $\checkmark$ & $\times$ & 惩罚 & $\checkmark$ & 黑箱+非凸 \\
 \hline
-\end{tabular}
-\end{center}
+\end{tabularx}}
 
 \begin{thebibliography}{99}
 
@@ -203,26 +188,6 @@ Ke Li, Renzhi Chen, Guanhua Fu, and Xin Yao.
 An adaptive penalty-based boundary intersection method for constrained multiobjective optimization.
 \emph{Information Sciences}, 478:15--37, 2019.
 
-\end{thebibliography}
-
-\end{titlepage}
-
-\begin{titlepage}
-    \makeatletter
-    \AddToShipoutPictureBG*{
-        \begin{tikzpicture}[overlay,remember picture]
-            \draw [line width=1pt]
-            ($ (current page.north west) + (1.95cm,-2.1cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.95cm,1.75cm) $);
-        \end{tikzpicture}
-    }
-    \makeatother
-\small
-\noindent\textbf{(续)}
-
-\begin{thebibliography}{99}
-\setcounter{enumiv}{16}
 
 \bibitem{wang2014}
 Yong Wang, Zixing Cai, and Qingfu Zhang.
@@ -321,26 +286,6 @@ Distributed online optimization in dynamic environments using mirror descent.
 
 \end{thebibliography}
 
-
-
-\end{titlepage}
-
-
-\begin{titlepage}
-    \makeatletter
-    \AddToShipoutPictureBG*{
-        \begin{tikzpicture}[overlay,remember picture]
-            \draw [line width=1pt]
-            ($ (current page.north west) + (1.95cm,-2.1cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.95cm,1.75cm) $);
-        \end{tikzpicture}
-    }
-    \makeatother
-\small
-\noindent\textbf{(续)}
-
-
 \par
 \indent
 
@@ -348,19 +293,27 @@ Distributed online optimization in dynamic environments using mirror descent.
 
 \par
 \indent
-根据开题报告所确定的研究目标，本人目前已完成 RL-MACPO 算法总体框架设计，并实现了 RL 惩罚调控、EMA/Top-$k$ 变量筛选与三层门控通信等主要功能模块。下面分别介绍各模块的设计思路与实现情况。
+根据开题报告所确定的研究目标，目前已完成 RL-MACPO（基于强化学习的多智能体协同惩罚优化）算法总体框架设计，并实现了 RL 惩罚调控、EMA/Top-$R$\% 变量筛选与三层门控通信等主要功能模块。下面分别介绍各模块的设计思路与实现情况。
 
 \par
 \indent
 \textbf{2.1 总体思路}
 \par
-针对前述研究现状中惩罚参数静态、通信效率不足等问题，本课题保持 MACPO“局部优化—邻居协商”的总体框架不变，在惩罚调控、共享变量选择以及通信策略三个方面进行改进，主要包括三个模块：（1）RL 自适应惩罚调控，根据冲突演化动态调整 $\alpha$；（2）EMA/Top-$k$ 变量重要性筛选，缩小单次协商维度；（3）三层门控通信，按时间、冲突与搜索阶段判定是否触发协商。本课题所提方法记为基于强化学习的多智能体协同惩罚优化（RL-MACPO）。三个模块集成于 MACPO 外循环，在不增加评价预算、不改变网络拓扑的前提下，改善解质量并降低通信负载。
+针对前述研究现状中惩罚参数静态、通信效率不足等问题，本课题保持 MACPO“局部优化—邻居协商”的总体框架不变，在 MACPO 外循环依次嵌入 RL 惩罚调控、三层门控通信与 EMA/Top-$R$\% 变量筛选三个模块，形成 RL-MACPO 整体流程：局部优化 $\rightarrow$ RL 惩罚更新 $\rightarrow$ 门控判定 $\rightarrow$ Top-$R$\% 筛选 $\rightarrow$ 按需协商（见图\ref{fig:framework}）。在不增加评价预算、不改变网络拓扑的前提下，上述模块协同改善解质量并降低通信负载；各模块设计原理见 2.2--2.6 小节。
+
+
 
 \par
 \indent
-与原始 MACPO 相比，本课题的主要改进包括：（1）提出 RL 自适应惩罚机制，实现惩罚参数随冲突演化动态调节；（2）提出基于 EMA/Top-$k$ 的变量筛选策略，降低单次通信涉及的变量维度；（3）提出三层门控通信机制，实现按需协商。上述三个模块共同构成 RL-MACPO 的核心技术方案。
+\textbf{2.2 核心创新点}
+\par
+\indent
+\textbf{创新点一：提出 RL 自适应惩罚机制，实现惩罚参数动态调整。}
+\par
+与已有基于经验规则或固定惩罚参数的方法不同，本课题在算法研究中引入冲突演化信息（$\mathrm{CI}_t$、$\Delta\mathrm{CI}_t$）作为 RL 状态，实现惩罚参数在线调节。针对 MACPO 固定惩罚权重难以适应冲突演化的问题，本课题设计轻量级策略网络输出连续调节量，使惩罚强度随搜索阶段与冲突水平联动更新。该机制在冲突尚弱时避免过度约束、在协调需求上升时加强惩罚，从而缓解“惩罚过强致停滞”与“惩罚过弱致不协调”的两难。后续实验表明，该机制在强耦合类测试函数上具有明显优势（见第3章）。
 
-\begin{figure}[H]
+
+\begin{figure}[htbp]
 \centering
 \usetikzlibrary{positioning,arrows.meta}
 \begin{tikzpicture}[
@@ -371,7 +324,7 @@ Distributed online optimization in dynamic environments using mirror descent.
 \node[box] (macpo) {MACPO 外循环（局部优化）};
 \node[box, below=of macpo] (rl) {RL 惩罚调控};
 \node[box, below=of rl] (gate) {三层门控通信};
-\node[box, below=of gate] (ema) {EMA/Top-$k$ 变量筛选};
+\node[box, below=of gate] (ema) {EMA/Top-$R$\% 筛选};
 \node[box, below=of ema] (comm) {按需跨节点协商};
 \node[box, below=of comm] (upd) {种群重评估与策略更新};
 \draw[arr] (macpo) -- (rl);
@@ -387,7 +340,27 @@ Distributed online optimization in dynamic environments using mirror descent.
 
 \par
 \indent
-\textbf{2.2 NDO 问题建模}
+\textbf{创新点二：提出基于 EMA/Top-$R$\% 的共享变量筛选策略，降低单次协商维度。}
+\par
+与 MACPO 每轮全维协商不同，本课题对共享维度维护 EMA 重要性分数，仅保留 Top-$R$\% 高冲突变量进入待协商变量集，在保留关键协调信息的同时压缩单次通信数据量。该策略与门控机制配合，使通信负载不仅取决于“是否通信”，还取决于“通信多少维”；实验结果表明，单次协商维度显著缩减。
+
+\par
+\indent
+\textbf{创新点三：提出三层门控通信机制，实现按需协商。}
+\par
+与 MACPO 外循环每轮均触发全量通信不同，本课题从时间间隔、冲突强度与搜索阶段三个维度设计门控判据，并辅以强制触发机制避免长期局部漂移；仅当冲突显著且满足间隔约束时才进入 Top-$R$\% 筛选后的协商。该机制将有限通信集中于真正存在冲突的阶段；实验结果表明，在标准基准上可大幅降低协商触发率且未以精度为代价。
+
+\par
+\indent
+上述三个模块并非独立叠加，而是共同构成 RL-MACPO 整体框架：RL 负责动态调节惩罚强度，门控决定何时通信，Top-$R$\% 筛选决定通信哪些变量，三者协同实现“按需、按维、按冲突”的分布式协调。
+
+\par
+\indent
+概括而言，本课题通过“RL 动态惩罚 + 门控触发 + Top-$R$\% 变量筛选”三个模块，统一回答“何时通信、通信哪些变量、如何动态协调”三个关键问题；在保持评价预算不变的条件下，实现优化性能与通信效率的协同提升。
+
+\par
+\indent
+\textbf{2.3 NDO 问题建模}
 \par
 考虑 $n$ 个智能体构成的无向网络 $G=(V,E)$，全局决策向量 $X=[x_1,\ldots,x_D]^{\mathrm{T}}$。智能体 $i$ 的局部变量集为 $X_i$，全局目标为
 \begin{equation}
@@ -404,9 +377,9 @@ h_i(x)=f_i(x)+\alpha_i c_i(x)
 
 \par
 \indent
-\textbf{2.3 RL 自适应惩罚调控}
+\textbf{2.4 RL 自适应惩罚调控}
 \par
-针对固定 $\alpha$ 的局限性，本人设计了以冲突指标为状态的轻量级 RL 惩罚调控模块。定义归一化冲突指标 $\mathrm{CI}_t$ 及其变化 $\Delta\mathrm{CI}_t$，构成 RL 状态 $\mathbf{s}_t=[\mathrm{CI}_t,\Delta\mathrm{CI}_t]^{\mathrm{T}}$，策略网络输出动作
+针对固定 $\alpha$ 的局限性，本课题设计了以冲突指标为状态的 RL 惩罚调控模块。策略网络仅含单层线性映射（式\eqref{eq:action}，参数量为 $\mathcal{O}(1)$），计算开销远低于黑箱目标评价，故称为轻量级策略网络。定义归一化冲突指标 $\mathrm{CI}_t$ 及其变化 $\Delta\mathrm{CI}_t$，构成 RL 状态 $\mathbf{s}_t=[\mathrm{CI}_t,\Delta\mathrm{CI}_t]^{\mathrm{T}}$，策略网络输出动作
 \begin{equation}
 \label{eq:action}
 a_t=\pi_\theta(\mathbf{s}_t)=\tanh(W\mathbf{s}_t+b),\quad a_t\in[-1,1]
@@ -418,23 +391,23 @@ a_t=\pi_\theta(\mathbf{s}_t)=\tanh(W\mathbf{s}_t+b),\quad a_t\in[-1,1]
 \alpha_t=\alpha_{\mathrm{base}}(t)\cdot\xi_t,\quad
 \alpha_{\mathrm{base}}(t)=\kappa|f(x_t)|
 \end{equation}
-式\eqref{eq:alpha}使 $\alpha_t$ 既随搜索阶段缩放，又保留 RL 对冲突变化的即时响应。奖励采用相对改进率 $r_t=(f(x_t)-f(x_{t+1}))/|f(x_t)|\times 100$，策略参数通过最大化累计折扣奖励进行学习：
+式\eqref{eq:alpha}中，$\kappa$ 为惩罚尺度系数，$\delta$ 为比例因子 $\xi_t$ 的更新步长；$\xi_t$ 经裁剪后与基准尺度 $\alpha_{\mathrm{base}}(t)=\kappa|f(x_t)|$ 相乘得到最终惩罚权重 $\alpha_t$，使惩罚既随搜索阶段缩放，又保留 RL 对冲突变化的即时响应。奖励采用相对改进率 $r_t=(f(x_t)-f(x_{t+1}))/|f(x_t)|\times 100$，策略参数通过最大化累计折扣奖励进行学习：
 \begin{equation}
 \label{eq:rl_obj}
 J(\theta)=\mathbb{E}_{\pi_\theta}\left[\sum_{t=0}^{T}\gamma^{t} r_t\right]
 \end{equation}
-式\eqref{eq:rl_obj}将“目标改进”作为学习信号，因此惩罚调控与搜索进展直接挂钩；策略更新采用经验回放与批量梯度下降，已在核心代码中实现。
+式\eqref{eq:rl_obj}中，$\gamma\in(0,1)$ 为折扣因子；该式将“目标改进”作为学习信号，因此惩罚调控与搜索进展直接挂钩；策略更新采用经验回放与批量梯度下降，目前已完成核心代码实现，并通过单元测试验证其正确性。
 
 \par
 \indent
-\textbf{2.4 变量重要性筛选}
+\textbf{2.5 变量重要性筛选}
 \par
 对共享维度 $d$ 维护 EMA 重要性分数
 \begin{equation}
 \label{eq:ema}
 I_d(t)=\lambda I_d(t-1)+(1-\lambda)\mathrm{CI}_d(t)
 \end{equation}
-由于 EMA 能够抑制单轮冲突指标的随机波动，因此更适合刻画共享变量的长期协调需求。筛选集合定义为
+式\eqref{eq:ema}中，$\lambda\in(0,1)$ 为 EMA 平滑系数；由于 EMA 能够抑制单轮冲突指标的随机波动，因此更适合刻画共享变量的长期协调需求。筛选集合定义为
 \begin{equation}
 \label{eq:topk}
 |\mathcal{S}(t)|=\lfloor RD\rfloor,\quad
@@ -442,36 +415,20 @@ I_d(t)=\lambda I_d(t-1)+(1-\lambda)\mathrm{CI}_d(t)
 \end{equation}
 式\eqref{eq:topk}仅保留高重要性维度进入协商，因此在不牺牲关键协调信息的前提下，从空间维度降低通信数据量；其中 $D$ 为共享变量总数，$R\in(0,1]$ 为筛选比例。
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\includegraphics[width=0.25\linewidth]{patent_fig6_variable_select.png}
+\includegraphics[width=0.3\linewidth]{patent_fig6_variable_select.png}
 \caption{共享变量重要性排序与 Top-$R$\% 筛选机制}
 \label{fig:varselect}
 \end{figure}
 
 
-\end{titlepage}
-
-\begin{titlepage}
-    \makeatletter
-    \AddToShipoutPictureBG*{
-        \begin{tikzpicture}[overlay,remember picture]
-            \draw [line width=1pt]
-            ($ (current page.north west) + (1.95cm,-2.1cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.95cm,1.75cm) $);
-        \end{tikzpicture}
-    }
-    \makeatother
-\small
-\noindent\textbf{(续)}
-
 \par
 \indent
-图\ref{fig:varselect}所示筛选机制中，各共享维度按式\eqref{eq:ema}累积冲突贡献并排序，仅 $|\mathcal{S}(t)|=\lfloor RD\rfloor$ 个高重要性变量进入协商队列。这意味着通信负载不仅取决于“是否通信”，还取决于“通信多少维”：在链式 NDO 中，边界变量冲突往往集中于少数高梯度维度，全维协商会放大无效数据传输。该设计与 §3.4 通信实验中“单次协商维度缩减”的机理分析相呼应，是通信率下降的重要来源之一。
+图\ref{fig:varselect}所示筛选机制中，各共享维度按式\eqref{eq:ema}累积冲突贡献并排序，仅 $|\mathcal{S}(t)|=\lfloor RD\rfloor$ 个高重要性变量进入待协商变量集，从空间维度压缩单次协商所涉变量数。
 \par
 \indent
-\textbf{2.5 三层门控通信机制}
+\textbf{2.6 三层门控通信机制}
 \par
 设上次通信迭代为 $t_{\mathrm{last}}$，三层门控为
 \begin{equation}
@@ -486,7 +443,7 @@ I_d(t)=\lambda I_d(t-1)+(1-\lambda)\mathrm{CI}_d(t)
 
 \par
 \indent
-（1）\textbf{保活触发}：若连续 $k$ 轮未进入协商，则强制触发一次通信，避免长期局部最优漂移。
+（1）\textbf{强制触发}：若连续 $k$ 轮未进入协商，则强制触发一次通信，避免长期局部最优漂移。
 
 \par
 \indent
@@ -507,73 +464,95 @@ I_d(t)=\lambda I_d(t-1)+(1-\lambda)\mathrm{CI}_d(t)
 \label{eq:rho}
 \rho=\frac{N_{\mathrm{comm}}}{N_{\mathrm{total}}}\times 100\%
 \end{equation}
-式\eqref{eq:rho}作为后续 §3.4 通信效率实验的核心统计指标。
+式\eqref{eq:rho}作为后续 3.4 小节通信效率实验的核心统计指标。
 
 
 \par
 \indent
-\textbf{2.6 算法流程与实现要点}
+\textbf{2.7 算法流程与实现要点}
 \par
-本人设计并实现的 RL-MACPO 基于 C++/MPI 开发，与 LLSO/CSO 嵌入优化器及 CEC2013 NDO 基准链式网络（20 智能体、905 维）对接。算法1 给出了主要执行步骤，图\ref{fig:flowchart} 进一步展示了各模块之间的数据流关系。
+本课题设计并实现的 RL-MACPO 基于 C++/MPI 开发，与 LLSO/CSO 嵌入优化器及 CEC2013 NDO 基准链式网络（20 智能体、905 维）对接。根据 CEC2013 NDO 基准定义，20 智能体链式网络对应 905 维共享优化问题。算法1 给出了主要执行步骤，图\ref{fig:flowchart} 进一步展示了各模块之间的数据流关系。
 
 \par
 \indent
-\textbf{算法1\quad RL-MACPO 主流程}
-\par
-\small
-\textbf{输入：}网络拓扑 $G$、评价预算、种群规模 $P$、筛选比例 $R$、RL 超参数。\\
-\textbf{输出：}全局最优解 $x_{\mathrm{best}}$ 及通信统计量 $\rho$。\\
-\textbf{Initialize：}初始化多种群、共识解、策略参数 $\theta$、比例因子 $\xi$；$t\leftarrow 0$。\\
-\textbf{repeat}\\
-\quad 各节点执行局部搜索，提取 $x_i^{(t)}$，计算 $f_i$、$c_i$；\\
-\quad 计算 $\mathrm{CI}_t$、$\Delta\mathrm{CI}_t$，由 $\pi_\theta$ 输出 $a_t$，更新 $\xi_t$ 与 $\alpha_t$；\\
-\quad \textbf{if} $\mathrm{Communicate}(t)=1$ \textbf{then} 按 $I_d(t)$ 构造 $\mathcal{S}(t)$，对 $d\in\mathcal{S}(t)$ 协商并写回共识解；\\
-\quad 重评估种群，计算 $r_t$ 并存入经验回放池；若回放池满批，更新 $\theta$；$t\leftarrow t+1$；\\
-\textbf{until} 达到评价预算或收敛准则；\\
-\textbf{Return} $x_{\mathrm{best}}$, $\rho$。
-\normalsize
-
-\end{titlepage}
-
-\begin{titlepage}
-    \makeatletter
-    \AddToShipoutPictureBG*{
-        \begin{tikzpicture}[overlay,remember picture]
-            \draw [line width=1pt]
-            ($ (current page.north west) + (1.95cm,-2.1cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.95cm,1.75cm) $);
-        \end{tikzpicture}
-    }
-    \makeatother
-\small
-\noindent\textbf{(续)}
-
-\vspace*{\fill}
 \begin{center}
-\includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{patent_fig3_power_dispatch.png}
-
-\vspace{6pt}
-\footnotesize RL-MACPO 分布式协同优化算法模块数据流图
-\label{fig:flowchart}
-\end{center}
-\vspace*{\fill}
-
-\end{titlepage}
-
-\begin{titlepage}
-    \makeatletter
-    \AddToShipoutPictureBG*{
-        \begin{tikzpicture}[overlay,remember picture]
-            \draw [line width=1pt]
-            ($ (current page.north west) + (1.95cm,-2.1cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.95cm,1.75cm) $);
-        \end{tikzpicture}
-    }
-    \makeatother
+\begin{minipage}{0.6\linewidth}
+\begin{algorithm}[H]
+\caption{RL-MACPO 主流程}
+\label{alg:rlmacpo}
 \small
-\noindent\textbf{(续)}
+\begin{algorithmic}[1]
+\REQUIRE 网络拓扑 $G$，评价预算 $B$，种群规模 $P$，筛选比例 $R$，RL 超参数
+\ENSURE 全局最优解 $x_{\mathrm{best}}$，通信统计量 $\rho$
+
+\STATE 初始化多种群 $\mathcal{P}$、共识解 $X_c$、策略参数 $\theta$、比例因子 $\xi$
+\STATE $t\leftarrow0$
+
+\WHILE{未达到评价预算且未满足收敛准则}
+
+    \STATE 各节点执行局部搜索，获得 $x_i^{(t)}$
+    \STATE 计算目标值 $f_i$ 与冲突度量 $c_i$
+    \STATE 计算 $\mathrm{CI}_t$、$\Delta\mathrm{CI}_t$
+    \STATE $a_t\leftarrow\pi_\theta(\mathrm{CI}_t,\Delta\mathrm{CI}_t)$
+    \STATE 更新 $\xi_t$ 与 $\alpha_t$
+
+    \IF{$\mathrm{Communicate}(t)=1$}
+        \STATE 根据 $I_d(t)$ 构造筛选集合 $\mathcal{S}(t)$
+        \STATE 对 $d\in\mathcal{S}(t)$ 执行协商
+        \STATE 写回共识解
+    \ENDIF
+
+    \STATE 重评估种群
+    \STATE 计算奖励 $r_t$ 并存入经验回放池
+
+    \IF{经验回放池达到更新条件}
+        \STATE 更新策略参数 $\theta$
+    \ENDIF
+
+    \STATE $t\leftarrow t+1$
+
+\ENDWHILE
+
+\RETURN $x_{\mathrm{best}},\rho$
+\end{algorithmic}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+
+\par
+\indent
+\textbf{2.8 计算复杂度}
+\par
+设种群规模为 $P$，共享变量维度为 $D$，单次协商变量数为 $|\mathcal{S}(t)|$。各模块渐近开销为：局部优化 $O(N_{\mathrm{eval}})$（$N_{\mathrm{eval}}$ 为评价次数，通常随 $P$ 与局部维度增长）；RL 惩罚更新 $O(1)$；Top-$R$\% 筛选 $O(D\log D)$；单次门控通信 $O(|\mathcal{S}(t)|)$。总体复杂度仍由局部优化与黑箱评价主导，所增 RL 与筛选开销相对可忽略，本课题新增模块不会改变 RL-MACPO 的渐近时间复杂度。
+
+\par
+\indent
+\textbf{2.9 算法参数设置}
+\par
+标准主实验（表2--表3，Full 配置，25 次）采用的默认超参数见表1。上述取值与 C++/MPI 实现及批量实验脚本一致，作为后续敏感性分析与扩展试点的基准配置。
+
+\FitTable[\textbf{表1\quad RL-MACPO 标准主实验默认超参数}]{%
+\begin{tabular}{@{}ll@{}}
+\hline
+\textbf{参数} & \textbf{默认值} \\
+\hline
+$\kappa$（惩罚尺度） & $1/512$（$\alpha_{\mathrm{base}}=|f|/512$，与 MACPO 一致） \\
+$\delta$（$\xi_t$ 更新步长） & 0.05 \\
+$\lambda$（变量重要性 EMA） & 0.9 \\
+$\gamma$（RL 折扣因子） & 0.99 \\
+$R$（Top-$R$\% 筛选比例） & 早/中/后期 90\%/70\%/50\% \\
+经验回放批量（Replay） & 32 \\
+策略网络学习率 & 0.01 \\
+\hline
+\end{tabular}}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.4\linewidth]{patent_fig3_power_dispatch.png}
+\caption{RL-MACPO 分布式协同优化算法模块数据流图}
+\label{fig:flowchart}
+\end{figure}
 
 \par
 \indent
@@ -581,17 +560,10 @@ I_d(t)=\lambda I_d(t-1)+(1-\lambda)\mathrm{CI}_d(t)
 
 \par
 \indent
-\textbf{2.7 计算复杂度}
+\textbf{2.10 符号说明}
 \par
-设种群规模为 $P$，共享变量维度为 $D$，单次协商变量数为 $k{=}|\mathcal{S}(t)|$。各模块渐近开销为：局部优化 $O(N_{\mathrm{eval}})$（$N_{\mathrm{eval}}$ 为评价次数，通常随 $P$ 与局部维度增长）；RL 惩罚更新 $O(1)$；Top-$k$ 筛选 $O(D\log D)$；单次门控通信 $O(k)$。因此总体复杂度仍由局部优化与黑箱评价主导，所增 RL 与筛选开销相对可忽略。
-
-\par
-\indent
-\textbf{2.8 符号说明}
-\par
-\begin{center}
-\footnotesize
-\begin{tabular}{cl}
+\FitTable{%
+\begin{tabular}{@{}cl@{}}
 \hline
 \textbf{符号} & \textbf{含义} \\
 \hline
@@ -604,19 +576,21 @@ $R$ & 变量筛选比例（Top-$R$\%） \\
 $\rho$ & 通信率 \\
 $F^{*}$ & 最终纯目标适应度 \\
 \hline
-\end{tabular}
-\end{center}
+\end{tabular}}
 
 \par
 \indent
-\textbf{2.9 核心代码实现要点}
+\textbf{2.11 核心代码实现要点}
 \par
-RL 惩罚权重更新在核心评估模块中实现：每轮计算冲突指标，经策略网络得到比例因子 $\xi$，再按 $\alpha=\alpha_{\mathrm{base}}\times\xi$ 更新惩罚权重；同时将状态、动作与奖励存入经验回放，批量满 32 条后触发策略参数更新。本人完成了上述算法设计与核心代码实现，并在导师指导下完成模块联调与基准对接。目前，上述算法框架与核心模块均已完成实现，并通过单元测试验证其正确性，为后续大规模实验提供了基础。
+RL 惩罚权重更新在核心评估模块中实现：每轮计算冲突指标，经策略网络得到比例因子 $\xi$，再按 $\alpha=\alpha_{\mathrm{base}}\times\xi$ 更新惩罚权重；同时将状态、动作与奖励存入经验回放，批量满 32 条后触发策略参数更新。上述算法由本课题设计；本人完成了核心代码实现，并在导师指导下完成模块联调与基准对接，为后续大规模实验提供了基础。
 
+\par
+
+本章在 MACPO 框架上完成了 RL-MACPO 总体设计与三大创新模块阐述，给出了 NDO 建模、惩罚调控、变量筛选与门控通信的公式化描述及算法1 实现要点。三个创新点分别从惩罚自适应、协商维度压缩与按需通信三个层面补强 MACPO 静态策略短板，为后续实验验证奠定了方法基础。
 
 \par
 \indent
-\noindent\textbf{3. 实验}
+\noindent\textbf{3. 实验验证与结果分析}
 
 \par
 \indent
@@ -624,44 +598,41 @@ RL 惩罚权重更新在核心评估模块中实现：每轮计算冲突指标�
 
 \par
 \indent
-\textbf{3.1 实验目的与设置}
+\textbf{3.1 实验方案与评价指标}
 \par
-本阶段实验遵循“标准基准 $\rightarrow$ 扩展算例 $\rightarrow$ 机制分析 $\rightarrow$ 应用验证”的递进思路，目标是在与 MACPO 原文一致的评价预算与统计协议下，检验 RL 惩罚调控、变量筛选与门控通信是否带来可重复的性能与通信收益。
+本阶段实验遵循“标准基准精度验证 $\rightarrow$ 高维与规模扩展 $\rightarrow$ 通信机制分析 $\rightarrow$ 工程场景映射”的递进思路，目标是在与 MACPO 原文一致的评价预算与统计协议下，检验 RL 惩罚调控、变量筛选与门控通信是否带来可重复的性能与通信收益。
 
 \par
 \indent
-（1）\textbf{主对比}：在 F1--F6（CEC2013 大规模全局优化（Large-Scale Global Optimization，LSGO）、20 智能体链式网络、905 维）上，RL-MACPO 与 MACPO 各独立 25 次，嵌入 LLSO/CSO，配对随机种子，Wilcoxon 检验 $\alpha{=}0.05$。
+（1）\textbf{标准基准精度对比}：在 CEC2013 大规模全局优化（Large-Scale Global Optimization，LSGO）竞赛六项标准测试（F1--F6，20 智能体链式网络、905 维）上，RL-MACPO 与 MACPO 各独立 25 次，嵌入层化学习群优化算法（Level-based Learning Swarm Optimizer，LLSO）/竞争群优化算法（Competitive Swarm Optimizer，CSO），配对随机种子，Wilcoxon 检验 $\alpha{=}0.05$，超参数取表1 默认配置。
 \par
-（2）\textbf{扩展}：F7--F18 高维算例及 F1S50/F1S100 链式规模试点。
+（2）\textbf{高维算例与多智能体扩展}：在 CEC2013 高维算例（F7--F18）及 20--100 智能体链式规模试点（F1/F7/F13、F1S50、F1S100）上检验可扩展性。
 \par
-（3）\textbf{消融}：分别关闭或替换门控深度、变量筛选与 RL 结构，观察各模块贡献。
+（3）\textbf{模块消融分析}：分别关闭或替换门控深度、变量筛选与 RL 结构，观察各模块贡献。
 \par
-（4）\textbf{通信效率}：统计外循环协商触发率，并与固定周期、固定阈值等基线对照。
+（4）\textbf{通信负载统计}：统计外循环协商触发率，并与固定周期、固定阈值等基线对照。
 \par
-（5）\textbf{应用验证}：将电力调度、交通分配、传感网部署三类场景映射为 NDO 模型，对比工程侧通信与耗时指标。外部基线方面，DPSO 已完成 F1--F6 二十五次重复，GFPDO 暂以各函数单次试运行为参照。
+（5）\textbf{典型场景适用性分析}：将电力调度、交通分配、传感网部署三类典型场景映射为 NDO 模型，分析算法流程与工程指标的对应关系（非真实电网/路网实测实验）。外部基线方面，DPSO 已完成标准六项测试二十五次重复，GFPDO 的对比实验已纳入下一阶段安排。
 
 \par
 \indent
-\textbf{评价指标与统计量。}实验采用以下统一指标：（1）最终目标值 $F^{*}=f(x_{\mathrm{best}})$；（2）通信率 $\rho$，见 §2.5；（3）相对改善率 $\mathcal{I}=(F_{\mathrm{MACPO}}-F_{\mathrm{RL}})/F_{\mathrm{MACPO}}\times 100\%$；（4）通信降低率 $\Delta\rho=(\rho_{\mathrm{MACPO}}-\rho_{\mathrm{RL}})/\rho_{\mathrm{MACPO}}\times 100\%$。多次独立运行时，报告均值 $\bar{x}=\frac{1}{n}\sum_{i=1}^{n}x_i$ 与样本标准差 $s=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2}$。算法间显著性采用配对 Wilcoxon 符号秩检验，显著性水平取 $0.05$。实验统计采用的平均冲突指标为
+\par 实验采用以下统一指标：（1）最终目标值 $F^{*}=f(x_{\mathrm{best}})$；（2）通信率 $\rho$，见 2.6 小节；（3）相对改善率 $\mathcal{I}=(F_{\mathrm{MACPO}}-F_{\mathrm{RL}})/F_{\mathrm{MACPO}}\times 100\%$；（4）通信降低率 $\Delta\rho=(\rho_{\mathrm{MACPO}}-\rho_{\mathrm{RL}})/\rho_{\mathrm{MACPO}}\times 100\%$。多次独立运行时，报告均值 $\bar{x}=\frac{1}{n}\sum_{i=1}^{n}x_i$ 与样本标准差 $s=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2}$。算法间显著性采用配对 Wilcoxon 符号秩检验，显著性水平取 $0.05$。实验统计采用的平均冲突指标为
 \begin{equation}
 \overline{\mathrm{CI}}=\frac{1}{m}\sum_{i=1}^{m}\mathrm{CI}_i
 \end{equation}
-其中 $m$ 为统计窗口内外循环轮数，$\mathrm{CI}_i$ 与 §2.3 定义一致，用于解释冲突演化与门控触发之间的关系。
+其中 $m$ 为统计窗口内外循环轮数，$\mathrm{CI}_i$ 与 2.4 小节定义一致，用于解释冲突演化与门控触发之间的关系。
 
 \par
 \indent
-\textbf{3.2 F1--F6 主对比}
+\textbf{3.2 标准基准主实验}
 \par
-\textbf{实验目的}在于验证 RL-MACPO 是否能在 MACPO 原文基准上稳定取得更优最终纯目标，并判断优势是否依赖某一种局部搜索器。\textbf{实验设计}保持评价预算、网络拓扑与 25 次独立运行不变，仅替换惩罚调控与通信策略。
+\par
+实验目的在于验证 RL-MACPO 是否能在 MACPO 原文采用的 CEC2013 标准六项测试（F1--F6，905 维、20 智能体）上稳定取得更优最终纯目标，并判断优势是否依赖某一种局部搜索器。\textbf{实验设计}保持评价预算、网络拓扑与 25 次独立运行不变，仅替换惩罚调控与通信策略。
 
-\begin{center}
-\footnotesize
-\textbf{表2\quad F1--F6 主对比最终适应度均值（25 次独立运行，LLSO）}
-\vspace{4pt}
-
-\begin{tabular}{lrrrr}
+\WideTable[\textbf{表2\quad 标准基准主对比最终适应度（CEC2013 六项测试，20 智能体 905 维，\textbf{25 次主实验}，LLSO）}]{%
+\begin{tabularx}{\linewidth}{@{}l *{4}{>{\raggedleft\arraybackslash}X}@{}}
 \hline
-\textbf{函数} & \textbf{MACPO} & \textbf{RL-MACPO} & \textbf{相对改善} & \textbf{显著性} \\
+\textbf{测试函数编号} & \textbf{MACPO} & \textbf{RL-MACPO} & \textbf{相对改善} & \textbf{显著性} \\
 \hline
 F1 & $1.98\times10^{7}$ & $6.43\times10^{6}$ & 67.6\% & $p{<}0.05$ \\
 F2 & $5.05\times10^{4}$ & $3.32\times10^{3}$ & 93.4\% & $p{<}0.05$ \\
@@ -670,77 +641,40 @@ F4 & $3.17\times10^{6}$ & $2.58\times10^{6}$ & 18.7\% & $p{<}0.05$ \\
 F5 & $1.97\times10^{8}$ & $3.50\times10^{6}$ & 98.2\% & $p{<}0.05$ \\
 F6 & $1.62\times10^{8}$ & $2.47\times10^{3}$ & $>$99\% & $p{<}0.05$ \\
 \hline
-\multicolumn{5}{l}{\footnotesize 注：评价指标为统一评价预算下的最终纯目标适应度；检验为配对 Wilcoxon（LLSO）。} \\
-\end{tabular}
-\end{center}
+\end{tabularx}}
+\par\indent{\footnotesize 注：20 智能体链式网络、905 维；CEC2013 六项标准测试（编号 F1--F6）；评价指标为统一评价预算下的最终纯目标适应度；检验为配对 Wilcoxon（LLSO）。}
 
-
-\end{titlepage}
-
-\begin{titlepage}
-    \makeatletter
-    \AddToShipoutPictureBG*{
-        \begin{tikzpicture}[overlay,remember picture]
-            \draw [line width=1pt]
-            ($ (current page.north west) + (1.95cm,-2.1cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.95cm,1.75cm) $);
-        \end{tikzpicture}
-    }
-    \makeatother
-\small
-\noindent\textbf{(续)}
 
 \par
 \indent
-\textbf{实验结果}
 \par
-见上表。LLSO 下六个函数的结果均优于 MACPO，且检验均显著（$p{<}0.05$）。相对改善呈现异质性：F3、F5、F6 超过 98\%，F1、F2 约 67\%--93\%，F4 约 18.7\% 为最小但仍显著。CSO 嵌入下函数结论一致。
+见上表。LLSO 下六个函数的结果均优于 MACPO，且检验均显著（$p{<}0.05$）。相对改善呈现异质性：F3、F5、F6 超过 98\%，F1、F2 约 67\%--93\%，F4 约 18.7\% 为最小但仍显著。CSO 嵌入（结果未单独列表）下各函数优势方向与 LLSO 一致。
 
 \par
 \indent
-从不同函数对 RL 惩罚的敏感程度看，冲突较弱的 F4 两者差距有限；冲突更频繁的 F3/F5/F6 优势更明显。这说明 RL 能够随冲突变化调节惩罚强度，使早期保持探索、后期加强协调；这与强化学习参数控制文献中“搜索早期侧重探索、后期侧重开发”的规律一致\rcite{karafotias2015,latorre2023}。LLSO 与 CSO 结果一致，初步表明惩罚机制具有一定优化器无关性。
+从不同函数对 RL 惩罚的敏感程度看，冲突较弱的 F4 两者差距有限；冲突更频繁的 F3/F5/F6 优势更明显。这说明 RL 能够随冲突变化调节惩罚强度，使早期保持探索、后期加强协调；这与 RL 参数控制文献中“搜索早期侧重探索、后期侧重开发”的规律一致\rcite{karafotias2015,latorre2023}。LLSO 与 CSO 结果趋势一致，初步表明惩罚机制对局部搜索器选择不敏感。
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\includegraphics[width=0.75\linewidth]{F1_F6_panel.pdf}
-\caption{F1--F6 主对比收敛曲线（25 次配对运行，LLSO）}
+\includegraphics[width=0.7\linewidth]{F1_F6_panel.pdf}
+\caption{标准基准六项测试收敛曲线对比（CEC2013 F1--F6，25 次配对，LLSO）}
 \label{fig:conv}
 \end{figure}
 
 
 \par
 \indent
-如图\ref{fig:conv}所示，RL-MACPO 与 MACPO 在搜索初期往往处于相近的适应度水平，二者使用相同初始种群与配对种子，保证了比较起点一致。其中 F3、F5 子图中 RL-MACPO 曲线下降更快、更早进入低适应度平台；F4 子图两条曲线在中前期几乎重合、后期才缓慢分离。随着评价次数增加，多数函数上两条曲线逐渐拉开差距：在冲突更敏感的 Rosenbrock/Schwefel 类问题上，动态惩罚调节主要在“冲突频繁、需要反复协调”的阶段发挥作用。
-
-
-
-
-\end{titlepage}
-
-\begin{titlepage}
-    \makeatletter
-    \AddToShipoutPictureBG*{
-        \begin{tikzpicture}[overlay,remember picture]
-            \draw [line width=1pt]
-            ($ (current page.north west) + (1.95cm,-2.1cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.95cm,1.75cm) $);
-        \end{tikzpicture}
-    }
-    \makeatother
-\small
-\noindent\textbf{(续)}
+如图\ref{fig:conv}所示，RL-MACPO 与 MACPO 在搜索初期往往处于相近的适应度水平，二者使用相同初始种群与配对种子，保证了比较起点一致。其中 F3、F5 子图中 RL-MACPO 曲线下降更快、更早进入低适应度平台；F4 子图两条曲线在中前期几乎重合、后期才缓慢分离。随着评价次数增加，多数函数上两条曲线逐渐拉开差距：在冲突更敏感的 Rosenbrock 型景观、Schwefel 型景观上，动态惩罚调节主要在“冲突频繁、需要反复协调”的阶段发挥作用。
 
 
 \par
 \indent
-进一步观察图\ref{fig:conv}中 F3/F5/F6 子图可见，RL-MACPO 的优势主要体现在中后期而非搜索初期：搜索早期冲突程度尚低，种群仍在广域探索，RL 与固定惩罚差异有限；随着局部最优逐渐形成、共享变量不一致性累积，RL 开始根据 $\mathrm{CI}_t$ 与 $\Delta\mathrm{CI}_t$ 动态调整惩罚强度，曲线在中后期斜率更大，逐渐扩大优势。这一“后期加速”现象与 §2.3 所设计的冲突驱动惩罚机制相一致，再次印证本方法对\textbf{冲突演化剧烈}类函数更为敏感。
+进一步观察图\ref{fig:conv}中 F3/F5/F6 子图可见，RL-MACPO 的优势主要体现在中后期而非搜索初期：搜索早期冲突程度尚低，种群仍在广域探索，RL 与固定惩罚差异有限；随着局部最优逐渐形成、共享变量不一致性累积，RL 开始根据 $\mathrm{CI}_t$ 与 $\Delta\mathrm{CI}_t$ 动态调整惩罚强度，曲线在中后期斜率更大，逐渐扩大优势。这一“后期加速”现象与 2.4 小节所设计的冲突驱动惩罚机制相一致，再次印证本方法对\textbf{冲突演化剧烈}类函数更为敏感。
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=0.7\linewidth]{fig_main_results_bar.pdf}
-\caption{F1--F6 主对比最终结果统计（LLSO，25 次）}
+\caption{标准基准六项测试最终结果对比（CEC2013 F1--F6，LLSO，25 次）}
 \label{fig:bar}
 \end{figure}
 
@@ -748,96 +682,66 @@ F6 & $1.62\times10^{8}$ & $2.47\times10^{3}$ & $>$99\% & $p{<}0.05$ \\
 \indent
 图\ref{fig:bar}中 F3/F5/F6 柱体显示，MACPO 不仅均值偏高，离散程度也更大，部分运行仍停留在高惩罚平台；RL-MACPO 柱体更集中，说明动态调控有助于缓解“惩罚过强致停滞”与“惩罚过弱致协调不足”两类失败。F4 子图中两算法柱高接近，与前述弱耦合分析一致；这也提示在工程选型时，若系统耦合以边界功率等弱冲突变量为主，可优先评估固定惩罚基线是否已足够，再决定是否引入 RL 调控。
 
-\par
-\indent
-按 CEC2013 LSGO 基准特性，可将 F1-F6 粗略归为三类：
-\par（1）\textbf{单峰/弱耦合类}（F1 椭球、F4 Ackley）：局部景观相对规则，共享变量冲突在中后期才逐步显现，固定惩罚已能维持基本协调，RL 优势主要体现在后期残余冲突压缩，改善幅度相对有限（F4 约 18.7\%）；
-\par（2）\textbf{强耦合/窄谷类}（F3 Rosenbrock、F5 Schwefel）：变量间非线性耦合强，协调失败易陷入高惩罚平台，RL 动态调节可显著缓解“惩罚过强停滞”与“惩罚过弱不协调”的两难，改善超过 98\%；\par（3）\textbf{多峰/高冲突类}（F2 Rastrigin、F6 Katsuura）：局部最优密集，搜索过程中冲突反复起伏，门控与 RL 联合作用更明显，不仅提升均值也降低运行间离散度。上述归类表明，本方法优势集中于\textbf{冲突动态显著、协调需求高}的问题；在冲突本身较弱的函数上，额外 RL 开销带来的边际收益有限。
+需说明，CEC2013 NDO 基准中 F1--F6 为经网络耦合改造后的测试函数，按基准特性，可将 F1-F6 粗略归为三类：
+\par（1）\textbf{单峰/弱耦合类}（F1 椭球型景观、F4 Ackley 型景观）：局部景观相对规则，共享变量冲突在中后期才逐步显现，固定惩罚已能维持基本协调，RL 优势主要体现在后期残余冲突压缩，改善幅度相对有限（F4 约 18.7\%）。尽管改善幅度有限，但 25 次重复运行均保持一致优势方向，Wilcoxon 检验仍达到显著水平（$p{<}0.05$），说明 RL 在弱耦合场景下仍具稳定但边际收益有限的改进作用；
+\par（2）\textbf{强耦合/窄谷类}（F3 Rosenbrock 型景观、F5 Schwefel 型景观）：变量间非线性耦合强，协调失败易陷入高惩罚平台，RL 动态调节可显著缓解\"惩罚过强停滞\"与\"惩罚过弱不协调\"的两难，改善超过 98\%；\par（3）\textbf{多峰/高冲突类}（F2 Rastrigin 型景观、F6 Katsuura 型景观）：局部最优密集，搜索过程中冲突反复起伏，门控与 RL 联合作用更明显，不仅提升均值也降低运行间离散度。上述归类表明，本方法优势集中于\textbf{冲突动态显著、协调需求高}的问题；在冲突本身较弱的函数上，额外 RL 开销带来的边际收益有限。
 
 \par
 \indent
-综上，F1--F6 主实验验证了 RL-MACPO 在标准 20 智能体基准上的有效性，为后续扩展实验提供了基础；更高维算例与更大规模网络下的表现，将在 §3.3 进一步讨论。
+综上，标准基准主实验验证了 RL-MACPO 在 CEC2013 六项测试（20 智能体、905 维）上的有效性，为后续扩展实验提供了基础；更高维算例与更大规模网络下的表现，将在 3.3 小节进一步讨论。
 
 \par
 \indent
-\textbf{3.3 高维函数F7--F18 与可扩展性}
+\textbf{3.3 高维算例与多智能体可扩展性验证}
 \par
-\textbf{实验目的}
 \par
-是检验方法在更高维、更多智能体条件下是否仍有效。\textbf{实验设计}包括两部分：F7--F18 按 MACPO 原文 25 次协议进行主对比；F1/F7/F13 及 F1S50/F1S100 链式规模试点各 5 次独立运行，观察通信率与最终适应度随智能体数变化的趋势。
+实验目的在于检验方法在更高维测试算例（CEC2013 F7--F18）及更多智能体（20--100 个）条件下是否仍有效。\textbf{实验设计}包括两部分：F7--F18 按 MACPO 原文 25 次协议进行主对比；20/40/50/60/100 智能体链式规模试点各 5 次独立运行，观察通信率与最终适应度随智能体数变化的趋势。
 
-\par
 \indent
-\textbf{实验结果}
 \par
 见表4。F7--F18 主实验中，RL-MACPO 在多数函数保持更优或相当的最终精度。规模试点中，F13（60 智能体）通信率约 8\%，最终适应度略优于 MACPO；F1S50（50 智能体）通信率约 26\%；F1S100（100 智能体）5 次运行已完成，通信率约 23.3\%，该规模下 MACPO 适应度略优，提示超大规模下门控与惩罚参数仍需进一步标定。
 
-\begin{center}
-\footnotesize
-\textbf{表4\quad 链式规模扩展试点（LLSO）}
-\vspace{4pt}
-
-\begin{tabular}{lrrrr}
+~~\\~~\\
+~~\\
+~~\\
+~~\\
+\WideTable[\textbf{表4\quad 多智能体规模扩展试点（20--100 智能体，LLSO，非表2 主实验）}]{%
+\begin{tabularx}{\linewidth}{@{}l *{4}{>{\raggedleft\arraybackslash}X}@{}}
 \hline
-\textbf{算例} & \textbf{智能体数} & \textbf{MACPO $F$} & \textbf{RL-MACPO $F$} & \textbf{RL 通信率} \\
+\textbf{测试配置} & \textbf{智能体数} & \textbf{MACPO $F$} & \textbf{RL-MACPO $F$} & \textbf{RL 通信率} \\
 \hline
-F1  & 20  & $1.88\times10^{7}$ & $4.95\times10^{7}$ & 18.3\% \\
-F7  & 40  & $7.24\times10^{7}$ & $9.54\times10^{7}$ & 8.0\% \\
-F13 & 60  & $1.17\times10^{8}$ & $1.15\times10^{8}$ & 8.0\% \\
-F1S50 & 50 & $1.67\times10^{7}$ & $2.09\times10^{7}$ & 25.8\% \\
-F1S100 & 100 & $1.48\times10^{7}$ & $1.95\times10^{7}$ & 23.3\% \\
+F1（5次试点）  & 20  & $1.88\times10^{7}$ & $4.95\times10^{7}$ & 18.3\% \\
+F7（40智能体）  & 40  & $7.24\times10^{7}$ & $9.54\times10^{7}$ & 8.0\% \\
+F13（60智能体） & 60  & $1.17\times10^{8}$ & $1.15\times10^{8}$ & 8.0\% \\
+F1S50（50智能体） & 50 & $1.67\times10^{7}$ & $2.09\times10^{7}$ & 25.8\% \\
+F1S100（100智能体） & 100 & $1.48\times10^{7}$ & $1.95\times10^{7}$ & 23.3\% \\
 \hline
-\end{tabular}
-\end{center}
-
-\end{titlepage}
-
-
-
-\par
-\begin{titlepage}
-    \makeatletter
-    \AddToShipoutPictureBG*{
-        \begin{tikzpicture}[overlay,remember picture]
-            \draw [line width=1pt]
-            ($ (current page.north west) + (1.95cm,-2.1cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.95cm,1.75cm) $);
-        \end{tikzpicture}
-    }
-    \makeatother
-\small
-\noindent\textbf{(续)}
+\end{tabularx}}
+\par\indent{\footnotesize 注：\textbf{本表与表2 非同一实验}——表2 为 25 次主对比（F1 最优值 $6.43\times10^{6}$），本表 F1（5次试点）行为 5 次扩展试点（$4.95\times10^{7}$），\textbf{二者不可混读}。凡需引用 F1 主实验结论，以表2 为准。}
 
 
 \par
 \indent
-\textbf{结果分析}
 \par
-随着智能体数与共享变量增多，固定惩罚更易出现“早期约束不足、后期过度约束”的两难。试点结果显示：F13（60 智能体）通信率约 8\%，最终适应度与 MACPO 相当；F1S50（50 智能体）通信率约 26\%。但在 F1（20 智能体）及 F1S100（100 智能体）上，RL-MACPO 最终适应度尚未稳定优于 MACPO。综上，在 40--60 智能体规模已取得较稳定的通信收益；百智能体规模（F1S100 等）目前仅完成 5 次试点，统计功效有限，后续将通过增加重复次数与参数敏感性分析进一步验证，现阶段不宜将可扩展性结论过度外推。
+随着智能体数与共享变量增多，固定惩罚更易出现“早期约束不足、后期过度约束”的两难。试点结果显示：F13（60 智能体）通信率约 8\%，最终适应度与 MACPO 相当；F1S50（50 智能体）通信率约 26\%。但在 F1（5次试点）及 F1S100（100 智能体）上，RL-MACPO 最终适应度尚未稳定优于 MACPO——需强调表4 与表2 实验口径不同，不宜混读。在目前完成的 40、50、60 智能体试点中，通信率均明显低于 MACPO，但精度优势并不一致；百智能体规模（F1S100 等）目前仅完成 5 次试点，统计功效有限，后续将通过增加重复次数与参数敏感性分析进一步验证，现阶段不宜将可扩展性结论过度外推。因此，本阶段主要结论仍建立在 20 智能体、905 维标准基准（表2、表3，25 次主实验）基础上。综合表4 与表2 的对比可见，本方法更适用于\textbf{通信资源受限、允许少量精度波动}的分布式优化场景；在百智能体等超大规模档位，精度—通信权衡仍需通过重复实验进一步标定。
 
 \par
 \indent
-\textbf{3.4 通信效率}
+\textbf{3.4 通信效率分析}
 \par
-\textbf{实验目的}
 \par
-是在与主实验相同预算下，量化 RL-MACPO 相对 MACPO 的通信削减幅度，并解释“通信减少是否以精度为代价”。\textbf{实验设计}统计 25 次 LLSO 运行中外循环协商触发率及累计评价次数；F1--F2 冲突中等、触发率约 20\%，F3--F6 冲突类差异更大、触发率可降至约 8\%。
+实验目的在于与主实验相同预算下，量化 RL-MACPO 相对 MACPO 的通信削减幅度，并解释“通信减少是否以精度为代价”。\textbf{实验设计}统计 25 次 LLSO 运行中外循环协商触发率及累计评价次数；标准测试中冲突中等的算例触发率约 20\%，强耦合/多峰类算例触发率可降至约 8\%。
+
 
 \par
 \indent
-\textbf{实验结果}
 \par
 见表3。MACPO 每轮均触发通信（100\%）；RL-MACPO 触发率为 8.3\%--22.3\%，相对降低约 78\%--92\%。累计评价次数与 MACPO 相差不超过约 3\%，说明精度提升并非来自额外评价预算。
 
-\begin{center}
-\footnotesize
-\textbf{表3\quad F1--F6 通信效率与评价预算（25 次，LLSO）}
-\vspace{4pt}
-
-\begin{tabular}{lrrrr}
+\WideTable[\textbf{表3\quad 标准基准通信效率与评价预算（CEC2013 六项基准测试，25 次，LLSO）}]{%
+\begin{tabularx}{\linewidth}{@{}l *{4}{>{\raggedleft\arraybackslash}X}@{}}
 \hline
-\textbf{函数} & \textbf{MACPO 通信率} & \textbf{RL 通信率} & \textbf{通信降低} & \textbf{RL 评估次数} \\
+\textbf{测试编号} & \textbf{MACPO 通信率} & \textbf{RL 通信率} & \textbf{通信降低} & \textbf{RL 评估次数} \\
 \hline
 F1 & 100\% & 20.8\% & 79.2\% & $1.50\times10^{5}$ \\
 F2 & 100\% & 22.3\% & 77.7\% & $1.50\times10^{5}$ \\
@@ -846,19 +750,17 @@ F4 & 100\% & 8.3\%  & 91.7\% & $1.50\times10^{5}$ \\
 F5 & 100\% & 8.3\%  & 91.7\% & $1.50\times10^{5}$ \\
 F6 & 100\% & 8.3\%  & 91.7\% & $1.50\times10^{5}$ \\
 \hline
-\multicolumn{5}{l}{\footnotesize 注：MACPO 评估次数均值约 $1.46\times10^{5}$。} \\
-\end{tabular}
-\end{center}
+\end{tabularx}}
+\par\indent{\footnotesize 注：MACPO 评估次数均值约 $1.46\times10^{5}$。}
 
 \par
 \indent
-\textbf{原因分析}
 \par
-通信下降主要来自两方面：其一，Top-$R$\% 变量筛选缩小单次协商维度；其二，三层门控在冲突已较小时跳过无效协商。优化后期若整体冲突趋弱，继续每轮全量通信对最终精度贡献有限，却增加链路负载与协商评估开销，门控机制正是为区分“需要协商”与“无需协商”的状态而设计。
+表3 数据表明：MACPO 通信率恒为 100\%，RL-MACPO 降至 8.3\%--22.3\%（相对降低 78\%--92\%），且累计评价次数相差不超过约 3\%。这与 2.5--2.6 小节所设计的 Top-$R$\% 筛选与三层门控机制一致——前者压缩单次协商维度，后者在低冲突阶段跳过无效协商。分函数看，F3--F6 触发率约 8\%，F1--F2 约 20.8\%--22.3\%，与 3.2 小节中不同冲突强度类别的划分相吻合。
 
 \par
 \indent
-从主对比结果看，通信大幅下降并未伴随适应度退化，反而在 F1--F6 上普遍改善，说明算法并非简单“少通信”，而是将通信集中在冲突仍显著的阶段。对实际网络化系统而言，带宽与同步延迟往往比本地计算更昂贵，在保持优化质量前提下降低 78\%--92\% 的协商触发率，具有明确工程意义。分函数看，F3--F6 触发率可降至约 8\%，与其强耦合/多峰特性一致——中后期冲突虽总体趋弱，但一旦出现局部不一致仍需精准协商；F1--F2 触发率约 20\%，反映椭球/Rastrigin 类问题在中期仍维持较高协调需求。两类函数通信模式不同，但均未出现“为降通信而牺牲精度”的权衡，说明门控阈值与 RL 惩罚联合学习到了可区分的协商策略。
+在 20 智能体标准基准上，通信大幅下降并未伴随适应度退化（见表2），说明表3 所反映的通信削减主要来自无效协商的过滤，而非削弱有效协同。对带宽与同步延迟敏感的分布式系统而言，在保持表2 精度优势的前提下将协商触发率降至约 8\%--22\%，具有明确的工程应用价值；结合 3.3 小节关于规模试点的讨论，该收益在通信受限场景中尤为突出。
 
 \par
 \indent
@@ -867,182 +769,81 @@ F6 & 100\% & 8.3\%  & 91.7\% & $1.50\times10^{5}$ \\
 
 \par
 \indent
-\textbf{3.5 应用场景与专利对照实验}
+\textbf{3.5 典型工程场景适用性分析}
 \par
-\textbf{实验目的}
 \par
-将算法从标准基准推向可验证的工程场景，检验在电力调度、交通分配、传感网部署等场景中，通信与耗时等可观测指标是否同步改善。\textbf{实验设计}按专利重写稿将三类场景抽象为等效 NDO 模型，在相同评价预算下对比传统 MACPO 与本发明系统，记录通信触发率、墙钟耗时与综合成本代理指标。
+本节将算法从标准基准延伸至电力调度、交通分配、传感网部署等典型应用场景，分析 NDO 建模映射关系及工程侧可观测指标（通信率、运行耗时等）的变化趋势。\textbf{说明}：本节为场景—模型映射与专利对照分析，数据来源于专利重写稿中的等效 NDO 试点，\textbf{并非}真实电网/路网/传感网实测实验。
 
 \par
 \indent
-\textbf{实验结果}
 \par
-见表5。\textbf{需与 §3.4 表3 区分口径}：表3 为 CEC2013 F1--F6 上全功能 RL-MACPO（含 RL 惩罚、变量筛选与三层门控）的 25 次主实验，通信触发率为 8.3\%--22.3\%；表5 为专利工程场景对照，其中电力调度行的通信率约 46\%、墙钟 7.94\,s$/3.13\,s$ 来自专利重写稿试点汇总（门控消融「相对阈值+fail-safe」通信均值约 46\%，对应降幅约 54\%），\textbf{并非}表3 同一实验配置的直接结果。三类场景综合成本代理指标降低约 12\%--60\%，改善方向与表3 一致，但具体幅度因场景冲突结构与评估代价而异。
+见表5。表中通信率与耗时数据来源于专利重写稿等效 NDO 试点的汇总结果，\textbf{并非}表3 标准基准实验的直接复现。三类场景预计可降低综合成本替代指标约 12\%--60\%，趋势与标准基准结论一致，但具体幅度因场景冲突结构与评估代价而异，且尚需真实场景数据验证。
 
-
-\end{titlepage}
-
-\begin{titlepage}
-    \makeatletter
-    \AddToShipoutPictureBG*{
-        \begin{tikzpicture}[overlay,remember picture]
-            \draw [line width=1pt]
-            ($ (current page.north west) + (1.95cm,-2.1cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.95cm,1.75cm) $);
-        \end{tikzpicture}
-    }
-    \makeatother
-\small
-\noindent\textbf{(续)}
-
-\begin{center}
-\footnotesize
-\textbf{表5\quad 三类应用场景工程指标对比（传统 MACPO vs 本算法）}
-\vspace{4pt}
-
-\begin{tabular}{p{2.2cm}p{3.0cm}p{3.0cm}p{3.8cm}}
+\WideTable[\textbf{表5\quad 三类典型场景 NDO 映射与工程指标对照（传统 MACPO vs 本算法）}]{%
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{1.5cm} X X X@{}}
 \hline
-\textbf{场景} & \textbf{传统 MACPO} & \textbf{本发明系统} & \textbf{改善效果} \\
+\textbf{场景} & \textbf{传统 MACPO} & \textbf{本发明系统} & \textbf{预期效果} \\
 \hline
-电力调度 & 通信率 100\%；墙钟 7.94\,s & 通信率约 46\%；墙钟 3.13\,s & 通信$\downarrow$54\%；墙钟$\downarrow$61\%；成本$\downarrow$12--25\% \\
-交通分配 & 全维协商+双侧扰动；每轮通信 & 门控+Top-$R$\%+单侧扰动 & 通信$\downarrow$约54\%；行程时间指数$\downarrow$20--45\% \\
-传感网部署 & 固定惩罚；每轮全通信 & RL 惩罚；按需通信 & 覆盖仿真$\downarrow$40--55\%；综合代价$\downarrow$35--60\% \\
+电力调度 & 通信率 100\%；运行时间 7.94\,s & 通信率约 46\%；运行时间 3.13\,s & 预计可降低通信约 54\%；预计可减少运行耗时约 61\%；预计可降低成本 12--25\% \\
+交通分配 & 全维协商+双侧扰动；每轮通信 & 门控+Top-$R$\%+单侧扰动 & 预计可降低通信约 54\%；预计可减少行程时间指数 20--45\% \\
+传感网部署 & 固定惩罚；每轮全通信 & RL 惩罚；按需通信 & 预计可减少覆盖仿真代价 40--55\%；预计可降低综合代价 35--60\% \\
 \hline
-\multicolumn{4}{l}{\footnotesize 注：表5 为专利工程场景对照，与表3（CEC2013 标准基准）口径不同。电力调度行通信率约 46\% 来源于门控消融「相对阈值+fail-safe」在 F1/F5 上的均值；墙钟耗时为\textbf{单次完整分布式优化运行}的总墙钟时间（日志 \texttt{total\_time\_ms} 折算，含全部黑箱评价与 MPI 协同，非单次通信或单轮迭代耗时）。配对仿真实验中本发明通信率可低至约 11\%--20\%。} \\
-\end{tabular}
-\end{center}
+\end{tabularx}}
+\par\indent{\footnotesize 注：表5 为工程场景 NDO 映射对照，与表3（CEC2013 标准基准）实验口径不同。运行耗时为单次完整分布式优化运行的总用时（含全部黑箱评价与 MPI 协同）。}
 
 \par
 \indent
-\textbf{结果分析}
 \par
-工程场景中，节点对应区域控制器或边缘网关，共享变量对应联络线功率、路段流量或重叠覆盖坐标。§2.6 算法工作流程图所描述的“局部优化—门控通信—变量筛选—RL 惩罚”闭环，可映射为上述场景中的分布式控制逻辑：各节点在本地完成搜索，仅当边界冲突超阈值时才交换协商数据。表5 的通信与耗时改善表明，该流程在工程可观测指标上具有可迁移价值，而非仅停留在数学迭代层面。
+工程场景中，节点对应区域控制器或边缘网关，共享变量对应联络线功率、路段流量或重叠覆盖坐标。图\ref{fig:flowchart}所描述的“局部优化—门控通信—变量筛选—RL 惩罚”闭环，可映射为上述场景中的分布式控制逻辑：各节点在本地完成搜索，仅当边界冲突超阈值时才交换协商数据。表5 的通信与耗时变化表明，该流程在工程可观测指标上具有可迁移价值，但尚需真实场景数据进一步验证。
 
 \par
 \indent
-综上，应用对照实验初步表明，本课题方法在工程可观测指标上具有可迁移价值，与 F1--F6 主实验及通信效率结论形成呼应。
+综上，典型场景适用性分析表明，本课题方法在 NDO 映射层面与工程指标趋势具有合理对应关系，与 F1--F6 主实验及通信效率结论形成呼应；后续若获得真实场景数据，可在此基础上开展实测验证。
 
 \par
 \indent
-\textbf{3.6 实验阶段小结}
+\textbf{3.6 实验阶段总结}
 \par
-本人已完成 F1--F6 主对比、门控消融、F7--F18 扩展、链式规模试点、通信效率统计及三类应用场景对照等实验，形成了表2--表5 与相应图示证据。主实验表明 RL-MACPO 在标准 20 智能体基准上具有稳定精度优势；消融与通信实验揭示了 RL 惩罚与门控通信的协同机理；扩展试点显示 40--60 智能体规模通信收益较稳定，百智能体档位仍需加深实验；应用对照则补充了工程可观测指标层面的验证。本人独立完成了上述实验平台搭建、批量运行调度及实验数据分析与图表整理工作。
+本人已完成标准基准主对比、门控消融、高维扩展、多智能体规模试点、通信效率统计及三类典型场景适用性分析等实验，形成了表2--表5 与相应图示证据。主实验表明 RL-MACPO 在 CEC2013 六项标准测试（20 智能体、905 维）上具有稳定精度优势；消融与通信实验揭示了 RL 惩罚与门控通信的协同机理；在 40、50、60 智能体试点中通信收益较为明显，但精度优势因档位而异，百智能体档位仍需加深实验；场景分析则补充了工程可观测指标层面的映射讨论。上述实验平台搭建、批量运行调度及数据分析与图表整理均由本人完成。
+
+\par
+\indent
+在统一评价预算与统计协议下，完成了标准基准对比、规模扩展试点、通信效率与场景适用性四类实验。表2 与表3 表明 RL-MACPO 在 20 智能体、905 维基准上同时取得精度与通信双重收益；表4 提示百智能体扩展仍属阶段性结果；表5 为 NDO 映射层面的适用性分析。实验结果与 2.2 小节三项创新点形成对应：RL 惩罚驱动中后期精度提升，门控与筛选解释通信下降而精度不降的机制。
 
 \par
 \indent
 \noindent\textbf{4. 工作进度时间条}
 
-\par
-\indent
-\textbf{已完成工作：}
-\par
-2024.09--2025.01：系统查阅 NDO、分布式黑箱优化与协同进化文献，梳理 MACPO 技术脉络，确定“RL 惩罚 + 门控通信”选题方向并完成开题前期论证。\\
-\par
-2025.02--2025.06：完成 RL 惩罚调控、EMA/Top-$k$ 变量筛选与三层门控机制设计，实现 C++/MPI 原型并与 CEC2013 基准对接。\\
-\par
-2025.07--2025.12：完成 F1--F6 主对比、门控消融及 RL 结构对比实验，形成主实验数据与初步分析。\\
-\par
-2026.01--2026.03：完成 F7--F18 扩展实验、通信效率统计及应用案例验证，参加开题答辩并完成会议论文初稿。
 
 \par
-\indent
-\textbf{下一阶段计划：}
+2024.09--2025.01：调研 NDO、分布式黑箱优化与协同进化方向文献，梳理 MACPO 技术脉络，确定“RL 惩罚 + 门控通信”选题方向并完成开题前期论证。\\
 \par
-2026.04--2026.06：推进 GFPDO/DPSO 外部基线复现，整理中期检查材料与专利重写稿，补充可扩展性与通信基线试点。\\
+2025.02--2025.06：完成 RL 惩罚调控、EMA/Top-$R$\% 变量筛选与三层门控机制设计，实现 C++/MPI 原型并与 CEC2013 基准对接。\\
+\par
+2025.07--2025.12：完成 CEC2013 标准六项测试主对比、门控消融及 RL 结构对比实验，形成主实验数据与初步分析。\\
+\par
+2026.01--2026.03：完成高维算例扩展、通信效率统计及典型场景适用性分析，参加开题答辩并完成论文初稿。
+
+\par
+2026.04--2026.06：推进外部基线测试函数复现，整理中期检查材料与专利重写稿，补充可扩展性与通信基线试点。\\
 \par
 2026.07--2026.12：深化理论分析，整合全部实验结果，撰写学位论文初稿并完善图表与讨论章节。\\
 \par
-2027.01--2027.05：根据导师与评阅意见修改论文，完成送审与答辩材料准备。
+2027.01--2027.03：完成论文初稿并开展预答辩修改，根据导师与评阅意见完善各章节。\\
+\par
+2027.04--2027.05：完成送审与答辩材料准备。
 
 \par
 \indent
-\noindent\textbf{5. 完成工作量}
+\noindent\textbf{5. 完成工作量与阶段成果}
 
 \par
 \indent
-\textbf{5.1 文献调研与选题论证}
-\par
-本人系统阅读 NDO、分布式黑箱优化、协同进化与 RL 参数调控方向文献 80 余篇，重点研读 MACPO 原文及 CEC2013 大规模基准相关研究，形成文献对比表与方法定位分析。在此基础上撰写开题报告选题依据、国内外研究现状及关键科学问题，参加开题答辩并通过专家论证。期间参加 ACM 图灵大会、ChineseCSCW、CCF 演化计算会议等学术交流，跟踪分布式优化与学习型优化交叉方向进展。上述工作为学位论文第一章（文献综述）撰写奠定基础。
+本阶段围绕“RL 自适应惩罚 + EMA/Top-$R$\% 变量筛选 + 三层门控通信”技术路线，完成了从文献调研、算法设计、平台开发到基准实验与应用验证的完整研究闭环，具体包括：（1）梳理 NDO、分布式黑箱优化、协同进化与 RL 参数调控方向的代表性文献，完成开题报告选题论证并通过答辩；（2）设计并实现 RL-MACPO 整体框架，含 RL 惩罚调控、变量筛选与门控通信三项核心模块，形成算法伪代码、框架图与数据流图；（3）基于 C++/MPI 搭建多机实验平台并编写批量运行脚本，完成 CEC2013 标准测试函数多轮重复主对比、通信效率统计、高维扩展及多智能体规模试点等实验；（4）完成三类工程场景的 NDO 建模与指标对比，形成论文初稿及发明专利重写稿各 1 项。上述工作的详细内容与数据对应于本报告第 1-3 章。
+
 
 \par
 \indent
-\textbf{5.2 RL-MACPO 整体算法设计}
+\noindent\textbf{6. 存在问题与后续计划}
 \par
-本人提出并完成 RL-MACPO 整体框架设计，包括 RL 惩罚调控、EMA/Top-$k$ 变量重要性筛选及三层门控通信三部分，明确了各模块之间的数据交互与协同运行流程；在 MACPO 协商—局部优化主循环上完成接口设计与参数约定，并形成算法1 伪代码、总体框架图与模块数据流图。上述工作为学位论文第二章（方法）撰写奠定基础。
-
-\par
-\indent
-\textbf{5.3 核心代码开发与实验平台}
-\par
-基于 C++/MPI 实现 RL-MACPO 及通信统计模块；搭建 Windows+WSL 多机 MPI 实验环境；编写批量实验脚本，支持 F1--F18 主对比、链式规模试点及 DPSO/GFPDO 基线复现。平台支持不同随机种子、多节点并行运行与 Wilcoxon 等自动统计分析，目前已累计完成 F1--F6 主实验 25 次重复 $\times$ 6 函数、通信效率统计及多项扩展试点。上述工作为学位论文实验章节开展奠定基础。
-
-\par
-\indent
-\textbf{5.4 实验验证与结果分析}
-\par
-本人完成主对比、消融、扩展、通信效率与应用案例实验，形成表2--表5 及收敛曲线、柱状图等图示；各节按“目的—设计—结果—分析—小结”组织讨论，并完成全部实验图表整理与结果解读。目前累计完成独立运行数百次，实验日志、统计脚本与图表源文件均已归档。上述工作为学位论文实验章节撰写与分析奠定基础。
-
-\par
-\indent
-\textbf{5.5 专利申请与工程应用材料}
-\par
-完成专利重写稿《一种面向分布式黑盒优化的强化学习协同惩罚优化系统及方法》，覆盖电力调度、交通流分配、传感网部署三类场景及与传统 MACPO 的工程指标对比，配套完成算法流程图与变量筛选示意图。上述工作为学位论文应用验证与成果转化奠定基础。
-
-\end{titlepage}
-
-\begin{titlepage}
-    \makeatletter
-    \AddToShipoutPictureBG*{
-        \begin{tikzpicture}[overlay,remember picture]
-            \draw [line width=1pt]
-            ($ (current page.north west) + (1.95cm,-2.1cm) $)
-            rectangle
-            ($ (current page.south east) + (-1.95cm,1.75cm) $);
-        \end{tikzpicture}
-    }
-    \makeatother
-\small
-\noindent\textbf{(续)}
-
-\par
-\indent
-\noindent\textbf{6. 阶段成果}
-
-\par
-\indent
-（1）\textbf{算法与代码}：形成 RL-MACPO 算法方案与 C++/MPI 可运行原型，通过 CEC2013 标准基准单元测试与主实验验证。\\
-（2）\textbf{实验数据}：形成 F1--F6 主对比（25 次独立运行）、通信效率统计、F7--F18 扩展及链式规模试点数据集，配套表2--表5 与图示。\\
-（3）\textbf{学术论文}：形成会议论文初稿，系统阐述了 RL 惩罚调控与门控通信机制及其在 F1--F6 基准上的实验结果。\\
-（4）\textbf{知识产权}：形成发明专利重写稿，覆盖三类工程应用场景及工程指标对比分析。\\
-（5）\textbf{开题与中期}：形成开题报告与答辩材料；整理中期检查报告文本。
-
-\par
-\indent
-\noindent\textbf{7. 目前存在的问题及下一步计划}
-
-\par
-\indent
-\textbf{目前存在的问题：}
-\par
-（1）GFPDO 外部基线尚为各函数单次试运行，DPSO 重复实验已完成但对照分析尚不完整；\\
-（2）F1S100 等百智能体链式扩展仅完成 5 次试点，RL-MACPO 在部分规模档位精度尚未稳定优于 MACPO；\\
-（3）固定周期/阈值等通信基线以 10 次试点为主，消融实验覆盖尚不充分；\\
-（4）RL 惩罚收敛性与门控策略最优性的理论分析仍较薄弱。
-
-\par
-\indent
-\textbf{下一步计划：}
-\par
-（1）补足 GFPDO/DPSO 外部基线重复实验，完善与 MACPO 家族方法的横向对比；\\
-（2）增加 F1S100 及更大规模试点的重复次数，开展门控阈值与惩罚参数敏感性分析；\\
-（3）扩展 F7--F18 统计与电网算例验证，补充通信基线消融实验；\\
-（4）推进学位论文各章节系统整合，深化理论分析与讨论章节撰写。上述工作将作为后续论文完善的重点。
-
-\par
-\indent
-\noindent\textbf{8. 预期答辩时间}
-\par
-2027年5月
-
-\end{titlepage}
+本阶段方法有效性已得到初步验证，下一阶段重点由“方法验证”转向“理论深化与论文凝练”。当前待推进的工作包括：（1）补充 GFPDO/DPSO 外部基线重复实验及通信策略消融对比，统一各实验的报告描述与统计协议；（2）深化 RL 惩罚调控的机理分析，建立“RL 惩罚—冲突指标—目标改进”的系统性讨论框架；（3）增加大规模场景的重复实验与参数敏感性分析，完善精度—通信权衡的定量论证，并逐步接入典型算例数据以增强工程应用说服力；（4）推进学位论文统稿与论文定稿。按当前进度，预计 2027 年 3 月完成全部实验与论文统稿，2027 年 5 月答辩。

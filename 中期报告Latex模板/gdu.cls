@@ -13,6 +13,11 @@
 \RequirePackage{lastpage}
 \RequirePackage{ifthen}
 \RequirePackage{float}
+\RequirePackage{algorithm}
+\RequirePackage{algorithmic}
+\floatname{algorithm}{算法}
+\renewcommand{\algorithmicrequire}{\textbf{输入：}}
+\renewcommand{\algorithmicensure}{\textbf{输出：}}
 \RequirePackage{amsmath}
 \RequirePackage{amssymb}
 \RequirePackage{mathrsfs,amsfonts}
@@ -72,6 +77,7 @@
 	top=1.5cm, 
       bottom=1.75cm
 }
+\savegeometry{standard}
 
 \RequirePackage[%
       breaklinks,
@@ -95,6 +101,58 @@
 \titlespacing{\section}{12pt}{2\baselineskip}{\baselineskip}
 
 \titleformat{\subsection}[hang]{\bfseries}{\thesubsection.}{1pt}{\bfseries\raggedright}
+
+% 中期报告正文页边框（替代逐页 titlepage + AddToShipoutPictureBG*）
+\newcommand{\DrawPageBorder}{%
+  \begin{tikzpicture}[overlay,remember picture]
+    \draw[line width=1pt]
+      ($ (current page.north west) + (1.95cm,-2.1cm) $)
+      rectangle
+      ($ (current page.south east) + (-1.95cm,1.75cm) $);
+  \end{tikzpicture}%
+}
+\newcommand{\PageBorder}{%
+  \AddToShipoutPictureBG*{\DrawPageBorder}%
+}
+\newcommand{\EnableSectionPageBorder}{%
+  \ClearShipoutPictureBG
+  \AddToShipoutPictureBG{\DrawPageBorder}%
+  \newgeometry{%
+    left=2.05cm,
+    right=2.05cm,
+    top=2.35cm,
+    bottom=2.05cm
+  }%
+}
+\newcommand{\DisableSectionPageBorder}{%
+  \ClearShipoutPictureBG
+  \restoregeometry{standard}%
+}
+% 框内表格：统一字号与列距；仅当超宽时缩小，不放大窄表
+\newcommand{\ReportTableSetup}{%
+  \setlength{\tabcolsep}{4pt}%
+  \renewcommand{\arraystretch}{1.15}%
+}
+\newcommand{\FitTable}[2][]{%
+  \begin{center}%
+  \ReportTableSetup
+  \ifx\relax#1\relax\else#1\par\vspace{4pt}\fi
+  \setbox0=\hbox{#2}%
+  \ifdim\wd0>\linewidth
+    \resizebox{\linewidth}{!}{#2}%
+  \else
+    #2%
+  \fi
+  \end{center}%
+}
+% 多列宽表：固定为 \linewidth，自动换行，不做缩放
+\newcommand{\WideTable}[2][]{%
+  \begin{center}%
+  \ReportTableSetup
+  \ifx\relax#1\relax\else#1\par\vspace{4pt}\fi
+  #2%
+  \end{center}%
+}
 
 \endinput
 
