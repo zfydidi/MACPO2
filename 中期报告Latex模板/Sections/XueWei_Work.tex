@@ -530,7 +530,7 @@ I_d(t)=\lambda I_d(t-1)+(1-\lambda)\mathrm{CI}_d(t)
 \indent
 \textbf{2.9 算法参数设置}
 \par
-标准主实验（表2--表3，Full 配置，25 次）采用的默认超参数见表1。上述取值与 C++/MPI 实现及批量实验脚本一致，作为后续敏感性分析与扩展试点的基准配置。
+标准主实验（表2--表3）采用的默认超参数见表1。上述取值与 C++/MPI 实现及批量实验脚本一致，作为后续敏感性分析与扩展试点的基准配置。
 
 \FitTable[\textbf{表1\quad RL-MACPO 标准主实验默认超参数}]{%
 \begin{tabular}{@{}ll@{}}
@@ -549,7 +549,7 @@ $R$（Top-$R$\% 筛选比例） & 早/中/后期 90\%/70\%/50\% \\
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.4\linewidth]{patent_fig3_power_dispatch.png}
+\includegraphics[width=0.45\linewidth]{patent_fig3_power_dispatch.png}
 \caption{RL-MACPO 分布式协同优化算法模块数据流图}
 \label{fig:flowchart}
 \end{figure}
@@ -612,7 +612,7 @@ RL 惩罚权重更新在核心评估模块中实现：每轮计算冲突指标�
 \par
 （4）\textbf{通信负载统计}：统计外循环协商触发率，并与固定周期、固定阈值等基线对照。
 \par
-（5）\textbf{典型场景适用性分析}：将电力调度、交通分配、传感网部署三类典型场景映射为 NDO 模型，分析算法流程与工程指标的对应关系（非真实电网/路网实测实验）。外部基线方面，DPSO 已完成标准六项测试二十五次重复，GFPDO 的对比实验已纳入下一阶段安排。
+（5）\textbf{典型场景适用性分析}：将电力调度、交通分配、传感网部署三类典型场景映射为 NDO 模型，分析算法流程与工程指标的对应关系（非真实电网/路网实测实验）。
 
 \par
 \indent
