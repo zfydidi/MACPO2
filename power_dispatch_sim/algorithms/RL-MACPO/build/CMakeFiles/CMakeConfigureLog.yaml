@@ -2773,3 +2773,309 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1286 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1330 (_MPI_try_staged_settings)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1653 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:8 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-fLSS8b"
+      binary: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-fLSS8b"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-fLSS8b'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_b050b/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_b050b.dir/build.make CMakeFiles/cmTC_b050b.dir/build
+        Building C object CMakeFiles/cmTC_b050b.dir/test_mpi.c.o
+        /usr/bin/cc  -isystem /opt/homebrew/Cellar/open-mpi/5.0.7/include -arch arm64 -MD -MT CMakeFiles/cmTC_b050b.dir/test_mpi.c.o -MF CMakeFiles/cmTC_b050b.dir/test_mpi.c.o.d -o CMakeFiles/cmTC_b050b.dir/test_mpi.c.o -c /Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-fLSS8b/test_mpi.c
+        Linking C executable cmTC_b050b
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b050b.dir/link.txt --verbose=1
+        /usr/bin/cc  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_b050b.dir/test_mpi.c.o -o cmTC_b050b  /opt/homebrew/Cellar/open-mpi/5.0.7/lib/libmpi.dylib
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1286 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1330 (_MPI_try_staged_settings)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1653 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:8 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-D0o6xs"
+      binary: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-D0o6xs"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-D0o6xs'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_61556/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_61556.dir/build.make CMakeFiles/cmTC_61556.dir/build
+        Building CXX object CMakeFiles/cmTC_61556.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /opt/homebrew/Cellar/open-mpi/5.0.7/include -std=gnu++17 -arch arm64 -MD -MT CMakeFiles/cmTC_61556.dir/test_mpi.cpp.o -MF CMakeFiles/cmTC_61556.dir/test_mpi.cpp.o.d -o CMakeFiles/cmTC_61556.dir/test_mpi.cpp.o -c /Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-D0o6xs/test_mpi.cpp
+        Linking CXX executable cmTC_61556
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_61556.dir/link.txt --verbose=1
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_61556.dir/test_mpi.cpp.o -o cmTC_61556  /opt/homebrew/Cellar/open-mpi/5.0.7/lib/libmpi.dylib
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1286 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1680 (_MPI_try_staged_settings)"
+      - "CMakeLists.txt:8 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode MPICXX"
+    directories:
+      source: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-xms79R"
+      binary: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-xms79R"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_MPICXX"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-xms79R'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_1766b/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_1766b.dir/build.make CMakeFiles/cmTC_1766b.dir/build
+        Building CXX object CMakeFiles/cmTC_1766b.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /opt/homebrew/Cellar/open-mpi/5.0.7/include -std=gnu++17 -arch arm64 -MD -MT CMakeFiles/cmTC_1766b.dir/test_mpi.cpp.o -MF CMakeFiles/cmTC_1766b.dir/test_mpi.cpp.o.d -o CMakeFiles/cmTC_1766b.dir/test_mpi.cpp.o -c /Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-xms79R/test_mpi.cpp
+        Linking CXX executable cmTC_1766b
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1766b.dir/link.txt --verbose=1
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_1766b.dir/test_mpi.cpp.o -o cmTC_1766b  /opt/homebrew/Cellar/open-mpi/5.0.7/lib/libmpi.dylib
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1286 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1330 (_MPI_try_staged_settings)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1653 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:8 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-Z4mOF3"
+      binary: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-Z4mOF3"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-Z4mOF3'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_fbe45/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_fbe45.dir/build.make CMakeFiles/cmTC_fbe45.dir/build
+        Building C object CMakeFiles/cmTC_fbe45.dir/test_mpi.c.o
+        /usr/bin/cc  -isystem /opt/homebrew/Cellar/open-mpi/5.0.7/include -arch arm64 -MD -MT CMakeFiles/cmTC_fbe45.dir/test_mpi.c.o -MF CMakeFiles/cmTC_fbe45.dir/test_mpi.c.o.d -o CMakeFiles/cmTC_fbe45.dir/test_mpi.c.o -c /Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-Z4mOF3/test_mpi.c
+        Linking C executable cmTC_fbe45
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fbe45.dir/link.txt --verbose=1
+        /usr/bin/cc  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_fbe45.dir/test_mpi.c.o -o cmTC_fbe45  /opt/homebrew/Cellar/open-mpi/5.0.7/lib/libmpi.dylib
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1286 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1330 (_MPI_try_staged_settings)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1653 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:8 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-I9RFKC"
+      binary: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-I9RFKC"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-I9RFKC'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_2f7b6/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_2f7b6.dir/build.make CMakeFiles/cmTC_2f7b6.dir/build
+        Building CXX object CMakeFiles/cmTC_2f7b6.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /opt/homebrew/Cellar/open-mpi/5.0.7/include -std=gnu++17 -arch arm64 -MD -MT CMakeFiles/cmTC_2f7b6.dir/test_mpi.cpp.o -MF CMakeFiles/cmTC_2f7b6.dir/test_mpi.cpp.o.d -o CMakeFiles/cmTC_2f7b6.dir/test_mpi.cpp.o -c /Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-I9RFKC/test_mpi.cpp
+        Linking CXX executable cmTC_2f7b6
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2f7b6.dir/link.txt --verbose=1
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_2f7b6.dir/test_mpi.cpp.o -o cmTC_2f7b6  /opt/homebrew/Cellar/open-mpi/5.0.7/lib/libmpi.dylib
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1286 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1680 (_MPI_try_staged_settings)"
+      - "CMakeLists.txt:8 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode MPICXX"
+    directories:
+      source: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-5AF9kQ"
+      binary: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-5AF9kQ"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_MPICXX"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-5AF9kQ'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_cb752/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_cb752.dir/build.make CMakeFiles/cmTC_cb752.dir/build
+        Building CXX object CMakeFiles/cmTC_cb752.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /opt/homebrew/Cellar/open-mpi/5.0.7/include -std=gnu++17 -arch arm64 -MD -MT CMakeFiles/cmTC_cb752.dir/test_mpi.cpp.o -MF CMakeFiles/cmTC_cb752.dir/test_mpi.cpp.o.d -o CMakeFiles/cmTC_cb752.dir/test_mpi.cpp.o -c /Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-5AF9kQ/test_mpi.cpp
+        Linking CXX executable cmTC_cb752
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cb752.dir/link.txt --verbose=1
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_cb752.dir/test_mpi.cpp.o -o cmTC_cb752  /opt/homebrew/Cellar/open-mpi/5.0.7/lib/libmpi.dylib
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1286 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1330 (_MPI_try_staged_settings)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1653 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:8 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-HBGJv8"
+      binary: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-HBGJv8"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-HBGJv8'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_6ff1b/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_6ff1b.dir/build.make CMakeFiles/cmTC_6ff1b.dir/build
+        Building C object CMakeFiles/cmTC_6ff1b.dir/test_mpi.c.o
+        /usr/bin/cc  -isystem /opt/homebrew/Cellar/open-mpi/5.0.7/include -arch arm64 -MD -MT CMakeFiles/cmTC_6ff1b.dir/test_mpi.c.o -MF CMakeFiles/cmTC_6ff1b.dir/test_mpi.c.o.d -o CMakeFiles/cmTC_6ff1b.dir/test_mpi.c.o -c /Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-HBGJv8/test_mpi.c
+        Linking C executable cmTC_6ff1b
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6ff1b.dir/link.txt --verbose=1
+        /usr/bin/cc  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_6ff1b.dir/test_mpi.c.o -o cmTC_6ff1b  /opt/homebrew/Cellar/open-mpi/5.0.7/lib/libmpi.dylib
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1286 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1330 (_MPI_try_staged_settings)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1653 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:8 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-OSgQsB"
+      binary: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-OSgQsB"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-OSgQsB'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_507e5/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_507e5.dir/build.make CMakeFiles/cmTC_507e5.dir/build
+        Building CXX object CMakeFiles/cmTC_507e5.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /opt/homebrew/Cellar/open-mpi/5.0.7/include -std=gnu++17 -arch arm64 -MD -MT CMakeFiles/cmTC_507e5.dir/test_mpi.cpp.o -MF CMakeFiles/cmTC_507e5.dir/test_mpi.cpp.o.d -o CMakeFiles/cmTC_507e5.dir/test_mpi.cpp.o -c /Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-OSgQsB/test_mpi.cpp
+        Linking CXX executable cmTC_507e5
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_507e5.dir/link.txt --verbose=1
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_507e5.dir/test_mpi.cpp.o -o cmTC_507e5  /opt/homebrew/Cellar/open-mpi/5.0.7/lib/libmpi.dylib
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1286 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/FindMPI.cmake:1680 (_MPI_try_staged_settings)"
+      - "CMakeLists.txt:8 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode MPICXX"
+    directories:
+      source: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-p6hw0l"
+      binary: "/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-p6hw0l"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_MPICXX"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-p6hw0l'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_ce41e/fast
+        /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_ce41e.dir/build.make CMakeFiles/cmTC_ce41e.dir/build
+        Building CXX object CMakeFiles/cmTC_ce41e.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /opt/homebrew/Cellar/open-mpi/5.0.7/include -std=gnu++17 -arch arm64 -MD -MT CMakeFiles/cmTC_ce41e.dir/test_mpi.cpp.o -MF CMakeFiles/cmTC_ce41e.dir/test_mpi.cpp.o.d -o CMakeFiles/cmTC_ce41e.dir/test_mpi.cpp.o -c /Users/zhangyingjie/Project/MACPO2/power_dispatch_sim/algorithms/RL-MACPO/build/CMakeFiles/CMakeScratch/TryCompile-p6hw0l/test_mpi.cpp
+        Linking CXX executable cmTC_ce41e
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ce41e.dir/link.txt --verbose=1
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_ce41e.dir/test_mpi.cpp.o -o cmTC_ce41e  /opt/homebrew/Cellar/open-mpi/5.0.7/lib/libmpi.dylib
+        
+      exitCode: 0
+...

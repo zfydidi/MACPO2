@@ -21,11 +21,26 @@ mpirun -n 20 ./build/GFPDO_overlap F1 ex01 LLSO ./output/
 
 这两个基线在源码里是 **单地址空间协同进化**（多子群循环）。为与 MACPO **命令行和进程数一致**，其余 MPI rank 在 `MPI_Init` 后直接退出，**不参与数值计算**。这与 MACPO「每 rank 一个 agent」的并行模型不同；论文中应说明：基线为文献 CC 实现，并行启动仅用于 **实验脚本对齐**。
 
-## 批量 25 次
+## 批量 25 次（WSL 推荐）
 
 ```bash
-chmod +x run_baselines_f1_f6_batch.sh
-RUNS=25 OUT=./output_baselines bash run_baselines_f1_f6_batch.sh
+# 方式 A：项目根目录一键脚本（自动编译 + 续跑）
+cd /mnt/d/zyj/MACPO2   # 改成你的 WSL 路径
+bash scripts/run_baselines_wsl.sh dpso    # 或 gfpdo
+
+# 方式 B：在 MACPO_sourcecode 内直接跑
+cd MACPO_sourcecode
+export OMP_NUM_THREADS=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+export OMPI_MCA_btl_vader_single_copy_mechanism=none
+ALGO=dpso RUNS=25 OUT=./output_baselines_dpso_25runs bash run_baselines_f1_f6_batch.sh
+ALGO=gfpdo RUNS=25 OUT=./output_baselines_gfpdo_25runs bash run_baselines_f1_f6_batch.sh
 ```
 
-默认已为 **25** 次（ex01–ex25）。
+默认 **25** 次（ex01–ex25），`SKIP_EXISTING=1` 可断点续跑。  
+产物：`*.log`（含 `final fitness=`）与 `iter_*.txt`（每代曲线）。
+
+Mac 汇总：
+
+```bash
+python3 scripts/aggregate_baselines_f1_f6.py
+```

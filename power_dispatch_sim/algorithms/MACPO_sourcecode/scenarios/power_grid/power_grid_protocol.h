@@ -11,8 +11,16 @@
 /** 完整解 f_pure 报告间隔（降频 Allreduce；末轮仍单独汇总） */
 static constexpr int kPowerGridReportInterval = 10;
 
-/** 配对实验：至少每 K 轮强制一次完整协商（抑制边界漂移） */
-static constexpr int kPowerGridForceCommInterval = 3;
+/** 配对实验：至少每 K 轮强制一次完整协商（抑制边界漂移）；默认 K=3，IEEE30/57 用 K=2 */
+inline int power_grid_force_comm_interval(IeeeGridCaseId id) {
+    switch (id) {
+    case IeeeGridCaseId::IEEE30:
+    case IeeeGridCaseId::IEEE57:
+        return 2;
+    default:
+        return 3;
+    }
+}
 
 /** IEEE 电力场景优化预算（MACPO / RL-MACPO 配对须一致） */
 struct PowerGridProtocol {

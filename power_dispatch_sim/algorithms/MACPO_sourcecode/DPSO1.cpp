@@ -56,7 +56,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    int max_eva = 1500000;
+    // Match GFPDO_overlap / MACPO paper total budget: 150000 * group_num global evals (F1--F6).
+    int max_eva = 150000;
     int swarmSize = 300;
     int DPSO_type = 1;
     string funcID = argv[1];
@@ -300,7 +301,9 @@ int main(int argc, char* argv[])
         // double *mean_arr = mean_vec.data();
 
         for(int n=0;n<nodenum;n++){
-            mean_vec(total_dim_set[n]) = VectorXd::Map(OptSet[n]->swarm_ordered[0]->X,dimension)(total_dim_set[n]);
+            for (int d : total_dim_set[n]) {
+                mean_vec(d) = OptSet[n]->swarm_ordered[0]->X[d];
+            }
         }
         curr_fit = geva.evaluate(mean_vec);
         best_fit = min(curr_fit,best_fit);

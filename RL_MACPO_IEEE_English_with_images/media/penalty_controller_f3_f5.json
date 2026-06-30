@@ -1,0 +1,137 @@
+{
+  "runs": 25,
+  "functions": [
+    "F3",
+    "F5"
+  ],
+  "rows": [
+    {
+      "controller": "MACPO",
+      "function": "F3",
+      "n_logs": 25,
+      "fitness": {
+        "n": 25,
+        "mean": 4025600000.0,
+        "std": 469067841.57518196
+      },
+      "comm_rate": {
+        "n": 25,
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "log_dir": "/Users/zhangyingjie/Project/MACPO2/MACPO_original_output/LLSO_25runs"
+    },
+    {
+      "controller": "FixedSchedule",
+      "function": "F3",
+      "n_logs": 25,
+      "fitness": {
+        "n": 25,
+        "mean": 1162.92129436,
+        "std": 375.15911218972167
+      },
+      "comm_rate": {
+        "n": 25,
+        "mean": 0.0833333,
+        "std": 0.0
+      },
+      "log_dir": "/Users/zhangyingjie/Project/MACPO2/ablation_experiments/results/penalty_controller_f3_f5/FixedSchedule"
+    },
+    {
+      "controller": "EMA_Penalty",
+      "function": "F3",
+      "n_logs": 25,
+      "fitness": {
+        "n": 25,
+        "mean": 1139.63965776,
+        "std": 368.73754052219294
+      },
+      "comm_rate": {
+        "n": 25,
+        "mean": 0.0833333,
+        "std": 0.0
+      },
+      "log_dir": "/Users/zhangyingjie/Project/MACPO2/ablation_experiments/results/penalty_controller_f3_f5/EMA_Penalty"
+    },
+    {
+      "controller": "RL",
+      "function": "F3",
+      "n_logs": 25,
+      "fitness": {
+        "n": 25,
+        "mean": 1158.66425012,
+        "std": 385.48729309512294
+      },
+      "comm_rate": {
+        "n": 25,
+        "mean": 0.0833333,
+        "std": 0.0
+      },
+      "log_dir": "/Users/zhangyingjie/Project/MACPO2/ablation_experiments/results/penalty_controller_f3_f5/Selection_0.9_0.7_0.5"
+    },
+    {
+      "controller": "MACPO",
+      "function": "F5",
+      "n_logs": 25,
+      "fitness": {
+        "n": 25,
+        "mean": 196520000.0,
+        "std": 38308348.959463134
+      },
+      "comm_rate": {
+        "n": 25,
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "log_dir": "/Users/zhangyingjie/Project/MACPO2/MACPO_original_output/LLSO_25runs"
+    },
+    {
+      "controller": "FixedSchedule",
+      "function": "F5",
+      "n_logs": 25,
+      "fitness": {
+        "n": 25,
+        "mean": 6736647.8316,
+        "std": 576602.2343618871
+      },
+      "comm_rate": {
+        "n": 25,
+        "mean": 0.17333316799999998,
+        "std": 0.10908698254155798
+      },
+      "log_dir": "/Users/zhangyingjie/Project/MACPO2/ablation_experiments/results/penalty_controller_f3_f5/FixedSchedule"
+    },
+    {
+      "controller": "EMA_Penalty",
+      "function": "F5",
+      "n_logs": 25,
+      "fitness": {
+        "n": 25,
+        "mean": 6937135.9092,
+        "std": 820417.127007026
+      },
+      "comm_rate": {
+        "n": 25,
+        "mean": 0.17333316799999998,
+        "std": 0.10908698254155798
+      },
+      "log_dir": "/Users/zhangyingjie/Project/MACPO2/ablation_experiments/results/penalty_controller_f3_f5/EMA_Penalty"
+    },
+    {
+      "controller": "RL",
+      "function": "F5",
+      "n_logs": 25,
+      "fitness": {
+        "n": 25,
+        "mean": 6864961.1188,
+        "std": 829081.6269794471
+      },
+      "comm_rate": {
+        "n": 25,
+        "mean": 0.158333168,
+        "std": 0.09354129996970416
+      },
+      "log_dir": "/Users/zhangyingjie/Project/MACPO2/ablation_experiments/results/penalty_controller_f3_f5/Selection_0.9_0.7_0.5"
+    }
+  ]
+}

@@ -210,6 +210,14 @@ int main(int argc, char* argv[]) {
         } else if (expConfig == "Selection_0.9_0.7_0.5") {
             cfg.gating_mode = 3;
             cfg.selection_early = 0.9; cfg.selection_mid = 0.7; cfg.selection_late = 0.5;
+        } else if (expConfig == "EMA_Penalty") {
+            cfg.gating_mode = 3;
+            cfg.selection_early = 0.9; cfg.selection_mid = 0.7; cfg.selection_late = 0.5;
+            cfg.penalty_mode = 1;
+        } else if (expConfig == "FixedSchedule") {
+            cfg.gating_mode = 3;
+            cfg.selection_early = 0.9; cfg.selection_mid = 0.7; cfg.selection_late = 0.5;
+            cfg.penalty_mode = 2;
         } else if (expConfig == "Sanity_A_NoThreshold") {
             // A: interval + phase (threshold恒真)
             cfg.gating_mode = 3;

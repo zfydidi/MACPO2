@@ -441,8 +441,9 @@ int main(int argc, char* argv[]) {
             }
         }
         // 配对实验：至少每 K 轮强制完整协商，抑制跳过通信时的边界漂移
+        const int force_comm_k = power_grid_force_comm_interval(caseId);
         if (paired_experiment_enabled() && iter > 0 &&
-            (iter % kPowerGridForceCommInterval == 0)) {
+            (iter % force_comm_k == 0)) {
             should_communicate = true;
         }
 
@@ -539,6 +540,7 @@ int main(int argc, char* argv[]) {
 
     double final_f = power_grid_report_pure(
         pFunc, myrank, globalBestReport, globalBest, groupDim, dimension);
+    best_fitness = std::min(best_fitness, final_f);
     if (myrank == 0) {
         long elapsed = getCurrentTime() - start_time;
         double comm_rate = (total_loops > 0)
@@ -549,7 +551,7 @@ int main(int argc, char* argv[]) {
              << " comms=" << comm_trigger_loops
              << " time=" << elapsed << "ms" << endl;
         cout << "[RESULT] algorithm=RL-MACPO f_pure=" << scientific << setprecision(6)
-             << final_f << " best_f_pure=" << final_f
+             << final_f << " best_f_pure=" << best_fitness
              << " eva=" << pFunc->eva_count
              << " wall_ms=" << elapsed
              << " outer_iters=" << iter

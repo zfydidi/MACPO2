@@ -41,11 +41,13 @@ struct ExperimentConfig {
     bool use_variable_filter = true;  // 是否使用变量筛选
     bool force_disable_threshold = false; // sanity: 关闭阈值层
     bool force_disable_phase = false;     // sanity: 关闭phase层
-    int threshold_mode = 0;   // 0=fixed absolute threshold, 1=relative threshold(EMA-CI)
+    int threshold_mode = 1;   // 0=fixed absolute threshold, 1=relative threshold(EMA-CI)
     double relative_lambda = 1.2; // relative threshold multiplier
     double ci_ema_beta = 0.9;     // EMA coefficient for CI baseline
-    bool enable_fail_safe = false; // fail-safe: force trigger after K silent rounds
+    bool enable_fail_safe = true; // fail-safe: force trigger after K silent rounds
     int fail_safe_k = 10;
+    bool force_periodic = false;  // fixed-interval communication baseline (no CI gate)
+    int periodic_k = 3;         // communicate every K outer loops when force_periodic
     double phase_early = -1;  // 阶段通信频率覆盖，-1表示使用默认
     double phase_mid = -1;
     double phase_late = -1;
@@ -772,6 +774,16 @@ public:
             comm_manager.set_forced_decision(current_conflict_index, current_iter, 1.0);
             total_communications++;
             return true;
+        }
+
+        // Periodic baseline: fixed every-K communication (RL penalty on, CI gate off)
+        if (experiment_config.force_periodic && experiment_config.periodic_k > 0) {
+            current_conflict_index = calculate_enhanced_conflict(x);
+            bool should_comm = (current_iter % experiment_config.periodic_k == 0);
+            if (should_comm) {
+                total_communications++;
+            }
+            return should_comm;
         }
         
         // 计算鲁棒冲突指标：使用改进的检测算法

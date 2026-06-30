@@ -54,6 +54,10 @@ struct ExperimentConfig {
     double selection_early = -1;  // 变量选择比例覆盖，-1表示使用默认
     double selection_mid = -1;
     double selection_late = -1;
+    int penalty_mode = 0;       // 0=RL, 1=EMA heuristic, 2=fixed phase schedule
+    double fixed_ratio_early = 1.1;
+    double fixed_ratio_mid = 1.0;
+    double fixed_ratio_late = 0.9;
 };
 
 class EnhancedRLPenaltyEvaluator : public RLPenaltyEvaluator {
@@ -1004,9 +1008,32 @@ public:
      */
     void update_rl_weight(double* x, double reward) override {
         rl_update_calls++;
-        // 使用增强的CI计算
         double enhanced_ci = calculate_enhanced_conflict(x);
-        
+
+        if (experiment_config.penalty_mode == 1) {
+            // EMA / momentum heuristic baseline (AdaptivePenaltyController)
+            double improvement = (reward != 0.0) ? reward : 0.0;
+            penalty_controller.record_improvement(improvement);
+            double w = penalty_controller.get_adaptive_weight(enhanced_ci, get_convergence_rate());
+            double ratio = w / std::max(1e-12, penalty_controller.base_lambda);
+            double new_alpha = get_base_alpha() * ratio;
+            set_alpha(0.9 * get_alpha() + 0.1 * new_alpha);
+            return;
+        }
+        if (experiment_config.penalty_mode == 2) {
+            // Fixed phase schedule baseline (no RL policy)
+            double ratio = experiment_config.fixed_ratio_mid;
+            auto ph = phase_adapter.get_current_phase();
+            if (ph == ConvergencePhaseAdapter::EARLY) {
+                ratio = experiment_config.fixed_ratio_early;
+            } else if (ph == ConvergencePhaseAdapter::LATE) {
+                ratio = experiment_config.fixed_ratio_late;
+            }
+            set_alpha(get_base_alpha() * ratio);
+            return;
+        }
+
+        // === RL penalty path (default) ===
         // 将当前fitness注入RLAgent，供方案3/5的calculate_reward使用
         // base_alpha = current_fitness / 512，反推得到current_fitness
         current_fitness_rl = get_base_alpha() * 512.0;

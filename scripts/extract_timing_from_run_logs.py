@@ -43,9 +43,20 @@ def parse_file(path: str) -> float | None:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--macpo_dir", default=os.path.join(ROOT, "MACPO_sourcecode", "output_runs25"))
-    ap.add_argument("--rl_dir", default=os.path.join(ROOT, "RL-MACPO", "output_runs25"))
-    ap.add_argument("--out", default=os.path.join(ROOT, "MACPO_sourcecode", "output_runs25", "timing_from_logs_s.csv"))
+    ap.add_argument(
+        "--macpo_dir",
+        default=os.path.join(ROOT, "MACPO_original_output", "LLSO_25runs"),
+        help="MACPO F1-F6 logs (F*_LLSO_run*.txt); many archives lack total time= lines",
+    )
+    ap.add_argument(
+        "--rl_dir",
+        default=os.path.join(ROOT, "output", "RL-output_runs25"),
+        help="RL F1-F6 pilot logs (F*_LLSO_final_run*.txt with # COST_STATS total_time_ms)",
+    )
+    ap.add_argument(
+        "--out",
+        default=os.path.join(ROOT, "output", "RL-output_runs25", "timing_from_logs_s.csv"),
+    )
     args = ap.parse_args()
 
     rows = []

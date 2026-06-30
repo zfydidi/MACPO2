@@ -227,9 +227,11 @@ int main(int argc, char* argv[])
                 int nei_idx = neighbors[n][nei_num];
                 if(n < nei_idx){                    
                     vector<int> idxs = {1,3,5};
-                    MatrixXd tmp = population(0,n)(Eigen::all,overlap_dims[n][nei_num]) + population(0,nei_idx)(Eigen::all,overlap_dims[n][nei_num]);
-                    population(0,n)(Eigen::all,overlap_dims[n][nei_num]) = tmp/2;
-                    population(0,nei_idx)(Eigen::all,overlap_dims[n][nei_num]) = tmp/2;
+                    for (int od : overlap_dims[n][nei_num]) {
+                        VectorXd tmp = population(0,n).col(od) + population(0,nei_idx).col(od);
+                        population(0,n).col(od) = tmp / 2.0;
+                        population(0,nei_idx).col(od) = tmp / 2.0;
+                    }
                 }
             }
         }
@@ -277,7 +279,9 @@ int main(int argc, char* argv[])
         // curr_fit = fitness.minCoeff();
         VectorXd agg_solution = VectorXd::Zero(dimension);
         for(int n=0;n<nodenum;n++){
-            agg_solution(total_dim_set[n]) = population(0,n)(0,total_dim_set[n]);
+            for (int d : total_dim_set[n]) {
+                agg_solution(d) = population(0,n)(0, d);
+            }
         }
 
         //评估聚合解

@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
     // 从命令行参数获取funcID、exID、实验配置
     // 用法: mpirun -n 20 ./MACPO_simplified F1 ex01 [config] [outDir/]
     // config: RL_Only|NoGating|Layer1|Layer1_2|Full|NoPhase|Phase_60_30_15|Phase_80_50_15|NoSelection|Selection_0.9_0.6_0.3|Selection_0.9_0.7_0.5
-    // mechanism variants: AlwaysOn|FixedThreshold|RelativeThreshold|RelativeThresholdFailSafe
+    // mechanism variants: AlwaysOn|FixedThreshold|RelativeThreshold|RelativeThresholdFailSafe|PeriodicK2|PeriodicK3|PeriodicK5
     // outDir: optional, default ./output/
     string funcID = argv[1];
     string exID = (argc >= 3) ? argv[2] : "ex01";
@@ -164,6 +164,11 @@ int main(int argc, char* argv[]) {
             cfg.gating_mode = 3;
             cfg.threshold_mode = 0;
             cfg.use_variable_filter = false;
+        } else if (expConfig == "FixedThresholdNoFailSafe") {
+            cfg.gating_mode = 3;
+            cfg.threshold_mode = 0;
+            cfg.enable_fail_safe = false;
+            cfg.use_variable_filter = false;
         } else if (expConfig == "RelativeThreshold") {
             cfg.gating_mode = 3;
             cfg.threshold_mode = 1;
@@ -219,6 +224,11 @@ int main(int argc, char* argv[]) {
             // C: 三层恒真（强制每轮通信）
             cfg.gating_mode = 0;
             cfg.use_variable_filter = false;
+        } else if (expConfig.rfind("PeriodicK", 0) == 0) {
+            cfg.gating_mode = 3;
+            cfg.force_periodic = true;
+            cfg.periodic_k = std::max(1, atoi(expConfig.c_str() + 9));
+            cfg.use_variable_filter = false;
         }
         // Optional env overrides for sensitivity tests
         const char* env_lambda = getenv("MACPO_REL_LAMBDA");
@@ -235,6 +245,10 @@ int main(int argc, char* argv[]) {
         if (env_fs != nullptr) {
             cfg.enable_fail_safe = true;
             cfg.fail_safe_k = atoi(env_fs);
+        }
+        const char* env_no_fs = getenv("MACPO_DISABLE_FAILSAFE");
+        if (env_no_fs != nullptr && (env_no_fs[0] == '1' || env_no_fs[0] == 'y' || env_no_fs[0] == 'Y')) {
+            cfg.enable_fail_safe = false;
         }
         // Full 或未知配置使用默认
         ((EnhancedRLPenaltyEvaluator*)Evaluator)->set_experiment_config(cfg);
