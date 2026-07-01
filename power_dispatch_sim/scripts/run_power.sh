@@ -15,6 +15,7 @@ RUNS="${2:-5}"
 MODE="${3:-paired}"
 
 export MACPO_PAIRED=1
+export MACPO_FAILSAFE_K="${MACPO_FAILSAFE_K:-2}"
 
 ranks_for_case() {
     case "$1" in
@@ -58,15 +59,15 @@ run_one_case() {
 
         echo "  [PAIR $run_id] MACPO (seed=$seed)"
         cd "$ALGO/MACPO_sourcecode"
-        MACPO_PAIR_SEED="$seed" MACPO_PAIRED=1 \
-            mpirun -n "$NRANKS" --oversubscribe -x MACPO_PAIR_SEED -x MACPO_PAIRED \
+        MACPO_PAIR_SEED="$seed" MACPO_PAIRED=1 MACPO_FAILSAFE_K="$MACPO_FAILSAFE_K" \
+            mpirun -n "$NRANKS" --oversubscribe -x MACPO_PAIR_SEED -x MACPO_PAIRED -x MACPO_FAILSAFE_K \
                 "$MACPO_BIN" "$CASE_NAME" LLSO "$macpo_out/" \
                 > "$macpo_out/run.log" 2>&1
 
-        echo "  [PAIR $run_id] RL-MACPO (seed=$seed)"
+        echo "  [PAIR $run_id] RL-MACPO (seed=$seed, fail_safe_k=$MACPO_FAILSAFE_K)"
         cd "$ALGO/RL-MACPO"
-        MACPO_PAIR_SEED="$seed" MACPO_PAIRED=1 \
-            mpirun -n "$NRANKS" --oversubscribe -x MACPO_PAIR_SEED -x MACPO_PAIRED \
+        MACPO_PAIR_SEED="$seed" MACPO_PAIRED=1 MACPO_FAILSAFE_K="$MACPO_FAILSAFE_K" \
+            mpirun -n "$NRANKS" --oversubscribe -x MACPO_PAIR_SEED -x MACPO_PAIRED -x MACPO_FAILSAFE_K \
                 "$RL_BIN" "$CASE_NAME" Full "$rl_out/" \
                 > "$rl_out/run.log" 2>&1
 

@@ -13,6 +13,7 @@ OUTPUT_ROOT="$ROOT/output/paper_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$OUTPUT_ROOT"
 
 export MACPO_PAIRED=1
+export MACPO_FAILSAFE_K="${MACPO_FAILSAFE_K:-2}"
 
 MACPO_BIN="$ALGO/MACPO_sourcecode/build/MACPO_ndo"
 RL_BIN="$ALGO/RL-MACPO/build/RL_MACPO_ndo"
@@ -50,8 +51,8 @@ run_scenario() {
                 > "$mout/run.log" 2>&1
 
         cd "$ALGO/RL-MACPO"
-        MACPO_PAIR_SEED="$seed" MACPO_PAIRED=1 \
-            mpirun -n "$ranks" --oversubscribe -x MACPO_PAIR_SEED -x MACPO_PAIRED \
+        MACPO_PAIR_SEED="$seed" MACPO_PAIRED=1 MACPO_FAILSAFE_K="$MACPO_FAILSAFE_K" \
+            mpirun -n "$ranks" --oversubscribe -x MACPO_PAIR_SEED -x MACPO_PAIRED -x MACPO_FAILSAFE_K \
                 "$RL_BIN" "$scenario" Full "$rout/" \
                 > "$rout/run.log" 2>&1
 

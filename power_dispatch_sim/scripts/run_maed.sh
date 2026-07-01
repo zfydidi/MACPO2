@@ -10,6 +10,7 @@ OUTPUT_ROOT="$ROOT/output/maed_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$OUTPUT_ROOT"
 
 export MACPO_PAIRED=1
+export MACPO_FAILSAFE_K="${MACPO_FAILSAFE_K:-2}"
 export MAED_LOAD_MW="$LOAD_MW"
 
 MACPO_BIN="$ALGO/MACPO_sourcecode/build/MACPO_ndo"
@@ -39,15 +40,15 @@ run_scenario() {
     echo "  [PAIR $i/$RUNS] seed=$seed"
 
     cd "$ALGO/MACPO_sourcecode"
-    MACPO_PAIR_SEED="$seed" MACPO_PAIRED=1 MAED_LOAD_MW="$LOAD_MW" \
+    MACPO_PAIR_SEED="$seed" MACPO_PAIRED=1 MAED_LOAD_MW="$LOAD_MW" MACPO_FAILSAFE_K="$MACPO_FAILSAFE_K" \
       mpirun -n "$ranks" --oversubscribe \
-        -x MACPO_PAIR_SEED -x MACPO_PAIRED -x MAED_LOAD_MW \
+        -x MACPO_PAIR_SEED -x MACPO_PAIRED -x MAED_LOAD_MW -x MACPO_FAILSAFE_K \
         "$MACPO_BIN" "$scenario" LLSO "$mout/" > "$mout/run.log" 2>&1
 
     cd "$ALGO/RL-MACPO"
-    MACPO_PAIR_SEED="$seed" MACPO_PAIRED=1 MAED_LOAD_MW="$LOAD_MW" \
+    MACPO_PAIR_SEED="$seed" MACPO_PAIRED=1 MAED_LOAD_MW="$LOAD_MW" MACPO_FAILSAFE_K="$MACPO_FAILSAFE_K" \
       mpirun -n "$ranks" --oversubscribe \
-        -x MACPO_PAIR_SEED -x MACPO_PAIRED -x MAED_LOAD_MW \
+        -x MACPO_PAIR_SEED -x MACPO_PAIRED -x MAED_LOAD_MW -x MACPO_FAILSAFE_K \
         "$RL_BIN" "$scenario" Full "$rout/" > "$rout/run.log" 2>&1
 
     echo "    MACPO    $(parse_result "$mout/run.log" MACPO)"

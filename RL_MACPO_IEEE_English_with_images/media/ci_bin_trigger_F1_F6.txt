@@ -1,0 +1,51 @@
+runs_dir=/Users/zhangyingjie/Project/MACPO2/experiments/patent_paired_comparison/raw/RL-MACPO
+functions=F1 F2 F3 F4 F5 F6
+n_bins=5
+source=trajectory
+exclude_iter0=True
+layout_ncols=3
+
+Quantile bins: equal count on pooled conflict; Q1 = lowest conflict.
+trigger_prob = mean gate_comm within each bin.
+
+F1 conflict range per bin (scientific):
+  Q1: [5.0570e-03, 1.0208e-02] p_comm=0.6957 n=115
+  Q2: [1.0226e-02, 1.0953e-02] p_comm=0.3565 n=115
+  Q3: [1.0955e-02, 1.1441e-02] p_comm=0.4174 n=115
+  Q4: [1.1444e-02, 1.1819e-02] p_comm=0.3565 n=115
+  Q5: [1.1824e-02, 1.2850e-02] p_comm=0.4174 n=115
+
+F2 conflict range per bin (scientific):
+  Q1: [6.9597e-03, 1.2012e-02] p_comm=0.7043 n=115
+  Q2: [1.2020e-02, 1.2672e-02] p_comm=0.4522 n=115
+  Q3: [1.2674e-02, 1.3009e-02] p_comm=0.3826 n=115
+  Q4: [1.3013e-02, 1.3308e-02] p_comm=0.4261 n=115
+  Q5: [1.3309e-02, 1.3885e-02] p_comm=0.3913 n=115
+
+F3 conflict range per bin (scientific):
+  Q1: [8.4887e-03, 1.3628e-02] p_comm=0.7217 n=115
+  Q2: [1.3632e-02, 1.3843e-02] p_comm=0.3391 n=115
+  Q3: [1.3843e-02, 1.3922e-02] p_comm=0.2870 n=115
+  Q4: [1.3922e-02, 1.4011e-02] p_comm=0.4957 n=115
+  Q5: [1.4012e-02, 1.4293e-02] p_comm=0.4261 n=115
+
+F4 conflict range per bin (scientific):
+  Q1: [5.6307e-03, 9.6068e-03] p_comm=0.6696 n=115
+  Q2: [9.6088e-03, 1.0010e-02] p_comm=0.4087 n=115
+  Q3: [1.0011e-02, 1.0251e-02] p_comm=0.4174 n=115
+  Q4: [1.0254e-02, 1.0700e-02] p_comm=0.3826 n=115
+  Q5: [1.0703e-02, 1.1625e-02] p_comm=0.5043 n=115
+
+F5 conflict range per bin (scientific):
+  Q1: [6.9609e-03, 1.4261e-02] p_comm=0.7391 n=115
+  Q2: [1.4291e-02, 1.4988e-02] p_comm=0.3739 n=115
+  Q3: [1.4992e-02, 1.5294e-02] p_comm=0.3478 n=115
+  Q4: [1.5294e-02, 1.5715e-02] p_comm=0.4000 n=115
+  Q5: [1.5729e-02, 1.6997e-02] p_comm=0.4783 n=115
+
+F6 conflict range per bin (scientific):
+  Q1: [6.7901e-03, 1.1536e-02] p_comm=0.6435 n=115
+  Q2: [1.1541e-02, 1.2078e-02] p_comm=0.4609 n=115
+  Q3: [1.2084e-02, 1.2445e-02] p_comm=0.4000 n=115
+  Q4: [1.2445e-02, 1.2804e-02] p_comm=0.4000 n=115
+  Q5: [1.2805e-02, 1.3999e-02] p_comm=0.3391 n=115

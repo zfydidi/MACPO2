@@ -39,36 +39,29 @@
     \indent
     \textbf{1.1 研究来源与问题背景}
     \par
-    本研究来源于网络化分布式优化（Network-based Distributed Optimization，NDO）问题，其全局目标与约束在网络上耦合，各节点仅掌握局部信息并依赖有限带宽通信协同决策\rcite{bertsekas1989,rabbat2004,boyd2011}。该类问题在智能电网调度、交通流分配与分布式传感等场景具有明确建模需求。Chen 等提出的多智能体协同惩罚优化（Multi-Agent Cooperative Penalty Optimization，MACPO）框架\rcite{chen2024macpo}与本课题问题设定高度契合，为后续引入学习机制提供了可复用的算法框架与实验基准。
+    本研究来源于网络化分布式优化（Network-based Distributed Optimization，NDO）问题：全局目标与共享变量约束耦合于通信网络，各节点仅掌握局部信息并需在有限带宽下协同决策\rcite{bertsekas1989,rabbat2004,boyd2011,chica2023}。该类问题在智能电网调度、交通流分配、分布式传感与车联网协同控制等场景具有明确建模需求。2023 年以来，面向信息流的分布式优化综述系统梳理了分解—协调类算法在异构网络、动态拓扑下的收敛与通信代价\rcite{chica2023}；2025 年进一步出现面向时变非平衡网络与隐私约束的分布式约束优化研究\rcite{wei2025privacy}，表明“如何在通信受限条件下维持一致性并优化全局目标”仍是活跃方向。与本课题直接相关的 MACPO 框架\rcite{chen2024macpo}于 2024 年提出，将惩罚型局部目标、冲突检测与邻居协商结合，为网络化黑箱 NDO 提供了可复现实验基准；但 MACPO 仅是近年进展之一，而非唯一参照。
 
     \par
-    \textbf{1.2 传统分布式优化方法及其局限}
+    \textbf{1.2 梯度式分布式优化与通信效率研究}
     \par
-    围绕一致性思想，DGD、ADMM、EXTRA 等经典分布式方法在凸假设下具有较好收敛保证\rcite{nedic2009,boyd2011,shi2015}。然而 NDO 场景中目标与约束往往非凸、黑箱，且难以满足梯度可得与可分解等前提\rcite{ghadimi2013,chica2023}。因此，本课题不宜沿用传统凸优化主路径，而需转向面向黑箱环境的协同进化范式。
+    围绕一致性思想，DGD、ADMM、EXTRA、Push-Pull 等经典方法在凸或光滑假设下具有较好收敛保证\rcite{nedic2009,boyd2011,shi2015,pu2021}；Decentralized SGD 及其变体在时变拓扑与局部更新设定下亦得到统一理论分析\rcite{koloskova2020}。然而 NDO 场景中目标与约束往往非凸、黑箱，且难以满足梯度可得与可分解等前提\rcite{ghadimi2013,chica2023}。另一方面，联邦学习与 Local SGD 等研究从机器学习角度强调“少通信、多本地计算”\rcite{mcmahan2017,stich2019,kairouz2021}，与本课题关注的“何时通信、通信哪些变量”在问题结构上并不相同，但为通信效率指标与实验对照提供了方法论参照。因此，本课题不宜沿用传统凸优化主路径，而需在黑箱协同进化范式下同时处理协调质量与通信代价。
 
     \par
 \textbf{1.3 黑箱约束优化与惩罚机制}
 \par
-惩罚函数法是黑箱约束优化的常用手段；可行性规则、$\varepsilon$-约束法、随机排序及自适应惩罚等机制虽缓解了参数敏感问题\rcite{coello2002,deb2000,takahama2006,runarsson2000,li2019,wang2014,mezuramontes2011,karafotias2015}，但在冲突强度动态变化时，静态惩罚仍难以兼顾可行引导与搜索效率。因此，本课题将惩罚参数自适应调节作为核心改进方向之一。
+惩罚函数法是黑箱约束优化的常用手段；可行性规则、$\varepsilon$-约束法、随机排序及自适应惩罚等机制虽缓解了参数敏感问题\rcite{coello2002,deb2000,takahama2006,runarsson2000,li2019,wang2014,mezuramontes2011,karafotias2015}，但在冲突强度随搜索阶段动态变化时，静态惩罚仍难以兼顾可行引导与搜索效率。2023 年后，面向非凸分布式约束优化的集体神经动力学惩罚方法\rcite{huang2024neuro}等尝试以分布式神经网络处理不等式约束，但多依赖连续时间动力学或特定网络结构，与 MACPO 式“进化搜索 + 离散协商”的黑箱 NDO 路径不同。本课题仍将惩罚参数与冲突演化的在线匹配作为核心改进方向之一。
 
 \par
 \indent
-\textbf{1.4 多智能体协同进化与分布式黑箱优化}
+\textbf{1.4 大规模协同进化与分布式黑箱优化（2020--2025）}
 \par
-协同进化通过子问题划分与多智能体并行演化处理高维黑箱问题\rcite{back1996,potter1994,omidvar2014,li2012survey}。DPSO、GFPDO 等工作将协同进化引入分布式场景\rcite{yang2008,li2012pso,kennedy1995,omidvar2017}；MACPO\rcite{chen2024macpo}进一步将惩罚函数与多智能体协商结合，并依托 CEC2013 大规模基准\rcite{tang2009,li2013cec}开展评测。尽管上述方法提高了大规模黑箱优化效率，但多数工作仍采用固定惩罚参数与固定通信策略，无法根据冲突演化动态调整协调强度；同时，全量共享变量协商带来的通信冗余问题尚未得到充分解决。因此，本课题拟从惩罚调控与通信机制两个方面开展改进，并对接 LLSO/CSO 等嵌入优化器\rcite{yang2018llso,cheng2015cso,ding2024}完成实验验证。
-
-    \par
-    \indent
-    \textbf{1.5 强化学习赋能优化算法}
-    \par
-    强化学习（Reinforcement Learning，RL）已被用于优化算法中的参数控制、算子选择与决策调节\rcite{karafotias2015,sutton2018,latorre2023,song2024,mnih2015}，但多集中于无约束或简单约束问题，对分布式黑箱约束优化中惩罚参数与协同策略的学习机制研究仍较有限\rcite{yi2019,shahrampour2018}。因此，将 RL 嵌入 MACPO 外循环，是本课题拟突破的关键技术路径。
+协同进化通过子问题划分与多智能体并行演化处理高维黑箱问题\rcite{back1996,potter1994,omidvar2014,li2012survey,ma2019ccsurvey}。DPSO、GFPDO 等工作将协同进化引入分布式场景\rcite{yang2008,li2012pso,kennedy1995,omidvar2017}；2024 年 Ding 等提出带收敛分析与集群加速的分布式协同进化（DCC）框架\rcite{ding2024}，在 CEC 大规模基准上验证了分解式黑箱优化的可扩展并行实现；2025 年亦出现基于变量重要性的动态协同进化方法\rcite{jia2025dcc}，进一步强调“按变量相关性组织协同”而非固定分组。上述工作主要面向全局黑箱优化或同构分布式采样，对“私有变量 + 边共享变量”的 NDO 拓扑与邻居协商机制覆盖有限。
 
 \par
 \indent
-\textbf{1.6 相关方法对比与本研究定位}
+\textbf{1.5 网络化分布式黑箱优化的近期代表工作}
 \par
-为清晰展示不同方法的技术特点，下表总结了分布式约束优化相关方法在问题结构、黑箱适应性、梯度依赖、约束处理与智能调控等维度的差异。本课题在 MACPO 框架上引入 RL 惩罚调控、冲突门控通信与变量重要性筛选，在智能调控、黑箱适应性与不依赖梯度三个维度上形成完整覆盖。由此，本研究定位于：在黑箱 NDO 场景下，以学习机制补强 MACPO 静态惩罚与全量通信的短板。
-
+除 MACPO\rcite{chen2024macpo}外，2024--2025 年该方向已有若干并行进展：（1）MASOIE\rcite{chen2024maso}在共识型分布式黑箱优化中引入内外部学习，并设计自适应通信间隔以降低通信开销；（2）MAES-CCSA\rcite{guo2025maes}面向黑箱分布式优化（DBO），通过检测多智能体演化路径一致性自适应调节采样步长；（3）MACPO 同团队在 2025 年将协同进化与 LLSO 结合用于多区域潮流等工程场景\rcite{qiu2025opf}。这些工作与 MACPO 一样，均属于“梯度自由 + 多智能体协调”路线，但在通信触发逻辑与惩罚/步长调控方式上各不相同；协调开销与搜索效率的联合优化仍是开放问题\rcite{zhou2024highdim}。
 
 }}
     \\
@@ -81,23 +74,36 @@
 \EnableSectionPageBorder
 
 \vspace{0.2cm}
+{\small\noindent\textit{（续）查阅文献与调研}}
 \par
 \indent
-\textbf{1.7 研究现状总结}
+\textbf{1.6 强化学习赋能优化与多智能体决策}
 \par
-综合调研，现有研究存在以下不足：（1）传统分布式凸优化难以适应黑箱、非凸复杂约束；（2）惩罚机制多采用静态规则，缺乏对冲突动态变化的感知；（3）协同策略依赖预设规则；（4）RL 尚未深度融入分布式约束优化核心调控机制。据此，本课题确定“RL 自适应惩罚 + EMA/Top-$R$\% 变量筛选 + 三层门控通信”的技术路线，其中 EMA/Top-$R$\% 指基于指数滑动平均（Exponential Moving Average, EMA）的变量重要性按比例筛选。本人已完成上述方向的系统文献调研与选题论证，明确了后续算法设计与实验验证的切入点。
+强化学习（Reinforcement Learning，RL）已被用于元启发式中的参数控制、算子选择与在线调节\rcite{karafotias2015,sutton2018,latorre2023,song2024,mnih2015,schulman2017}；2023--2024 年连续出现 RL 辅助进化算法综述与梯度式元启发式参数自适应研究\rcite{latorre2023,song2024}。需要区分的是：多智能体强化学习（MARL）侧重策略博弈与联合决策\rcite{busoniu2008,yin2024drl}，而本课题中的 RL 仅作为惩罚控制接口的默认实现，并不替代 MACPO 的进化搜索与规则型通信门控。现有文献中，RL 在分布式黑箱 NDO 里多被讨论为惩罚或步长调节器，尚未与“冲突门控 + 变量筛选 + 可插拔惩罚接口”形成一体化架构——这正是本课题相对 MACPO 及 MASOIE、MAES-CCSA 等近期方法的差异化切入点。
+
+\par
+\indent
+\textbf{1.7 相关方法对比与本研究定位}
+\par
+表 1 从问题结构、黑箱适应性、梯度依赖、约束处理、通信/协调智能调控等维度对比代表性方法。与仅将 MACPO 作为唯一基线不同，本表同时纳入 2024--2025 年 DCC、MASOIE、MAES-CCSA 等并行研究，以反映当前技术谱系。本课题在 MACPO 骨干上构建\textbf{自适应通信架构}：冲突门控决定“是否协商”，变量筛选决定“协商哪些维度”，自适应惩罚接口（RL/EMA/固定日程可插拔）决定“协调强度如何演化”。由此，研究定位从“单一 RL 惩罚优于 MACPO”调整为“以架构化通信控制降低冗余协调，并以 RL 作为无需逐函数调参的默认惩罚控制器”。
+
+\par
+\indent
+\textbf{1.8 研究现状总结}
+\par
+综合 2023--2025 年文献，现有研究仍存在以下不足：（1）梯度式分布式优化与联邦式少通信学习虽成熟，但难以直接覆盖 NDO 的混合变量拓扑与黑箱评价；（2）MACPO、MASOIE、MAES-CCSA 等近期梯度自由方法改进了协商或步长/通信间隔，但多数仍将“是否通信”和“协商哪些变量”解耦为固定或单一规则；（3）惩罚/步长自适应多依赖手工日程或单一 RL 模块，缺少与门控、筛选协同的可插拔接口；（4）RL 辅助优化已有系统综述\rcite{song2024}，但在显式共享变量协商的 NDO 中，RL 尚未作为更大通信架构中的一环被系统验证。据此，本课题确定“冲突门控通信 + Top-$R$\% 变量筛选 + 自适应惩罚接口（RL 默认，EMA/固定日程可替换）”的技术路线，并在 MACPO NDO 基准（F1--F18）、门控消融、惩罚控制器对照及 MACPO 式调度仿真与 IEEE 输电网试点上开展验证——实验对照不再局限于 MACPO 单一基线，而是覆盖架构模块贡献与近期同类方法的差异维度。本人已完成上述方向的系统文献调研与选题论证，明确了后续算法设计与实验验证的切入点。
 \WideTable{%
 \begin{tabularx}{\linewidth}{@{}l *{7}{>{\centering\arraybackslash}X}@{}}
 \hline
 \textbf{算法} & \textbf{类别} & \textbf{问题结构} & \textbf{黑箱} & \textbf{梯度} & \textbf{约束} & \textbf{智能调控} & \textbf{适用性} \\
 \hline
 ADMM & 凸优化 & 同构 & $\times$ & $\checkmark$ & 对偶 & $\times$ & 凸+可分解 \\
-EXTRA & 凸优化 & 同构 & $\times$ & $\checkmark$ & 投影 & $\times$ & 凸+光滑 \\
-DGD & 凸优化 & 同构 & $\times$ & $\checkmark$ & 次梯度 & $\times$ & 凸 \\
-DPSO & 黑箱进化 & 同构/异构 & $\checkmark$ & $\times$ & 惩罚 & $\times$ & 黑箱+非凸 \\
-GFPDO & 黑箱进化 & 异构 & $\checkmark$ & $\times$ & 惩罚 & $\times$ & 黑箱+非凸 \\
-MACPO & 黑箱进化 & 异构 & $\checkmark$ & $\times$ & 惩罚 & $\times$ & 黑箱+非凸 \\
-\textbf{本研究} & 黑箱进化 & 异构 & $\checkmark$ & $\times$ & 惩罚 & $\checkmark$ & 黑箱+非凸 \\
+Local SGD/FedAvg & 分布式学习 & 同构 & $\times$ & $\checkmark$ & 正则/投影 & 部分 & 可微+少通信 \\
+DCC & 协同进化 & 分解式 & $\checkmark$ & $\times$ & 无显式 & $\times$ & 大规模黑箱 \\
+MASOIE & 分布式黑箱 & 共识型 & $\checkmark$ & $\times$ & 共识 & 通信间隔 & 黑箱+共识 \\
+MAES-CCSA & 分布式黑箱 & 同构采样 & $\checkmark$ & $\times$ & 隐式 & 步长自适应 & DBO \\
+MACPO & NDO 协同进化 & 异构+共享边 & $\checkmark$ & $\times$ & 惩罚 & $\times$ & NDO 黑箱 \\
+\textbf{本研究（RL-MACPO）} & NDO 协同进化 & 异构+共享边 & $\checkmark$ & $\times$ & 惩罚 & 门控+筛选+接口 & NDO 黑箱 \\
 \hline
 \end{tabularx}}
 
@@ -231,7 +237,7 @@ DG2: A faster and more accurate differential grouping for large-scale black-box 
 
 \bibitem{ding2024}
 Ming Ding, Wenlong Gong, and Zixing Cai.
-Cooperative coevolution for non-separable large-scale black-box optimization.
+Cooperative coevolution for non-separable large-scale black-box optimization: Convergence analyses and distributed accelerations.
 \emph{Applied Soft Computing}, 158:112232, 2024.
 
 \bibitem{tang2009}
@@ -283,6 +289,86 @@ Distributed online convex optimization with time-varying coupled inequality cons
 Shahin Shahrampour and Ali Jadbabaie.
 Distributed online optimization in dynamic environments using mirror descent.
 \emph{IEEE Transactions on Automatic Control}, 63(3):714--725, 2018.
+
+\bibitem{wei2025privacy}
+Ming Wei, Wen Yu, Dong Chen, Ming Kang, and Guanrong Chen.
+Privacy distributed constrained optimization over time-varying unbalanced networks and its application in federated learning.
+\emph{IEEE/CAA Journal of Automatica Sinica}, 12(2):335--346, 2025.
+
+\bibitem{koloskova2020}
+Anastasia Koloskova, Nicolas Loizou, Sebastian Boreiri, Martin Jaggi, and Sebastian U. Stich.
+A unified theory of decentralized SGD with changing topology and local updates.
+In \emph{Proceedings of ICML}, pages 5381--5392, 2020.
+
+\bibitem{pu2021}
+Shi Pu, Wei Shi, Jiaming Xu, and Angelia Nedi\'c.
+Push-pull gradient methods for distributed optimization in networks.
+\emph{IEEE Transactions on Automatic Control}, 66(3):1135--1147, 2021.
+
+\bibitem{mcmahan2017}
+Brendan McMahan, Eider Moore, Daniel Ramage, Seth Hampson, and Blaise Ag\"uera y Arcas.
+Communication-efficient learning of deep networks from decentralized data.
+In \emph{Proceedings of AISTATS}, pages 1273--1282, 2017.
+
+\bibitem{stich2019}
+Sebastian U. Stich.
+Local SGD converges fast and communicates little.
+In \emph{Proceedings of ICLR}, 2019.
+
+\bibitem{kairouz2021}
+Peter Kairouz et al.
+Advances and open problems in federated learning.
+\emph{Foundations and Trends in Machine Learning}, 14(1--2):1--210, 2021.
+
+\bibitem{ma2019ccsurvey}
+Xiaodong Ma, Xiaodong Li, Qingfu Zhang, Ke Tang, Zhenyu Liang, Wenlong Xie, and Zexuan Zhu.
+A survey on cooperative co-evolutionary algorithms.
+\emph{IEEE Transactions on Evolutionary Computation}, 23(3):421--441, 2019.
+
+\bibitem{zhou2024highdim}
+Meng Zhou, Ming Cui, Dong Xu, Shengxiang Zhu, Zhenyu Zhao, and Ahmed Abusorrah.
+Evolutionary optimization methods for high-dimensional expensive problems: A survey.
+\emph{IEEE/CAA Journal of Automatica Sinica}, 11(5):1092--1105, 2024.
+
+\bibitem{jia2025dcc}
+Ya-Hui Jia, Yuren Zhou, Ying Lin, Wei-Jie Yu, Ying Gao, and Lu Lu.
+Dynamic cooperative coevolution based on variable importance for non-separable large-scale global optimization.
+\emph{Applied Soft Computing}, 169:113363, 2025.
+
+\bibitem{chen2024maso}
+Tai-You Chen, Wei-Neng Chen, Feng-Feng Wei, Xiao-Min Hu, and Jun Zhang.
+Multiagent swarm optimization with adaptive internal and external learning for complex consensus-based distributed optimization.
+\emph{IEEE Transactions on Evolutionary Computation}, 29(4):906--920, 2024.
+
+\bibitem{guo2025maes}
+Tai-You Chen, Wei-Neng Chen, Jin-Kao Hao, Wang Yang, and Jun Zhang.
+Multiagent evolution strategy with cooperative and cumulative step adaptation for black-box distributed optimization.
+\emph{IEEE Transactions on Evolutionary Computation}, early access, 2025.
+
+\bibitem{qiu2025opf}
+Wen-Jin Qiu, Xiao-Min Hu, An Song, Jun Zhang, and Wei-Neng Chen.
+A distributed cooperative co-evolutionary algorithm for multi-area power flow optimization.
+In \emph{Proceedings of IEEE MCII}, 2025.
+
+\bibitem{huang2024neuro}
+Tao Huang, Jianquan Lu, Jianxi Yang, and Jinde Cao.
+A collective neurodynamic penalty approach to nonconvex distributed constrained optimization.
+\emph{Neural Networks}, 169:623--633, 2024.
+
+\bibitem{schulman2017}
+John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
+Proximal policy optimization algorithms.
+arXiv:1707.06347, 2017.
+
+\bibitem{busoniu2008}
+Lucian Bu\c{s}oniu, Robert Babu\v{s}ka, and Bart De Schutter.
+A comprehensive survey of multiagent reinforcement learning.
+\emph{IEEE Transactions on Systems, Man, and Cybernetics, Part C}, 38(2):156--172, 2008.
+
+\bibitem{yin2024drl}
+Qing Yin, Tao Yu, Shuo Shen, Jian Yang, Ming Zhao, Wen Ni, Kaiming Huang, Bo Liang, and Lei Wang.
+Distributed deep reinforcement learning: A survey and a multi-player multi-agent learning toolbox.
+\emph{Machine Intelligence Research}, 21:411--430, 2024.
 
 \end{thebibliography}
 
@@ -816,7 +902,7 @@ F6 & 100\% & 8.3\%  & 91.7\% & $1.50\times10^{5}$ \\
 
 
 \par
-2024.09--2025.01：调研 NDO、分布式黑箱优化与协同进化方向文献，梳理 MACPO 技术脉络，确定“RL 惩罚 + 门控通信”选题方向并完成开题前期论证。\\
+2024.09--2025.01：调研 NDO、分布式黑箱优化、协同进化与 RL 辅助优化方向文献，重点梳理 2023--2025 年 MACPO、MASOIE、MAES-CCSA、DCC 等并行进展，确定“自适应通信架构 + 惩罚控制接口”选题并完成开题论证。\\
 \par
 2025.02--2025.06：完成 RL 惩罚调控、EMA/Top-$R$\% 变量筛选与三层门控机制设计，实现 C++/MPI 原型并与 CEC2013 基准对接。\\
 \par
@@ -839,7 +925,7 @@ F6 & 100\% & 8.3\%  & 91.7\% & $1.50\times10^{5}$ \\
 
 \par
 \indent
-本阶段围绕“RL 自适应惩罚 + EMA/Top-$R$\% 变量筛选 + 三层门控通信”技术路线，完成了从文献调研、算法设计、平台开发到基准实验与应用验证的完整研究闭环，具体包括：（1）梳理 NDO、分布式黑箱优化、协同进化与 RL 参数调控方向的代表性文献，完成开题报告选题论证并通过答辩；（2）设计并实现 RL-MACPO 整体框架，含 RL 惩罚调控、变量筛选与门控通信三项核心模块，形成算法伪代码、框架图与数据流图；（3）基于 C++/MPI 搭建多机实验平台并编写批量运行脚本，完成 CEC2013 标准测试函数多轮重复主对比、通信效率统计、高维扩展及多智能体规模试点等实验；（4）完成三类工程场景的 NDO 建模与指标对比，形成论文初稿及发明专利重写稿各 1 项。上述工作的详细内容与数据对应于本报告第 1-3 章。
+本阶段围绕“冲突门控通信 + Top-$R$\% 变量筛选 + 自适应惩罚接口”技术路线，完成了从文献调研、算法设计、平台开发到基准实验与应用验证的完整研究闭环，具体包括：（1）梳理 NDO、分布式黑箱优化、2024--2025 年代表性协同/分布式进化方法及 RL 辅助优化文献，完成开题报告选题论证并通过答辩；（2）设计并实现 RL-MACPO 自适应通信架构，含门控通信、变量筛选与可插拔惩罚控制接口（RL 默认），形成算法伪代码、框架图与数据流图；（3）基于 C++/MPI 搭建多机实验平台并编写批量运行脚本，完成 MACPO NDO 基准主对比、门控消融、惩罚控制器对照、通信效率统计、高维扩展及多智能体规模试点等实验；（4）完成三类工程场景的 NDO 建模与指标对比，形成论文初稿及发明专利重写稿各 1 项。上述工作的详细内容与数据对应于本报告第 1-3 章。
 
 
 \par

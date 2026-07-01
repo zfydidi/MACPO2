@@ -1,12 +1,14 @@
 {
   "IEEE30": {
-    "source": "power_dispatch_sim/output/power_IEEE30_20260622_124147/summary.json",
-    "note": "10-run batch; best pure cost ties at plateau; comm reduction still observed"
+    "source": "power_dispatch_sim/output/power_IEEE30_20260630_114805/summary.json",
+    "note": "25-run paired batch, K=2 fail-safe"
   },
   "IEEE57": {
-    "source": "power_dispatch_sim/output/power_IEEE57_20260623_151327/summary.json"
+    "source": "power_dispatch_sim/output/power_IEEE57_20260630_114810/summary.json",
+    "note": "25-run paired batch, K=2 fail-safe"
   },
   "IEEE118": {
-    "source": "power_dispatch_sim/output/power_IEEE118_20260623_110221/summary.json"
+    "source": "power_dispatch_sim/output/power_IEEE118_20260701_175246/summary.json",
+    "note": "25-run paired batch, K=2 fail-safe (2026-07-01 rerun)"
   }
 }

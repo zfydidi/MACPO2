@@ -1,0 +1,289 @@
+{
+  "runs_dir": "/Users/zhangyingjie/Project/MACPO2/experiments/patent_paired_comparison/raw/RL-MACPO",
+  "n_bins": 5,
+  "exclude_iter0": true,
+  "functions": {
+    "F1": {
+      "n_runs": 25,
+      "n_points": 575,
+      "spearman_rho": -0.16732795893710664,
+      "bins": [
+        {
+          "quantile": "Q1",
+          "conflict_lo": 0.00505701038,
+          "conflict_hi": 0.0102082762,
+          "trigger_prob": 0.6956521739130435,
+          "trigger_std": 0.4621443733460444,
+          "count": 115
+        },
+        {
+          "quantile": "Q2",
+          "conflict_lo": 0.0102262122,
+          "conflict_hi": 0.0109532329,
+          "trigger_prob": 0.3565217391304348,
+          "trigger_std": 0.48106797031929327,
+          "count": 115
+        },
+        {
+          "quantile": "Q3",
+          "conflict_lo": 0.0109552949,
+          "conflict_hi": 0.0114411142,
+          "trigger_prob": 0.41739130434782606,
+          "trigger_std": 0.4952867093766255,
+          "count": 115
+        },
+        {
+          "quantile": "Q4",
+          "conflict_lo": 0.01144438,
+          "conflict_hi": 0.0118191359,
+          "trigger_prob": 0.3565217391304348,
+          "trigger_std": 0.4810679703192932,
+          "count": 115
+        },
+        {
+          "quantile": "Q5",
+          "conflict_lo": 0.0118238301,
+          "conflict_hi": 0.0128498357,
+          "trigger_prob": 0.41739130434782606,
+          "trigger_std": 0.49528670937662544,
+          "count": 115
+        }
+      ]
+    },
+    "F2": {
+      "n_runs": 25,
+      "n_points": 575,
+      "spearman_rho": -0.19694443527578145,
+      "bins": [
+        {
+          "quantile": "Q1",
+          "conflict_lo": 0.00695971316,
+          "conflict_hi": 0.0120124536,
+          "trigger_prob": 0.7043478260869566,
+          "trigger_std": 0.45833246654102905,
+          "count": 115
+        },
+        {
+          "quantile": "Q2",
+          "conflict_lo": 0.0120198698,
+          "conflict_hi": 0.0126718997,
+          "trigger_prob": 0.45217391304347826,
+          "trigger_std": 0.499885570429901,
+          "count": 115
+        },
+        {
+          "quantile": "Q3",
+          "conflict_lo": 0.0126744124,
+          "conflict_hi": 0.01300948,
+          "trigger_prob": 0.3826086956521739,
+          "trigger_std": 0.48815098138329777,
+          "count": 115
+        },
+        {
+          "quantile": "Q4",
+          "conflict_lo": 0.0130127947,
+          "conflict_hi": 0.0133082441,
+          "trigger_prob": 0.4260869565217391,
+          "trigger_std": 0.4966708388830538,
+          "count": 115
+        },
+        {
+          "quantile": "Q5",
+          "conflict_lo": 0.0133085431,
+          "conflict_hi": 0.0138854479,
+          "trigger_prob": 0.391304347826087,
+          "trigger_std": 0.49017813042029335,
+          "count": 115
+        }
+      ]
+    },
+    "F3": {
+      "n_runs": 25,
+      "n_points": 575,
+      "spearman_rho": -0.13340100738131774,
+      "bins": [
+        {
+          "quantile": "Q1",
+          "conflict_lo": 0.00848871201,
+          "conflict_hi": 0.0136278462,
+          "trigger_prob": 0.7217391304347827,
+          "trigger_std": 0.4501038103838316,
+          "count": 115
+        },
+        {
+          "quantile": "Q2",
+          "conflict_lo": 0.0136321509,
+          "conflict_hi": 0.0138428075,
+          "trigger_prob": 0.3391304347826087,
+          "trigger_std": 0.4754860213736458,
+          "count": 115
+        },
+        {
+          "quantile": "Q3",
+          "conflict_lo": 0.0138430624,
+          "conflict_hi": 0.0139215096,
+          "trigger_prob": 0.28695652173913044,
+          "trigger_std": 0.454320726639741,
+          "count": 115
+        },
+        {
+          "quantile": "Q4",
+          "conflict_lo": 0.013921782,
+          "conflict_hi": 0.0140113456,
+          "trigger_prob": 0.4956521739130435,
+          "trigger_std": 0.5021692075819447,
+          "count": 115
+        },
+        {
+          "quantile": "Q5",
+          "conflict_lo": 0.0140122884,
+          "conflict_hi": 0.0142931832,
+          "trigger_prob": 0.4260869565217391,
+          "trigger_std": 0.4966708388830538,
+          "count": 115
+        }
+      ]
+    },
+    "F4": {
+      "n_runs": 25,
+      "n_points": 575,
+      "spearman_rho": -0.11848396902959486,
+      "bins": [
+        {
+          "quantile": "Q1",
+          "conflict_lo": 0.00563073072,
+          "conflict_hi": 0.00960679472,
+          "trigger_prob": 0.6695652173913044,
+          "trigger_std": 0.4724282017376836,
+          "count": 115
+        },
+        {
+          "quantile": "Q2",
+          "conflict_lo": 0.00960878441,
+          "conflict_hi": 0.0100101553,
+          "trigger_prob": 0.40869565217391307,
+          "trigger_std": 0.4937442369001978,
+          "count": 115
+        },
+        {
+          "quantile": "Q3",
+          "conflict_lo": 0.0100109753,
+          "conflict_hi": 0.0102509847,
+          "trigger_prob": 0.41739130434782606,
+          "trigger_std": 0.4952867093766255,
+          "count": 115
+        },
+        {
+          "quantile": "Q4",
+          "conflict_lo": 0.0102541199,
+          "conflict_hi": 0.0107001245,
+          "trigger_prob": 0.3826086956521739,
+          "trigger_std": 0.48815098138329766,
+          "count": 115
+        },
+        {
+          "quantile": "Q5",
+          "conflict_lo": 0.0107032864,
+          "conflict_hi": 0.0116254565,
+          "trigger_prob": 0.5043478260869565,
+          "trigger_std": 0.5021692075819447,
+          "count": 115
+        }
+      ]
+    },
+    "F5": {
+      "n_runs": 25,
+      "n_points": 575,
+      "spearman_rho": -0.15916801035336564,
+      "bins": [
+        {
+          "quantile": "Q1",
+          "conflict_lo": 0.00696094001,
+          "conflict_hi": 0.0142607909,
+          "trigger_prob": 0.7391304347826086,
+          "trigger_std": 0.4410306215596805,
+          "count": 115
+        },
+        {
+          "quantile": "Q2",
+          "conflict_lo": 0.0142912285,
+          "conflict_hi": 0.0149883245,
+          "trigger_prob": 0.3739130434782609,
+          "trigger_std": 0.4859584410289861,
+          "count": 115
+        },
+        {
+          "quantile": "Q3",
+          "conflict_lo": 0.0149922664,
+          "conflict_hi": 0.0152939751,
+          "trigger_prob": 0.34782608695652173,
+          "trigger_std": 0.47836487323493987,
+          "count": 115
+        },
+        {
+          "quantile": "Q4",
+          "conflict_lo": 0.0152940389,
+          "conflict_hi": 0.0157152875,
+          "trigger_prob": 0.4,
+          "trigger_std": 0.4920419323166418,
+          "count": 115
+        },
+        {
+          "quantile": "Q5",
+          "conflict_lo": 0.0157285986,
+          "conflict_hi": 0.0169966198,
+          "trigger_prob": 0.4782608695652174,
+          "trigger_std": 0.5017133117025979,
+          "count": 115
+        }
+      ]
+    },
+    "F6": {
+      "n_runs": 25,
+      "n_points": 575,
+      "spearman_rho": -0.21830789858557675,
+      "bins": [
+        {
+          "quantile": "Q1",
+          "conflict_lo": 0.00679007851,
+          "conflict_hi": 0.0115361128,
+          "trigger_prob": 0.6434782608695652,
+          "trigger_std": 0.48106797031929316,
+          "count": 115
+        },
+        {
+          "quantile": "Q2",
+          "conflict_lo": 0.0115412216,
+          "conflict_hi": 0.0120783934,
+          "trigger_prob": 0.4608695652173913,
+          "trigger_std": 0.5006479402040032,
+          "count": 115
+        },
+        {
+          "quantile": "Q3",
+          "conflict_lo": 0.0120843965,
+          "conflict_hi": 0.0124448089,
+          "trigger_prob": 0.4,
+          "trigger_std": 0.49204193231664184,
+          "count": 115
+        },
+        {
+          "quantile": "Q4",
+          "conflict_lo": 0.0124451035,
+          "conflict_hi": 0.0128039132,
+          "trigger_prob": 0.4,
+          "trigger_std": 0.49204193231664184,
+          "count": 115
+        },
+        {
+          "quantile": "Q5",
+          "conflict_lo": 0.0128053131,
+          "conflict_hi": 0.013998681,
+          "trigger_prob": 0.3391304347826087,
+          "trigger_std": 0.4754860213736458,
+          "count": 115
+        }
+      ]
+    }
+  }
+}

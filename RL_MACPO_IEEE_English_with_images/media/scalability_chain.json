@@ -70,43 +70,43 @@
     "func": "F1S50",
     "agents": 50,
     "method": "MACPO",
-    "runs": 5,
+    "runs": 25,
     "comm_rate_mean": 1.0,
     "comm_rate_std": 0.0,
-    "fitness_mean": 16685983.459999999,
-    "fitness_std": 101970.76702087861
+    "fitness_mean": 16928107.851999998,
+    "fitness_std": 1214400.0982277817
   },
   {
     "benchmark": "F1S50",
     "func": "F1S50",
     "agents": 50,
     "method": "RL-MACPO",
-    "runs": 5,
-    "comm_rate_mean": 0.258333,
-    "comm_rate_std": 0.06123724356957945,
-    "fitness_mean": 20864240.46,
-    "fitness_std": 4595209.888687668
+    "runs": 25,
+    "comm_rate_mean": 0.243333,
+    "comm_rate_std": 0.05612486080160912,
+    "fitness_mean": 20916423.664,
+    "fitness_std": 3665160.21037577
   },
   {
     "benchmark": "F1S100",
     "func": "F1S100",
     "agents": 100,
     "method": "MACPO",
-    "runs": 5,
+    "runs": 25,
     "comm_rate_mean": 1.0,
     "comm_rate_std": 0.0,
-    "fitness_mean": 14805290.54,
-    "fitness_std": 988511.1616903323
+    "fitness_mean": 14661761.732,
+    "fitness_std": 685381.2211725541
   },
   {
     "benchmark": "F1S100",
     "func": "F1S100",
     "agents": 100,
     "method": "RL-MACPO",
-    "runs": 5,
+    "runs": 25,
     "comm_rate_mean": 0.23333299999999998,
     "comm_rate_std": 0.05,
-    "fitness_mean": 19543098.86,
-    "fitness_std": 2119395.4237020994
+    "fitness_mean": 19479634.964,
+    "fitness_std": 2502450.614344933
   }
 ]

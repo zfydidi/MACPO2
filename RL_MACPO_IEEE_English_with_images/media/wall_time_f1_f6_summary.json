@@ -1,0 +1,47 @@
+{
+  "source_csv": "/Users/zhangyingjie/Project/MACPO2/RL_MACPO_IEEE_English_with_images/media/wall_time_f1_f6_from_logs.csv",
+  "functions": {
+    "F1": {
+      "RL-MACPO": {
+        "n": 25,
+        "mean_s": 4.70176,
+        "std_s": 1.6597808597522747
+      }
+    },
+    "F2": {
+      "RL-MACPO": {
+        "n": 25,
+        "mean_s": 3.9216,
+        "std_s": 0.27718008586476767
+      }
+    },
+    "F3": {
+      "RL-MACPO": {
+        "n": 25,
+        "mean_s": 2.49264,
+        "std_s": 0.1353989305718476
+      }
+    },
+    "F4": {
+      "RL-MACPO": {
+        "n": 25,
+        "mean_s": 3.35172,
+        "std_s": 0.3025102338764757
+      }
+    },
+    "F5": {
+      "RL-MACPO": {
+        "n": 25,
+        "mean_s": 3.2236,
+        "std_s": 0.4891125023959212
+      }
+    },
+    "F6": {
+      "RL-MACPO": {
+        "n": 25,
+        "mean_s": 2.83192,
+        "std_s": 0.09133188709317243
+      }
+    }
+  }
+}

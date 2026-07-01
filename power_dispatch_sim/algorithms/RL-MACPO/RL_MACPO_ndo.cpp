@@ -41,7 +41,11 @@ static void apply_paired_rl_config(ExperimentConfig& cfg) {
     cfg.gating_mode = 3;
     cfg.use_variable_filter = true;
     cfg.enable_fail_safe = true;
-    cfg.fail_safe_k = 3;
+    cfg.fail_safe_k = 2;
+    const char* env_fs = getenv("MACPO_FAILSAFE_K");
+    if (env_fs != nullptr && env_fs[0] != '\0') {
+        cfg.fail_safe_k = atoi(env_fs);
+    }
     cfg.phase_early = 0.90;
     cfg.phase_mid = 0.70;
     cfg.phase_late = 0.50;
