@@ -1,0 +1,23 @@
+{
+  "configuration_name": "Selection_0.9_0.7_0.5",
+  "description": "Headline Full RL-MACPO stack for F1-F18 main tables unless ablation caption states otherwise",
+  "gate": {
+    "lambda_relative_threshold": 1.2,
+    "fail_safe_K": 10,
+    "minimum_interval_outer_loops": 1,
+    "phase_sampling_p": "phase-dependent (see manuscript Table tab:gate_defaults)",
+    "ci_beta_smooth": 0.7
+  },
+  "variable_selection": {
+    "thresholds": [0.9, 0.7, 0.5],
+    "note": "Rank shared dimensions by q_d^t; negotiate phase-dependent subset"
+  },
+  "penalty_controller_default": "PPO",
+  "optimizer_primary": "LLSO",
+  "runs_per_table": 25,
+  "paired_seed_env": "MACPO_PAIR_SEED",
+  "ieee_pilot_overrides": {
+    "fail_safe_K": 2,
+    "note": "IEEE 30/57/118 in Table tab:ieee_power_cases"
+  }
+}

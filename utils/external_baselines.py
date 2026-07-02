@@ -1,11 +1,13 @@
 """GFPDO / DPSO anchors for Table I (F1--F6).
 
 GFPDO: single-run pilot under MACPO_sourcecode/output_baselines_gfpdo_1run.
-DPSO: 25-run batch under MACPO_sourcecode/output_baselines_dpso_25runs.
+DPSO LLSO: prefer ablation_experiments/results/external_baselines_25runs_unified/summary.json.
+DPSO CSO: 25-run batch under MACPO_sourcecode/output_baselines_dpso_25runs.
 Falls back to MACPO paper Table I when logs are missing.
 """
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from utils.baseline_log_stats import load_baseline_series_optional, summarize
@@ -13,6 +15,13 @@ from utils.baseline_log_stats import load_baseline_series_optional, summarize
 _REPO = Path(__file__).resolve().parents[1]
 GFPDO_DIR = _REPO / "MACPO_sourcecode" / "output_baselines_gfpdo_1run"
 DPSO_DIR = _REPO / "MACPO_sourcecode" / "output_baselines_dpso_25runs"
+DPSO_UNIFIED_SUMMARY = (
+    _REPO
+    / "ablation_experiments"
+    / "results"
+    / "external_baselines_25runs_unified"
+    / "summary.json"
+)
 
 # Literature fallback (ref_macpo Table I).
 _GFPDO_LLSO_FALLBACK: dict[str, tuple[float, float, float]] = {
@@ -51,6 +60,26 @@ _DPSO_CSO_FALLBACK: dict[str, tuple[float, float, float]] = {
 EXTERNAL_REF_PVALUE = "---"
 
 
+def _tuple_from_unified_dpso_llso(
+    fallback: dict[str, tuple[float, float, float]],
+) -> dict[str, tuple[float, float, float]] | None:
+    if not DPSO_UNIFIED_SUMMARY.is_file():
+        return None
+    try:
+        data = json.loads(DPSO_UNIFIED_SUMMARY.read_text(encoding="utf-8"))
+        summary = data.get("summary", {}).get("DPSO", {})
+    except (OSError, json.JSONDecodeError, KeyError):
+        return None
+    out: dict[str, tuple[float, float, float]] = {}
+    for i in range(1, 7):
+        fn = f"F{i}"
+        entry = summary.get(fn)
+        if not entry or entry.get("runs", 0) < 25:
+            return None
+        out[fn] = (entry["mean"], entry["median"], entry["std"])
+    return out
+
+
 def _tuple_from_dir(
     out_dir: Path,
     method: str,
@@ -78,7 +107,9 @@ def _load_all() -> tuple[
 ]:
     gfpdo_llso = _tuple_from_dir(GFPDO_DIR, "GFPDO", "LLSO", 1, _GFPDO_LLSO_FALLBACK)
     gfpdo_cso = _tuple_from_dir(GFPDO_DIR, "GFPDO", "CSO", 1, _GFPDO_CSO_FALLBACK)
-    dpso_llso = _tuple_from_dir(DPSO_DIR, "DPSO1", "LLSO", 25, _DPSO_LLSO_FALLBACK)
+    dpso_llso = _tuple_from_unified_dpso_llso(_DPSO_LLSO_FALLBACK) or _tuple_from_dir(
+        DPSO_DIR, "DPSO1", "LLSO", 25, _DPSO_LLSO_FALLBACK
+    )
     dpso_cso = _tuple_from_dir(DPSO_DIR, "DPSO1", "CSO", 25, _DPSO_CSO_FALLBACK)
     return gfpdo_llso, dpso_llso, gfpdo_cso, dpso_cso
 

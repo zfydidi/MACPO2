@@ -1,0 +1,68 @@
+{
+  "F1": {
+    "n_runs": 25,
+    "mean_delta_mean": 0.00013580519308752423,
+    "mean_delta_max": 0.0006181204136,
+    "pooled_delta_p95": 0.0011376667837999996,
+    "pooled_delta_max": 0.0015170478599999988,
+    "footer_diff_max_mean": 0.0086766744,
+    "footer_diff_p95_mean": 0.0065486087999999994,
+    "footer_diff_mean_mean": 0.0040928692,
+    "pooled_footer_diff_max": 0.0104518
+  },
+  "F2": {
+    "n_runs": 25,
+    "mean_delta_mean": 9.86620351142857e-05,
+    "mean_delta_max": 0.0004115337019999999,
+    "pooled_delta_p95": 0.0006999836999999999,
+    "pooled_delta_max": 0.0016512003499999997,
+    "footer_diff_max_mean": 0.0062429184,
+    "footer_diff_p95_mean": 0.0054382816,
+    "footer_diff_mean_mean": 0.0035798932,
+    "pooled_footer_diff_max": 0.0072682
+  },
+  "F3": {
+    "n_runs": 25,
+    "mean_delta_mean": 8.730108810700284e-05,
+    "mean_delta_max": 0.000425581492,
+    "pooled_delta_p95": 0.0008044246509999986,
+    "pooled_delta_max": 0.0012282815999999988,
+    "footer_diff_max_mean": 0.0062152264,
+    "footer_diff_p95_mean": 0.005655492799999999,
+    "footer_diff_mean_mean": 0.0041246116000000005,
+    "pooled_footer_diff_max": 0.00672663
+  },
+  "F4": {
+    "n_runs": 25,
+    "mean_delta_mean": 6.070318716761904e-05,
+    "mean_delta_max": 0.0002792283176000002,
+    "pooled_delta_p95": 0.0004231142602999993,
+    "pooled_delta_max": 0.0008759893300000002,
+    "footer_diff_max_mean": 0.0065561828,
+    "footer_diff_p95_mean": 0.0056524316000000005,
+    "footer_diff_mean_mean": 0.0036900980000000006,
+    "pooled_footer_diff_max": 0.00759288
+  },
+  "F5": {
+    "n_runs": 25,
+    "mean_delta_mean": 0.00018487573229260943,
+    "mean_delta_max": 0.001097611296,
+    "pooled_delta_p95": 0.0020451450400000002,
+    "pooled_delta_max": 0.0026517823000000006,
+    "footer_diff_max_mean": 0.008515619600000001,
+    "footer_diff_p95_mean": 0.0076004852,
+    "footer_diff_mean_mean": 0.0046089212,
+    "pooled_footer_diff_max": 0.00961535
+  },
+  "F6": {
+    "n_runs": 25,
+    "mean_delta_mean": 0.00011408693131428577,
+    "mean_delta_max": 0.00048520800000000016,
+    "pooled_delta_p95": 0.0006492617460000004,
+    "pooled_delta_max": 0.0016843015000000006,
+    "footer_diff_max_mean": 0.0071519211999999995,
+    "footer_diff_p95_mean": 0.0061739724,
+    "footer_diff_mean_mean": 0.00426277,
+    "pooled_footer_diff_max": 0.00819883
+  }
+}
