@@ -19,6 +19,7 @@ if str(_REPO) not in sys.path:
 from utils.macpo_exp_fitness import load_macpo_final_fitness_series  # noqa: E402
 from utils.ndo_run_stats import (  # noqa: E402
     FUNCS_F7_F18,
+    fmt_best_macpo_cell,
     fmt_macpo_cell,
     fmt_sci_tex,
     load_run_fpure_series_exp,
@@ -58,12 +59,8 @@ FOOTNOTE = (
 def _row(fn: str, llso_m: dict, llso_r: dict, cso_m: dict, cso_r: dict) -> str:
     rl_better_l = llso_r["mean"] < llso_m["mean"]
     rl_better_c = cso_r["mean"] < cso_m["mean"]
-    rl_l = fmt_macpo_cell(llso_r["mean"], llso_r["std"])
-    rl_c = fmt_macpo_cell(cso_r["mean"], cso_r["std"])
-    if rl_better_l:
-        rl_l = f"\\textbf{{{rl_l}}}"
-    if rl_better_c:
-        rl_c = f"\\textbf{{{rl_c}}}"
+    rl_l = fmt_best_macpo_cell(llso_r["mean"], llso_r["std"]) if rl_better_l else fmt_macpo_cell(llso_r["mean"], llso_r["std"])
+    rl_c = fmt_best_macpo_cell(cso_r["mean"], cso_r["std"]) if rl_better_c else fmt_macpo_cell(cso_r["mean"], cso_r["std"])
     return (
         f"{fn} & {fmt_macpo_cell(llso_m['mean'], llso_m['std'])} & {rl_l} & "
         f"{fmt_macpo_cell(cso_m['mean'], cso_m['std'])} & {rl_c} \\\\"

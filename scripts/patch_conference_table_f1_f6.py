@@ -22,6 +22,7 @@ if str(_REPO) not in sys.path:
 
 from utils.ndo_run_stats import (  # noqa: E402
     FUNCS_F1_F6,
+    fmt_best_val,
     fmt_pvalue_tex,
     fmt_sci_tex,
     load_run_fpure_series,
@@ -70,9 +71,8 @@ RLONLY_CSO = {
 }
 
 
-def _maybe_bold(val: float, bold: bool) -> str:
-    s = fmt_sci_tex(val)
-    return f"\\textbf{{{s}}}" if bold else s
+def _maybe_best_mean(val: float, best: bool) -> str:
+    return fmt_best_val(val) if best else fmt_sci_tex(val)
 
 
 def _ext_std(val: float) -> str:
@@ -95,21 +95,21 @@ def _block(fn: str, llso_macpo: dict, llso_rl: dict, cso_macpo: dict, cso_rl: di
             f"\\multirow{{4}}{{*}}{{{fn}}}",
             (
                 f"& mean    & {fmt_sci_tex(gfm[0])} & {fmt_sci_tex(gfd[0])} & {fmt_sci_tex(lm['mean'])} "
-                f"& {fmt_sci_tex(gfr[0])} & {_maybe_bold(lr['mean'], rl_better_l)} "
+                f"& {fmt_sci_tex(gfr[0])} & {_maybe_best_mean(lr['mean'], rl_better_l)} "
                 f"& {fmt_sci_tex(gcm[0])} & {fmt_sci_tex(gcd[0])} & {fmt_sci_tex(cm['mean'])} "
-                f"& {fmt_sci_tex(gcr[0])} & {_maybe_bold(cr['mean'], rl_better_c)} \\\\"
+                f"& {fmt_sci_tex(gcr[0])} & {_maybe_best_mean(cr['mean'], rl_better_c)} \\\\"
             ),
             (
                 f"& median  & {fmt_sci_tex(gfm[1])} & {fmt_sci_tex(gfd[1])} & {fmt_sci_tex(lm['median'])} "
-                f"& {fmt_sci_tex(gfr[1])} & {_maybe_bold(lr['median'], rl_better_l)} "
+                f"& {fmt_sci_tex(gfr[1])} & {fmt_sci_tex(lr['median'])} "
                 f"& {fmt_sci_tex(gcm[1])} & {fmt_sci_tex(gcd[1])} & {fmt_sci_tex(cm['median'])} "
-                f"& {fmt_sci_tex(gcr[1])} & {_maybe_bold(cr['median'], rl_better_c)} \\\\"
+                f"& {fmt_sci_tex(gcr[1])} & {fmt_sci_tex(cr['median'])} \\\\"
             ),
             (
                 f"& std     & {_ext_std(gfm[2])} & {fmt_sci_tex(gfd[2])} & {fmt_sci_tex(lm['std'])} "
-                f"& {fmt_sci_tex(gfr[2])} & {_maybe_bold(lr['std'], rl_better_l)} "
+                f"& {fmt_sci_tex(gfr[2])} & {fmt_sci_tex(lr['std'])} "
                 f"& {_ext_std(gcm[2])} & {fmt_sci_tex(gcd[2])} & {fmt_sci_tex(cm['std'])} "
-                f"& {fmt_sci_tex(gcr[2])} & {_maybe_bold(cr['std'], rl_better_c)} \\\\"
+                f"& {fmt_sci_tex(gcr[2])} & {fmt_sci_tex(cr['std'])} \\\\"
             ),
             (
                 f"& p-value & {EXTERNAL_REF_PVALUE} & {EXTERNAL_REF_PVALUE} & - & 5.46e-01 & "
@@ -202,7 +202,7 @@ def main() -> None:
         r"\textbf{DPSO$^{\dagger}$}: 25-run batch under the MACPO DPSO executable (same evaluation budget). "
         r"No significance tests for external columns. "
         r"Tests for RL-MACPO vs.\ MACPO only: paired Wilcoxon signed-rank (LLSO), Mann--Whitney U (CSO). "
-        r"* RL-MACPO better; \# worse ($p<0.05$). Bold: better mean in each MACPO vs.\ RL-MACPO pair.}"
+        r"* RL-MACPO better; \# worse ($p<0.05$). Shaded cells: better mean in each MACPO vs.\ RL-MACPO pair.}"
     )
 
     cap_start = r"\caption{Final global objective $F$ (Eq.~\protect\eqref{eq:global_objective}) on F1--F6"

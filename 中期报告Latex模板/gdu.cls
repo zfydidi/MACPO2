@@ -44,8 +44,23 @@
 \RequirePackage{fontenc}
 \RequirePackage{fontspec}
 \setmainfont{Times New Roman}
-\setCJKmainfont[AutoFakeBold,AutoFakeSlant,BoldFont={SimHei},ItalicFont={KaiTi}]{SimSun} 
-\newfontfamily\kaiti{KaiTi}
+\IfFontExistsTF{Songti SC}{%
+  \setCJKmainfont[
+    AutoFakeBold,
+    AutoFakeSlant,
+    BoldFont={Songti SC Bold},
+    ItalicFont={Kaiti SC}
+  ]{Songti SC}%
+  \newfontfamily\kaiti{Kaiti SC}%
+}{%
+  \setCJKmainfont[
+    AutoFakeBold,
+    AutoFakeSlant,
+    BoldFont={SimHei},
+    ItalicFont={KaiTi}
+  ]{SimSun}%
+  \newfontfamily\kaiti{KaiTi}%
+}
 \usetikzlibrary{calc}
 \usetikzlibrary{decorations.pathmorphing}
 
@@ -79,6 +94,9 @@
 }
 \savegeometry{standard}
 
+\RequirePackage[numbers,sort&compress,square]{natbib}
+\setcitestyle{square,comma,numbers}
+
 \RequirePackage[%
       breaklinks,
 	unicode,
@@ -106,9 +124,9 @@
 \newcommand{\DrawPageBorder}{%
   \begin{tikzpicture}[overlay,remember picture]
     \draw[line width=1pt]
-      ($ (current page.north west) + (1.95cm,-2.1cm) $)
+      ($ (current page.north west) + (1.95cm,-1.95cm) $)
       rectangle
-      ($ (current page.south east) + (-1.95cm,1.75cm) $);
+      ($ (current page.south east) + (-1.95cm,2.05cm) $);
   \end{tikzpicture}%
 }
 \newcommand{\PageBorder}{%
@@ -120,13 +138,34 @@
   \newgeometry{%
     left=2.05cm,
     right=2.05cm,
-    top=2.35cm,
-    bottom=2.05cm
+    top=2.2cm,
+    bottom=2.3cm
   }%
+  \pagestyle{reportnumbered}%
+}
+\fancypagestyle{reportnumbered}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\raisebox{0.35cm}{\thepage}}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+\newcommand{\EnableThesisProgressTablePage}{%
+  \DisableSectionPageBorder
+  \pagestyle{reportnumbered}%
 }
 \newcommand{\DisableSectionPageBorder}{%
   \ClearShipoutPictureBG
   \restoregeometry{standard}%
+}
+% 学位论文进展情况续页：单格表格高度撑满正文区，底边与中期检查表对齐
+\newlength{\thesisprogresscellheight}
+\setlength{\thesisprogresscellheight}{\dimexpr\textheight-2.2cm\relax}
+\newcommand{\ThesisProgressParbox}[1]{%
+  \begin{minipage}[t][\thesisprogresscellheight][t]{0.97\textwidth}%
+  \vspace{0pt}%
+  #1%
+  \vfill
+  \end{minipage}%
 }
 % 框内表格：统一字号与列距；仅当超宽时缩小，不放大窄表
 \newcommand{\ReportTableSetup}{%

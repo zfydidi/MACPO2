@@ -68,10 +68,18 @@ def load_run_fpure_series_exp(
 
 
 def fmt_macpo_cell(mean: float, std: float) -> str:
-    """Table II cell: mean with std on second line."""
-    return (
-        f"\\makecell{{{fmt_sci_tex(mean)}\\\\{{\\scriptsize $\\pm${fmt_sci_tex(std)}}}}}"
-    )
+    """Table II cell: mean with std on second line (uniform font size)."""
+    return f"\\makecell{{{fmt_sci_tex(mean)}\\\\$\\pm${fmt_sci_tex(std)}}}"
+
+
+def fmt_best_val(val: float) -> str:
+    """Highlighted better mean (Table I)."""
+    return f"\\bestval{{{fmt_sci_tex(val)}}}"
+
+
+def fmt_best_macpo_cell(mean: float, std: float) -> str:
+    """Highlighted better mean±std cell (F7--F18 table)."""
+    return f"\\beststat{{{fmt_sci_tex(mean)}}}{{{fmt_sci_tex(std)}}}"
 
 
 def summarize_runs(vals: np.ndarray) -> dict[str, float]:

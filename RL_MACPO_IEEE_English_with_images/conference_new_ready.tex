@@ -17,6 +17,7 @@
 \usepackage{array}
 \usepackage{multirow}
 \usepackage{makecell}
+\usepackage{colortbl}
 \usepackage{tabularx}
 \usepackage{xurl}
 \usepackage{float}
@@ -38,6 +39,9 @@
 \makeatother
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
 \setlength{\emergencystretch}{3em}
+\definecolor{bestcellbg}{gray}{0.88}
+\newcommand{\bestval}[1]{\cellcolor{bestcellbg}\bfseries #1}
+\newcommand{\beststat}[2]{\cellcolor{bestcellbg}\bfseries\makecell{#1\\$\pm$#2}}
 
 \author{\IEEEauthorblockN{Yingjie Zhang}
 \IEEEauthorblockA{\textit{School of Computer Science}\\
@@ -355,7 +359,7 @@ F6 & Schwefel--Rosenbrock & 0.268 \\
 
 \paragraph{Evaluation protocol.} MACPO and RL-MACPO share paired seeds, the MACPO evaluation-budget cap, and embedded optimizers LLSO \cite{ref_llso} (primary) and CSO \cite{ref_cso} (secondary). End-of-run evaluation counts differ by at most a few percent (Table~\ref{tab:f1f6_comm_eva}). Wall-clock overhead is reported separately in Table~\ref{tab:wall_time_f1_f18} within Section~\ref{sec:exp_q1} and is not a primary endpoint.
 
-\paragraph{Notation and statistics.} $F(\mathbf{X})$ denotes the global objective in Eq.~\eqref{eq:global_objective}. Logged $f_{\mathrm{pure}}$ is the pure objective sum without penalty terms. Logged $f_{\mathrm{penalty}}$ includes conflict penalties. Lower is better unless a caption states otherwise. Main tables report mean, median, standard deviation, and win/tie/loss over \textbf{25 independent runs}. RL-MACPO vs.\ MACPO uses paired Wilcoxon signed-rank tests (LLSO) or Mann--Whitney U tests (CSO) at the 0.05 significance level \cite{ref_macpo}. Boldface marks the better mean within each MACPO vs.\ RL-MACPO pair. In Table~\ref{tab:macpo_style_all}, * marks RL-MACPO better and \# marks worse.
+\paragraph{Notation and statistics.} $F(\mathbf{X})$ denotes the global objective in Eq.~\eqref{eq:global_objective}. Logged $f_{\mathrm{pure}}$ is the pure objective sum without penalty terms. Logged $f_{\mathrm{penalty}}$ includes conflict penalties. Lower is better unless a caption states otherwise. Main tables report mean, median, standard deviation, and win/tie/loss over \textbf{25 independent runs}. RL-MACPO vs.\ MACPO uses paired Wilcoxon signed-rank tests (LLSO) or Mann--Whitney U tests (CSO) at the 0.05 significance level \cite{ref_macpo}. Shaded cells mark the better mean within each MACPO vs.\ RL-MACPO pair. In Table~\ref{tab:macpo_style_all}, * marks RL-MACPO better and \# marks worse.
 
 \subsection{Experimental Roadmap}\label{sec:exp_roadmap}
 The evaluation is organized around four questions tied to the communication-efficiency goal of Section~\ref{sec:intro}. Fig.~\ref{fig:exp_roadmap} shows the reading order. The four blocks below state what each question tests and where the evidence appears.
@@ -401,7 +405,7 @@ We compare paired 25-run batches on F1--F18 under the same evaluation budget. Ta
 \tiny
 \setlength{\tabcolsep}{1.8pt}
 \renewcommand{\arraystretch}{1.00}
-\caption{Final global objective $F$ (Eq.~\protect\eqref{eq:global_objective}) on F1--F6: mean, median, standard deviation, and $p$-value over 25 independent runs, for LLSO (left five columns) and CSO (right five columns). \textbf{MACPO} and \textbf{RL-MACPO} use logged $f_{\mathrm{pure}}$ (last row per run) from archived trajectories. \textbf{GFPDO$^{\dagger}$}: one-run pilot per function under the MACPO GFPDO executable; \textbf{DPSO$^{\dagger}$}: 25-run batch under the MACPO DPSO executable (same evaluation budget). No significance tests for external columns. Tests for RL-MACPO vs.\ MACPO only: paired Wilcoxon signed-rank (LLSO), Mann--Whitney U (CSO). * RL-MACPO better; \# worse (significant at the 0.05 level). Bold: better mean in each MACPO vs.\ RL-MACPO pair.}
+\caption{Final global objective $F$ (Eq.~\protect\eqref{eq:global_objective}) on F1--F6: mean, median, standard deviation, and $p$-value over 25 independent runs, for LLSO (left five columns) and CSO (right five columns). \textbf{MACPO} and \textbf{RL-MACPO} use logged $f_{\mathrm{pure}}$ (last row per run) from archived trajectories. \textbf{GFPDO$^{\dagger}$}: one-run pilot per function under the MACPO GFPDO executable; \textbf{DPSO$^{\dagger}$}: 25-run batch under the MACPO DPSO executable (same evaluation budget). No significance tests for external columns. Tests for RL-MACPO vs.\ MACPO only: paired Wilcoxon signed-rank (LLSO), Mann--Whitney U (CSO). * RL-MACPO better; \# worse (significant at the 0.05 level). Shaded cells: better mean in each MACPO vs.\ RL-MACPO pair.}
 \label{tab:macpo_style_all}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llccccc|ccccc}
@@ -411,39 +415,39 @@ We compare paired 25-run batches on F1--F18 under the same evaluation budget. Ta
 & & \textbf{GFPDO$^{\dagger}$} & \textbf{DPSO$^{\dagger}$} & \textbf{MACPO} & \textbf{RL Only} & \textbf{RL-MACPO} & \textbf{GFPDO$^{\dagger}$} & \textbf{DPSO$^{\dagger}$} & \textbf{MACPO} & \textbf{RL Only} & \textbf{RL-MACPO} \\
 \midrule
 \multirow{4}{*}{F1}
-& mean    & 3.00E+9 & 4.35E+10 & 1.98E+7 & 2.07E+7 & \textbf{6.43E+6} & 4.73E+10 & 8.84E+10 & 2.33E+7 & 2.02E+7 & \textbf{1.25E+7} \\
-& median  & 3.00E+9 & 4.37E+10 & 2.00E+7 & 1.97E+7 & \textbf{6.48E+6} & 4.73E+10 & 8.82E+10 & 2.24E+7 & 2.00E+7 & \textbf{1.27E+7} \\
-& std     & 0 & 7.23E+9 & 1.71E+6 & 3.58E+6 & \textbf{3.52E+5} & 0 & 4.27E+9 & 2.98E+6 & 1.34E+6 & \textbf{6.26E+5} \\
+& mean    & 3.00E+9 & 4.35E+10 & 1.98E+7 & 2.07E+7 & \bestval{6.43E+6} & 4.73E+10 & 8.84E+10 & 2.33E+7 & 2.02E+7 & \bestval{1.25E+7} \\
+& median  & 3.00E+9 & 4.37E+10 & 2.00E+7 & 1.97E+7 & 6.48E+6 & 4.73E+10 & 8.82E+10 & 2.24E+7 & 2.00E+7 & 1.27E+7 \\
+& std     & 0 & 7.23E+9 & 1.71E+6 & 3.58E+6 & 3.52E+5 & 0 & 4.27E+9 & 2.98E+6 & 1.34E+6 & 6.26E+5 \\
 & p-value & --- & --- & - & 5.46e-01 & 2.98e-08* & --- & --- & - & 2.41e-05* & 6.90e-10* \\
 \midrule
 \multirow{4}{*}{F2}
-& mean    & 2.20E+7 & 5.76E+9 & 5.05E+4 & 4.76E+4 & \textbf{3.32E+3} & 1.61E+10 & 1.55E+11 & 6.95E+4 & 6.43E+4 & \textbf{9.11E+3} \\
-& median  & 2.20E+7 & 5.05E+9 & 4.83E+4 & 4.35E+4 & \textbf{3.33E+3} & 1.61E+10 & 1.49E+11 & 6.81E+4 & 6.38E+4 & \textbf{9.09E+3} \\
-& std     & 0 & 3.01E+9 & 6.23E+3 & 9.67E+3 & \textbf{1.33E+2} & 0 & 4.84E+10 & 5.90E+3 & 6.98E+3 & \textbf{8.06E+2} \\
+& mean    & 2.20E+7 & 5.76E+9 & 5.05E+4 & 4.76E+4 & \bestval{3.32E+3} & 1.61E+10 & 1.55E+11 & 6.95E+4 & 6.43E+4 & \bestval{9.11E+3} \\
+& median  & 2.20E+7 & 5.05E+9 & 4.83E+4 & 4.35E+4 & 3.33E+3 & 1.61E+10 & 1.49E+11 & 6.81E+4 & 6.38E+4 & 9.09E+3 \\
+& std     & 0 & 3.01E+9 & 6.23E+3 & 9.67E+3 & 1.33E+2 & 0 & 4.84E+10 & 5.90E+3 & 6.98E+3 & 8.06E+2 \\
 & p-value & --- & --- & - & 5.46e-01 & 2.98e-08* & --- & --- & - & 2.41e-05* & 7.07e-10* \\
 \midrule
 \multirow{4}{*}{F3}
-& mean    & 6.07E+10 & 2.19E+11 & 4.03E+9 & 5.89E+9 & \textbf{6.35E+2} & 3.36E+11 & 6.08E+11 & 1.51E+9 & 2.66E+9 & \textbf{6.70E+2} \\
-& median  & 6.07E+10 & 2.18E+11 & 4.05E+9 & 5.86E+9 & \textbf{6.32E+2} & 3.36E+11 & 6.00E+11 & 1.51E+9 & 2.60E+9 & \textbf{6.45E+2} \\
-& std     & 0 & 6.37E+9 & 4.79E+8 & 7.13E+8 & \textbf{3.12E+1} & 0 & 3.64E+10 & 8.57E+7 & 2.64E+8 & \textbf{2.63E+2} \\
+& mean    & 6.07E+10 & 2.19E+11 & 4.03E+9 & 5.89E+9 & \bestval{6.35E+2} & 3.36E+11 & 6.08E+11 & 1.51E+9 & 2.66E+9 & \bestval{6.70E+2} \\
+& median  & 6.07E+10 & 2.18E+11 & 4.05E+9 & 5.86E+9 & 6.32E+2 & 3.36E+11 & 6.00E+11 & 1.51E+9 & 2.60E+9 & 6.45E+2 \\
+& std     & 0 & 6.37E+9 & 4.79E+8 & 7.13E+8 & 3.12E+1 & 0 & 3.64E+10 & 8.57E+7 & 2.64E+8 & 2.63E+2 \\
 & p-value & --- & --- & - & 5.46e-01 & 2.98e-08* & --- & --- & - & 2.41e-05* & 6.98e-10* \\
 \midrule
 \multirow{4}{*}{F4}
-& mean    & 9.28E+8 & 2.49E+10 & 3.17E+6 & 3.01E+6 & \textbf{2.58E+6} & 3.09E+10 & 6.35E+10 & 7.30E+6 & 6.98E+6 & \textbf{5.80E+6} \\
-& median  & 9.28E+8 & 2.38E+10 & 3.14E+6 & 2.98E+6 & \textbf{2.61E+6} & 3.09E+10 & 6.14E+10 & 7.16E+6 & 6.90E+6 & \textbf{5.80E+6} \\
-& std     & 0 & 5.34E+9 & 3.59E+5 & 2.71E+5 & \textbf{1.29E+5} & 0 & 6.59E+9 & 7.53E+5 & 9.53E+5 & \textbf{3.82E+5} \\
+& mean    & 9.28E+8 & 2.49E+10 & 3.17E+6 & 3.01E+6 & \bestval{2.58E+6} & 3.09E+10 & 6.35E+10 & 7.30E+6 & 6.98E+6 & \bestval{5.80E+6} \\
+& median  & 9.28E+8 & 2.38E+10 & 3.14E+6 & 2.98E+6 & 2.61E+6 & 3.09E+10 & 6.14E+10 & 7.16E+6 & 6.90E+6 & 5.80E+6 \\
+& std     & 0 & 5.34E+9 & 3.59E+5 & 2.71E+5 & 1.29E+5 & 0 & 6.59E+9 & 7.53E+5 & 9.53E+5 & 3.82E+5 \\
 & p-value & --- & --- & - & 5.46e-01 & 8.94e-08* & --- & --- & - & 2.41e-05* & 1.82e-09* \\
 \midrule
 \multirow{4}{*}{F5}
-& mean    & 2.67E+10 & 8.80E+10 & 1.97E+8 & 4.24E+8 & \textbf{3.50E+6} & 1.45E+11 & 1.98E+11 & 2.50E+7 & 4.98E+7 & \textbf{6.61E+6} \\
-& median  & 2.67E+10 & 8.84E+10 & 1.98E+8 & 4.10E+8 & \textbf{3.52E+6} & 1.45E+11 & 1.98E+11 & 2.50E+7 & 4.75E+7 & \textbf{6.66E+6} \\
-& std     & 0 & 1.25E+10 & 3.91E+7 & 1.08E+8 & \textbf{1.40E+5} & 0 & 2.28E+10 & 1.75E+6 & 1.31E+7 & \textbf{5.02E+5} \\
+& mean    & 2.67E+10 & 8.80E+10 & 1.97E+8 & 4.24E+8 & \bestval{3.50E+6} & 1.45E+11 & 1.98E+11 & 2.50E+7 & 4.98E+7 & \bestval{6.61E+6} \\
+& median  & 2.67E+10 & 8.84E+10 & 1.98E+8 & 4.10E+8 & 3.52E+6 & 1.45E+11 & 1.98E+11 & 2.50E+7 & 4.75E+7 & 6.66E+6 \\
+& std     & 0 & 1.25E+10 & 3.91E+7 & 1.08E+8 & 1.40E+5 & 0 & 2.28E+10 & 1.75E+6 & 1.31E+7 & 5.02E+5 \\
 & p-value & --- & --- & - & 5.46e-01 & 2.98e-08* & --- & --- & - & 2.41e-05* & 7.07e-10* \\
 \midrule
 \multirow{4}{*}{F6}
-& mean    & 2.50E+10 & 8.81E+10 & 1.62E+8 & 1.50E+8 & \textbf{2.47E+3} & 2.05E+11 & 3.98E+11 & 3.40E+6 & 4.29E+5 & \textbf{5.56E+3} \\
-& median  & 2.50E+10 & 8.48E+10 & 5.04E+7 & 1.36E+8 & \textbf{2.47E+3} & 2.05E+11 & 3.96E+11 & 6.51E+5 & 3.73E+5 & \textbf{5.20E+3} \\
-& std     & 0 & 1.36E+10 & 2.20E+8 & 1.47E+8 & \textbf{1.02E+2} & 0 & 6.25E+10 & 6.80E+6 & 1.87E+5 & \textbf{9.78E+2} \\
+& mean    & 2.50E+10 & 8.81E+10 & 1.62E+8 & 1.50E+8 & \bestval{2.47E+3} & 2.05E+11 & 3.98E+11 & 3.40E+6 & 4.29E+5 & \bestval{5.56E+3} \\
+& median  & 2.50E+10 & 8.48E+10 & 5.04E+7 & 1.36E+8 & 2.47E+3 & 2.05E+11 & 3.96E+11 & 6.51E+5 & 3.73E+5 & 5.20E+3 \\
+& std     & 0 & 1.36E+10 & 2.20E+8 & 1.47E+8 & 1.02E+2 & 0 & 6.25E+10 & 6.80E+6 & 1.87E+5 & 9.78E+2 \\
 & p-value & --- & --- & - & 5.46e-01 & 2.98e-08* & --- & --- & - & 2.41e-05* & 7.08e-10* \\
 \midrule
 \multicolumn{2}{c}{w/t/l} & --- & --- & - & 1/3/2 & 6/0/0 & --- & --- & - & 3/1/2 & 6/0/0 \\
@@ -458,49 +462,55 @@ Table~\ref{tab:macpo_rl_mean_f1_f18} extends the same comparison to F7--F18 (pan
 % F1--F6 rows removed as per request
 \begin{table*}[!t]
 \centering
-\tiny
+\scriptsize
 \setlength{\tabcolsep}{2.5pt}
 \renewcommand{\arraystretch}{0.88}
-\caption{Final global objective $F$ (Eq.~\eqref{eq:global_objective}) on F7--F18 over 25 independent runs: MACPO vs.\ RL-MACPO under LLSO and CSO. MACPO$^{\ddagger}$ reports archived penalized endpoint $F$. RL-MACPO reports terminal logged $f_{\mathrm{pure}}$. Lower is better. \textbf{Bold} marks the better mean within each pair. Last row: w/t/l 12/0/0 for both LLSO and CSO.}
+\caption{Final global objective $F$ (Eq.~\eqref{eq:global_objective}) on F7--F18 over 25 independent runs: MACPO vs.\ RL-MACPO under LLSO and CSO. MACPO$^{\ddagger}$ reports archived penalized endpoint $F$. RL-MACPO reports terminal logged $f_{\mathrm{pure}}$. Lower is better. Shaded cells mark the better mean within each pair. Last row: w/t/l 12/0/0 for both LLSO and CSO.}
 \label{tab:macpo_rl_mean_f1_f18}
 \begin{minipage}[t]{0.49\textwidth}
 \centering
-\textbf{(a) F7--F12}\\[0.3em]
 \resizebox{\linewidth}{!}{%
+\begin{minipage}{\linewidth}
+\centering
+\textbf{(a) F7--F12}\\[0.3em]
 \begin{tabular}{@{}lcccc@{}}
 \toprule
  & \multicolumn{2}{c}{\textbf{LLSO}} & \multicolumn{2}{c}{\textbf{CSO}} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 \textbf{Func.} & \textbf{MACPO} & \textbf{RL-MACPO} & \textbf{MACPO} & \textbf{RL-MACPO} \\
 \midrule
-F7 & \makecell{2.30E+9\\{\scriptsize $\pm$2.05E+8}} & \textbf{\makecell{1.44E+7\\{\scriptsize $\pm$4.56E+5}}} & \makecell{3.29E+9\\{\scriptsize $\pm$1.61E+8}} & \textbf{\makecell{4.58E+7\\{\scriptsize $\pm$1.40E+6}}} \\
-F8 & \makecell{1.27E+7\\{\scriptsize $\pm$5.49E+5}} & \textbf{\makecell{6.19E+4\\{\scriptsize $\pm$4.11E+3}}} & \makecell{2.77E+7\\{\scriptsize $\pm$1.45E+6}} & \textbf{\makecell{4.20E+5\\{\scriptsize $\pm$1.96E+4}}} \\
-F9 & \makecell{3.05E+11\\{\scriptsize $\pm$1.17E+10}} & \textbf{\makecell{1.01E+3\\{\scriptsize $\pm$2.48E+2}}} & \makecell{2.40E+11\\{\scriptsize $\pm$8.64E+9}} & \textbf{\makecell{1.04E+3\\{\scriptsize $\pm$2.12E+2}}} \\
-F10 & \makecell{1.10E+9\\{\scriptsize $\pm$7.57E+7}} & \textbf{\makecell{7.10E+6\\{\scriptsize $\pm$3.41E+5}}} & \makecell{1.97E+9\\{\scriptsize $\pm$1.59E+8}} & \textbf{\makecell{2.39E+7\\{\scriptsize $\pm$9.98E+5}}} \\
-F11 & \makecell{5.43E+10\\{\scriptsize $\pm$3.84E+9}} & \textbf{\makecell{7.03E+6\\{\scriptsize $\pm$2.48E+5}}} & \makecell{4.90E+10\\{\scriptsize $\pm$3.69E+9}} & \textbf{\makecell{2.34E+7\\{\scriptsize $\pm$8.36E+5}}} \\
-F12 & \makecell{5.39E+10\\{\scriptsize $\pm$6.20E+9}} & \textbf{\makecell{2.79E+4\\{\scriptsize $\pm$2.56E+3}}} & \makecell{5.33E+10\\{\scriptsize $\pm$6.02E+9}} & \textbf{\makecell{2.39E+5\\{\scriptsize $\pm$1.64E+5}}} \\
+F7 & \makecell{2.30E+9\\$\pm$2.05E+8} & \beststat{1.44E+7}{4.56E+5} & \makecell{3.29E+9\\$\pm$1.61E+8} & \beststat{4.58E+7}{1.40E+6} \\
+F8 & \makecell{1.27E+7\\$\pm$5.49E+5} & \beststat{6.19E+4}{4.11E+3} & \makecell{2.77E+7\\$\pm$1.45E+6} & \beststat{4.20E+5}{1.96E+4} \\
+F9 & \makecell{3.05E+11\\$\pm$1.17E+10} & \beststat{1.01E+3}{2.48E+2} & \makecell{2.40E+11\\$\pm$8.64E+9} & \beststat{1.04E+3}{2.12E+2} \\
+F10 & \makecell{1.10E+9\\$\pm$7.57E+7} & \beststat{7.10E+6}{3.41E+5} & \makecell{1.97E+9\\$\pm$1.59E+8} & \beststat{2.39E+7}{9.98E+5} \\
+F11 & \makecell{5.43E+10\\$\pm$3.84E+9} & \beststat{7.03E+6}{2.48E+5} & \makecell{4.90E+10\\$\pm$3.69E+9} & \beststat{2.34E+7}{8.36E+5} \\
+F12 & \makecell{5.39E+10\\$\pm$6.20E+9} & \beststat{2.79E+4}{2.56E+3} & \makecell{5.33E+10\\$\pm$6.02E+9} & \beststat{2.39E+5}{1.64E+5} \\
 \bottomrule
-\end{tabular}%
+\end{tabular}
+\end{minipage}%
 }
 \end{minipage}\hfill
 \begin{minipage}[t]{0.49\textwidth}
 \centering
-\textbf{(b) F13--F18}\label{tab:macpo_rl_mean_f1_f18_b}\\[0.3em]
 \resizebox{\linewidth}{!}{%
+\begin{minipage}{\linewidth}
+\centering
+\textbf{(b) F13--F18}\label{tab:macpo_rl_mean_f1_f18_b}\\[0.3em]
 \begin{tabular}{@{}lcccc@{}}
 \toprule
  & \multicolumn{2}{c}{\textbf{LLSO}} & \multicolumn{2}{c}{\textbf{CSO}} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 \textbf{Func.} & \textbf{MACPO} & \textbf{RL-MACPO} & \textbf{MACPO} & \textbf{RL-MACPO} \\
 \midrule
-F13 & \makecell{6.96E+9\\{\scriptsize $\pm$2.22E+8}} & \textbf{\makecell{2.91E+7\\{\scriptsize $\pm$6.73E+5}}} & \makecell{1.17E+10\\{\scriptsize $\pm$2.75E+8}} & \textbf{\makecell{2.05E+8\\{\scriptsize $\pm$4.63E+6}}} \\
-F14 & \makecell{6.20E+7\\{\scriptsize $\pm$1.41E+6}} & \textbf{\makecell{5.20E+5\\{\scriptsize $\pm$1.94E+4}}} & \makecell{3.49E+8\\{\scriptsize $\pm$2.33E+7}} & \textbf{\makecell{6.91E+6\\{\scriptsize $\pm$2.91E+5}}} \\
-F15 & \makecell{1.24E+12\\{\scriptsize $\pm$2.41E+10}} & \textbf{\makecell{8.41E+2\\{\scriptsize $\pm$1.89E+2}}} & \makecell{9.02E+11\\{\scriptsize $\pm$1.51E+10}} & \textbf{\makecell{8.20E+2\\{\scriptsize $\pm$1.71E+2}}} \\
-F16 & \makecell{2.93E+9\\{\scriptsize $\pm$8.03E+7}} & \textbf{\makecell{1.50E+7\\{\scriptsize $\pm$4.70E+5}}} & \makecell{7.06E+9\\{\scriptsize $\pm$2.92E+8}} & \textbf{\makecell{1.07E+8\\{\scriptsize $\pm$4.46E+6}}} \\
-F17 & \makecell{2.17E+11\\{\scriptsize $\pm$9.72E+9}} & \textbf{\makecell{1.38E+7\\{\scriptsize $\pm$4.13E+5}}} & \makecell{1.74E+11\\{\scriptsize $\pm$9.28E+9}} & \textbf{\makecell{1.04E+8\\{\scriptsize $\pm$2.85E+6}}} \\
-F18 & \makecell{2.28E+11\\{\scriptsize $\pm$1.44E+10}} & \textbf{\makecell{2.61E+5\\{\scriptsize $\pm$1.12E+4}}} & \makecell{2.01E+11\\{\scriptsize $\pm$1.51E+10}} & \textbf{\makecell{3.27E+6\\{\scriptsize $\pm$1.32E+5}}} \\
+F13 & \makecell{6.96E+9\\$\pm$2.22E+8} & \beststat{2.91E+7}{6.73E+5} & \makecell{1.17E+10\\$\pm$2.75E+8} & \beststat{2.05E+8}{4.63E+6} \\
+F14 & \makecell{6.20E+7\\$\pm$1.41E+6} & \beststat{5.20E+5}{1.94E+4} & \makecell{3.49E+8\\$\pm$2.33E+7} & \beststat{6.91E+6}{2.91E+5} \\
+F15 & \makecell{1.24E+12\\$\pm$2.41E+10} & \beststat{8.41E+2}{1.89E+2} & \makecell{9.02E+11\\$\pm$1.51E+10} & \beststat{8.20E+2}{1.71E+2} \\
+F16 & \makecell{2.93E+9\\$\pm$8.03E+7} & \beststat{1.50E+7}{4.70E+5} & \makecell{7.06E+9\\$\pm$2.92E+8} & \beststat{1.07E+8}{4.46E+6} \\
+F17 & \makecell{2.17E+11\\$\pm$9.72E+9} & \beststat{1.38E+7}{4.13E+5} & \makecell{1.74E+11\\$\pm$9.28E+9} & \beststat{1.04E+8}{2.85E+6} \\
+F18 & \makecell{2.28E+11\\$\pm$1.44E+10} & \beststat{2.61E+5}{1.12E+4} & \makecell{2.01E+11\\$\pm$1.51E+10} & \beststat{3.27E+6}{1.32E+5} \\
 \bottomrule
-\end{tabular}%
+\end{tabular}
+\end{minipage}%
 }
 \end{minipage}
 \end{table*}
@@ -554,7 +564,7 @@ MACPO negotiates on every outer loop. RL-MACPO triggers negotiation on only a fr
 \textbf{Func.} & \textbf{RL-MACPO comm.} & \textbf{Comm.\ drop} \\
 \midrule
 F1 & \textbf{20.8\%} & 79.2\% \\
-F2 & \textbf{22.3{\scriptsize $\pm$4.1}\%} & 77.7\% \\
+F2 & \textbf{22.3{$\pm$4.1}\%} & 77.7\% \\
 F3 & \textbf{8.3\%} & 91.7\% \\
 F4 & \textbf{8.3\%} & 91.7\% \\
 F5 & \textbf{8.3\%} & 91.7\% \\
@@ -575,7 +585,7 @@ F6 & \textbf{8.3\%} & 91.7\% \\
 \textbf{Func.} & \textbf{RL-MACPO comm.} & \textbf{Reduction} \\
 \midrule
 F1 & \textbf{20.8} & 79.2\% \\
-F2 & \textbf{22.3{\scriptsize $\pm$4.1}} & 77.7\% \\
+F2 & \textbf{22.3{$\pm$4.1}} & 77.7\% \\
 F3 & \textbf{8.3} & 91.7\% \\
 F4 & \textbf{8.3} & 91.7\% \\
 F5 & \textbf{8.3} & 91.7\% \\
@@ -586,7 +596,7 @@ F9 & \textbf{8.0} & 92.0\% \\
 F10 & \textbf{8.0} & 92.0\% \\
 F11 & \textbf{8.0} & 92.0\% \\
 F12 & \textbf{8.0} & 92.0\% \\
-F13 & \textbf{7.7{\scriptsize $\pm$1.6}} & 92.3\% \\
+F13 & \textbf{7.7{$\pm$1.6}} & 92.3\% \\
 F14 & \textbf{8.0} & 92.0\% \\
 F15 & \textbf{8.0} & 92.0\% \\
 F16 & \textbf{8.0} & 92.0\% \\
@@ -626,10 +636,10 @@ Table~\ref{tab:gate_cost_stats} compares gate variants on F1/F2/F5 over 30 runs.
 \toprule
 Method & Zero-comm & Comm rate & Nego dims & Wall (s) & Comm drop \\
 \midrule
-V0 Always-on & 0/30 & 1.000{\scriptsize $\pm$0.000} & 5.0{\scriptsize $\pm$0.0} & 6.79{\scriptsize $\pm$1.00} & 0\% \\
-V1 Fixed abs. & 30/30 & 0.000{\scriptsize $\pm$0.000} & 0.0{\scriptsize $\pm$0.0} & 6.41{\scriptsize $\pm$0.77} & 100\% \\
-V2 Relative & 0/30 & 0.504{\scriptsize $\pm$0.055} & 5.0{\scriptsize $\pm$0.0} & 6.43{\scriptsize $\pm$0.68} & 50\% \\
-V3 Rel.+fail-safe & 0/30 & 0.460{\scriptsize $\pm$0.069} & 5.0{\scriptsize $\pm$0.0} & 6.61{\scriptsize $\pm$0.92} & 54\% \\
+V0 Always-on & 0/30 & 1.000{$\pm$0.000} & 5.0{$\pm$0.0} & 6.79{$\pm$1.00} & 0\% \\
+V1 Fixed abs. & 30/30 & 0.000{$\pm$0.000} & 0.0{$\pm$0.0} & 6.41{$\pm$0.77} & 100\% \\
+V2 Relative & 0/30 & 0.504{$\pm$0.055} & 5.0{$\pm$0.0} & 6.43{$\pm$0.68} & 50\% \\
+V3 Rel.+fail-safe & 0/30 & 0.460{$\pm$0.069} & 5.0{$\pm$0.0} & 6.61{$\pm$0.92} & 54\% \\
 \bottomrule
 \end{tabular}%
 }
@@ -645,10 +655,10 @@ V3 Rel.+fail-safe & 0/30 & 0.460{\scriptsize $\pm$0.069} & 5.0{\scriptsize $\pm$
 \toprule
 $\lambda$ & F3 comm. & F5 comm. \\
 \midrule
-0.8 & 25.0{\scriptsize $\pm$0.0}\% & 27.5{\scriptsize $\pm$5.0}\% \\
-1.0 & 8.3{\scriptsize $\pm$0.0}\% & 30.8{\scriptsize $\pm$5.0}\% \\
-1.2 (default) & 8.3{\scriptsize $\pm$0.0}\% & 15.8{\scriptsize $\pm$10.0}\% \\
-1.4 & 8.3{\scriptsize $\pm$0.0}\% & 8.3{\scriptsize $\pm$0.0}\% \\
+0.8 & 25.0{$\pm$0.0}\% & 27.5{$\pm$5.0}\% \\
+1.0 & 8.3{$\pm$0.0}\% & 30.8{$\pm$5.0}\% \\
+1.2 (default) & 8.3{$\pm$0.0}\% & 15.8{$\pm$10.0}\% \\
+1.4 & 8.3{$\pm$0.0}\% & 8.3{$\pm$0.0}\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -663,8 +673,8 @@ $\lambda$ & F3 comm. & F5 comm. \\
 \toprule
 Method & F3 final $F$ & F5 final $F$ \\
 \midrule
-RL-MACPO (headline) & \textbf{6.35E+2{\scriptsize $\pm$3.12E+1}} & \textbf{3.50E+6{\scriptsize $\pm$1.40E+5}} \\
-MASOIE \cite{ref_masoie_2024} & 1.04E+4{\scriptsize $\pm$3.67E+3} & 2.02E+7{\scriptsize $\pm$1.52E+6} \\
+RL-MACPO (headline) & \textbf{6.35E+2{$\pm$3.12E+1}} & \textbf{3.50E+6{$\pm$1.40E+5}} \\
+MASOIE \cite{ref_masoie_2024} & 1.04E+4{$\pm$3.67E+3} & 2.02E+7{$\pm$1.52E+6} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -687,10 +697,10 @@ This experiment is \emph{not} intended to show that RL outperforms every heurist
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 \textbf{Controller} & Final $F$ & Comm. & Final $F$ & Comm. \\
 \midrule
-MACPO (static) & 4.03E+9{\scriptsize $\pm$4.69E+8} & 100.0\% & 1.97E+8{\scriptsize $\pm$3.83E+7} & 100.0\% \\
-Fixed schedule & 1.16E+3{\scriptsize $\pm$3.75E+2} & 8.3\% & \textbf{6.74E+6{\scriptsize $\pm$5.77E+5}} & 17.3\% \\
-EMA penalty & \textbf{1.14E+3{\scriptsize $\pm$3.69E+2}} & 8.3\% & 6.94E+6{\scriptsize $\pm$8.20E+5} & 17.3\% \\
-RL (\emph{Full}) & 1.16E+3{\scriptsize $\pm$3.85E+2} & 8.3\% & 6.86E+6{\scriptsize $\pm$8.29E+5} & 15.8\% \\
+MACPO (static) & 4.03E+9{$\pm$4.69E+8} & 100.0\% & 1.97E+8{$\pm$3.83E+7} & 100.0\% \\
+Fixed schedule & 1.16E+3{$\pm$3.75E+2} & 8.3\% & \textbf{6.74E+6{$\pm$5.77E+5}} & 17.3\% \\
+EMA penalty & \textbf{1.14E+3{$\pm$3.69E+2}} & 8.3\% & 6.94E+6{$\pm$8.20E+5} & 17.3\% \\
+RL (\emph{Full}) & 1.16E+3{$\pm$3.85E+2} & 8.3\% & 6.86E+6{$\pm$8.29E+5} & 15.8\% \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -814,16 +824,16 @@ Proposition~\ref{prop:failsafe} uses per-dimension normalized gaps $e_d^t=|x_d^t
 \caption{Empirical per-loop normalized drift on F1--F6 (25 headline RL-MACPO runs per function). Mean $\bar\varepsilon$ averages run-level \texttt{diff\_mean}; max and p95 pool run-level \texttt{diff\_max} and \texttt{diff\_p95}.}
 \label{tab:empirical_drift}
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lcccc@{}}
+\begin{tabular}{@{}lrrr@{}}
 \toprule
-Func. & Runs & Mean $\bar\varepsilon$ & Max $\varepsilon$ & p95 $\varepsilon$ \\
+Func. & Mean $\bar\varepsilon$ & Max $\varepsilon$ & p95 $\varepsilon$ \\
 \midrule
-F1 & 25 & 0.00409 & 0.0105 & 0.00655 \\
-F2 & 25 & 0.00358 & 0.00727 & 0.00544 \\
-F3 & 25 & 0.00412 & 0.00673 & 0.00566 \\
-F4 & 25 & 0.00369 & 0.00759 & 0.00565 \\
-F5 & 25 & 0.00461 & 0.00962 & 0.00760 \\
-F6 & 25 & 0.00426 & 0.00820 & 0.00617 \\
+F1 & 0.00409 & 0.0105 & 0.00655 \\
+F2 & 0.00358 & 0.00727 & 0.00544 \\
+F3 & 0.00412 & 0.00673 & 0.00566 \\
+F4 & 0.00369 & 0.00759 & 0.00565 \\
+F5 & 0.00461 & 0.00962 & 0.00760 \\
+F6 & 0.00426 & 0.00820 & 0.00617 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -901,13 +911,13 @@ Dueling DQN & mean & $6.42\mathrm{E}\!+\!06$ & $3.47\mathrm{E}\!+\!03$ & $6.76\m
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=0.52\textwidth,height=0.36\textheight,keepaspectratio]{media/f3_f5_conflict_alpha_micro.pdf}
+\includegraphics[width=\textwidth,height=0.5\textheight,keepaspectratio]{media/f3_f5_conflict_alpha_micro.pdf}
 \captionof{figure}{Single-run conflict--$\alpha$ coupling on F3 and F5 (representative runs).}
 \label{fig:f3_f5_micro}
 
 \vspace{0.35em}
 
-\includegraphics[width=0.58\textwidth,height=0.34\textheight,keepaspectratio]{media/fig_deeprl_comparison.pdf}
+\includegraphics[width=\textwidth,height=0.5\textheight,keepaspectratio]{media/fig_deeprl_comparison.pdf}
 \captionof{figure}{Visual summary of Table~\ref{tab:deeprl}. Mean final $F$ across F1--F6 for each RL architecture variant.}
 \label{fig:deeprl_comparison}
 \end{figure*}
@@ -916,13 +926,63 @@ Dueling DQN & mean & $6.42\mathrm{E}\!+\!06$ & $3.47\mathrm{E}\!+\!03$ & $6.76\m
 Across 25 independent runs per benchmark, logged $\alpha$, $\rho$, conflict, and reward traces in Fig.~\ref{fig:rl_traj_metrics} evolve smoothly without run-to-run divergence once gating is active. Reward means plateau after the early evaluation phase. Cross-run standard deviation remains bounded on F1--F6. This supports treating PPO as a stable default penalty updater rather than a fragile, benchmark-tuned add-on.
 
 \section{Additional Application-Case Statistics}\label{app:applications}
-Section~\ref{sec:applications} reports headline paired means in Tables~\ref{tab:application_cases} and~\ref{tab:ieee_power_cases}. Table~\ref{tab:application_run_stats} adds run-level paired cost-gap quartiles and min--max ranges. Dispatch cases show tight medians on MAED-13 and EV dispatch. Resource scheduling exhibits wider spread because of one MACPO outlier run. IEEE~30 includes two LLSO stagnation outliers, consistent with the 23/25 success count in the main table. Excluding those runs leaves median $\Delta$ near zero. These distributions confirm that communication drops are robust while cost effects remain case-dependent.
+Section~\ref{sec:applications} reports headline paired means in Tables~\ref{tab:application_cases} and~\ref{tab:ieee_power_cases}. Table~\ref{tab:application_run_stats} adds run-level paired cost-gap quartiles and min--max ranges (25 runs per case; communication rates summarized by pilot group). Dispatch cases show tight medians on MAED-13 and EV dispatch. Resource scheduling exhibits wider spread because of one MACPO outlier run. IEEE~30 includes two LLSO stagnation outliers, consistent with the 23/25 success count in the main table. Excluding those runs leaves median $\Delta$ near zero. These distributions confirm that communication drops are robust while cost effects remain case-dependent.
 
 \input{media/application_appendix_stats.tex}
 
 \begin{thebibliography}{99}
- 
+
+\bibitem{ref_dopt_robotics_2024} O. Shorinwa, T. Halsted, J. Yu, and M. Schwager, ``Distributed optimization methods for multi-robot systems: Part 1---A tutorial,'' \emph{IEEE Robotics \& Automation Magazine}, vol. 31, no. 3, pp. 121--138, 2024.
+
+\bibitem{ref_dopt_smartgrid_2024} Q. Liu, L. Zhang, H. Zhang, S. Wang, and X. Ji, ``Distributed secondary optimal control with fast voltage recovery and minimum generation cost for islanded DC microgrids,'' \emph{IEEE Transactions on Smart Grid}, vol. 16, no. 1, pp. 4--15, Jan. 2025.
+
+\bibitem{ref_dopt_wsn_2023} G. Chen and Y. Zhou, ``Dynamic estimation over distributed sensing network with communication delays,'' \emph{IEEE Transactions on Industrial Informatics}, vol. 20, no. 4, pp. 5449--5458, Apr. 2024.
+
+\bibitem{ref_dopt_iov_2024} Q. Ma, H. Xu, H. Wang, Y. Xu, Q. Jia, and C. Qiao, ``Fully distributed task offloading in vehicular edge computing,'' \emph{IEEE Transactions on Vehicular Technology}, vol. 73, no. 4, pp. 5630--5646, Apr. 2024.
+
+\bibitem{ref_decentralized_review_2023} M. Chica, D. Manjarres, and S. Cord\'on, ``A review of decentralized optimization focused on information flows of decomposition algorithms,'' \emph{Computers \& Operations Research}, vol. 153, Art. no. 106190, 2023.
+
+\bibitem{ref_ndo_traffic_2022} M. Mehrabipour and A. Hajbabaie, ``A distributed gradient approach for system optimal dynamic traffic assignment,'' \emph{IEEE Transactions on Intelligent Transportation Systems}, vol. 23, no. 10, pp. 17410--17424, Oct. 2022.
+
+\bibitem{ref_ndo_dispatch_2024} D. Ma, M. Xing, Y. Li, and Q. Sun, ``Distributed economic dispatch with dynamic power demand: An implicit dual gradient tracking algorithm under random-triggered transmission protocol,'' \emph{IEEE Transactions on Power Systems}, vol. 40, no. 2, pp. 1931--1942, Mar. 2025.
+
+\bibitem{ref_ndo_stateest_2024} S. Wang, Y.-J. Pan, and M. Guay, ``Distributed state estimation for linear time-invariant systems with aperiodic sampled measurement,'' \emph{IEEE Transactions on Control of Network Systems}, vol. 11, no. 4, pp. 1835--1844, Dec. 2024.
+
+\bibitem{ref_ndo_netcontrol_2024} N. Bai, Q. Wang, Z. Duan, and G. Chen, ``Distributed optimal consensus control of constrained multiagent systems: A nonseparable optimization perspective,'' \emph{IEEE Transactions on Automatic Control}, vol. 69, no. 10, pp. 6880--6894, Oct. 2024.
+
 \bibitem{ref_macpo} T.-Y. Chen, W.-N. Chen, X.-Q. Guo, Y.-J. Gong, and J. Zhang, ``A multiagent co-evolutionary algorithm with penalty-based objective for network-based distributed optimization,'' \emph{IEEE Transactions on Systems, Man, and Cybernetics: Systems}, vol. 54, no. 7, pp. 4358--4370, Jul. 2024.
+
+\bibitem{ref_stich_local_sgd_2019} S. U. Stich, ``Local SGD converges fast and communicates little,'' in \emph{Proc. Int. Conf. Learning Representations (ICLR)}, 2019.
+
+\bibitem{ref_mcmahan_fedavg_2017} B. McMahan, E. Moore, D. Ramage, S. Hampson, and B. A. y Arcas, ``Communication-efficient learning of deep networks from decentralized data,'' in \emph{Proc. Int. Conf. Artificial Intelligence and Statistics (AISTATS)}, 2017, pp. 1273--1282.
+
+\bibitem{ref_koloskova_decsgd_2020} A. Koloskova, N. Loizou, S. Boreiri, M. Jaggi, and S. U. Stich, ``A unified theory of decentralized SGD with changing topology and local updates,'' in \emph{Proc. Int. Conf. Machine Learning (ICML)}, 2020, pp. 5381--5392.
+
+\bibitem{ref_rabbat_nowak_2004} M. G. Rabbat and R. D. Nowak, ``Distributed optimization in sensor networks,'' in \emph{Proc. Int. Symp. Information Processing in Sensor Networks (IPSN)}, Apr. 2004, pp. 20--27.
+
+\bibitem{ref_masoie_2024} T.-Y. Chen, W.-N. Chen, F.-F. Wei, X.-M. Hu, and J. Zhang, ``Multiagent swarm optimization with adaptive internal and external learning for complex consensus-based distributed optimization,'' \emph{IEEE Transactions on Evolutionary Computation}, vol. 29, no. 4, pp. 906--920, 2024.
+
+\bibitem{ref_maes_ccsa_2025} T.-Y. Chen, W.-N. Chen, J.-K. Hao, W. Yang, and J. Zhang, ``Multiagent evolution strategy with cooperative and cumulative step adaptation for black-box distributed optimization,'' \emph{IEEE Transactions on Evolutionary Computation}, early access, 2025.
+
+\bibitem{ref_nedic_subgrad} A. Nedi\'c and A. Ozdaglar, ``Distributed subgradient methods for multi-agent optimization,'' \emph{IEEE Transactions on Automatic Control}, vol. 54, no. 1, pp. 48--61, 2009.
+
+\bibitem{ref_boyd_admm} S. Boyd, N. Parikh, E. Chu, B. Peleato, and J. Eckstein, ``Distributed optimization and statistical learning via the alternating direction method of multipliers,'' \emph{Foundations and Trends in Machine Learning}, vol. 3, no. 1, pp. 1--122, 2011.
+
+\bibitem{ref_shi_extra} W. Shi, Q. Ling, G. Wu, and W. Yin, ``EXTRA: An exact first-order algorithm for decentralized consensus optimization,'' \emph{SIAM Journal on Optimization}, vol. 25, no. 2, pp. 944--966, 2015.
+
+\bibitem{ref_pu_pushpull_2021} S. Pu, W. Shi, J. Xu, and A. Nedi\'c, ``Push-pull gradient methods for distributed optimization in networks,'' \emph{IEEE Transactions on Automatic Control}, vol. 66, no. 3, pp. 1135--1147, Mar. 2021.
+
+\bibitem{ref_back_book} T. B\"ack, \emph{Evolutionary Algorithms in Theory and Practice}. Oxford, U.K.: Oxford Univ. Press, 1996.
+
+\bibitem{ref_blackbox_tracking_2022} A. S. W. van Herk, M. Verhaegen, and M. A. M. Verhaegen, ``Model-free black-box tracking control with iterative improvement,'' \emph{IEEE Control Systems Letters}, vol. 6, pp. 2575--2580, 2022.
+
+\bibitem{ref_potter_dejong} M. A. Potter and K. A. De Jong, ``A cooperative coevolutionary approach to function optimization,'' in \emph{Parallel Problem Solving from Nature III}, 1994, pp. 249--257.
+
+\bibitem{ref_cc_dist_accel_2024} M. Ding, W. Gong, and Z. Cai, ``Cooperative coevolution for non-separable large-scale black-box optimization: Convergence analyses and distributed accelerations,'' \emph{Applied Soft Computing}, vol. 158, Art. no. 112232, 2024.
+
+\bibitem{ref_karafotias_param_control} G. Karafotias, M. Hoogendoorn, and A. Eiben, ``Parameter control in evolutionary algorithms: Trends and challenges,'' \emph{IEEE Transactions on Evolutionary Computation}, vol. 19, no. 2, pp. 167--187, 2015.
+
+\bibitem{ref_rl_ea_survey_2024} Y. Song, T. Xiang, J. Liu, H. Wang, and Y. Jin, ``Reinforcement learning-assisted evolutionary algorithm: A survey and research opportunities,'' \emph{Swarm and Evolutionary Computation}, vol. 86, Art. no. 101517, 2024.
 
 \bibitem{ref_llso} Q. Yang, W.-N. Chen, J. D. Deng, Y. Li, T. Gu, and J. Zhang, ``A Level-Based Learning Swarm Optimizer for Large-Scale Optimization,'' \emph{IEEE Transactions on Evolutionary Computation}, vol. 22, no. 4, pp. 578--594, Aug. 2018.
 
@@ -944,8 +1004,6 @@ Section~\ref{sec:applications} reports headline paired means in Tables~\ref{tab:
 
 \bibitem{ref_mnih_dqn} V. Mnih, K. Kavukcuoglu, D. Silver, A. A. Rusu, J. Veness, M. G. Bellemare, A. Graves, M. Riedmiller, A. K. Fidjeland, G. Ostrovski, S. Petersen, C. Beattie, A. Sadik, I. Antonoglou, H. King, D. Kumaran, D. Wierstra, S. Legg, and D. Hassabis, ``Human-level control through deep reinforcement learning,'' \emph{Nature}, vol. 518, no. 7540, pp. 529--533, 2015.
 
-\bibitem{ref_potter_dejong} M. A. Potter and K. A. De Jong, ``A cooperative coevolutionary approach to function optimization,'' in \emph{Parallel Problem Solving from Nature III}, 1994, pp. 249--257.
-
 \bibitem{ref_omidvar_grouping} M. N. Omidvar, X. Li, Y. Mei, and X. Yao, ``Cooperative co-evolution with differential grouping for large scale optimization,'' \emph{IEEE Transactions on Evolutionary Computation}, vol. 18, no. 3, pp. 378--393, 2014.
 
 \bibitem{ref_dpso} X. Li and X. Yao, ``Cooperatively coevolving particle swarms for large scale optimization,'' \emph{IEEE Transactions on Evolutionary Computation}, vol. 16, no. 2, pp. 210--224, 2012.
@@ -954,35 +1012,17 @@ Section~\ref{sec:applications} reports headline paired means in Tables~\ref{tab:
 
 \bibitem{ref_mezura_constraint} E. Mezura-Montes and C. A. Coello Coello, ``Constraint-handling in nature-inspired numerical optimization: Past, present and future,'' \emph{Swarm and Evolutionary Computation}, vol. 1, no. 4, pp. 173--194, 2011.
 
-\bibitem{ref_karafotias_param_control} G. Karafotias, M. Hoogendoorn, and A. Eiben, ``Parameter control in evolutionary algorithms: Trends and challenges,'' \emph{IEEE Transactions on Evolutionary Computation}, vol. 19, no. 2, pp. 167--187, 2015.
-
-\bibitem{ref_nedic_subgrad} A. Nedi\'c and A. Ozdaglar, ``Distributed subgradient methods for multi-agent optimization,'' \emph{IEEE Transactions on Automatic Control}, vol. 54, no. 1, pp. 48--61, 2009.
-
 \bibitem{ref_nedic_saddle} A. Nedi\'c and A. Ozdaglar, ``Subgradient methods for saddle-point problems,'' \emph{Journal of Optimization Theory and Applications}, vol. 142, no. 1, pp. 205--228, 2009.
 
 \bibitem{ref_ozdaglar_parrilo} A. Ozdaglar, A. Nedi\'c, and P. A. Parrilo, ``Constrained consensus and optimization in multi-agent networks,'' \emph{IEEE Transactions on Automatic Control}, vol. 56, no. 2, pp. 279--294, 2011.
-
-\bibitem{ref_boyd_admm} S. Boyd, N. Parikh, E. Chu, B. Peleato, and J. Eckstein, ``Distributed optimization and statistical learning via the alternating direction method of multipliers,'' \emph{Foundations and Trends in Machine Learning}, vol. 3, no. 1, pp. 1--122, 2011.
-
- \bibitem{ref_shi_extra} W. Shi, Q. Ling, G. Wu, and W. Yin, ``EXTRA: An exact first-order algorithm for decentralized consensus optimization,'' \emph{SIAM Journal on Optimization}, vol. 25, no. 2, pp. 944--966, 2015.
-
-\bibitem{ref_decentralized_review_2023} M. Chica, D. Manjarres, and S. Cord\'on, ``A review of decentralized optimization focused on information flows of decomposition algorithms,'' \emph{Computers \& Operations Research}, vol. 153, Art. no. 106190, 2023.
 
 \bibitem{ref_privacy_dist_opt_2025} M. Wei, W. Yu, D. Chen, M. Kang, and G. Cheng, ``Privacy distributed constrained optimization over time-varying unbalanced networks and its application in federated learning,'' \emph{IEEE/CAA Journal of Automatica Sinica}, vol. 12, no. 2, pp. 335--346, Feb. 2025.
 
 \bibitem{ref_highdim_survey_2024} M. Zhou, M. Cui, D. Xu, S. Zhu, Z. Zhao, and A. Abusorrah, ``Evolutionary optimization methods for high-dimensional expensive problems: A survey,'' \emph{IEEE/CAA Journal of Automatica Sinica}, vol. 11, no. 5, pp. 1092--1105, May 2024.
 
-\bibitem{ref_blackbox_tracking_2022} A. S. W. van Herk, M. Verhaegen, and M. A. M. Verhaegen, ``Model-free black-box tracking control with iterative improvement,'' \emph{IEEE Control Systems Letters}, vol. 6, pp. 2575--2580, 2022.
-
 \bibitem{ref_rl_metaheuristic_2023} A. LaTorre, J. Del Ser, and E. Osaba, ``Reinforcement learning for enhanced online gradient-based parameter adaptation in metaheuristics,'' \emph{Swarm and Evolutionary Computation}, vol. 83, Art. no. 101371, 2023.
 
-\bibitem{ref_rl_ea_survey_2024} Y. Song, T. Xiang, J. Liu, H. Wang, and Y. Jin, ``Reinforcement learning-assisted evolutionary algorithm: A survey and research opportunities,'' \emph{Swarm and Evolutionary Computation}, vol. 86, Art. no. 101517, 2024.
-
 \bibitem{ref_dist_drl_survey_2024} Q. Yin, T. Yu, S. Shen, J. Yang, M. Zhao, W. Ni, K. Huang, B. Liang, and L. Wang, ``Distributed deep reinforcement learning: A survey and a multi-player multi-agent learning toolbox,'' \emph{Machine Intelligence Research}, vol. 21, pp. 411--430, 2024.
-
-\bibitem{ref_cc_dist_accel_2024} M. Ding, W. Gong, and Z. Cai, ``Cooperative coevolution for non-separable large-scale black-box optimization: Convergence analyses and distributed accelerations,'' \emph{Applied Soft Computing}, vol. 158, Art. no. 112232, 2024.
-
-\bibitem{ref_back_book} T. B\"ack, \emph{Evolutionary Algorithms in Theory and Practice}. Oxford, U.K.: Oxford Univ. Press, 1996.
 
 \bibitem{ref_hansen_es} N. Hansen and A. Ostermeier, ``Completely derandomized self-adaptation in evolution strategies,'' \emph{Evolutionary Computation}, vol. 9, no. 2, pp. 159--195, 2001.
 
@@ -1010,8 +1050,6 @@ Section~\ref{sec:applications} reports headline paired means in Tables~\ref{tab:
 
 \bibitem{ref_lian_decentralized_2017} X. Lian, C. Zhang, H. Zhang, C.-J. Hsieh, W. Zhang, and J. Liu, ``Can decentralized algorithms outperform centralized algorithms? A case study for decentralized parallel stochastic gradient descent,'' in \emph{Advances in Neural Information Processing Systems}, 2017, pp. 5330--5340.
 
-\bibitem{ref_koloskova_decsgd_2020} A. Koloskova, N. Loizou, S. Boreiri, M. Jaggi, and S. U. Stich, ``A unified theory of decentralized SGD with changing topology and local updates,'' in \emph{Proc. Int. Conf. Machine Learning (ICML)}, 2020, pp. 5381--5392.
-
 \bibitem{ref_storn_de_1997} R. Storn and K. Price, ``Differential evolution---a simple and efficient heuristic for global optimization over continuous spaces,'' \emph{Journal of Global Optimization}, vol. 11, no. 4, pp. 341--359, Dec. 1997.
 
 \bibitem{ref_kennedy_pso_1995} J. Kennedy and R. Eberhart, ``Particle swarm optimization,'' in \emph{Proc. IEEE Int. Conf. Neural Networks}, vol. 4, Nov./Dec. 1995, pp. 1942--1948.
@@ -1032,36 +1070,10 @@ Section~\ref{sec:applications} reports headline paired means in Tables~\ref{tab:
 
 \bibitem{ref_mokhtari_dsa_2016} A. Mokhtari and A. Ribeiro, ``DSA: Decentralized double stochastic averaging gradient algorithm,'' in \emph{Proc. Int. Conf. Machine Learning (ICML)}, 2016, pp. 1535--1542.
 
-\bibitem{ref_stich_local_sgd_2019} S. U. Stich, ``Local SGD converges fast and communicates little,'' in \emph{Proc. Int. Conf. Learning Representations (ICLR)}, 2019.
-
-\bibitem{ref_rabbat_nowak_2004} M. G. Rabbat and R. D. Nowak, ``Distributed optimization in sensor networks,'' in \emph{Proc. Int. Symp. Information Processing in Sensor Networks (IPSN)}, Apr. 2004, pp. 20--27.
-
-\bibitem{ref_mcmahan_fedavg_2017} B. McMahan, E. Moore, D. Ramage, S. Hampson, and B. A. y Arcas, ``Communication-efficient learning of deep networks from decentralized data,'' in \emph{Proc. Int. Conf. Artificial Intelligence and Statistics (AISTATS)}, 2017, pp. 1273--1282.
-
 \bibitem{ref_kairouz_flsurvey_2021} P. Kairouz et al., ``Advances and open problems in federated learning,'' \emph{Foundations and Trends in Machine Learning}, vol. 14, no. 1--2, pp. 1--210, 2021.
 
-\bibitem{ref_pu_pushpull_2021} S. Pu, W. Shi, J. Xu, and A. Nedi\'c, ``Push-pull gradient methods for distributed optimization in networks,'' \emph{IEEE Transactions on Automatic Control}, vol. 66, no. 3, pp. 1135--1147, Mar. 2021.
-
-\bibitem{ref_masoie_2024} T.-Y. Chen, W.-N. Chen, F.-F. Wei, X.-M. Hu, and J. Zhang, ``Multiagent swarm optimization with adaptive internal and external learning for complex consensus-based distributed optimization,'' \emph{IEEE Transactions on Evolutionary Computation}, vol. 29, no. 4, pp. 906--920, 2024.
-
-\bibitem{ref_maes_ccsa_2025} T.-Y. Chen, W.-N. Chen, J.-K. Hao, W. Yang, and J. Zhang, ``Multiagent evolution strategy with cooperative and cumulative step adaptation for black-box distributed optimization,'' \emph{IEEE Transactions on Evolutionary Computation}, early access, 2025.
-
-\bibitem{ref_dopt_robotics_2024} O. Shorinwa, T. Halsted, J. Yu, and M. Schwager, ``Distributed optimization methods for multi-robot systems: Part 1---A tutorial,'' \emph{IEEE Robotics \& Automation Magazine}, vol. 31, no. 3, pp. 121--138, 2024.
-
-\bibitem{ref_dopt_smartgrid_2024} Q. Liu, L. Zhang, H. Zhang, S. Wang, and X. Ji, ``Distributed secondary optimal control with fast voltage recovery and minimum generation cost for islanded DC microgrids,'' \emph{IEEE Transactions on Smart Grid}, vol. 16, no. 1, pp. 4--15, Jan. 2025.
-
-\bibitem{ref_dopt_wsn_2023} G. Chen and Y. Zhou, ``Dynamic estimation over distributed sensing network with communication delays,'' \emph{IEEE Transactions on Industrial Informatics}, vol. 20, no. 4, pp. 5449--5458, Apr. 2024.
-
-\bibitem{ref_dopt_iov_2024} Q. Ma, H. Xu, H. Wang, Y. Xu, Q. Jia, and C. Qiao, ``Fully distributed task offloading in vehicular edge computing,'' \emph{IEEE Transactions on Vehicular Technology}, vol. 73, no. 4, pp. 5630--5646, Apr. 2024.
-
-\bibitem{ref_ndo_traffic_2022} M. Mehrabipour and A. Hajbabaie, ``A distributed gradient approach for system optimal dynamic traffic assignment,'' \emph{IEEE Transactions on Intelligent Transportation Systems}, vol. 23, no. 10, pp. 17410--17424, Oct. 2022.
-
-\bibitem{ref_ndo_dispatch_2024} D. Ma, M. Xing, Y. Li, and Q. Sun, ``Distributed economic dispatch with dynamic power demand: An implicit dual gradient tracking algorithm under random-triggered transmission protocol,'' \emph{IEEE Transactions on Power Systems}, vol. 40, no. 2, pp. 1931--1942, Mar. 2025.
-
-\bibitem{ref_ndo_stateest_2024} S. Wang, Y.-J. Pan, and M. Guay, ``Distributed state estimation for linear time-invariant systems with aperiodic sampled measurement,'' \emph{IEEE Transactions on Control of Network Systems}, vol. 11, no. 4, pp. 1835--1844, Dec. 2024.
-
-\bibitem{ref_ndo_netcontrol_2024} N. Bai, Q. Wang, Z. Duan, and G. Chen, ``Distributed optimal consensus control of constrained multiagent systems: A nonseparable optimization perspective,'' \emph{IEEE Transactions on Automatic Control}, vol. 69, no. 10, pp. 6880--6894, Oct. 2024.
-
 \end{thebibliography}
+
+
 
 \end{document}
