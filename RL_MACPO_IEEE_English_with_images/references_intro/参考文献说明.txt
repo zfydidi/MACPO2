@@ -1,0 +1,361 @@
+================================================================================
+Introduction 引用文献说明
+对应论文：RL-MACPO（conflict-triggered communication in network-based NDO）
+对应文件：conference_new_ready.tex Introduction 段落
+本地 PDF：references_intro/01–09_*.pdf
+编写日期：2026-07-03
+================================================================================
+
+一、检索方法与来源（网站 + 关键词 + 命中论文对照）
+--------------------------------------------------------------------------------
+
+【检索目的】
+替换 Introduction 中被标注为“太老”的旧引用（Bertsekas 1989 [7]、Boyd ADMM 2011 [21]），
+并为两类表述补充 2022–2025 年期刊文献：
+  (A) NDO 典型应用领域：robotics, smart grids, WSN, IoV
+  (B) 共享变量耦合场景：交通流分配、电力调度、分布式状态估计、网络化控制
+
+【使用的检索网站（共 5 类）】
+
+  网站名称              网址                          用途
+  --------------------  ----------------------------  ----------------------------------
+  Google Scholar        https://scholar.google.com    首轮广泛检索；按年份 2022–2025 过滤
+  IEEE Xplore           https://ieeexplore.ieee.org   确认 IEEE Transactions 正式条目、DOI
+  ScienceDirect         https://www.sciencedirect.com Elsevier 期刊（COR 综述）
+  arXiv                 https://arxiv.org             查找预印本 / 开放 PDF
+  作者/机构主页         见下表                        下载公开 PDF、核对作者信息
+
+  辅助核对：DBLP（https://dblp.org）、Researchr、NC State News（交通论文新闻稿）
+
+【逐条检索记录：哪篇论文、用什么词、在哪个网站找到】
+
+  ┌────┬──────────────────────────────┬─────────────────────────────────────────┬──────────────────────────────┐
+  │编号│ 论文（简称）                 │ 检索关键词（在 Google Scholar 输入）     │ 最终定位 / 下载网站          │
+  ├────┼──────────────────────────────┼─────────────────────────────────────────┼──────────────────────────────┤
+  │[1] │ Shorinwa RAM 2024 机器人教程 │ distributed optimization multi-robot    │ Google Scholar → IEEE Xplore │
+  │    │                              │ systems tutorial 2024                     │ PDF: msl.stanford.edu        │
+  ├────┼──────────────────────────────┼─────────────────────────────────────────┼──────────────────────────────┤
+  │[2] │ Liu TSG 2025 直流微电网      │ distributed secondary optimal control   │ Google Scholar → IEEE Xplore │
+  │    │                              │ smart grid DC microgrid 2024 2025       │ （用户 IEEE 订阅下载）       │
+  ├────┼──────────────────────────────┼─────────────────────────────────────────┼──────────────────────────────┤
+  │[3] │ Chen TII 2024 WSN 估计       │ dynamic estimation distributed sensing  │ Google Scholar → IEEE Xplore │
+  │    │                              │ network communication delays 2024       │ （用户 IEEE 订阅下载）       │
+  ├────┼──────────────────────────────┼─────────────────────────────────────────┼──────────────────────────────┤
+  │[4] │ Ma TVT 2024 车联网卸载       │ fully distributed task offloading       │ Google Scholar → IEEE Xplore │
+  │    │                              │ vehicular edge computing 2024           │ PDF: qianpiao.github.io      │
+  ├────┼──────────────────────────────┼─────────────────────────────────────────┼──────────────────────────────┤
+  │[5] │ Mehrabipour TITS 2022 交通   │ distributed gradient system optimal     │ Google Scholar → IEEE Xplore │
+  │    │                              │ dynamic traffic assignment 2022         │ arXiv:2112.14389             │
+  ├────┼──────────────────────────────┼─────────────────────────────────────────┼──────────────────────────────┤
+  │[6] │ Ma TPWRS 2025 经济调度       │ distributed economic dispatch dynamic   │ Google Scholar → IEEE Xplore │
+  │    │                              │ power demand gradient tracking random   │ （用户 IEEE 订阅下载）       │
+  │    │                              │ triggered 2024                          │                              │
+  ├────┼──────────────────────────────┼─────────────────────────────────────────┼──────────────────────────────┤
+  │[7] │ Wang TCNS 2024 状态估计      │ distributed state estimation linear     │ Google Scholar → IEEE Xplore │
+  │    │                              │ time-invariant aperiodic sampled 2024   │ arXiv:2211.05223             │
+  ├────┼──────────────────────────────┼─────────────────────────────────────────┼──────────────────────────────┤
+  │[8] │ Bai TAC 2024 网络化控制      │ distributed optimal consensus control   │ Google Scholar → IEEE Xplore │
+  │    │                              │ constrained multiagent nonseparable     │ （用户 IEEE 订阅下载）       │
+  │    │                              │ optimization 2024                       │                              │
+  ├────┼──────────────────────────────┼─────────────────────────────────────────┼──────────────────────────────┤
+  │[9] │ Chica COR 2023 综述          │ decentralized optimization review       │ Google Scholar → ScienceDirect│
+  │    │                              │ information flows decomposition 2023    │ DOI: 10.1016/j.cor.2023...   │
+  └────┴──────────────────────────────┴─────────────────────────────────────────┴──────────────────────────────┘
+
+【检索流程（实际操作顺序）】
+
+  第 1 步 — Google Scholar
+    输入上述英文关键词，在左侧筛选“Since 2022”或手动看年份；
+    优先点进 IEEE Transactions / RAM / COR 条目。
+
+  第 2 步 — IEEE Xplore（针对 [1]–[8] 中 IEEE 论文）
+    用论文标题或 DOI 精确搜索，核对 vol/issue/pages/author。
+
+  第 3 步 — ScienceDirect（针对 [9]）
+    搜索 “Chica decentralized optimization decomposition Computers Operations Research”。
+
+  第 4 步 — arXiv（针对 [5][7] 及 [1] 备份）
+    [5] 搜 “Mehrabipour Hajbabaie traffic assignment” → arXiv:2112.14389
+    [7] 搜 “Wang Pan Guay distributed state estimation aperiodic” → arXiv:2211.05223
+    [1] 搜 “Shorinwa distributed optimization multi-robot” → arXiv:2301.11313
+
+  第 5 步 — 作者主页（开放 PDF）
+    [1] https://msl.stanford.edu/papers/shorinwa_distributed_2024-1.pdf
+    [4] https://qianpiao.github.io/files/Fully_Distributed_Task_Offloading_in_Vehicular_Edge_Computing.pdf
+
+【两组关键词的设计逻辑（对应 Introduction 手写标注）】
+
+  组 A — 图2 标注“太老 / 补充引用 / 期刊论文”（robotics, smart grid, WSN, IoV）：
+    Google Scholar 检索式示例：
+      "distributed optimization" robotics journal 2023..2024
+      "distributed control" OR "distributed optimization" smart grid microgrid IEEE 2023..2025
+      "distributed estimation" wireless sensor network IEEE 2023..2024
+      "distributed task offloading" vehicular edge computing IEEE 2023..2024
+      "decentralized optimization" review 2023
+
+  组 B — 图1 标注“最新文献 加引用”（交通/调度/估计/控制）：
+    Google Scholar 检索式示例：
+      "distributed gradient" "dynamic traffic assignment" IEEE 2022..2023
+      "distributed economic dispatch" "gradient tracking" communication IEEE 2023..2025
+      "distributed state estimation" networked aperiodic IEEE TCNS 2023..2024
+      "distributed optimal consensus" constrained multiagent IEEE TAC 2023..2024
+
+【筛选标准】
+  - 优先 IEEE Transactions / 领域顶刊，2022 年以后发表
+  - 标题/摘要中明确涉及 distributed / decentralized + optimization / control / estimation
+  - 与 NDO“多智能体 + 网络通信 + 协调/共享变量”语境一致
+  - 避免教科书式经典文献（如 Bertsekas 1989）作为“最新应用”例证
+
+【PDF 获取方式汇总】
+  编号  获取网站
+  ----  --------------------------------------------------------
+  [1]   Google Scholar → 作者 Stanford 主页（开放 PDF）
+  [2]   Google Scholar → IEEE Xplore（机构订阅，用户已下载）
+  [3]   Google Scholar → IEEE Xplore（机构订阅，用户已下载）
+  [4]   Google Scholar → 作者 GitHub Pages（开放 PDF）
+  [5]   Google Scholar → arXiv.org（开放 PDF）
+  [6]   Google Scholar → IEEE Xplore（机构订阅，用户已下载）
+  [7]   Google Scholar → arXiv.org（开放 PDF；正式版在 IEEE Xplore）
+  [8]   Google Scholar → IEEE Xplore（机构订阅，用户已下载）
+  [9]   Google Scholar → ScienceDirect（机构订阅，用户已下载）
+
+
+二、参考文献逐条说明（中文）
+--------------------------------------------------------------------------------
+
+[1] O. Shorinwa, T. Halsted, J. Yu, and M. Schwager,
+    “Distributed optimization methods for multi-robot systems: Part 1—A tutorial,”
+    IEEE Robotics & Automation Magazine, vol. 31, no. 3, pp. 121–138, 2024.
+    DOI: 10.1109/MRA.2024.3358718
+    本地 PDF: 01_robotics_shorinwa2024.pdf
+
+【如何搜到】
+  网站：Google Scholar → IEEE Xplore → 作者主页（msl.stanford.edu）
+  关键词：distributed optimization multi-robot systems tutorial 2024
+
+【论文讲了什么】
+  这是面向多机器人系统的分布式优化教程（系列 Part 1）。文章说明 SLAM、目标跟踪、
+  任务分配等典型多机器人问题都可写成可分离的分布式优化形式；并系统介绍三类方法：
+  分布式一阶方法（DFO）、分布式序列凸规划、以及 ADMM。文中有仿真与 Raspberry Pi
+  硬件通信实验，强调真实网络下的分布式求解。
+
+【与本论文的关系】
+  用于 Introduction 第一句列举 NDO 应用场景时引用“robotics”。它说明：在机器人
+  网络中，性能取决于多节点通过通信图协同优化——这与本文 NDO 设定一致。本文不同
+  之处在于：Shorinwa 等讨论的是梯度可得的分布式优化框架；本文关注 black-box
+  MACPO 式惩罚协商 NDO，并进一步把“何时通信”作为一等决策（conflict-triggered gate），
+  而非假定每轮都交换信息。
+
+
+[2] Q. Liu, L. Zhang, H. Zhang, S. Wang, and X. Ji,
+    “Distributed secondary optimal control with fast voltage recovery and minimum
+    generation cost for islanded DC microgrids,”
+    IEEE Transactions on Smart Grid, vol. 16, no. 1, pp. 4–15, Jan. 2025.
+    DOI: 10.1109/TSG.2024.3443242
+    本地 PDF: 02_smartgrid_liu2025.pdf
+
+【如何搜到】
+  网站：Google Scholar → IEEE Xplore（ieeexplore.ieee.org）
+  关键词：distributed secondary optimal control smart grid DC microgrid 2024 2025
+
+【论文讲了什么】
+  针对孤岛直流微电网，提出分布式二次最优控制：在仅与邻居点对点通信的条件下，
+  同时实现电压恢复与发电成本最小化。方法基于观测器 + LQR 型分布式控制器设计，
+  并给出稳定性与渐近最优性分析，仿真验证收敛速度优于传统一致性控制。
+
+【与本论文的关系】
+  用于 Introduction 列举“smart grids”应用。该文代表智能电网中“分布式协调优化/
+  控制”的主流期刊工作。本文 Route 2 的 IEEE 30/57/118 调度试点与 MAED 应用案例
+  同属电力网络协调场景；但 Liu 等假设解析模型与连续时间控制，本文则在 MACPO
+  black-box NDO 框架下研究通信触发策略，并用 RL-MACPO 在相同评估预算下减少
+  协商触发率（约 88%）同时保持或改善 f_pure。
+
+
+[3] G. Chen and Y. Zhou,
+    “Dynamic estimation over distributed sensing network with communication delays,”
+    IEEE Transactions on Industrial Informatics, vol. 20, no. 4, pp. 5449–5458, Apr. 2024.
+    DOI: 10.1109/TII.2023.3334307
+    本地 PDF: 03_wsn_chen2024.pdf
+
+【如何搜到】
+  网站：Google Scholar → IEEE Xplore（ieeexplore.ieee.org）
+  关键词：dynamic estimation distributed sensing network communication delays 2024
+
+【论文讲了什么】
+  研究带通信时滞、时变有向图、不确定环境下的分布式动态参数估计。提出基于
+  次梯度/随机梯度/无梯度信息的 dynamic dual averaging 类在线估计算法（DDAEA），
+  给出动态遗憾界（dynamic regret bound）分析，并用仿真验证有效性。
+
+【与本论文的关系】
+  用于 Introduction 列举“wireless sensor networks”。WSN 是典型的“节点仅局部可观、
+  需通过网络协同”的系统，与 NDO 的信息结构一致。Chen 等关注估计精度与通信
+  时滞下的在线优化；本文则关注 black-box 优化外层循环中“是否开启协商通道”，
+  在 MACPO 基准上通过 conflict proxy 与 fail-safe 门控减少无效通信——问题层级
+  不同，但共同背景都是分布式传感网络下的协调代价。
+
+
+[4] Q. Ma, H. Xu, H. Wang, Y. Xu, Q. Jia, and C. Qiao,
+    “Fully distributed task offloading in vehicular edge computing,”
+    IEEE Transactions on Vehicular Technology, vol. 73, no. 4, pp. 5630–5646, Apr. 2024.
+    DOI: 10.1109/TVT.2023.3331344
+    本地 PDF: 04_iov_ma2024.pdf
+
+【如何搜到】
+  网站：Google Scholar → IEEE Xplore → 作者主页（qianpiao.github.io）
+  关键词：fully distributed task offloading vehicular edge computing 2024
+
+【论文讲了什么】
+  面向车联网边缘计算（VEC），提出 Fully Distributed Task Offloading（FDTO）：
+  车辆仅根据邻居 RSU 的资源信息迭代调整卸载决策，无需中心节点。给出贪心版
+  （FDTO-VG）与凸优化版（FDTO-VX）两种分布式算法，证明迭代收敛到全局最优，
+  仿真显示平均任务响应时间比现有方法降低 50%–65%。
+
+【与本论文的关系】
+  用于 Introduction 列举“Internet of Vehicles (IoV)”。IoV 是大规模移动节点上的
+  分布式决策典型场景。Ma 等解决的是 VEC 任务卸载；本文解决的是 NDO 中共享变量
+  协商的通信时机。共同点：都强调 fully distributed、邻居通信、迭代协调；本文
+  额外引入 event-triggered 思想，在 penalty-negotiation NDO 上量化 communication–
+  quality 权衡，而非针对 VEC 卸载问题本身。
+
+
+[5] M. Mehrabipour and A. Hajbabaie,
+    “A distributed gradient approach for system optimal dynamic traffic assignment,”
+    IEEE Transactions on Intelligent Transportation Systems, vol. 23, no. 10,
+    pp. 17410–17424, Oct. 2022.
+    DOI: 10.1109/TITS.2022.3163369
+    本地 PDF: 05_traffic_mehrabipour2022.pdf
+
+【如何搜到】
+  网站：Google Scholar → IEEE Xplore → arXiv.org（2112.14389）
+  关键词：distributed gradient system optimal dynamic traffic assignment 2022
+
+【论文讲了什么】
+  基于 cell transmission model 的系统最优动态交通分配（SODTA），提出分布式梯度法：
+  将路网分解为交叉口级子问题，子问题仅与相邻交叉口通信、对共享决策变量加权平均
+  并做梯度步与投影，在有限迭代内达到 ≤5% 最优性间隙。
+
+【与本论文的关系】
+  用于 Introduction 第二段列举“transportation flow assignment”——这是共享变量耦合
+  的典型例：相邻区域/路口共享流量或路径变量。Mehrabipour 等是梯度可得的交通 NDO；
+  本文处理 black-box MACPO 场景，共享维通过惩罚协商对齐。引用目的是说明 mixed
+  private/shared 结构在交通领域广泛存在，而非声称本文算法直接用于 SODTA。
+
+
+[6] D. Ma, M. Xing, Y. Li, and Q. Sun,
+    “Distributed economic dispatch with dynamic power demand: An implicit dual gradient
+    tracking algorithm under random-triggered transmission protocol,”
+    IEEE Transactions on Power Systems, vol. 40, no. 2, pp. 1931–1942, Mar. 2025.
+    DOI: 10.1109/TPWRS.2024.3447089
+    本地 PDF: 06_dispatch_ma2025.pdf
+
+【如何搜到】
+  网站：Google Scholar → IEEE Xplore（ieeexplore.ieee.org）
+  关键词：distributed economic dispatch dynamic power demand implicit dual gradient
+           tracking random-triggered transmission 2024 2025
+
+【论文讲了什么】
+  在动态负荷下研究分布式经济调度（EDP）。提出 implicit dual gradient tracking（IDGT）
+  跟踪时变最优解轨迹；并设计 random-triggered transmission protocol（RTTP），用
+  Markov 链建模通信成功/丢包/静默，在不计算复杂触发函数的情况下调节通信频率。
+
+【与本论文的关系】
+  用于 Introduction 列举“electric dispatching”。这是与本文最直接相关的应用引用之一：
+  Ma 等同样关注“减少通信次数 + 跟踪优化质量”。区别在于：Ma 等针对凸 EDP 与梯度
+  跟踪，触发协议是随机 Markov 通信模型；本文针对 black-box penalty-negotiation NDO，
+  用 conflict proxy + 相对阈值 + fail-safe 做确定/半确定门控，并在 MACPO F1–F18 与
+  Route 2 调度试点上验证。本文 Section 应用实验（MAED、IEEE 案例）与这类文献同属
+  电力调度语境，可互相支撑“通信受限协调”动机。
+
+
+[7] S. Wang, Y.-J. Pan, and M. Guay,
+    “Distributed state estimation for linear time-invariant systems with aperiodic
+    sampled measurement,”
+    IEEE Transactions on Control of Network Systems, vol. 11, no. 4, pp. 1835–1844,
+    Dec. 2024.
+    DOI: 10.1109/TCNS.2024.3355041
+    本地 PDF: 07_stateest_wang2024.pdf
+
+【如何搜到】
+  网站：Google Scholar → IEEE Xplore → arXiv.org（2211.05223）
+  关键词：distributed state estimation linear time-invariant aperiodic sampled 2024
+
+【论文讲了什么】
+  研究 LTI 系统的分布式状态估计：各观测器仅局部可观、非周期采样、异步通信，
+  在 jointly observable 假设下设计分布式观测器，证明估计误差指数收敛，并给出
+  允许采样周期的显式上界。
+
+【与本论文的关系】
+  用于 Introduction 列举“distributed state estimation”。状态估计与 NDO 同属网络化
+  协调问题：局部信息 + 邻居交换 → 全局一致性。Wang 等处理的是连续/采样动力学
+  下的估计；本文处理 black-box 外层优化中的协商触发。共同点是“非周期/稀疏通信
+  仍要维持系统级性能”；本文用 fail-safe 保证静默期 reference 不冻结，与估计/控制
+  文献中 event-triggered 动机一致。
+
+
+[8] N. Bai, Q. Wang, Z. Duan, and G. Chen,
+    “Distributed optimal consensus control of constrained multiagent systems:
+    A nonseparable optimization perspective,”
+    IEEE Transactions on Automatic Control, vol. 69, no. 10, pp. 6880–6894, Oct. 2024.
+    DOI: 10.1109/TAC.2024.3390849
+    本地 PDF: 08_netcontrol_bai2024.pdf
+
+【如何搜到】
+  网站：Google Scholar → IEEE Xplore（ieeexplore.ieee.org）
+  关键词：distributed optimal consensus control constrained multiagent nonseparable
+           optimization 2024
+
+【论文讲了什么】
+  将约束多智能体最优一致性控制表述为非可分离约束优化，设计分布式 hybrid gradient
+  projection ADMM，把耦合问题拆成各 agent 独立子问题；结合 receding horizon 保证
+  闭环稳定，仿真验证有效性。
+
+【与本论文的关系】
+  用于 Introduction 列举“networked control problems”。Bai 等代表 TAC 近年“分布式
+  最优一致性 = 分布式优化”线路。本文 MACPO/RL-MACPO 也在多智能体网络上通过协商
+  达成共享变量一致，但对象是无梯度 black-box 目标 + 惩罚项。引用用于说明 networked
+  control 与 distributed optimization 已深度融合；本文贡献是 timing/gating 层，
+  而非新的 consensus ADMM 求解器。
+
+
+[9] M. Chica, D. Manjarres, and S. Cordón,
+    “A review of decentralized optimization focused on information flows of
+    decomposition algorithms,”
+    Computers & Operations Research, vol. 153, Art. no. 106190, 2023.
+    DOI: 10.1016/j.cor.2023.106190
+    本地 PDF: 09_review_chica2023.pdf
+
+【如何搜到】
+  网站：Google Scholar → ScienceDirect（sciencedirect.com）
+  关键词：decentralized optimization review information flows decomposition algorithms 2023
+
+【论文讲了什么】
+  综述 decentralized optimization，重点按 decomposition 算法的信息流分类（Benders、
+  Dantzig–Wolfe、ADMM 等如何在 peer-to-peer 网络中传递对偶/主问题信息），讨论
+  无中心协调器下的收敛与隐私动机。
+
+【与本论文的关系】
+  替代旧综述性引用，支撑 Introduction 中“many agents on a graph optimize through
+  local information and neighbor interaction”这一总述。Chica 等从分解算法信息流角度
+  概括 decentralized optimization；本文在此基础上聚焦 black-box NDO 中 MACPO 式
+  协商的 communication timing，并指出 gate 与 penalty controller 可分离——这是对
+  “信息流/通信结构”问题的更细粒度补充，而非重复 ADMM 理论。
+
+
+三、与本文整体逻辑的对应关系（汇总）
+--------------------------------------------------------------------------------
+
+  Introduction 位置          引用编号    作用
+  -------------------------  --------  ------------------------------------------
+  NDO 应用领域（robotics…）   [1]–[4]   证明 NDO 在四大现代网络系统中仍是活跃话题
+  NDO 方法总述               [9]       提供 2023 年 decentralized optimization 综述
+  共享变量场景（交通…）       [5]–[8]   证明 private+shared 混合结构广泛存在于工程系统
+  MACPO 骨干（正文另引）     ref_macpo  本文算法实例化平台，非本清单 9 条之列
+
+  本文核心贡献（communication timing / conflict-triggered gate）在上述文献中：
+    - 未被 [1]–[9] 直接覆盖（它们各自解决具体领域问题或一般分布式优化框架）；
+    - 但与 [6] 的通信触发、[7] 的非周期协调、[9] 的信息流视角形成呼应；
+    - Route 2 实验则把 [2][6] 所代表的 dispatch/grid 场景作为迁移验证域。
+
+================================================================================
+文档结束
+================================================================================
