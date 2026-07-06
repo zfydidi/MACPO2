@@ -1,6 +1,6 @@
 """GFPDO / DPSO anchors for Table I (F1--F6).
 
-GFPDO: single-run pilot under MACPO_sourcecode/output_baselines_gfpdo_1run.
+GFPDO: 25-run batch under MACPO_sourcecode/output_baselines_gfpdo_25runs.
 DPSO LLSO: prefer ablation_experiments/results/external_baselines_25runs_unified/summary.json.
 DPSO CSO: 25-run batch under MACPO_sourcecode/output_baselines_dpso_25runs.
 Falls back to MACPO paper Table I when logs are missing.
@@ -13,7 +13,7 @@ from pathlib import Path
 from utils.baseline_log_stats import load_baseline_series_optional, summarize
 
 _REPO = Path(__file__).resolve().parents[1]
-GFPDO_DIR = _REPO / "MACPO_sourcecode" / "output_baselines_gfpdo_1run"
+GFPDO_DIR = _REPO / "MACPO_sourcecode" / "output_baselines_gfpdo_25runs"
 DPSO_DIR = _REPO / "MACPO_sourcecode" / "output_baselines_dpso_25runs"
 DPSO_UNIFIED_SUMMARY = (
     _REPO
@@ -105,8 +105,8 @@ def _load_all() -> tuple[
     dict[str, tuple[float, float, float]],
     dict[str, tuple[float, float, float]],
 ]:
-    gfpdo_llso = _tuple_from_dir(GFPDO_DIR, "GFPDO", "LLSO", 1, _GFPDO_LLSO_FALLBACK)
-    gfpdo_cso = _tuple_from_dir(GFPDO_DIR, "GFPDO", "CSO", 1, _GFPDO_CSO_FALLBACK)
+    gfpdo_llso = _tuple_from_dir(GFPDO_DIR, "GFPDO", "LLSO", 25, _GFPDO_LLSO_FALLBACK)
+    gfpdo_cso = _tuple_from_dir(GFPDO_DIR, "GFPDO", "CSO", 25, _GFPDO_CSO_FALLBACK)
     dpso_llso = _tuple_from_unified_dpso_llso(_DPSO_LLSO_FALLBACK) or _tuple_from_dir(
         DPSO_DIR, "DPSO1", "LLSO", 25, _DPSO_LLSO_FALLBACK
     )
