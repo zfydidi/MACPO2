@@ -185,8 +185,8 @@ def plot_fes_panel_2x3(
     setup_font,
 ) -> None:
     """
-    3×2 子图（三行两列，每行 2 个）：MACPO vs RL-MACPO，共享纵轴 [1e2, 1e12]（6 个对数主刻度），
-    横轴 0–150000（4 个刻度）。子图顺序为 F1,F2 / F3,F4 / F5,F6。每子图标题为函数名；
+    2×3 子图（两行三列）：MACPO vs RL-MACPO，共享纵轴 [1e2, 1e12]（6 个对数主刻度），
+    横轴 0–150000（4 个刻度）。子图顺序为 F1,F2,F3 / F4,F5,F6。每子图标题为函数名；
     xlabel「Evaluations」、ylabel「fitness」；刻度朝内。与单图一致使用 NO_STD_SHADE_FUNCS 控制是否画 std 阴影。
 
     items: 长度 6 的列表，每项 (函数名, MACPO 轨迹路径列表, RL 轨迹路径列表)。
@@ -201,9 +201,9 @@ def plot_fes_panel_2x3(
     setup_font()
     matplotlib.rcParams["axes.unicode_minus"] = False
 
-    # 三行两列；不共享轴（sharex/sharey=False），否则 matplotlib 只在最下/最左子图显示刻度数字，
+    # 两行三列；不共享轴（sharex/sharey=False），否则 matplotlib 只在最下/最左子图显示刻度数字，
     # 论文面板需要每个子图都有 Evaluations 与 fitness 的刻度。各子图仍用同一 xlim/ylim。
-    fig, axes = plt.subplots(3, 2, figsize=(7.6, 10.6), sharex=False, sharey=False)
+    fig, axes = plt.subplots(2, 3, figsize=(10.8, 6.4), sharex=False, sharey=False)
     axes_flat = axes.flatten()
 
     for idx, (fn, macpo_paths, rl_paths) in enumerate(items):

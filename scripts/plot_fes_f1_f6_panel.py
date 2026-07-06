@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-合成 F1–F6 为 2×3 面板图：纵轴统一 10²–10¹²（6 个主刻度），横轴 4 个刻度，
+合成 F1–F6 为 2×3 面板图（两行三列）：纵轴统一 10²–10¹²（6 个主刻度），横轴 4 个刻度，
 每子图标题为函数名，坐标轴标签为 Evaluations / fitness，刻度朝内。
 """
 from __future__ import annotations

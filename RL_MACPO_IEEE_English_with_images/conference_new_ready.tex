@@ -267,39 +267,14 @@ Under gate $g^t$, expected negotiation cost scales as $\mathcal{O}(I\,\bar p_{\m
 \section{MACPO Instantiation}\label{sec:method}
 We instantiate conflict-triggered communication on the MACPO backbone \cite{ref_macpo}. Each agent optimizes $h_i(x)=f_i(x)+\alpha_i c_i(x)$ locally. If $g_{\mathrm{global}}^t=1$, it negotiates on shared variables via Nash-style competition and two-sided perturbation checking (Algorithm~\ref{alg:negotiation_consistency}). Fig.~\ref{fig:rl_macpo_architecture} shows the pipeline. \emph{Communication} is the gate decision and \emph{negotiation} is post-gate processing.
 
-\begin{figure*}[!t]
+\begin{figure}[!t]
 \centering
-\resizebox{0.92\textwidth}{!}{%
-\begin{tikzpicture}[
-  font=\normalsize,
-  line/.style={-Latex, line width=1.0pt, draw=black},
-  box/.style={rounded corners=2pt, draw=black, fill=white, line width=0.8pt, minimum width=3.6cm, minimum height=0.90cm, align=center},
-  flow/.style={box},
-  gate/.style={box, minimum width=4.1cm, minimum height=1.15cm},
-  nego/.style={box, minimum width=3.7cm},
-  skip/.style={box, minimum width=3.2cm},
-  decision/.style={diamond, draw=black, fill=white, line width=0.8pt, aspect=2.1, inner sep=1.8pt, align=center}
-]
-\node[flow] (env) at (0,5.7) {Distributed NDO Environment};
-\node[flow, below=0.70cm of env] (opt) {1) Local Optimization};
-\node[flow, below=0.55cm of opt] (conf) {2) Conflict Proxy and Gating};
-\node[gate, below=0.55cm of conf] (gating) {Three-Level Gate\\{\scriptsize Interval $\mid$ Relative CI $\mid$ Fail-safe}};
-\node[decision, below=0.65cm of gating] (decide) {Communicate?};
-\node[nego, right=3.6cm of decide] (ex) {3) Negotiation Branch};
-\node[skip, left=3.6cm of decide] (skp) {Skip Negotiation};
-\node[flow, below=2.0cm of decide] (cons) {Consensus Update};
-\draw[line] (env) -- (opt) -- (conf) -- (gating) -- (decide);
-\draw[line] (decide.east) -- node[above, font=\small] {Yes} (ex.west);
-\draw[line] (decide.west) -- node[above, font=\small] {No} (skp.east);
-\draw[line] (ex.south) |- (cons.east);
-\draw[line] (skp.south) |- (cons.west);
-\node[flow, below=0.55cm of cons] (loop) {Next outer loop};
-\draw[line] (cons) -- (loop);
-\end{tikzpicture}%
-}
+\includegraphics[width=\columnwidth]{media/fig2.pdf}
 \caption{Conflict-triggered MACPO pipeline. Gating is the primary design lever; RL penalty control is an optional plug-in module.}
 \label{fig:rl_macpo_architecture}
-\end{figure*}
+\end{figure}
+
+\paragraph{Pipeline reading guide.} In Fig.~\ref{fig:rl_macpo_architecture}, each outer loop performs local search under the current penalty, evaluates the conflict proxy, and opens communication only when the gate fires. The negotiation branch updates shared variables when granted; otherwise the iteration skips neighbor exchange and refreshes consensus references.
 
 \begin{algorithm}[t]
   \footnotesize
@@ -362,28 +337,15 @@ F6 & Schwefel--Rosenbrock & 0.268 \\
 \paragraph{Notation and statistics.} $F(\mathbf{X})$ denotes the global objective in Eq.~\eqref{eq:global_objective}. Logged $f_{\mathrm{pure}}$ is the pure objective sum without penalty terms. Logged $f_{\mathrm{penalty}}$ includes conflict penalties. Lower is better unless a caption states otherwise. Main tables report mean, median, standard deviation, and win/tie/loss over \textbf{25 independent runs}. RL-MACPO vs.\ MACPO uses paired Wilcoxon signed-rank tests (LLSO) or Mann--Whitney U tests (CSO) at the 0.05 significance level \cite{ref_macpo}. Shaded cells mark the better mean within each MACPO vs.\ RL-MACPO pair. In Table~\ref{tab:macpo_style_all}, * marks RL-MACPO better and \# marks worse.
 
 \subsection{Experimental Roadmap}\label{sec:exp_roadmap}
-The evaluation is organized around four questions tied to the communication-efficiency goal of Section~\ref{sec:intro}. Fig.~\ref{fig:exp_roadmap} shows the reading order. The four blocks below state what each question tests and where the evidence appears.
 
 \begin{figure*}[!t]
 \centering
-\resizebox{0.88\textwidth}{!}{%
-\begin{tikzpicture}[
-  font=\small,
-  box/.style={draw, rounded corners=2pt, line width=0.8pt, minimum width=2.85cm, minimum height=0.72cm, align=center, fill=white},
-  arr/.style={-Latex, line width=0.9pt, draw=black}
-]
-\node[box] (q1) at (0,0) {Q1: Optimization\\quality};
-\node[box] (q2) at (3.15,0) {Q2: Communication\\reduction};
-\node[box] (q3) at (6.3,0) {Q3: Mechanism\\ \& controllers};
-\node[box] (q4) at (9.45,0) {Q4: Dispatch\\generalization};
-\draw[arr] (q1.east) -- (q2.west);
-\draw[arr] (q2.east) -- (q3.west);
-\draw[arr] (q3.east) -- (q4.west);
-\end{tikzpicture}%
-}
-\caption{Experimental roadmap (left to right). Details for each block are in the text below.}
+\includegraphics[width=\textwidth]{media/fig3.pdf}
+\caption{Experimental roadmap (left to right). Q1--Q4 test optimization quality, communication reduction, mechanism contributions, and dispatch transfer; arrows indicate the recommended reading order through Sections~\protect\ref{sec:exp_q1}--\protect\ref{sec:applications}.}
 \label{fig:exp_roadmap}
 \end{figure*}
+
+The evaluation is organized around four questions tied to the communication-efficiency goal of Section~\ref{sec:intro}. Fig.~\ref{fig:exp_roadmap} shows the reading order. The four blocks below state what each question tests and where the evidence appears.
 
 \paragraph{Q1 (Optimization quality).}
 Does RL-MACPO match or improve final fitness under the \emph{same} evaluation budget as MACPO? We compare paired 25-run batches on F1--F18 with LLSO (primary) and CSO (secondary). Table~\ref{tab:macpo_style_all} covers F1--F6. Table~\ref{tab:macpo_rl_mean_f1_f18} covers F7--F18. Fig.~\ref{fig:fes_f1_f6_panel} shows representative convergence curves.
@@ -540,13 +502,6 @@ RL-MACPO / CSO & 29.07 & 27.83 & 21.08 & 27.48 & 24.39 & 24.30 & 351.61 & 413.60
 
 Fig.~\ref{fig:fes_f1_f6_panel} shows paired best-so-far curves on F1--F6 for one paired representative run per function. The 25-run aggregates appear in Table~\ref{tab:macpo_style_all}.
 
-\begin{figure*}[!t]
-\centering
-\makebox[\textwidth][c]{\includegraphics[width=\textwidth]{media/F1_F6_panel.pdf}}
-\caption{FES-based convergence on F1--F6 (one paired representative run per function; best-so-far $F$ vs.\ cumulative evaluations).}
-\label{fig:fes_f1_f6_panel}
-\end{figure*}
-
 \paragraph{Q1 analysis.} Gated RL-MACPO wins every F1--F6 and F7--F18 comparison at the same evaluation budget (w/t/l 6/0/0 and 12/0/0). The gain is largest on high-conflict Rosenbrock-related instances and on F9/F15, where always-on MACPO fails to restore shared-variable consistency under static penalties (Table~\ref{tab:macpo_rl_mean_f1_f18}). \emph{RL Only} without gating remains weaker on F3/F5 (Table~\ref{tab:macpo_style_all}), so the improvement requires conflict gating rather than adaptive penalty alone.
 
 \subsection{Question 2: Does Conflict-Gated Communication Reduce Cost?}\label{sec:exp_q2}
@@ -607,20 +562,6 @@ F18 & \textbf{8.0} & 92.0\% \\
 \end{table}
 
 \paragraph{Q2 analysis.} With defaults in Table~\ref{tab:gate_defaults}, most outer loops fail the relative threshold and communication occurs mainly through minimum interval, fail-safe $K{=}10$, and phase sampling, yielding about one negotiation every twelve outer loops on F3--F18. F1/F2 stay above this floor because sustained conflict crosses the relative threshold more often. Fig.~\ref{fig:comm_fitness_pareto} places conflict-gated RL closer to the lower-left communication-budget frontier than periodic-$K$ pilots on F1/F2/F5. Fig.~\ref{fig:ci_bin_trigger} shows trigger probability falling from the lowest conflict quintile to the next two quintiles on F1--F6, consistent with Empirical Criterion~\ref{crit:skip}.
-
-\begin{figure*}[!t]
-\centering
-\makebox[\textwidth][c]{\includegraphics[width=\textwidth]{media/comm_fitness_pareto_f125.pdf}}
-\caption{Communication-budget frontier on F1/F2/F5 (Section~\ref{sec:timing_problem}, budget form). Horizontal axis: average trigger rate $\bar p_{\mathrm{comm}}$ (communication budget). Vertical axis: terminal $F$. Periodic-$K$ points are fixed-interval pilots (10 runs). RL gated (star) uses 25-run headline fitness and communication from Tables~\ref{tab:macpo_style_all} and~\ref{tab:f1f6_comm_eva}. Lower-left points are preferred.}
-\label{fig:comm_fitness_pareto}
-\end{figure*}
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth]{media/ci_bin_trigger_F1_F6.pdf}
-\caption{CI-conditioned communication on F1--F6 (25 paired runs with active gating). Each panel pools outer-loop rows, sorts by logged conflict proxy, splits into equal-count quintiles (Q1 = lowest conflict), and plots mean trigger indicator $g^t$ (empirical communication probability). Residual triggers in Q1 reflect fail-safe and minimum-interval paths. Q2--Q3 show reduced rates on all six benchmarks.}
-\label{fig:ci_bin_trigger}
-\end{figure*}
 
 \paragraph{Gate validation.}\label{sec:gate_validation}
 Table~\ref{tab:gate_cost_stats} compares gate variants on F1/F2/F5 over 30 runs. A fixed absolute threshold (V1) suppresses all communication in every run. Relative threshold with fail-safe (V3) preserves negotiation and cuts the trigger rate from 100\% (V0) to 46\% on average. Table~\ref{tab:lambda_sensitivity} sweeps $\lambda\in\{0.8,1.0,1.2,1.4\}$ on F3/F5 ($n{=}10$ runs per setting, headline stack, fail-safe $K{=}10$). Trigger rate shifts smoothly with $\lambda$ on F5 (27.5\% to 8.3\%) and is flat at the fail-safe floor for $\lambda\ge 1.0$ on F3, so the default $\lambda{=}1.2$ is not a narrow tuned optimum. Table~\ref{tab:external_masoie} adds MASOIE \cite{ref_masoie_2024} as a cross-paradigm external reference on the same function names. MAES-CCSA remains unavailable in open source.
@@ -707,26 +648,12 @@ RL (\emph{Full}) & 1.16E+3{$\pm$3.85E+2} & 8.3\% & 6.86E+6{$\pm$8.29E+5} & 15.8\
 
 \paragraph{RL penalty trajectories.}\label{sec:rl_diag_figures} Fig.~\ref{fig:conflict_alpha_bins} shows how the RL default adjusts $\alpha$ with logged conflict. These diagnostics explain controller behavior but do not by themselves establish RL superiority once gating is fixed. Appendix~\ref{app:rl_controller} reports additional trajectory and architecture-variant diagnostics for completeness.
 
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth]{media/conflict_alpha_bins_F1_F6.pdf}
-\caption{Pooled conflict--$\alpha$ relationship on F1--F6 (25 runs): mean $\alpha$ per conflict quintile; Spearman $\rho$ annotated.}
-\label{fig:conflict_alpha_bins}
-\end{figure*}
-
 \paragraph{Synthesis.} Table~\ref{tab:penalty_controller_f3_f5} shows that once conflict-gated communication is fixed on F3/F5, RL, EMA, and fixed phase schedules reach statistically tied best-so-far fitness at similarly low trigger rates (8.3--17.3\%). The dominant gain comes from the communication architecture, not from which penalty controller is plugged in. Appendix~\ref{app:rl_variants} (Table~\ref{tab:deeprl}) further shows that alternative RL architectures change mean fitness by less than five percent on F1--F6. RL is retained as a unified default controller without benchmark-specific schedules (Section~\ref{sec:discussion}), not because it wins every comparison.
 
 \subsubsection{Which architecture modules matter?}\label{sec:q3_modules}
 We next ablate gating depth, variable selection, phase sampling, and penalty-update knobs while holding the rest of the \emph{Full} stack fixed.
 
 \paragraph{Conflict gating.} Without Layer~2 (relative threshold), gating collapses variance on F1 (Fig.~\ref{fig:gating_ablation}). No-gating and Layer1-only means exceed MACPO with coefficient of variation up to 17.6\%. Layer1+2 and Full restore the Q1 mean (about 6.3 million) with low variance. Layer~2 is necessary. Layer~3 is marginal.
-
-\begin{figure*}[!t]
-\centering
-\makebox[\textwidth][c]{\includegraphics[width=\textwidth]{media/fig_gating_ablation.pdf}}
-\caption{Gating-layer ablation: final fitness of each configuration on F1--F6.}
-\label{fig:gating_ablation}
-\end{figure*}
 
 \paragraph{Variable selection.} The default \emph{Full} configuration ranks shared dimensions by $q_d^t$ and negotiates only a phase-dependent subset (Section~\ref{sec:method}, with \emph{NoSelection} disabling the filter). Together with gating, this concentrates negotiation on high-impact dimensions rather than all overlaps every round. The F1--F18 headline gains therefore reflect the gated-and-filtered stack, not penalty choice alone.
 
@@ -844,39 +771,6 @@ These results are provided for completeness only and do not alter the conclusion
 \subsection{Policy Trajectories}\label{app:rl_traj}
 Fig.~\ref{fig:conflict_alpha_bins} in the main text summarizes the pooled conflict--$\alpha$ relationship on F1--F6. Figs.~\ref{fig:f3_f5_micro} and~\ref{fig:rl_traj_metrics} complement that view with single-run micro-coupling on F3/F5 and 25-run mean trajectories. Subfigures~\ref{fig:rl_traj_alpha}--\ref{fig:rl_traj_reward} report $\alpha$, ratio $\rho$, conflict proxy, and RL reward versus cumulative evaluations.
 
-\begin{figure*}[!t]
-\centering
-\begin{subfigure}[t]{0.49\textwidth}
-\centering
-\includegraphics[width=\linewidth]{media/rl_metrics_mean25_rho_alpha.pdf}
-\caption{Mean penalty weight $\alpha$ ($\pm$ std).}
-\label{fig:rl_traj_alpha}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.49\textwidth}
-\centering
-\includegraphics[width=\linewidth]{media/rl_metrics_mean25_rho_rho.pdf}
-\caption{Mean ratio $\rho$ ($\pm$ std).}
-\label{fig:rl_traj_rho}
-\end{subfigure}
-
-\vspace{0.6em}
-
-\begin{subfigure}[t]{0.49\textwidth}
-\centering
-\includegraphics[width=\linewidth]{media/rl_metrics_mean25_rho_conflict.pdf}
-\caption{Conflict proxy ($\pm$ std).}
-\label{fig:rl_traj_conflict}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.49\textwidth}
-\centering
-\includegraphics[width=\linewidth]{media/rl_metrics_mean25_rho_reward.pdf}
-\caption{RL reward ($\pm$ std).}
-\label{fig:rl_traj_reward}
-\end{subfigure}
-\caption{RL-MACPO training diagnostics aggregated over 25 independent runs per benchmark (LLSO; same evaluation budget as the main comparison). Horizontal axis: cumulative evaluations. (a)--(d): mean $\pm$ std of logged $\alpha$, $\rho$, conflict, and reward. Subplot titles F1--F6 follow the MACPO NDO naming \cite{ref_macpo}.}
-\label{fig:rl_traj_metrics}
-\end{figure*}
-
 \subsection{Alternative RL Architectures}\label{app:rl_variants}
 We swapped the default PPO head for SimpleNet, A2C, LSTM, MLP, DQN, and Dueling DQN while holding conflict gating and the evaluation budget fixed. Table~\ref{tab:deeprl} and Fig.~\ref{fig:deeprl_comparison} show that endpoint fitness shifts by less than five percent on F1--F6---consistent with the controller-comparison result in the main text.
 
@@ -908,19 +802,6 @@ Dueling DQN & mean & $6.42\mathrm{E}\!+\!06$ & $3.47\mathrm{E}\!+\!03$ & $6.76\m
 \end{tabular}%
 }
 \end{table*}
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth,height=0.5\textheight,keepaspectratio]{media/f3_f5_conflict_alpha_micro.pdf}
-\captionof{figure}{Single-run conflict--$\alpha$ coupling on F3 and F5 (representative runs).}
-\label{fig:f3_f5_micro}
-
-\vspace{0.35em}
-
-\includegraphics[width=\textwidth,height=0.5\textheight,keepaspectratio]{media/fig_deeprl_comparison.pdf}
-\captionof{figure}{Visual summary of Table~\ref{tab:deeprl}. Mean final $F$ across F1--F6 for each RL architecture variant.}
-\label{fig:deeprl_comparison}
-\end{figure*}
 
 \subsection{Training Stability}\label{app:rl_stability}
 Across 25 independent runs per benchmark, logged $\alpha$, $\rho$, conflict, and reward traces in Fig.~\ref{fig:rl_traj_metrics} evolve smoothly without run-to-run divergence once gating is active. Reward means plateau after the early evaluation phase. Cross-run standard deviation remains bounded on F1--F6. This supports treating PPO as a stable default penalty updater rather than a fragile, benchmark-tuned add-on.
@@ -1074,6 +955,6 @@ Section~\ref{sec:applications} reports headline paired means in Tables~\ref{tab:
 
 \end{thebibliography}
 
-
+\input{conference_new_ready_deferred_floats}
 
 \end{document}

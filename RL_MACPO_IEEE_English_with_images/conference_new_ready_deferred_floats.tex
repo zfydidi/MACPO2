@@ -1,0 +1,83 @@
+% Large figures (placed after references).
+\clearpage
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth,height=0.44\textheight,keepaspectratio]{media/f3_f5_conflict_alpha_micro.pdf}
+\captionof{figure}{Single-run conflict--$\alpha$ coupling on F3 and F5 (representative runs).}
+\label{fig:f3_f5_micro}
+
+\vspace{0.35em}
+
+\includegraphics[width=\textwidth,height=0.44\textheight,keepaspectratio]{media/fig_deeprl_comparison.pdf}
+\captionof{figure}{Visual summary of Table~\ref{tab:deeprl}. Mean final $F$ across F1--F6 for each RL architecture variant.}
+\label{fig:deeprl_comparison}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\makebox[\textwidth][c]{\includegraphics[width=\textwidth]{media/F1_F6_panel.pdf}}
+\caption{FES-based convergence on F1--F6 (one paired representative run per function; best-so-far $F$ vs.\ cumulative evaluations).}
+\label{fig:fes_f1_f6_panel}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\makebox[\textwidth][c]{\includegraphics[width=\textwidth]{media/comm_fitness_pareto_f125.pdf}}
+\caption{Communication-budget frontier on F1/F2/F5 (Section~\ref{sec:timing_problem}, budget form). Horizontal axis: average trigger rate $\bar p_{\mathrm{comm}}$ (communication budget). Vertical axis: terminal $F$. Periodic-$K$ points are fixed-interval pilots (10 runs). RL gated (star) uses 25-run headline fitness and communication from Tables~\ref{tab:macpo_style_all} and~\ref{tab:f1f6_comm_eva}. Lower-left points are preferred.}
+\label{fig:comm_fitness_pareto}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{media/ci_bin_trigger_F1_F6.pdf}
+\caption{CI-conditioned communication on F1--F6 (25 paired runs with active gating). Each panel pools outer-loop rows, sorts by logged conflict proxy, splits into equal-count quintiles (Q1 = lowest conflict), and plots mean trigger indicator $g^t$ (empirical communication probability). Residual triggers in Q1 reflect fail-safe and minimum-interval paths. Q2--Q3 show reduced rates on all six benchmarks.}
+\label{fig:ci_bin_trigger}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{media/conflict_alpha_bins_F1_F6.pdf}
+\caption{Pooled conflict--$\alpha$ relationship on F1--F6 (25 runs): mean $\alpha$ per conflict quintile; Spearman $\rho$ annotated.}
+\label{fig:conflict_alpha_bins}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\makebox[\textwidth][c]{\includegraphics[width=\textwidth]{media/fig_gating_ablation.pdf}}
+\caption{Gating-layer ablation: final fitness of each configuration on F1--F6.}
+\label{fig:gating_ablation}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\begin{subfigure}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{media/rl_metrics_mean25_rho_alpha.pdf}
+\caption{Mean penalty weight $\alpha$ ($\pm$ std).}
+\label{fig:rl_traj_alpha}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{media/rl_metrics_mean25_rho_rho.pdf}
+\caption{Mean ratio $\rho$ ($\pm$ std).}
+\label{fig:rl_traj_rho}
+\end{subfigure}
+
+\vspace{0.6em}
+
+\begin{subfigure}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{media/rl_metrics_mean25_rho_conflict.pdf}
+\caption{Conflict proxy ($\pm$ std).}
+\label{fig:rl_traj_conflict}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{media/rl_metrics_mean25_rho_reward.pdf}
+\caption{RL reward ($\pm$ std).}
+\label{fig:rl_traj_reward}
+\end{subfigure}
+\caption{RL-MACPO training diagnostics aggregated over 25 independent runs per benchmark (LLSO; same evaluation budget as the main comparison). Horizontal axis: cumulative evaluations. (a)--(d): mean $\pm$ std of logged $\alpha$, $\rho$, conflict, and reward. Subplot titles F1--F6 follow the MACPO NDO naming \cite{ref_macpo}.}
+\label{fig:rl_traj_metrics}
+\end{figure*}

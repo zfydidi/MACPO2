@@ -37,19 +37,19 @@
     
     \indent\textbf{1.1 研究来源与问题背景}
     
-    本研究来源于网络化分布式优化（Network-based Distributed Optimization，NDO）问题：全局目标与共享变量约束耦合于通信网络，各节点仅掌握局部信息并需在有限带宽下协同决策\cite{bertsekas1989,rabbat2004,boyd2011,chica2023}。该类问题在智能电网调度、交通流分配、分布式传感与车联网协同控制等场景具有明确建模需求。2023 年以来，面向信息流的分布式优化综述系统梳理了分解—协调类算法在异构网络、动态拓扑下的收敛与通信代价\cite{chica2023}；2025 年进一步出现面向时变非平衡网络与隐私约束的分布式约束优化研究\cite{wei2025privacy}，表明“如何在通信受限条件下维持一致性并优化全局目标”仍是活跃方向。与本课题直接相关的 MACPO 框架\cite{chen2024macpo}于 2024 年提出，将惩罚型局部目标、冲突检测与邻居协商结合，为网络化黑箱 NDO 提供了可复现实验基准；但 MACPO 仅是近年进展之一，而非唯一参照。
+    本研究来源于网络化分布式优化（Network-based Distributed Optimization，NDO）问题：全局目标与共享变量约束耦合于通信网络，各节点仅掌握局部信息并需在有限带宽下协同决策\cite{chica2023}。该类问题在智能电网调度、交通流分配、分布式传感与车联网协同控制等场景具有明确建模需求。2023 年以来，面向信息流的分布式优化综述系统梳理了分解—协调类算法在异构网络、动态拓扑下的收敛与通信代价\cite{chica2023}；2025 年进一步出现面向时变非平衡网络与隐私约束的分布式约束优化研究\cite{wei2025privacy}，表明“如何在通信受限条件下维持一致性并优化全局目标”仍是活跃方向。与本课题直接相关的 MACPO 框架\cite{chen2024macpo}于 2024 年提出，将惩罚型局部目标、冲突检测与邻居协商结合，为网络化黑箱 NDO 提供了可复现实验基准；但 MACPO 仅是近年进展之一，而非唯一参照。
 
     \indent\textbf{1.2 梯度式分布式优化与通信效率研究}
     
-    围绕一致性思想，DGD、ADMM、EXTRA、Push-Pull 等经典方法在凸或光滑假设下具有较好收敛保证\cite{nedic2009,boyd2011,shi2015,pu2021}；Decentralized SGD 及其变体在时变拓扑与局部更新设定下亦得到统一理论分析\cite{koloskova2020}。然而 NDO 场景中目标与约束往往非凸、黑箱，且难以满足梯度可得与可分解等前提\cite{ghadimi2013,chica2023}。另一方面，联邦学习与 Local SGD 等研究从机器学习角度强调“少通信、多本地计算”\cite{mcmahan2017,stich2019,kairouz2021}，与本课题关注的“何时通信、通信哪些变量”在问题结构上并不相同，但为通信效率指标与实验对照提供了方法论参照。因此，本课题不宜沿用传统凸优化主路径，而需在黑箱协同进化范式下同时处理协调质量与通信代价。
+    围绕一致性思想，ADMM 等经典方法在凸或光滑假设下具有较好收敛保证\cite{boyd2011}；Decentralized SGD 及其变体在时变拓扑与局部更新设定下亦得到统一理论分析\cite{koloskova2020}。然而 NDO 场景中目标与约束往往非凸、黑箱，且难以满足梯度可得与可分解等前提\cite{ghadimi2013}。另一方面，联邦学习从机器学习角度强调“少通信、多本地计算”\cite{mcmahan2017}，与本课题关注的“何时通信、通信哪些变量”在问题结构上并不相同，但为通信效率指标与实验对照提供了方法论参照。因此，本课题不宜沿用传统凸优化主路径，而需在黑箱协同进化范式下同时处理协调质量与通信代价。
 
     \indent\textbf{1.3 黑箱约束优化与惩罚机制}
     
-    惩罚函数法是黑箱约束优化的常用手段；可行性规则、$\varepsilon$-约束法、随机排序及自适应惩罚等机制虽缓解了参数敏感问题\cite{coello2002,deb2000,takahama2006,runarsson2000,li2019,wang2014,mezuramontes2011,karafotias2015}，但在冲突强度随搜索阶段动态变化时，静态惩罚仍难以兼顾可行引导与搜索效率。2023 年后，面向非凸分布式约束优化的集体神经动力学惩罚方法\cite{huang2024neuro}等尝试以分布式神经网络处理不等式约束，但多依赖连续时间动力学或特定网络结构，与 MACPO 式“进化搜索 + 离散协商”的黑箱 NDO 路径不同。本课题仍将惩罚参数与冲突演化的在线匹配作为核心改进方向之一。
+    惩罚函数法是黑箱约束优化的常用手段；可行性规则、$\varepsilon$-约束法与自适应惩罚等机制虽缓解了参数敏感问题\cite{mezuramontes2011}，但在冲突强度随搜索阶段动态变化时，静态惩罚仍难以兼顾可行引导与搜索效率。2023 年后，面向非凸分布式约束优化的集体神经动力学惩罚方法\cite{huang2024neuro}等尝试以分布式神经网络处理不等式约束，但多依赖连续时间动力学或特定网络结构，与 MACPO 式“进化搜索 + 离散协商”的黑箱 NDO 路径不同。本课题仍将惩罚参数与冲突演化的在线匹配作为核心改进方向之一。
 
     \indent\textbf{1.4 大规模协同进化与分布式黑箱优化（2020--2025）}
     
-    协同进化通过子问题划分与多智能体并行演化处理高维黑箱问题\cite{back1996,potter1994,omidvar2014,li2012survey,ma2019ccsurvey}。DPSO、GFPDO 等工作将协同进化引入分布式场景\cite{yang2008,li2012pso,kennedy1995,omidvar2017}；2024 年 Ding 等提出带收敛分析与集群加速的分布式协同进化（DCC）框架\cite{ding2024}，在 CEC 大规模基准上验证了分解式黑箱优化的可扩展并行实现；2025 年亦出现基于变量重要性的动态协同进化方法\cite{jia2025dcc}，进一步强调“按变量相关性组织协同”而非固定分组。上述工作主要面向全局黑箱优化或同构分布式采样，对“私有变量 + 边共享变量”的 NDO 拓扑与邻居协商机制覆盖有限。
+    协同进化通过子问题划分与多智能体并行演化处理高维黑箱问题\cite{li2012survey}。DPSO、GFPDO 等工作将协同进化引入分布式场景\cite{yang2008}；2024 年 Ding 等提出带收敛分析与集群加速的分布式协同进化（DCC）框架\cite{ding2024}，在 CEC 大规模基准上验证了分解式黑箱优化的可扩展并行实现。上述工作主要面向全局黑箱优化或同构分布式采样，对“私有变量 + 边共享变量”的 NDO 拓扑与邻居协商机制覆盖有限。
 
     \indent\textbf{1.5 网络化分布式黑箱优化的近期代表工作}
     
@@ -71,7 +71,7 @@
 \indent
 \textbf{1.6 强化学习赋能优化与多智能体决策}
 \par
-强化学习（Reinforcement Learning，RL）已被用于元启发式中的参数控制、算子选择与在线调节\cite{karafotias2015,sutton2018,latorre2023,song2024,mnih2015,schulman2017}；2023--2024 年连续出现 RL 辅助进化算法综述与梯度式元启发式参数自适应研究\cite{latorre2023,song2024}。需要区分的是：多智能体强化学习（MARL）侧重策略博弈与联合决策\cite{busoniu2008,yin2024drl}，而本课题中的 RL 仅作为惩罚控制接口的默认实现，并不替代 MACPO 的进化搜索与规则型通信门控。现有文献中，RL 在分布式黑箱 NDO 里多被讨论为惩罚或步长调节器，尚未与“冲突门控 + 变量筛选 + 可插拔惩罚接口”形成一体化架构——这正是本课题相对 MACPO 及 MASOIE、MAES-CCSA 等近期方法的差异化切入点。
+强化学习（Reinforcement Learning，RL）已被用于元启发式中的参数控制、算子选择与在线调节\cite{karafotias2015}；2023--2024 年亦出现 RL 辅助进化算法综述\cite{song2024}。需要区分的是：多智能体强化学习（MARL）侧重策略博弈与联合决策\cite{busoniu2008}，而本课题中的 RL 仅作为惩罚控制接口的默认实现，并不替代 MACPO 的进化搜索与规则型通信门控。现有文献中，RL 在分布式黑箱 NDO 里多被讨论为惩罚或步长调节器，尚未与“冲突门控 + 变量筛选 + 可插拔惩罚接口”形成一体化架构——这正是本课题相对 MACPO 及 MASOIE、MAES-CCSA 等近期方法的差异化切入点。
 
 \par
 \indent
@@ -99,7 +99,17 @@ MACPO & NDO 协同进化 & 异构+共享边 & $\checkmark$ & $\times$ & 惩罚 &
 \hline
 \end{tabularx}}
 
-\begin{thebibliography}{99}
+\begin{thebibliography}{19}
+
+\bibitem{chica2023}
+Manuel Chica, Daniel Manjarres, and Sergio Cord\'on.
+A review of decentralized optimization focused on information flows.
+\emph{Computers \& Operations Research}, 153:106190, 2023.
+
+\bibitem{wei2025privacy}
+Ming Wei, Wen Yu, Dong Chen, Ming Kang, and Guanrong Chen.
+Privacy distributed constrained optimization over time-varying unbalanced networks and its application in federated learning.
+\emph{IEEE/CAA Journal of Automatica Sinica}, 12(2):335--346, 2025.
 
 \bibitem{chen2024macpo}
 Taiyou Chen, Wei-Ni Chen, Xiao-Qi Guo, Ying-Jie Gong, and Jun Zhang.
@@ -108,104 +118,35 @@ for network-based distributed optimization.
 \emph{IEEE Transactions on Systems, Man, and Cybernetics: Systems},
 54(7):4358--4370, 2024.
 
-\bibitem{bertsekas1989}
-Dimitri P. Bertsekas and John N. Tsitsiklis.
-\emph{Parallel and Distributed Computation: Numerical Methods}.
-Prentice-Hall, 1989.
-
-\bibitem{rabbat2004}
-Michael G. Rabbat and Robert D. Nowak.
-Distributed optimization in sensor networks.
-In \emph{Proceedings of the International Symposium on Information Processing in Sensor Networks},
-pages 20--27, 2004.
-
 \bibitem{boyd2011}
 Stephen Boyd, Neal Parikh, Eric Chu, Borja Peleato, and Jonathan Eckstein.
 Distributed optimization and statistical learning via the alternating direction method of multipliers.
 \emph{Foundations and Trends in Machine Learning}, 3(1):1--122, 2011.
 
-\bibitem{nedic2009}
-Angelina Nedi\'c and Asuman Ozdaglar.
-Distributed subgradient methods for multi-agent optimization.
-\emph{IEEE Transactions on Automatic Control}, 54(1):48--61, 2009.
-
-\bibitem{shi2015}
-Wei Shi, Qing Ling, Guodong Wu, and Wotao Yin.
-EXTRA: An exact first-order algorithm for decentralized consensus optimization.
-\emph{SIAM Journal on Optimization}, 25(2):944--966, 2015.
+\bibitem{koloskova2020}
+Anastasia Koloskova, Nicolas Loizou, Sebastian Boreiri, Martin Jaggi, and Sebastian U. Stich.
+A unified theory of decentralized SGD with changing topology and local updates.
+In \emph{Proceedings of ICML}, pages 5381--5392, 2020.
 
 \bibitem{ghadimi2013}
 Shahrzad Ghadimi and Guanghui Lan.
 Stochastic first- and zeroth-order methods for nonconvex stochastic programming.
 \emph{SIAM Journal on Optimization}, 23(4):2341--2368, 2013.
 
-\bibitem{chica2023}
-Manuel Chica, Daniel Manjarres, and Sergio Cord\'on.
-A review of decentralized optimization focused on information flows.
-\emph{Computers \& Operations Research}, 153:106190, 2023.
-
-\bibitem{back1996}
-Thomas B\"ack.
-\emph{Evolutionary Algorithms in Theory and Practice}.
-Oxford University Press, 1996.
-
-\bibitem{kennedy1995}
-James Kennedy and Russell Eberhart.
-Particle swarm optimization.
-In \emph{Proceedings of the IEEE International Conference on Neural Networks},
-pages 1942--1948, 1995.
-
-\bibitem{deb2000}
-Kalyanmoy Deb.
-An efficient constraint handling method for genetic algorithms.
-\emph{Computer Methods in Applied Mechanics and Engineering}, 186(2--4):311--338, 2000.
+\bibitem{mcmahan2017}
+Brendan McMahan, Eider Moore, Daniel Ramage, Seth Hampson, and Blaise Ag\"uera y Arcas.
+Communication-efficient learning of deep networks from decentralized data.
+In \emph{Proceedings of AISTATS}, pages 1273--1282, 2017.
 
 \bibitem{mezuramontes2011}
 Efr\'en Mezura-Montes and Carlos A. Coello Coello.
 Constraint-handling in nature-inspired numerical optimization.
 \emph{Swarm and Evolutionary Computation}, 1(4):173--194, 2011.
 
-\bibitem{coello2002}
-Carlos A. Coello Coello.
-Theoretical and numerical constraint-handling techniques used with evolutionary algorithms:
-A survey of the state of the art.
-\emph{Computer Methods in Applied Mechanics and Engineering}, 191(11--12):1245--1287, 2002.
-
-\bibitem{takahama2006}
-Tetsuyuki Takahama and Setsuko Sakai.
-Constrained optimization by the $\varepsilon$-constrained differential evolution.
-In \emph{IEEE Congress on Evolutionary Computation}, pages 1--8, 2006.
-
-\bibitem{runarsson2000}
-Thomas P. Runarsson and Xin Yao.
-Stochastic ranking for constrained evolutionary optimization.
-\emph{IEEE Transactions on Evolutionary Computation}, 4(3):284--294, 2000.
-
-\bibitem{li2019}
-Ke Li, Renzhi Chen, Guanhua Fu, and Xin Yao.
-An adaptive penalty-based boundary intersection method for constrained multiobjective optimization.
-\emph{Information Sciences}, 478:15--37, 2019.
-
-
-\bibitem{wang2014}
-Yong Wang, Zixing Cai, and Qingfu Zhang.
-Differential evolution with adaptive constraint handling for constrained optimization.
-\emph{IEEE Transactions on Evolutionary Computation}, 18(6):1--15, 2014.
-
-\bibitem{karafotias2015}
-Giorgos Karafotias, Mark Hoogendoorn, and \'Agoston E. Eiben.
-Parameter control in evolutionary algorithms: Trends and challenges.
-\emph{IEEE Transactions on Evolutionary Computation}, 19(2):167--187, 2015.
-
-\bibitem{potter1994}
-Mitchell A. Potter and Kenneth A. De Jong.
-A cooperative coevolutionary approach to function optimization.
-In \emph{Parallel Problem Solving from Nature III}, pages 249--257, 1994.
-
-\bibitem{omidvar2014}
-Mohammad Nabi Omidvar, Xiaodong Li, Yi Mei, and Xin Yao.
-Cooperative co-evolution with differential grouping for large scale optimization.
-\emph{IEEE Transactions on Evolutionary Computation}, 18(3):378--393, 2014.
+\bibitem{huang2024neuro}
+Tao Huang, Jianquan Lu, Jianxi Yang, and Jinde Cao.
+A collective neurodynamic penalty approach to nonconvex distributed constrained optimization.
+\emph{Neural Networks}, 169:623--633, 2024.
 
 \bibitem{li2012survey}
 Xiaodong Li and Xin Yao.
@@ -217,115 +158,10 @@ Zhenyu Yang, Ke Tang, and Xin Yao.
 Large scale evolutionary optimization using cooperative coevolution.
 \emph{Information Sciences}, 178(15):2985--2999, 2008.
 
-\bibitem{li2012pso}
-Xiaodong Li and Xin Yao.
-Cooperatively coevolving particle swarms for large scale optimization.
-\emph{IEEE Transactions on Evolutionary Computation}, 16(2):210--224, 2012.
-
-\bibitem{omidvar2017}
-Mohammad Nabi Omidvar, Xiaodong Li, Yi Mei, and Xin Yao.
-DG2: A faster and more accurate differential grouping for large-scale black-box optimization.
-\emph{IEEE Transactions on Evolutionary Computation}, 21(6):929--942, 2017.
-
 \bibitem{ding2024}
 Ming Ding, Wenlong Gong, and Zixing Cai.
 Cooperative coevolution for non-separable large-scale black-box optimization: Convergence analyses and distributed accelerations.
 \emph{Applied Soft Computing}, 158:112232, 2024.
-
-\bibitem{tang2009}
-Ke Tang, Xiaodong Li, P. N. Suganthan, Zhenyu Yang, and Hans-Georg Beyer.
-Benchmark functions for the CEC'2010 special session on large-scale global optimization.
-Technical Report, 2009.
-
-\bibitem{li2013cec}
-Xiaodong Li, Ke Tang, Mohammad Nabi Omidvar, Zhenyu Yang, and Qin Chen.
-Benchmark functions for the CEC'2013 special session on large-scale global optimization.
-Technical Report, 2013.
-
-\bibitem{yang2018llso}
-Qingyang Yang, Songbai Liu, and Jianyong Sun.
-A level-based learning swarm optimizer for large-scale optimization.
-\emph{IEEE Transactions on Evolutionary Computation}, 22(4):578--594, 2018.
-
-\bibitem{cheng2015cso}
-Ran Cheng and Yaochu Jin.
-A competitive swarm optimizer for large scale optimization.
-\emph{IEEE Transactions on Cybernetics}, 45(2):191--204, 2015.
-
-\bibitem{sutton2018}
-Richard S. Sutton and Andrew G. Barto.
-\emph{Reinforcement Learning: An Introduction}, 2nd edition.
-MIT Press, 2018.
-
-\bibitem{mnih2015}
-Volodymyr Mnih et al.
-Human-level control through deep reinforcement learning.
-\emph{Nature}, 518:529--533, 2015.
-
-\bibitem{latorre2023}
-Antonio LaTorre, Javier Del Ser, and Eneko Osaba.
-Reinforcement learning for enhanced online parameter adaptation in metaheuristics.
-\emph{Swarm and Evolutionary Computation}, 83:101371, 2023.
-
-\bibitem{song2024}
-Yang Song et al.
-Reinforcement learning-assisted evolutionary algorithm: A survey.
-\emph{Swarm and Evolutionary Computation}, 86:101517, 2024.
-
-\bibitem{yi2019}
-Xiaowen Yi, Ying Tan, and Jun Wang.
-Distributed online convex optimization with time-varying coupled inequality constraints.
-\emph{IEEE Transactions on Automatic Control}, 64(10):4023--4038, 2019.
-
-\bibitem{shahrampour2018}
-Shahin Shahrampour and Ali Jadbabaie.
-Distributed online optimization in dynamic environments using mirror descent.
-\emph{IEEE Transactions on Automatic Control}, 63(3):714--725, 2018.
-
-\bibitem{wei2025privacy}
-Ming Wei, Wen Yu, Dong Chen, Ming Kang, and Guanrong Chen.
-Privacy distributed constrained optimization over time-varying unbalanced networks and its application in federated learning.
-\emph{IEEE/CAA Journal of Automatica Sinica}, 12(2):335--346, 2025.
-
-\bibitem{koloskova2020}
-Anastasia Koloskova, Nicolas Loizou, Sebastian Boreiri, Martin Jaggi, and Sebastian U. Stich.
-A unified theory of decentralized SGD with changing topology and local updates.
-In \emph{Proceedings of ICML}, pages 5381--5392, 2020.
-
-\bibitem{pu2021}
-Shi Pu, Wei Shi, Jiaming Xu, and Angelia Nedi\'c.
-Push-pull gradient methods for distributed optimization in networks.
-\emph{IEEE Transactions on Automatic Control}, 66(3):1135--1147, 2021.
-
-\bibitem{mcmahan2017}
-Brendan McMahan, Eider Moore, Daniel Ramage, Seth Hampson, and Blaise Ag\"uera y Arcas.
-Communication-efficient learning of deep networks from decentralized data.
-In \emph{Proceedings of AISTATS}, pages 1273--1282, 2017.
-
-\bibitem{stich2019}
-Sebastian U. Stich.
-Local SGD converges fast and communicates little.
-In \emph{Proceedings of ICLR}, 2019.
-
-\bibitem{kairouz2021}
-Peter Kairouz et al.
-Advances and open problems in federated learning.
-\emph{Foundations and Trends in Machine Learning}, 14(1--2):1--210, 2021.
-
-\bibitem{ma2019ccsurvey}
-Xiaodong Ma, Xiaodong Li, Qingfu Zhang, Ke Tang, Zhenyu Liang, Wenlong Xie, and Zexuan Zhu.
-A survey on cooperative co-evolutionary algorithms.
-\emph{IEEE Transactions on Evolutionary Computation}, 23(3):421--441, 2019.
-
-\bibitem{zhou2024highdim}
-Meng Zhou, Ming Cui, Dong Xu, Shengxiang Zhu, Zhenyu Zhao, and Ahmed Abusorrah.
-Evolutionary optimization methods for high-dimensional expensive problems: A survey.
-\emph{IEEE/CAA Journal of Automatica Sinica}, 11(5):1092--1105, 2024.
-
-\bibitem{jia2025dcc}
-Ya-Hui Jia, Yuren Zhou, Ying Lin, Wei-Jie Yu, Ying Gao, and Lu Lu.
-Dynamic cooperative coevolution based on variable importance for non-separable large-scale global optimization.
-\emph{Applied Soft Computing}, 169:113363, 2025.
 
 \bibitem{chen2024maso}
 Tai-You Chen, Wei-Neng Chen, Feng-Feng Wei, Xiao-Min Hu, and Jun Zhang.
@@ -342,25 +178,25 @@ Wen-Jin Qiu, Xiao-Min Hu, An Song, Jun Zhang, and Wei-Neng Chen.
 A distributed cooperative co-evolutionary algorithm for multi-area power flow optimization.
 In \emph{Proceedings of IEEE MCII}, 2025.
 
-\bibitem{huang2024neuro}
-Tao Huang, Jianquan Lu, Jianxi Yang, and Jinde Cao.
-A collective neurodynamic penalty approach to nonconvex distributed constrained optimization.
-\emph{Neural Networks}, 169:623--633, 2024.
+\bibitem{zhou2024highdim}
+Meng Zhou, Ming Cui, Dong Xu, Shengxiang Zhu, Zhenyu Zhao, and Ahmed Abusorrah.
+Evolutionary optimization methods for high-dimensional expensive problems: A survey.
+\emph{IEEE/CAA Journal of Automatica Sinica}, 11(5):1092--1105, 2024.
 
-\bibitem{schulman2017}
-John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
-Proximal policy optimization algorithms.
-arXiv:1707.06347, 2017.
+\bibitem{karafotias2015}
+Giorgos Karafotias, Mark Hoogendoorn, and \'Agoston E. Eiben.
+Parameter control in evolutionary algorithms: Trends and challenges.
+\emph{IEEE Transactions on Evolutionary Computation}, 19(2):167--187, 2015.
+
+\bibitem{song2024}
+Yang Song et al.
+Reinforcement learning-assisted evolutionary algorithm: A survey.
+\emph{Swarm and Evolutionary Computation}, 86:101517, 2024.
 
 \bibitem{busoniu2008}
 Lucian Bu\c{s}oniu, Robert Babu\v{s}ka, and Bart De Schutter.
 A comprehensive survey of multiagent reinforcement learning.
 \emph{IEEE Transactions on Systems, Man, and Cybernetics, Part C}, 38(2):156--172, 2008.
-
-\bibitem{yin2024drl}
-Qing Yin, Tao Yu, Shuo Shen, Jian Yang, Ming Zhao, Wen Ni, Kaiming Huang, Bo Liang, and Lei Wang.
-Distributed deep reinforcement learning: A survey and a multi-player multi-agent learning toolbox.
-\emph{Machine Intelligence Research}, 21:411--430, 2024.
 
 \end{thebibliography}
 
@@ -730,7 +566,7 @@ F6 & $1.62\times10^{8}$ & $2.47\times10^{3}$ & $>$99\% & $p{<}0.05$ \\
 
 \par
 \indent
-从不同函数对 RL 惩罚的敏感程度看，冲突较弱的 F4 两者差距有限；冲突更频繁的 F3/F5/F6 优势更明显。这说明 RL 能够随冲突变化调节惩罚强度，使早期保持探索、后期加强协调；这与 RL 参数控制文献中“搜索早期侧重探索、后期侧重开发”的规律一致\cite{karafotias2015,latorre2023}。LLSO 与 CSO 结果趋势一致，初步表明惩罚机制对局部搜索器选择不敏感。
+从不同函数对 RL 惩罚的敏感程度看，冲突较弱的 F4 两者差距有限；冲突更频繁的 F3/F5/F6 优势更明显。这说明 RL 能够随冲突变化调节惩罚强度，使早期保持探索、后期加强协调；这与进化算法参数控制文献中的典型规律一致\cite{karafotias2015}。LLSO 与 CSO 结果趋势一致，初步表明惩罚机制对局部搜索器选择不敏感。
 
 \begin{figure}[htbp]
 \centering

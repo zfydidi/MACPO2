@@ -94,7 +94,7 @@
 }
 \savegeometry{standard}
 
-\RequirePackage[numbers,sort&compress,square]{natbib}
+\RequirePackage[numbers,sort,square]{natbib}
 \setcitestyle{square,comma,numbers}
 
 \RequirePackage[%
