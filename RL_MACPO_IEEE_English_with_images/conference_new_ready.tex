@@ -10,6 +10,7 @@
 \usetikzlibrary{positioning,arrows.meta,shapes.geometric,calc}
 \usepackage{booktabs}
 \usepackage{longtable}
+\usepackage{caption}
 \usepackage{subcaption}
 \captionsetup{compatibility=false}
 \usepackage{algorithm}
@@ -80,13 +81,13 @@ Penalty-based cooperative evolution, exemplified by MACPO \cite{ref_macpo}, is a
 
 This paper addresses the \textbf{communication-timing problem in distributed black-box optimization}. At each outer iteration, should agents open the negotiation channel? We answer with \textbf{conflict-triggered communication}, a rule-based gate driven by an online conflict proxy, a relative threshold, and a fail-safe silent bound. The gate is orthogonal to the specific penalty or local optimizer. MACPO serves as the reference instantiation and engineering platform, not as the conceptual endpoint.
 
-Three research lines motivate this formulation. In communication-efficient distributed optimization, Local SGD and FedAvg reduce gradient-exchange frequency while retaining convergence under smoothness assumptions \cite{ref_stich_local_sgd_2019,ref_mcmahan_fedavg_2017,ref_koloskova_decsgd_2020}. In event-triggered and self-triggered control, agents communicate when a local error signal crosses a threshold rather than at every clock tick \cite{ref_rabbat_nowak_2004}. In distributed black-box NDO, MACPO \cite{ref_macpo}, MASOIE \cite{ref_masoie_2024}, and MAES-CCSA \cite{ref_maes_ccsa_2025} adapt coordination schedules but do not jointly formalize \emph{when}-to-communicate as an explicit decision with a controllable communication--quality trade-off. Our contribution fills that gap for penalty-negotiation NDO.
+Three research lines motivate this formulation. Although these communities differ in optimization assumptions and application domains, they all address the same underlying question: reducing unnecessary communication while preserving optimization quality. In communication-efficient distributed optimization, Local SGD and FedAvg reduce gradient-exchange frequency while retaining convergence under smoothness assumptions \cite{ref_stich_local_sgd_2019,ref_mcmahan_fedavg_2017,ref_koloskova_decsgd_2020}, and recent dispatch and networked learning work studies communication-triggered transmission under bandwidth limits \cite{ref_ndo_dispatch_2024,ref_privacy_dist_opt_2025}. In event-triggered and self-triggered control, agents communicate when a local error signal crosses a threshold rather than at every clock tick \cite{ref_rabbat_nowak_2004,ref_ndo_stateest_2024,ref_ndo_netcontrol_2024}. In distributed black-box and cooperative coevolution, MACPO \cite{ref_macpo}, MASOIE \cite{ref_masoie_2024}, MAES-CCSA \cite{ref_maes_ccsa_2025}, and distributed accelerations of large-scale cooperative search \cite{ref_cc_dist_accel_2024} adapt coordination schedules but do not jointly formalize \emph{when}-to-communicate as an explicit decision with a controllable communication--quality trade-off. Our contribution fills that gap for penalty-negotiation NDO.
 
 The contributions are:
 \begin{enumerate}
 \item \textbf{Problem formulation.} Communication timing in NDO is cast as a per-iteration binary scheduling decision under a communication budget or fitness tolerance (Section~\ref{sec:timing_problem}).
 \item \textbf{Conflict-triggered gate.} A three-layer gate (minimum interval, relative conflict threshold, fail-safe bound) with a fail-safe consensus-drift bound (Proposition~\ref{prop:failsafe}) and an empirically validated low-conflict skip criterion (Section~\ref{sec:structural_results}).
-\item \textbf{Empirical validation on three axes.} Route~1 covers benchmark and mechanism studies on F1--F18 with periodic and gate ablations. Route~2 covers MACPO-style dispatch and IEEE pilots under bandwidth-limited coordination. Route~3 reports that adaptive penalty control is a plug-in interface, not the dominant gain (Sections~\ref{sec:experiments}--\ref{sec:applications}).
+\item \textbf{Empirical validation.} Extensive paired-run experiments demonstrate that conflict-triggered communication consistently reduces negotiation triggers while preserving or improving optimization quality across F1--F18, dispatch simulators, and IEEE transmission-network pilots, and show that penalty-controller choice (RL, EMA, or fixed schedules) is secondary once the communication architecture is fixed (Sections~\ref{sec:experiments}--\ref{sec:applications}).
 \end{enumerate}
 
 \section{Related Work and Positioning}\label{sec:related}
@@ -179,35 +180,7 @@ g_{\mathrm{global}}^t=\max_i g_i^t
 
 \begin{figure}[!t]
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}[
-  font=\footnotesize,
-  node distance=0.40cm,
-  line/.style={-Latex, line width=0.8pt, draw=black},
-  box/.style={rounded corners=2pt, draw=black, fill=white, line width=0.6pt,
-    minimum width=3.0cm, minimum height=0.62cm, align=center},
-  decision/.style={diamond, draw=black, fill=white, line width=0.6pt,
-    aspect=2.3, inner sep=0.8pt, align=center, font=\scriptsize}
-]
-\node[box] (ci) {Compute $\mathrm{CI}_i^t$};
-\node[box, below=of ci] (ema) {Update $\hat{\mu}_{\mathrm{CI},i}^t$};
-\node[decision, below=of ema] (intv) {$t{-}t_{\mathrm{last\_comm}}\!\ge\!\Delta_{\min}$?};
-\node[decision, below=of intv] (thr) {$\mathrm{CI}_i^t\!>\!\lambda\hat{\mu}$\\[-1pt] or fail-safe $K$?};
-\node[decision, below=of thr] (phase) {$u_i^t\!<\!p_{\mathrm{phase}}^t$?};
-\node[box, below=of phase] (comm) {Communicate ($g_i^t{=}1$)};
-\node[box, right=1.05cm of thr, minimum width=2.45cm] (skip) {Skip negotiation\\refresh reference};
-\coordinate (noBus) at ($(skip.west)+(-0.22cm,0)$);
-\draw[line] (ci) -- (ema);
-\draw[line] (ema) -- (intv);
-\draw[line] (intv) -- node[right, font=\scriptsize] {Yes} (thr);
-\draw[line] (thr) -- node[right, font=\scriptsize] {Yes} (phase);
-\draw[line] (phase) -- node[right, font=\scriptsize] {Yes} (comm);
-\draw[line] (intv.east) -- ++(0.28cm,0) node[above, font=\scriptsize] {No} |- (noBus);
-\draw[line] (thr.east) -- ++(0.28cm,0) node[above, font=\scriptsize] {No} |- (noBus);
-\draw[line] (phase.east) -- ++(0.28cm,0) node[above, font=\scriptsize] {No} |- (noBus);
-\draw[line] (noBus) -- (skip.west);
-\end{tikzpicture}%
-}
+\includegraphics[width=\columnwidth]{media/fig1.png}
 \caption{Conflict-gated communication policy per agent $i$ (Eq.~\eqref{eq:local_gate}). Global decision uses $g_{\mathrm{global}}^t=\max_i g_i^t$.}
 \label{fig:gate_policy}
 \end{figure}
@@ -242,7 +215,7 @@ At iteration $t$, agent $i$ opens its local gate only if interval, relative-thre
 We do not prove bounded per-loop drift for MACPO local search. Proposition~\ref{prop:failsafe} instead treats bounded normalized shared-gap growth during silent loops as an engineering assumption and shows what fail-safe timing guarantees \emph{if} that assumption holds. Appendix~\ref{app:empirical_drift} reports that observed per-loop drift on archived F1--F6 headline runs stays in a narrow band, supporting the assumption empirically rather than analytically.
 
 \begin{proposition}[Fail-safe consensus-drift bound]\label{prop:failsafe}
-Suppose that between any two consecutive communication events, each normalized shared gap $e_d^t=|x_d^t-r_d^t|/R_d$ increases by at most $\varepsilon_d\ge 0$ on every silent outer loop with $g^t=0$, and that the relative-threshold rule includes fail-safe $t-t_{\mathrm{last\_comm}}\ge K$. Then any silent stretch has length $\tau=t-t_{\mathrm{last\_comm}}\le K-1$ before communication is forced, and
+Suppose that between any two consecutive communication events, each normalized shared gap $e_d^t=|x_d^t-r_d^t|/R_d$ increases by at most $\varepsilon_d\ge 0$ on every silent outer loop with $g^t=0$, and that the relative-threshold rule includes fail-safe $t-t_{\mathrm{last\_comm}}\ge K$. Here $e_d^t$ measures the disagreement between agent $i$'s local value and the consensus reference on shared dimension $d$, normalized by range $R_d$. Then any silent stretch has length $\tau=t-t_{\mathrm{last\_comm}}\le K-1$ before communication is forced, and
 \begin{equation}
 e_d^{t_{\mathrm{last\_comm}}+\tau} \le e_d^{t_{\mathrm{last\_comm}}} + (K-1)\,\varepsilon_{\max},
 \qquad \varepsilon_{\max}=\max_d \varepsilon_d.
@@ -258,7 +231,7 @@ This is a structural fail-safe bound under assumed drift, not a MACPO convergenc
 At outer loop $t$, skip negotiation when for all active agents (i) $\mathrm{CI}_i^t \le \lambda\hat{\mu}_{\mathrm{CI},i}^t$, (ii) overlap variables have moved little since $t_{\mathrm{last\_comm}}$, and (iii) fail-safe has not fired. This is the relative-threshold branch of Eq.~\eqref{eq:local_gate}. It is an engineering skip test motivated by event-triggered coordination, not a guarantee that one MACPO round would leave $f_{\mathrm{pure}}$ unchanged.
 \end{empiricalcriterion}
 \begin{remark}
-We validate this criterion with gate ablations (Table~\ref{tab:gate_cost_stats}), CI-conditioned trigger statistics (Fig.~\ref{fig:ci_bin_trigger}), and communication summaries (Table~\ref{tab:f1f6_comm_eva}). On F1/F2/F5, gated policies occupy a better region of the communication-budget frontier than fixed-interval schedules (Fig.~\ref{fig:comm_fitness_pareto}). On F1--F6, trigger probability falls from the lowest conflict quintile to the second and third quintiles, consistent with skipping low-informativeness rounds while fail-safe and interval paths keep Q1 low.
+We validate this criterion with gate ablations (Table~\ref{tab:gate_cost_stats}), CI-conditioned trigger statistics (Fig.~\ref{fig:ci_bin_trigger}), and communication summaries (Table~\ref{tab:comm_rate_f1_f18}). On F1/F2/F5, gated policies occupy a better region of the communication-budget frontier than fixed-interval schedules (Fig.~\ref{fig:comm_fitness_pareto}). On F1--F6, trigger probability falls from the lowest conflict quintile to the second and third quintiles, consistent with skipping low-informativeness rounds while fail-safe and interval paths keep Q1 low.
 \end{remark}
 
 \subsection{Expected Communication--Quality Trade-off}
@@ -332,7 +305,7 @@ F6 & Schwefel--Rosenbrock & 0.268 \\
 \end{tabular}
 \end{table}
 
-\paragraph{Evaluation protocol.} MACPO and RL-MACPO share paired seeds, the MACPO evaluation-budget cap, and embedded optimizers LLSO \cite{ref_llso} (primary) and CSO \cite{ref_cso} (secondary). End-of-run evaluation counts differ by at most a few percent (Table~\ref{tab:f1f6_comm_eva}). Wall-clock overhead is reported separately in Table~\ref{tab:wall_time_f1_f18} within Section~\ref{sec:exp_q1} and is not a primary endpoint.
+\paragraph{Evaluation protocol.} MACPO and RL-MACPO share paired seeds, the MACPO evaluation-budget cap, and embedded optimizers LLSO \cite{ref_llso} (primary) and CSO \cite{ref_cso} (secondary). End-of-run evaluation counts differ by at most a few percent (about 3.2\% on F1--F6; Table~\ref{tab:comm_rate_f1_f18}). Wall-clock overhead is reported separately in Table~\ref{tab:wall_time_f1_f18} within Section~\ref{sec:exp_q1} and is not a primary endpoint.
 
 \paragraph{Notation and statistics.} $F(\mathbf{X})$ denotes the global objective in Eq.~\eqref{eq:global_objective}. Logged $f_{\mathrm{pure}}$ is the pure objective sum without penalty terms. Logged $f_{\mathrm{penalty}}$ includes conflict penalties. Lower is better unless a caption states otherwise. Main tables report mean, median, standard deviation, and win/tie/loss over \textbf{25 independent runs}. RL-MACPO vs.\ MACPO uses paired Wilcoxon signed-rank tests (LLSO) or Mann--Whitney U tests (CSO) at the 0.05 significance level \cite{ref_macpo}. Shaded cells mark the better mean within each MACPO vs.\ RL-MACPO pair. In Table~\ref{tab:macpo_style_all}, * marks RL-MACPO better and \# marks worse.
 
@@ -351,7 +324,7 @@ The evaluation is organized around four questions tied to the communication-effi
 Does RL-MACPO match or improve final fitness under the \emph{same} evaluation budget as MACPO? We compare paired 25-run batches on F1--F18 with LLSO (primary) and CSO (secondary). Table~\ref{tab:macpo_style_all} covers F1--F6. Table~\ref{tab:macpo_rl_mean_f1_f18} covers F7--F18. Fig.~\ref{fig:fes_f1_f6_panel} shows representative convergence curves.
 
 \paragraph{Q2 (Communication reduction).}
-Can conflict-gated communication cut negotiation rate without sacrificing Q1 fitness? We report outer-loop trigger rates (Tables~\ref{tab:f1f6_comm_eva} and~\ref{tab:comm_rate_f1_f18}), CI-bin trigger statistics (Fig.~\ref{fig:ci_bin_trigger}), gate-variant diagnostics (Table~\ref{tab:gate_cost_stats}), and a communication-budget frontier (Fig.~\ref{fig:comm_fitness_pareto}) that instantiates the budget form in Section~\ref{sec:timing_problem}.
+Can conflict-gated communication cut negotiation rate without sacrificing Q1 fitness? We report outer-loop trigger rates (Table~\ref{tab:comm_rate_f1_f18}), CI-bin trigger statistics (Fig.~\ref{fig:ci_bin_trigger}), gate-variant diagnostics (Table~\ref{tab:gate_cost_stats}), and a communication-budget frontier (Fig.~\ref{fig:comm_fitness_pareto}) that instantiates the budget form in Section~\ref{sec:timing_problem}.
 
 \paragraph{Q3 (Mechanisms and controllers).}
 Which modules matter, and is RL necessary once gating is fixed? Section~\ref{sec:q3_penalty} compares RL, EMA, and fixed penalty schedules on F3/F5 under identical gating. Section~\ref{sec:q3_modules} ablates gating layers, variable selection, phase sampling, and $\eta$ strategies using Table~\ref{tab:penalty_controller_f3_f5} and Fig.~\ref{fig:gating_ablation}.
@@ -505,35 +478,13 @@ Fig.~\ref{fig:fes_f1_f6_panel} shows paired best-so-far curves on F1--F6 for one
 \paragraph{Q1 analysis.} Gated RL-MACPO wins every F1--F6 and F7--F18 comparison at the same evaluation budget (w/t/l 6/0/0 and 12/0/0). The gain is largest on high-conflict Rosenbrock-related instances and on F9/F15, where always-on MACPO fails to restore shared-variable consistency under static penalties (Table~\ref{tab:macpo_rl_mean_f1_f18}). \emph{RL Only} without gating remains weaker on F3/F5 (Table~\ref{tab:macpo_style_all}), so the improvement requires conflict gating rather than adaptive penalty alone.
 
 \subsection{Question 2: Does Conflict-Gated Communication Reduce Cost?}\label{sec:exp_q2}
-MACPO negotiates on every outer loop. RL-MACPO triggers negotiation on only a fraction of outer loops while preserving or improving the Q1 fitness from Section~\ref{sec:exp_q1}. Table~\ref{tab:f1f6_comm_eva} summarizes F1--F6. Table~\ref{tab:comm_rate_f1_f18} extends the trigger rate to F7--F18. On F3--F6 the rate is 8.3\%, a 91.7\% reduction relative to always-on MACPO. On F1 it remains 20.8\%.
-
-\begin{table}[!t]
-\centering
-\scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\caption{Communication and evaluation budget on F1--F6 (LLSO, 25 paired runs). MACPO negotiates on every outer loop; end-of-run evaluation counts are 145729 (MACPO) and 150348 (RL-MACPO), differing by about 3.2\%, on all six functions. Comm.\ drop is relative to always-on MACPO.}
-\label{tab:f1f6_comm_eva}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}lcc@{}}
-\toprule
-\textbf{Func.} & \textbf{RL-MACPO comm.} & \textbf{Comm.\ drop} \\
-\midrule
-F1 & \textbf{20.8\%} & 79.2\% \\
-F2 & \textbf{22.3{$\pm$4.1}\%} & 77.7\% \\
-F3 & \textbf{8.3\%} & 91.7\% \\
-F4 & \textbf{8.3\%} & 91.7\% \\
-F5 & \textbf{8.3\%} & 91.7\% \\
-F6 & \textbf{8.3\%} & 91.7\% \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
+MACPO negotiates on every outer loop. RL-MACPO triggers negotiation on only a fraction of outer loops while preserving or improving the Q1 fitness from Section~\ref{sec:exp_q1}. Table~\ref{tab:comm_rate_f1_f18} reports trigger rates on F1--F18. On F3--F6 the rate is 8.3\%, a 91.7\% reduction relative to always-on MACPO. On F1 it remains 20.8\%.
 
 \begin{table}[!t]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{4pt}
-\caption{Communication trigger rate on F1--F18 (LLSO, 25 paired runs). MACPO negotiates on every outer loop (baseline rate 100\%). Reduction is relative to that baseline.}
+\caption{Communication trigger rate on F1--F18 (LLSO, 25 paired runs). MACPO negotiates on every outer loop (baseline rate 100\%). Reduction is relative to that baseline. On F1--F6, end-of-run evaluation counts are 145729 (MACPO) and 150348 (RL-MACPO), differing by about 3.2\%.}
 \label{tab:comm_rate_f1_f18}
 \begin{tabular}{@{}lcc@{}}
 \toprule
@@ -720,11 +671,11 @@ I\,\bar p_{\mathrm{comm}}\,\bar r_{\mathrm{act}}
 \right),
 \label{eq:nego_complexity}
 \end{equation}
-where $\bar p_{\mathrm{comm}}$ is the average trigger rate and $\bar r_{\mathrm{act}}$ the fraction of shared dimensions actively negotiated. Equation~\eqref{eq:nego_complexity} models the expected execution cost under the empirically observed communication frequency, rather than a worst-case asymptotic complexity bound. Section~\ref{sec:exp_q2} shows $\bar p_{\mathrm{comm}}$ drops to a small fraction of outer loops. Gating rather than penalty choice dominates the reduction. The execution-cost model is therefore empirical and relies on the bounded-drift assumption summarized in Appendix~\ref{app:empirical_drift}.
+where $\bar p_{\mathrm{comm}}$ is the average trigger rate and $\bar r_{\mathrm{act}}$ is the fraction of shared dimensions actively negotiated, because only the active subset selected by variable filtering participates in negotiation once the gate opens. Equation~\eqref{eq:nego_complexity} models the expected execution cost under the empirically observed communication frequency, rather than a worst-case asymptotic complexity bound. Section~\ref{sec:exp_q2} shows $\bar p_{\mathrm{comm}}$ drops to a small fraction of outer loops. Gating rather than penalty choice dominates the reduction. The execution-cost model is therefore empirical and relies on the bounded-drift assumption summarized in Appendix~\ref{app:empirical_drift}.
 
 \section{Discussion}\label{sec:discussion}
 \paragraph{Route~1: Communication timing as the core insight.}
-The half-year engineering effort converges on one mechanism: \emph{negotiation need not occur every outer loop}. The proposed architecture separates \emph{whether to communicate} from \emph{how to negotiate}: conflict gating decides timing, while penalty update remains a plug-in module. In standard MACPO, communicate and negotiate are coupled; here, a gate first asks whether negotiation is warranted and only then invokes the existing MACPO negotiation step. Conflict-triggered communication, with fail-safe bounds, provides a controllable communication--quality trade-off in penalty-negotiation NDO. The conflict proxy $\mathrm{CI}$ operationalizes this idea. High $\mathrm{CI}$ marks disagreement likely to affect subsequent local search, whereas low $\mathrm{CI}$ rounds carry limited expected negotiation value. Proposition~\ref{prop:failsafe}, Empirical Criterion~\ref{crit:skip}, CI-bin trigger diagnostics (Fig.~\ref{fig:ci_bin_trigger}), and gate ablations (Table~\ref{tab:gate_cost_stats}) elevate the contribution from ``tuning MACPO'' to ``formalizing and validating a timing policy'' within the event-triggered / communication-efficient distributed optimization spectrum (Table~\ref{tab:positioning}). The particularly large numerical gaps on F9 and F15 mainly reflect unresolved penalty violations in the original MACPO implementation rather than proportional improvements in the underlying objective. This viewpoint is algorithm-agnostic and is therefore applicable beyond MACPO-style penalty negotiation.
+The half-year engineering effort converges on one mechanism: \emph{negotiation need not occur every outer loop}. Always-on negotiation injects low-value updates into the shared-variable consensus: when conflict is weak, neighbor exchange perturbs shared references without improving subsequent local search enough to justify the cost. Skipping those rounds therefore preserves fitness while cutting bandwidth. The proposed architecture separates \emph{whether to communicate} from \emph{how to negotiate}: conflict gating decides timing, while penalty update remains a plug-in module. In standard MACPO, communicate and negotiate are coupled; here, a gate first asks whether negotiation is warranted and only then invokes the existing MACPO negotiation step. Conflict-triggered communication, with fail-safe bounds, provides a controllable communication--quality trade-off in penalty-negotiation NDO. The conflict proxy $\mathrm{CI}$ operationalizes this idea. High $\mathrm{CI}$ marks disagreement likely to affect subsequent local search, whereas low $\mathrm{CI}$ rounds carry limited expected negotiation value. Proposition~\ref{prop:failsafe}, Empirical Criterion~\ref{crit:skip}, CI-bin trigger diagnostics (Fig.~\ref{fig:ci_bin_trigger}), and gate ablations (Table~\ref{tab:gate_cost_stats}) elevate the contribution from ``tuning MACPO'' to ``formalizing and validating a timing policy'' within the event-triggered / communication-efficient distributed optimization spectrum (Table~\ref{tab:positioning}). The particularly large numerical gaps on F9 and F15 mainly reflect unresolved penalty violations in the original MACPO implementation rather than proportional improvements in the underlying objective. This viewpoint is algorithm-agnostic and is therefore applicable beyond MACPO-style penalty negotiation.
 
 \paragraph{Route~2: Grid dispatch as validation domain.}
 Dispatch simulators and IEEE pilots show transfer when shared/private structure mirrors MACPO-style NDO under bandwidth limits (Section~\ref{sec:applications}).
@@ -809,7 +760,28 @@ Across 25 independent runs per benchmark, logged $\alpha$, $\rho$, conflict, and
 \section{Additional Application-Case Statistics}\label{app:applications}
 Section~\ref{sec:applications} reports headline paired means in Tables~\ref{tab:application_cases} and~\ref{tab:ieee_power_cases}. Table~\ref{tab:application_run_stats} adds run-level paired cost-gap quartiles and min--max ranges (25 runs per case; communication rates summarized by pilot group). Dispatch cases show tight medians on MAED-13 and EV dispatch. Resource scheduling exhibits wider spread because of one MACPO outlier run. IEEE~30 includes two LLSO stagnation outliers, consistent with the 23/25 success count in the main table. Excluding those runs leaves median $\Delta$ near zero. These distributions confirm that communication drops are robust while cost effects remain case-dependent.
 
-\input{media/application_appendix_stats.tex}
+\begin{table}[!t]
+\centering
+\scriptsize
+\caption{Run-level paired cost-gap statistics on dispatch and IEEE pilots ($\Delta=(\mathrm{MACPO}-\mathrm{RL})/|\mathrm{MACPO}|\times100\%$; positive $\Delta$ favors RL-MACPO). All cases use 25 paired runs; group headers summarize mean RL-MACPO trigger rates.}
+\label{tab:application_run_stats}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Scenario & Median $\Delta$ (\%) & Q1--Q3 (\%) & Min--Max (\%) \\
+\midrule
+\multicolumn{4}{@{}l@{}}{\textit{Application pilots} (25 paired runs; mean RL comm.\ 11.3--11.6\%)} \\
+MAED-13 & 0.0 & [0.0, 0.0] & [-1.5, +0.4] \\
+Resource scheduling & +9.5 & [-0.1, +19.5] & [-25.8, +42.9] \\
+EV dispatch & +0.6 & [-1.2, +3.4] & [-4.2, +88.7] \\
+\midrule
+\multicolumn{4}{@{}l@{}}{\textit{IEEE pilots} (25 paired runs; mean RL comm.\ 40.0--58.8\%)} \\
+IEEE-30 & +0.5 & [-2.8, +2.1] & [-823.7, +7.1] \\
+IEEE-57 & 0.0 & [-6.5, +4.8] & [-22.0, +20.2] \\
+IEEE-118 & -0.6 & [-1.0, +0.1] & [-4.2, +1.2] \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{thebibliography}{99}
 

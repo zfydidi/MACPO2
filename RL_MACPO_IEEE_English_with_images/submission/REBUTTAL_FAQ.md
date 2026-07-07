@@ -10,7 +10,7 @@ Use this document when revision/rebuttal arrives: copy the relevant block, adapt
 
 **Response template:**
 
-> Equation~\eqref{eq:nego_complexity} is an **execution-cost model** under the empirically observed average trigger rate $\bar p_{\mathrm{comm}}$, not a worst-case $\mathcal{O}(\cdot)$ bound independent of runtime behavior. Multiplying by $\bar p_{\mathrm{comm}}$ reflects that negotiation work is incurred only on outer loops where $g^t=1$. Section~\ref{sec:exp_q2} reports measured trigger rates (Tables~\ref{tab:f1f6_comm_eva},~\ref{tab:comm_rate_f1_f18}). The model is therefore empirical and complementary to Proposition~\ref{prop:failsafe}, which gives a structural fail-safe floor $\bar p_{\mathrm{comm}}\ge 1/K$.
+> Equation~\eqref{eq:nego_complexity} is an **expected execution-cost model** (Section~\ref{sec:exec_cost}), not a worst-case $\mathcal{O}(\cdot)$ bound independent of runtime behavior. The expectation is taken over independent runs, paired seeds, and the stochastic gate path (phase sampling; policy sampling when RL is active). Multiplying by $\bar p_{\mathrm{comm}}$ reflects that negotiation work is incurred only on outer loops where $g^t=1$. Section~\ref{sec:exp_q2} reports measured trigger rates (Table~\ref{tab:comm_rate_f1_f18}). The model is empirical and complementary to fail-safe scheduling, which enforces a floor $\bar p_{\mathrm{comm}}\ge 1/K$ when relative thresholds rarely fire.
 
 ---
 

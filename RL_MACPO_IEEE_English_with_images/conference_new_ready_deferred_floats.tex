@@ -1,18 +1,25 @@
 % Large figures (placed after references).
 \clearpage
+\onecolumn
 
-\begin{figure*}[!t]
+% Fig.4 + Fig.5: stacked on one page (non-float; \captionof must not sit inside figure*).
+\noindent\begin{minipage}{\textwidth}
 \centering
 \includegraphics[width=\textwidth,height=0.44\textheight,keepaspectratio]{media/f3_f5_conflict_alpha_micro.pdf}
 \captionof{figure}{Single-run conflict--$\alpha$ coupling on F3 and F5 (representative runs).}
 \label{fig:f3_f5_micro}
+\end{minipage}
 
 \vspace{0.35em}
 
+\noindent\begin{minipage}{\textwidth}
+\centering
 \includegraphics[width=\textwidth,height=0.44\textheight,keepaspectratio]{media/fig_deeprl_comparison.pdf}
 \captionof{figure}{Visual summary of Table~\ref{tab:deeprl}. Mean final $F$ across F1--F6 for each RL architecture variant.}
 \label{fig:deeprl_comparison}
-\end{figure*}
+\end{minipage}
+
+\clearpage
 
 \begin{figure*}[!t]
 \centering
@@ -24,7 +31,7 @@
 \begin{figure*}[!t]
 \centering
 \makebox[\textwidth][c]{\includegraphics[width=\textwidth]{media/comm_fitness_pareto_f125.pdf}}
-\caption{Communication-budget frontier on F1/F2/F5 (Section~\ref{sec:timing_problem}, budget form). Horizontal axis: average trigger rate $\bar p_{\mathrm{comm}}$ (communication budget). Vertical axis: terminal $F$. Periodic-$K$ points are fixed-interval pilots (10 runs). RL gated (star) uses 25-run headline fitness and communication from Tables~\ref{tab:macpo_style_all} and~\ref{tab:f1f6_comm_eva}. Lower-left points are preferred.}
+\caption{Communication-budget frontier on F1/F2/F5 (Section~\ref{sec:timing_problem}, budget form). Horizontal axis: average trigger rate $\bar p_{\mathrm{comm}}$ (communication budget). Vertical axis: terminal $F$. Periodic-$K$ points are fixed-interval pilots (10 runs). RL gated (star) uses 25-run headline fitness and communication from Tables~\ref{tab:macpo_style_all} and~\ref{tab:comm_rate_f1_f18}. Lower-left points are preferred.}
 \label{fig:comm_fitness_pareto}
 \end{figure*}
 
