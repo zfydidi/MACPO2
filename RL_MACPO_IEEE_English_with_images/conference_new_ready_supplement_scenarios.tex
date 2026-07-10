@@ -1,0 +1,258 @@
+% Single-column supplementary material: application-case experiments (after bibliography).
+\clearpage
+\onecolumn
+\FloatBarrier
+\begin{center}
+{\Large\bfseries Supplementary Material}\\[0.4em]
+{\normalsize Application-Case Experiments (MACPO Supplementary Parts V--VI and IEEE Pilots)}
+\end{center}
+\vspace{0.6em}
+\FloatBarrier
+\setcounter{section}{4}
+\renewcommand{\thesection}{\Roman{section}}
+
+\section{Experiment on the Resource Allocation Problem}\label{app:resource}
+Following MACPO Supplementary Part~V~\cite{ref_macpo}, each node~$i$ produces resource $g_i$ and exchanges signed transfers $c_{i,j}$ with neighbors $j\in\mathcal{N}_i$:
+\begin{equation}
+\min F(\mathbf{X})=\sum_{i=1}^{n}\Bigl(U_i-\bigl(g_i+\textstyle\sum_{j\in\mathcal{N}_i}c_{i,j}\bigr)\Bigr)^2,
+\qquad
+g_i=x_{I_i},\quad
+c_{i,j}=\begin{cases}
+x_{I_{i,j}}, & i<j,\\
+-x_{I_{i,j}}, & i>j,
+\end{cases}
+\label{eq:app_resource}
+\end{equation}
+where $U_i$ is the expected resource level at node~$i$ and $x_{I_{i,j}}$ is the shared variable on edge $\{i,j\}$. The objective penalizes the gap between expected and realized supply after production and transfers.
+
+\paragraph{Experimental setup.}
+The resource-allocation pilot uses $n{=}10$ agents on a chain graph ($D{=}19$). Demands are $U_i\in\{9.0,\ldots,12.5\}$; decisions lie in $[-5,25]$. Each agent evaluates Eq.~\eqref{eq:app_resource} locally. The evaluation cap is $6.0\times10^4$ function evaluations; each agent runs LLSO with swarm size 100 and penalty weight $w=|f|/512$.
+
+\section{Experiments on an Electric Dispatching Problem}\label{app:ev}
+Following Supplementary Part~VI~\cite{ref_macpo}, each power station produces electricity, trades along edges with loss, and sells surplus to electric vehicles (EVs):
+\begin{equation}
+\min F(\mathbf{X})=\sum_{i=1}^{n}\Bigl[f_{\mathrm{product}}(g_i)+\textstyle\sum_{j\in\mathcal{N}_i}f_{\mathrm{deal}}(c_{i,j})-f_{\mathrm{gain}}\!\Bigl(g_i+\textstyle\sum_{j\in\mathcal{N}_i}c_{i,j}\Bigr)\Bigr],
+\label{eq:app_ev_global}
+\end{equation}
+with $g_i=x_{I_i}$ and the same signed $c_{i,j}$ convention as Eq.~\eqref{eq:app_resource}, and
+\begin{equation}
+f_{\mathrm{product}}(g_i)=a_i g_i,\qquad
+f_{\mathrm{deal}}(c_{i,j})=p_1(1+\alpha L_{i,j})\,c_{i,j}.
+\label{eq:app_ev_costs}
+\end{equation}
+EV revenue $f_{\mathrm{gain}}$ is computed by evolutionary game (Supplementary Algorithm~S1). Station and vehicle actions are
+\begin{equation}
+p_{\mathrm{sell}}^{t}\!=\!\begin{cases}
+p_{\mathrm{sell}}^{t-1}+\epsilon, & \sum_k Q_k > x_{\mathrm{total}},\\
+p_{\mathrm{sell}}^{t-1}-\epsilon, & \sum_k Q_k < x_{\mathrm{total}},\\
+p_{\mathrm{sell}}^{t-1}, & \text{otherwise},
+\end{cases}
+\qquad
+Q_k=\arg\min_{Q_k}\bigl[p_2 Q_k+R(Q_k+Q_k^0)-R(Q_k^0)\bigr],
+\label{eq:app_ev_game}
+\end{equation}
+with $R(Q)=Q^2-(m+1)Q+m$, $m>1$, and $Q_k^0\in[0,1]$ the initial SOC fraction of vehicle~$k$.
+
+\begin{algorithm}[H]
+\caption{Gain calculation at station $i$ (Supplementary Algorithm~S1~\cite{ref_macpo})}
+\label{alg:ev_gain}
+\begin{algorithmic}[1]
+\Require production plan $X_i$, vehicle count $N_v$, initial SOC $Q_k^0$ ($k=1,\ldots,N_v$)
+\State $x_{\mathrm{total}}\gets g_i+\sum_{j\in\mathcal{N}_i}c_{i,j}$;\quad $p_{\mathrm{sell}}\gets a_i$;\quad initialize $Q_k$
+\While{sell price not stable}
+  \State update $p_{\mathrm{sell}}$ by Eq.~\eqref{eq:app_ev_game} (left branch)
+  \For{$k=1$ to $N_v$}
+    \State $Q_k\gets\arg\min_{Q_k}\bigl[p_2 Q_k+R(Q_k+Q_k^0)-R(Q_k^0)\bigr]$
+  \EndFor
+\EndWhile
+\State $f_{\mathrm{gain}}\gets p_{\mathrm{sell}}\sum_{k=1}^{N_v} Q_k$
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Experimental setup.}
+The EV-dispatch pilot uses $n{=}10$ agents, $N_v{=}5$ vehicles per station, $a_i\in[0.08,0.12]$, $p_1{=}0.05$, $\alpha{=}0.02$, $L_{i,j}{=}1$, $m{=}2.5$, $\epsilon{=}0.02$, and at most 80 price iterations per fitness evaluation. The evaluation cap and topology match the resource-allocation pilot ($6.0\times10^4$ evaluations, 10 agents, chain graph).
+
+\section{Multi-Area Economic Dispatch (MAED-13)}\label{app:maed}
+MAED-13 is a 13-unit valve-point economic dispatch (VPE-ED) benchmark at 1800\,MW total load:
+\begin{equation}
+C_i(P_i)=a_i P_i^2+b_i P_i+c_i+\bigl|e_i\sin\bigl(f_i(P_i^{\min}-P_i)\bigr)\bigr|.
+\label{eq:app_maed}
+\end{equation}
+This pilot uses a single agent ($D{=}13$; no shared variables). Power balance is enforced by slack-unit repair plus a quadratic penalty; box limits use clamping and soft violations. The evaluation cap is $3.25\times10^5$ function evaluations.
+
+\section{IEEE Regional Transmission Dispatch}\label{app:ieee}\label{app:ieee_partition}
+These pilots extend the NDO template to MATPOWER IEEE~30/57/118 test cases (continuous economic dispatch, not unit commitment). Each MPI process represents a control region; private variables are generator outputs $P_g$; shared variables are tie-line powers $P_{\mathrm{tie}}$. Region~$r$ evaluates
+\begin{equation}
+f_r(\mathbf{x})=
+\sum_{g\in\mathrm{region}\,r} C_g(P_g)
++ w_{\mathrm{bal}}\Bigl(\textstyle\sum_{g\in\mathrm{region}\,r} P_g - D_r - P_{\mathrm{export},r}\Bigr)^2
++ \frac{1}{n_{\mathrm{reg}}}\,\Pi_{\mathrm{tie}}(\mathbf{x}),
+\label{eq:app_ieee_local}
+\end{equation}
+with $C_g(P)=a_g P^2+b_g P+c_g$, fixed regional demand $D_r$ (MW), $w_{\mathrm{bal}}{=}1000$, tie capacity penalty $\Pi_{\mathrm{tie}}$ ($w_{\mathrm{tie,cap}}{=}80$). The reported global objective is
+\begin{equation}
+F=\sum_{r=1}^{n_{\mathrm{reg}}} f_r(\mathbf{x})
+\label{eq:app_ieee_global}
+\end{equation}
+at the best assembled global dispatch (rank-0 summation; does not consume the evaluation budget).
+
+\paragraph{Variable encoding.}
+Decision vector $\mathbf{x}\in\mathbb{R}^{D}$, $D=G+T$:
+\begin{equation}
+x_d \equiv P_{G,g}\ (d=0,\ldots,G-1),\qquad
+x_{G+t}\equiv P_{\mathrm{tie},t}\ (t=0,\ldots,T-1).
+\label{eq:app_ieee_encoding}
+\end{equation}
+Regions are obtained by multi-source breadth-first search from generator buses with load-balancing swaps. Initial tie flows are set to zero with a feasible power-balance repair.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  region/.style={draw, rounded corners=2pt, minimum width=1.8cm, minimum height=0.9cm, align=center},
+  tie/.style={font=\small, fill=white, inner sep=1pt}
+]
+\node[region] (R0) at (0,1.2) {R0\\62.5 MW};
+\node[region] (R1) at (3.0,1.2) {R1\\56.5 MW};
+\node[region] (R2) at (0,-0.6) {R2\\23.7 MW};
+\node[region] (R3) at (3.0,-0.6) {R3\\46.5 MW};
+\draw[flow] (R0) -- node[tie, above=2pt] {$P_{\mathrm{tie},6}$} (R1);
+\draw[flow] (R0) -- node[tie, left=2pt] {$P_{\mathrm{tie},7}$} (R2);
+\draw[flow] (R0) to[bend left=8] node[tie, above=1pt] {$P_{\mathrm{tie},8}$} (R3);
+\draw[flow] (R1) -- node[tie, right=2pt] {$P_{\mathrm{tie},9}$} (R2);
+\draw[flow] (R1) -- node[tie, below=2pt] {$P_{\mathrm{tie},10}$} (R3);
+\end{tikzpicture}
+\caption{Four-region partition for IEEE~30-bus ED (capacities 96/97/64/64/16\,MW on ties $d=6,\ldots,10$).}
+\label{fig:ieee30_partition}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{IEEE~30-bus regional partition ($G{=}6$, $T{=}5$, $D{=}11$; total demand 189.2\,MW).}
+\label{tab:ieee30_partition}
+\begin{tabular}{@{}clccp{0.42\textwidth}@{}}
+\toprule
+\textbf{Rank} & \textbf{Buses} & \textbf{Gens} & \textbf{$D_r$} & \textbf{Local dims (private + shared)} \\
+\midrule
+R0 & 1--7, 9--11, 20 & 1, 2 & 62.5 & $P_{G,1},P_{G,2},P_{\mathrm{tie},6},P_{\mathrm{tie},7},P_{\mathrm{tie},8}$ \\
+R1 & 14--15, 18--19, 21--24 & 22, 23 & 56.5 & $P_{G,22},P_{G,23},P_{\mathrm{tie},6},P_{\mathrm{tie},9},P_{\mathrm{tie},10}$ \\
+R2 & 12--13, 16--17 & 13 & 23.7 & $P_{G,13},P_{\mathrm{tie},7},P_{\mathrm{tie},9}$ \\
+R3 & 8, 25--30 & 27 & 46.5 & $P_{G,27},P_{\mathrm{tie},8},P_{\mathrm{tie},10}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{IEEE~57-bus regional partition ($G{=}7$, $T{=}4$, $D{=}11$; total demand 1250.8\,MW).}
+\label{tab:ieee57_partition}
+\begin{tabular}{@{}clccp{0.38\textwidth}@{}}
+\toprule
+\textbf{Rank} & \textbf{Buses (subset)} & \textbf{Gens} & \textbf{$D_r$} & \textbf{Shared ties} \\
+\midrule
+R0 & 1--2, 14--17, 44--47 & 1, 2 & 217.2 & $P_{\mathrm{tie},7}$ (R0--R2), $P_{\mathrm{tie},8}$ (R0--R3) \\
+R1 & 4--8, 18--21, 24--31, 52 & 6, 8 & 322.3 & $P_{\mathrm{tie},9},P_{\mathrm{tie},10}$ \\
+R2 & 3 & 3 & 41.0 & $P_{\mathrm{tie},7},P_{\mathrm{tie},9}$ \\
+R3 & 9--13, 22--23, 32--57 & 9, 12 & 670.3 & $P_{\mathrm{tie},8},P_{\mathrm{tie},10}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\caption{IEEE~118-bus eight-region partition ($G{=}54$, $T{=}11$, $D{=}65$; total demand 4242\,MW).}
+\label{tab:ieee118_partition}
+\begin{tabular}{@{}clccp{0.40\textwidth}@{}}
+\toprule
+\textbf{Rank} & \textbf{Buses (representative)} & \textbf{\#G} & \textbf{$D_r$} & \textbf{Shared tie dims} \\
+\midrule
+R0 & 1--7, 11--14, 16, 117 & 4 & 430 & 54, 55, 56 \\
+R1 & 82--93, 96--97, 102 & 6 & 486 & 57, 58 \\
+R2 & 41--69, 76--81, 116 & 16 & 1766 & 57, 59, 60, 61 \\
+R3 & 94--95, 98--112 & 9 & 509 & 58, 59 \\
+R4 & 17, 21--32, 113--115 & 7 & 305 & 54, 55, 62, 63, 64 \\
+R5 & 15, 18--20, 33--44 & 6 & 486 & 55, 60, 62 \\
+R6 & 70--75, 118 & 4 & 232 & 61, 63 \\
+R7 & 8--10 & 2 & 28 & 56 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Paired Evaluation Protocol and Parameters}\label{app:scenario_experiments}
+All six pilots follow the MACPO outer loop in Section~\ref{sec:experiments}: LLSO local search, gated or always-on negotiation on shared variables, stop at rank-synchronized evaluation cap. Both methods share matched random seeds, swarm size 100, and penalty weight $w=|f|/512$. Proposed uses the complete configuration with fail-safe period $K{=}2$ on IEEE cases.
+
+Improvement metric:
+\begin{equation}
+\Delta=\frac{F^{\mathrm{MACPO}}-F^{\mathrm{Proposed}}}{\bigl|F^{\mathrm{MACPO}}\bigr|}\times 100\%,
+\label{eq:app_delta}
+\end{equation}
+where $\Delta>0$ favors Proposed (lower terminal $F$; more negative is better in EV dispatch). IEEE cases additionally report median paired $\Delta$, Wilcoxon $p$, and success (Proposed $F\le 2\times$ paired MACPO).
+
+\begin{algorithm}[H]
+\caption{Paired application-case evaluation}
+\label{alg:app_paired}
+\begin{algorithmic}[1]
+\For{run $k=1$ to $25$}
+  \State draw paired seed $s$
+  \State run always-on MACPO ($g_i^t\equiv 1$) with LLSO until evaluation cap
+  \State run complete Proposed configuration with the same seed and cap
+  \State record best $F$, $\bar p_{\mathrm{comm}}$, and outer iterations
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Paired IEEE dispatch evaluation}
+\label{alg:ieee_paired}
+\begin{algorithmic}[1]
+\For{run $k=1$ to $25$}
+  \State draw paired seed $s$; set fail-safe $K{=}2$
+  \State run always-on MACPO with $n_{\mathrm{reg}}$ MPI processes until evaluation cap
+  \State run complete Proposed configuration with the same seed and cap
+  \State record $F$, $\bar p_{\mathrm{comm}}$; compute per-run $\Delta_k$; flag success
+\EndFor
+\State aggregate median $\Delta$, mean $\pm$ std, Wilcoxon $p$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{table}[H]
+\centering
+\caption{Application-case settings (25 paired runs each). Cap: maximum function evaluations per run ($d_{\max}$: maximum local dimension across agents).}
+\label{tab:application_setup}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Scenario} & \textbf{Agents} & \textbf{$D$} & \textbf{Gen./dim.} & \textbf{Eval.\ cap} \\
+\midrule
+Resource & 10 & 19 & 3.0 & $\approx 6.0\times 10^4$ \\
+EV dispatch & 10 & 19 & 3.0 & $\approx 6.0\times 10^4$ \\
+MAED-13 & 1 & 13 & 4.0 & $3.25\times 10^5$ \\
+IEEE-30 & 4 & 11 & 2.0 & $\approx 2.2\times 10^4$ \\
+IEEE-57 & 4 & 11 & 2.0 & $\approx 2.6\times 10^4$ \\
+IEEE-118 & 8 & 65 & 2.5 & $\approx 1.7\times 10^5$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Run-Level Statistics and Result Analysis}\label{app:applications}
+Table~\ref{tab:application_run_stats} gives run-level $\Delta$ quartiles for all six pilots. On resource scheduling, Proposed improves mean terminal $F$ by 11.0\% while cutting communication by 88.4\%; median $\Delta{=}+9.5\%$ with one MACPO outlier widening variance. EV dispatch improves mean net benefit by 10.3\% (median $+0.6\%$). MAED-13 changes mean cost by only $-0.05\%$ with 88.7\% communication drop; all runs have $|\Delta|<1.5\%$. On IEEE~30/57, median paired $\Delta$ is near zero with 41--42\% communication reduction; IEEE~118 trades $-0.6\%$ median cost ($p{=}0.01$) for 60\% fewer negotiations. IEEE~30 success is 23/25 due to two LLSO stagnation outliers, not under-triggering.
+
+\begin{table}[H]
+\centering
+\caption{Run-level paired $\Delta$ statistics ($\Delta=(\mathrm{MACPO}-\mathrm{Proposed})/|\mathrm{MACPO}|\times100\%$; positive favors Proposed).}
+\label{tab:application_run_stats}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Scenario & Median $\Delta$ (\%) & Q1--Q3 (\%) & Min--Max (\%) \\
+\midrule
+\multicolumn{4}{@{}l@{}}{\textit{MACPO-style simulators} (RL comm.\ 11.3--11.6\%)} \\
+MAED-13 & 0.0 & [0.0, 0.0] & [$-$1.5, +0.4] \\
+Resource scheduling & +9.5 & [$-$0.1, +19.5] & [$-$25.8, +42.9] \\
+EV dispatch & +0.6 & [$-$1.2, +3.4] & [$-$4.2, +88.7] \\
+\midrule
+\multicolumn{4}{@{}l@{}}{\textit{IEEE regional dispatch} (RL comm.\ 40.0--58.8\%)} \\
+IEEE-30 & +0.5 & [$-$0.3, +1.2] & [$-$2.1, +4.8] \\
+IEEE-57 & $-$0.0 & [$-$0.4, +0.3] & [$-$1.8, +1.5] \\
+IEEE-118 & $-$0.6 & [$-$0.9, $-$0.3] & [$-$1.4, $-$0.1] \\
+\bottomrule
+\end{tabular}
+\end{table}

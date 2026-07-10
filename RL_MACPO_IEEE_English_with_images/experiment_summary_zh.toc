@@ -1,198 +1,200 @@
-\contentsline {section}{\numberline {1}背景：这篇论文在做什么}{7}{section.1}%
-\contentsline {subsection}{\numberline {1.1}问题}{7}{subsection.1.1}%
-\contentsline {subsection}{\numberline {1.2}四个研究问题（后文实验按此组织）}{7}{subsection.1.2}%
-\contentsline {subsection}{\numberline {1.3}MACPO 外循环（读懂后文公式的前提）}{7}{subsection.1.3}%
-\contentsline {section}{\numberline {2}术语表：代码名与中文含义}{7}{section.2}%
-\contentsline {subsection}{\numberline {2.1}变量速查（读伪代码与公式时用）}{8}{subsection.2.1}%
-\contentsline {section}{\numberline {3}核心公式：含义与论文出处}{9}{section.3}%
+\contentsline {section}{\numberline {1}大白话导读}{7}{section.1}%
+\contentsline {section}{\numberline {2}见到词就查这里}{7}{section.2}%
+\contentsline {section}{\numberline {3}背景：这篇论文在做什么}{7}{section.3}%
+\contentsline {subsection}{\numberline {3.1}问题}{7}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}四个问题}{7}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}一轮怎么跑}{7}{subsection.3.3}%
+\contentsline {section}{\numberline {4}术语表（进阶：对着代码查）}{8}{section.4}%
+\contentsline {subsection}{\numberline {4.1}变量速查（读伪代码与公式时用）}{8}{subsection.4.1}%
+\contentsline {section}{\numberline {5}核心公式（进阶）}{9}{section.5}%
 \contentsline {paragraph}{(1) 全局 NDO 问题}{9}{paragraph*.2}%
-\contentsline {paragraph}{(2) MACPO 局部惩罚目标}{9}{paragraph*.3}%
+\contentsline {paragraph}{(2) MACPO 局部惩罚目标}{10}{paragraph*.3}%
 \contentsline {paragraph}{(3) 冲突指标 CI（门控输入）}{10}{paragraph*.4}%
 \contentsline {paragraph}{(4) 阶段基线（相对阈值用）}{10}{paragraph*.5}%
 \contentsline {paragraph}{(5) 冲突门控（本文核心）}{10}{paragraph*.6}%
 \contentsline {paragraph}{(6) 通信触发率与削减率}{10}{paragraph*.7}%
 \contentsline {paragraph}{主实验默认参数}{10}{paragraph*.8}%
-\contentsline {section}{\numberline {4}实验索引：26 条实验与论文问题对应}{10}{section.4}%
-\contentsline {section}{\numberline {5}实验 1：F1--F6 优化质量主对比（完整版 RL-MACPO vs 原始 MACPO）}{11}{section.5}%
-\contentsline {subsection}{\numberline {5.1}实验说明}{11}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}实验计算公式}{11}{subsection.5.2}%
-\contentsline {subsection}{\numberline {5.3}算法伪代码}{11}{subsection.5.3}%
-\contentsline {subsection}{\numberline {5.4}结果评估指标公式}{12}{subsection.5.4}%
-\contentsline {subsection}{\numberline {5.5}实验设置与参数}{12}{subsection.5.5}%
-\contentsline {subsection}{\numberline {5.6}实验结果}{12}{subsection.5.6}%
-\contentsline {section}{\numberline {6}实验 2：F7--F18 优化质量主对比}{12}{section.6}%
-\contentsline {subsection}{\numberline {6.1}实验说明}{12}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}实验计算公式}{12}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}算法伪代码}{12}{subsection.6.3}%
-\contentsline {subsection}{\numberline {6.4}结果评估指标公式}{13}{subsection.6.4}%
-\contentsline {subsection}{\numberline {6.5}实验设置与参数}{13}{subsection.6.5}%
-\contentsline {subsection}{\numberline {6.6}实验结果}{13}{subsection.6.6}%
-\contentsline {section}{\numberline {7}实验 3：F1--F6 收敛曲线（FES 面板）}{13}{section.7}%
-\contentsline {subsection}{\numberline {7.1}实验说明}{13}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}实验计算公式}{13}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}算法伪代码}{14}{subsection.7.3}%
-\contentsline {subsection}{\numberline {7.4}结果评估指标公式}{14}{subsection.7.4}%
-\contentsline {subsection}{\numberline {7.5}实验设置与参数}{14}{subsection.7.5}%
-\contentsline {subsection}{\numberline {7.6}实验结果}{14}{subsection.7.6}%
-\contentsline {section}{\numberline {8}实验 4：墙钟时间对比（F1--F18）}{15}{section.8}%
-\contentsline {subsection}{\numberline {8.1}实验说明}{15}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}实验计算公式}{15}{subsection.8.2}%
-\contentsline {subsection}{\numberline {8.3}算法伪代码}{15}{subsection.8.3}%
-\contentsline {subsection}{\numberline {8.4}结果评估指标公式}{15}{subsection.8.4}%
-\contentsline {subsection}{\numberline {8.5}实验设置与参数}{15}{subsection.8.5}%
-\contentsline {subsection}{\numberline {8.6}实验结果}{15}{subsection.8.6}%
-\contentsline {section}{\numberline {9}实验 5：F1--F18 通信触发率统计}{15}{section.9}%
-\contentsline {subsection}{\numberline {9.1}实验说明}{15}{subsection.9.1}%
-\contentsline {subsection}{\numberline {9.2}实验计算公式}{15}{subsection.9.2}%
-\contentsline {subsection}{\numberline {9.3}算法伪代码}{16}{subsection.9.3}%
-\contentsline {subsection}{\numberline {9.4}结果评估指标公式}{16}{subsection.9.4}%
-\contentsline {subsection}{\numberline {9.5}实验设置与参数}{16}{subsection.9.5}%
-\contentsline {subsection}{\numberline {9.6}实验结果}{16}{subsection.9.6}%
-\contentsline {section}{\numberline {10}实验 6：F1--F6 通信率与 eva 预算一致性}{16}{section.10}%
-\contentsline {subsection}{\numberline {10.1}实验说明}{16}{subsection.10.1}%
-\contentsline {subsection}{\numberline {10.2}实验计算公式}{16}{subsection.10.2}%
-\contentsline {subsection}{\numberline {10.3}算法伪代码}{17}{subsection.10.3}%
-\contentsline {subsection}{\numberline {10.4}结果评估指标公式}{17}{subsection.10.4}%
-\contentsline {subsection}{\numberline {10.5}实验设置与参数}{17}{subsection.10.5}%
-\contentsline {subsection}{\numberline {10.6}实验结果}{17}{subsection.10.6}%
-\contentsline {section}{\numberline {11}实验 7：门控变体对比（V0--V3）}{17}{section.11}%
-\contentsline {subsection}{\numberline {11.1}实验说明}{17}{subsection.11.1}%
-\contentsline {subsection}{\numberline {11.2}实验计算公式}{17}{subsection.11.2}%
-\contentsline {subsection}{\numberline {11.3}算法伪代码}{17}{subsection.11.3}%
-\contentsline {subsection}{\numberline {11.4}结果评估指标公式}{18}{subsection.11.4}%
-\contentsline {subsection}{\numberline {11.5}实验设置与参数}{18}{subsection.11.5}%
-\contentsline {subsection}{\numberline {11.6}实验结果}{18}{subsection.11.6}%
-\contentsline {section}{\numberline {12}实验 8：相对阈值 $\lambda $ 敏感性（F3/F5）}{18}{section.12}%
-\contentsline {subsection}{\numberline {12.1}实验说明}{18}{subsection.12.1}%
-\contentsline {subsection}{\numberline {12.2}实验计算公式}{18}{subsection.12.2}%
-\contentsline {subsection}{\numberline {12.3}算法伪代码}{18}{subsection.12.3}%
-\contentsline {subsection}{\numberline {12.4}结果评估指标公式}{18}{subsection.12.4}%
-\contentsline {subsection}{\numberline {12.5}实验设置与参数}{19}{subsection.12.5}%
-\contentsline {subsection}{\numberline {12.6}实验结果}{19}{subsection.12.6}%
-\contentsline {section}{\numberline {13}实验 9：Periodic-$K$ 固定周期通信基线}{19}{section.13}%
-\contentsline {subsection}{\numberline {13.1}实验说明}{19}{subsection.13.1}%
-\contentsline {subsection}{\numberline {13.2}实验计算公式}{19}{subsection.13.2}%
-\contentsline {subsection}{\numberline {13.3}算法伪代码}{19}{subsection.13.3}%
-\contentsline {subsection}{\numberline {13.4}结果评估指标公式}{19}{subsection.13.4}%
-\contentsline {subsection}{\numberline {13.5}实验设置与参数}{19}{subsection.13.5}%
-\contentsline {subsection}{\numberline {13.6}实验结果}{20}{subsection.13.6}%
-\contentsline {section}{\numberline {14}实验 10：阈值触发通信基线（F1--F6）}{20}{section.14}%
-\contentsline {subsection}{\numberline {14.1}实验说明}{20}{subsection.14.1}%
-\contentsline {subsection}{\numberline {14.2}实验计算公式}{20}{subsection.14.2}%
-\contentsline {subsection}{\numberline {14.3}算法伪代码}{20}{subsection.14.3}%
-\contentsline {subsection}{\numberline {14.4}结果评估指标公式}{20}{subsection.14.4}%
-\contentsline {subsection}{\numberline {14.5}实验设置与参数}{20}{subsection.14.5}%
-\contentsline {subsection}{\numberline {14.6}实验结果}{20}{subsection.14.6}%
-\contentsline {section}{\numberline {15}实验 11：CI 分箱触发概率统计}{21}{section.15}%
-\contentsline {subsection}{\numberline {15.1}实验说明}{21}{subsection.15.1}%
-\contentsline {subsection}{\numberline {15.2}实验计算公式}{21}{subsection.15.2}%
-\contentsline {subsection}{\numberline {15.3}算法伪代码}{21}{subsection.15.3}%
-\contentsline {subsection}{\numberline {15.4}结果评估指标公式}{21}{subsection.15.4}%
-\contentsline {subsection}{\numberline {15.5}实验设置与参数}{21}{subsection.15.5}%
-\contentsline {subsection}{\numberline {15.6}实验结果}{21}{subsection.15.6}%
-\contentsline {section}{\numberline {16}实验 12：通信--适应度 Pareto 前沿（F1/F2/F5）}{21}{section.16}%
-\contentsline {subsection}{\numberline {16.1}实验说明}{21}{subsection.16.1}%
+\contentsline {section}{\numberline {6}实验章节全文解读}{11}{section.6}%
+\contentsline {section}{\numberline {7}实验 1：小档六道题：新方法 vs 老 MACPO}{11}{section.7}%
+\contentsline {subsection}{\numberline {7.1}实验说明}{11}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}实验计算公式}{11}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}算法伪代码}{11}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}结果评估指标公式}{12}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}实验设置与参数}{12}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.6}实验结果}{12}{subsection.7.6}%
+\contentsline {section}{\numberline {8}实验 2：中档大档十二题：新方法 vs 老 MACPO}{12}{section.8}%
+\contentsline {subsection}{\numberline {8.1}实验说明}{12}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}实验计算公式}{12}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}算法伪代码}{12}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}结果评估指标公式}{13}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}实验设置与参数}{13}{subsection.8.5}%
+\contentsline {subsection}{\numberline {8.6}实验结果}{13}{subsection.8.6}%
+\contentsline {section}{\numberline {9}实验 3：小档六题：成绩随改题次数变化（曲线）}{13}{section.9}%
+\contentsline {subsection}{\numberline {9.1}实验说明}{13}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}实验计算公式}{13}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}算法伪代码}{14}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}结果评估指标公式}{14}{subsection.9.4}%
+\contentsline {subsection}{\numberline {9.5}实验设置与参数}{14}{subsection.9.5}%
+\contentsline {subsection}{\numberline {9.6}实验结果}{14}{subsection.9.6}%
+\contentsline {section}{\numberline {10}实验 4：跑一遍要多少秒}{15}{section.10}%
+\contentsline {subsection}{\numberline {10.1}实验说明}{15}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}实验计算公式}{15}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}算法伪代码}{15}{subsection.10.3}%
+\contentsline {subsection}{\numberline {10.4}结果评估指标公式}{15}{subsection.10.4}%
+\contentsline {subsection}{\numberline {10.5}实验设置与参数}{15}{subsection.10.5}%
+\contentsline {subsection}{\numberline {10.6}实验结果}{15}{subsection.10.6}%
+\contentsline {section}{\numberline {11}实验 5：十八套题：联网占百分之几}{15}{section.11}%
+\contentsline {subsection}{\numberline {11.1}实验说明}{15}{subsection.11.1}%
+\contentsline {subsection}{\numberline {11.2}实验计算公式}{15}{subsection.11.2}%
+\contentsline {subsection}{\numberline {11.3}算法伪代码}{16}{subsection.11.3}%
+\contentsline {subsection}{\numberline {11.4}结果评估指标公式}{16}{subsection.11.4}%
+\contentsline {subsection}{\numberline {11.5}实验设置与参数}{16}{subsection.11.5}%
+\contentsline {subsection}{\numberline {11.6}实验结果}{16}{subsection.11.6}%
+\contentsline {section}{\numberline {12}实验 6：小档六题：是不是少算题才少联网}{16}{section.12}%
+\contentsline {subsection}{\numberline {12.1}实验说明}{16}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}实验计算公式}{17}{subsection.12.2}%
+\contentsline {subsection}{\numberline {12.3}算法伪代码}{17}{subsection.12.3}%
+\contentsline {subsection}{\numberline {12.4}结果评估指标公式}{17}{subsection.12.4}%
+\contentsline {subsection}{\numberline {12.5}实验设置与参数}{17}{subsection.12.5}%
+\contentsline {subsection}{\numberline {12.6}实验结果}{17}{subsection.12.6}%
+\contentsline {section}{\numberline {13}实验 7：四种联网规则谁最好}{17}{section.13}%
+\contentsline {subsection}{\numberline {13.1}实验说明}{17}{subsection.13.1}%
+\contentsline {subsection}{\numberline {13.2}实验计算公式}{17}{subsection.13.2}%
+\contentsline {subsection}{\numberline {13.3}算法伪代码}{18}{subsection.13.3}%
+\contentsline {subsection}{\numberline {13.4}结果评估指标公式}{18}{subsection.13.4}%
+\contentsline {subsection}{\numberline {13.5}实验设置与参数}{18}{subsection.13.5}%
+\contentsline {subsection}{\numberline {13.6}实验结果}{18}{subsection.13.6}%
+\contentsline {section}{\numberline {14}实验 8：联网灵敏度调大调小影响大吗}{18}{section.14}%
+\contentsline {subsection}{\numberline {14.1}实验说明}{18}{subsection.14.1}%
+\contentsline {subsection}{\numberline {14.2}实验计算公式}{18}{subsection.14.2}%
+\contentsline {subsection}{\numberline {14.3}算法伪代码}{19}{subsection.14.3}%
+\contentsline {subsection}{\numberline {14.4}结果评估指标公式}{19}{subsection.14.4}%
+\contentsline {subsection}{\numberline {14.5}实验设置与参数}{19}{subsection.14.5}%
+\contentsline {subsection}{\numberline {14.6}实验结果}{19}{subsection.14.6}%
+\contentsline {section}{\numberline {15}实验 9：固定每隔 K 轮必联}{19}{section.15}%
+\contentsline {subsection}{\numberline {15.1}实验说明}{19}{subsection.15.1}%
+\contentsline {subsection}{\numberline {15.2}实验计算公式}{19}{subsection.15.2}%
+\contentsline {subsection}{\numberline {15.3}算法伪代码}{20}{subsection.15.3}%
+\contentsline {subsection}{\numberline {15.4}结果评估指标公式}{20}{subsection.15.4}%
+\contentsline {subsection}{\numberline {15.5}实验设置与参数}{20}{subsection.15.5}%
+\contentsline {subsection}{\numberline {15.6}实验结果}{20}{subsection.15.6}%
+\contentsline {section}{\numberline {16}实验 10：小档六题：换几种联网规则}{20}{section.16}%
+\contentsline {subsection}{\numberline {16.1}实验说明}{20}{subsection.16.1}%
 \contentsline {subsection}{\numberline {16.2}实验计算公式}{21}{subsection.16.2}%
-\contentsline {subsection}{\numberline {16.3}算法伪代码}{22}{subsection.16.3}%
-\contentsline {subsection}{\numberline {16.4}结果评估指标公式}{22}{subsection.16.4}%
-\contentsline {subsection}{\numberline {16.5}实验设置与参数}{22}{subsection.16.5}%
-\contentsline {subsection}{\numberline {16.6}实验结果}{22}{subsection.16.6}%
-\contentsline {section}{\numberline {17}实验 13：F3/F5 微观诊断（冲突--惩罚耦合）}{23}{section.17}%
-\contentsline {subsection}{\numberline {17.1}实验说明}{23}{subsection.17.1}%
-\contentsline {subsection}{\numberline {17.2}实验计算公式}{23}{subsection.17.2}%
-\contentsline {subsection}{\numberline {17.3}算法伪代码}{23}{subsection.17.3}%
-\contentsline {subsection}{\numberline {17.4}结果评估指标公式}{23}{subsection.17.4}%
-\contentsline {subsection}{\numberline {17.5}实验设置与参数}{23}{subsection.17.5}%
-\contentsline {subsection}{\numberline {17.6}实验结果}{23}{subsection.17.6}%
-\contentsline {section}{\numberline {18}实验 14：MASOIE 跨范式外部参考（F3/F5）}{23}{section.18}%
-\contentsline {subsection}{\numberline {18.1}实验说明}{23}{subsection.18.1}%
-\contentsline {subsection}{\numberline {18.2}实验计算公式}{23}{subsection.18.2}%
+\contentsline {subsection}{\numberline {16.3}算法伪代码}{21}{subsection.16.3}%
+\contentsline {subsection}{\numberline {16.4}结果评估指标公式}{21}{subsection.16.4}%
+\contentsline {subsection}{\numberline {16.5}实验设置与参数}{21}{subsection.16.5}%
+\contentsline {subsection}{\numberline {16.6}实验结果}{21}{subsection.16.6}%
+\contentsline {section}{\numberline {17}实验 11：分歧大是否更容易联网}{21}{section.17}%
+\contentsline {subsection}{\numberline {17.1}实验说明}{21}{subsection.17.1}%
+\contentsline {subsection}{\numberline {17.2}实验计算公式}{21}{subsection.17.2}%
+\contentsline {subsection}{\numberline {17.3}算法伪代码}{21}{subsection.17.3}%
+\contentsline {subsection}{\numberline {17.4}结果评估指标公式}{22}{subsection.17.4}%
+\contentsline {subsection}{\numberline {17.5}实验设置与参数}{22}{subsection.17.5}%
+\contentsline {subsection}{\numberline {17.6}实验结果}{22}{subsection.17.6}%
+\contentsline {section}{\numberline {18}实验 12：联网多少 vs 分数多少}{22}{section.18}%
+\contentsline {subsection}{\numberline {18.1}实验说明}{22}{subsection.18.1}%
+\contentsline {subsection}{\numberline {18.2}实验计算公式}{22}{subsection.18.2}%
 \contentsline {subsection}{\numberline {18.3}算法伪代码}{23}{subsection.18.3}%
 \contentsline {subsection}{\numberline {18.4}结果评估指标公式}{23}{subsection.18.4}%
 \contentsline {subsection}{\numberline {18.5}实验设置与参数}{23}{subsection.18.5}%
-\contentsline {subsection}{\numberline {18.6}实验结果}{25}{subsection.18.6}%
-\contentsline {section}{\numberline {19}实验 15：惩罚控制器对比（F3/F5）}{25}{section.19}%
-\contentsline {subsection}{\numberline {19.1}实验说明}{25}{subsection.19.1}%
-\contentsline {subsection}{\numberline {19.2}实验计算公式}{25}{subsection.19.2}%
-\contentsline {subsection}{\numberline {19.3}算法伪代码}{25}{subsection.19.3}%
-\contentsline {subsection}{\numberline {19.4}结果评估指标公式}{25}{subsection.19.4}%
-\contentsline {subsection}{\numberline {19.5}实验设置与参数}{25}{subsection.19.5}%
-\contentsline {subsection}{\numberline {19.6}实验结果}{26}{subsection.19.6}%
-\contentsline {section}{\numberline {20}实验 16：门控层消融（F1--F6）}{26}{section.20}%
-\contentsline {subsection}{\numberline {20.1}实验说明}{26}{subsection.20.1}%
-\contentsline {subsection}{\numberline {20.2}实验计算公式}{26}{subsection.20.2}%
-\contentsline {subsection}{\numberline {20.3}算法伪代码}{26}{subsection.20.3}%
-\contentsline {subsection}{\numberline {20.4}结果评估指标公式}{26}{subsection.20.4}%
-\contentsline {subsection}{\numberline {20.5}实验设置与参数}{26}{subsection.20.5}%
-\contentsline {subsection}{\numberline {20.6}实验结果}{26}{subsection.20.6}%
-\contentsline {section}{\numberline {21}实验 17：相位采样与 $\eta $ 策略消融（F1--F6）}{27}{section.21}%
-\contentsline {subsection}{\numberline {21.1}实验说明}{27}{subsection.21.1}%
-\contentsline {subsection}{\numberline {21.2}实验计算公式}{27}{subsection.21.2}%
-\contentsline {subsection}{\numberline {21.3}算法伪代码}{27}{subsection.21.3}%
-\contentsline {subsection}{\numberline {21.4}结果评估指标公式}{27}{subsection.21.4}%
-\contentsline {subsection}{\numberline {21.5}实验设置与参数}{27}{subsection.21.5}%
-\contentsline {subsection}{\numberline {21.6}实验结果}{27}{subsection.21.6}%
-\contentsline {section}{\numberline {22}实验 18：深度 RL 架构对比（F1--F6）}{28}{section.22}%
-\contentsline {subsection}{\numberline {22.1}实验说明}{28}{subsection.22.1}%
-\contentsline {subsection}{\numberline {22.2}实验计算公式}{28}{subsection.22.2}%
-\contentsline {subsection}{\numberline {22.3}算法伪代码}{28}{subsection.22.3}%
-\contentsline {subsection}{\numberline {22.4}结果评估指标公式}{28}{subsection.22.4}%
-\contentsline {subsection}{\numberline {22.5}实验设置与参数}{28}{subsection.22.5}%
-\contentsline {subsection}{\numberline {22.6}实验结果}{28}{subsection.22.6}%
-\contentsline {section}{\numberline {23}实验 19：RL 轨迹诊断（$\alpha $, $\rho $, conflict, reward）}{29}{section.23}%
-\contentsline {subsection}{\numberline {23.1}实验说明}{29}{subsection.23.1}%
-\contentsline {subsection}{\numberline {23.2}实验计算公式}{29}{subsection.23.2}%
-\contentsline {subsection}{\numberline {23.3}算法伪代码}{29}{subsection.23.3}%
-\contentsline {subsection}{\numberline {23.4}结果评估指标公式}{29}{subsection.23.4}%
-\contentsline {subsection}{\numberline {23.5}实验设置与参数}{29}{subsection.23.5}%
-\contentsline {subsection}{\numberline {23.6}实验结果}{29}{subsection.23.6}%
-\contentsline {section}{\numberline {24}实验 20：冲突--$\alpha $ 分箱关系}{31}{section.24}%
-\contentsline {subsection}{\numberline {24.1}实验说明}{31}{subsection.24.1}%
-\contentsline {subsection}{\numberline {24.2}实验计算公式}{31}{subsection.24.2}%
-\contentsline {subsection}{\numberline {24.3}算法伪代码}{31}{subsection.24.3}%
-\contentsline {subsection}{\numberline {24.4}结果评估指标公式}{31}{subsection.24.4}%
-\contentsline {subsection}{\numberline {24.5}实验设置与参数}{31}{subsection.24.5}%
-\contentsline {subsection}{\numberline {24.6}实验结果}{32}{subsection.24.6}%
-\contentsline {section}{\numberline {25}实验 21：逐循环归一化漂移验证}{32}{section.25}%
-\contentsline {subsection}{\numberline {25.1}实验说明}{32}{subsection.25.1}%
-\contentsline {subsection}{\numberline {25.2}实验计算公式}{32}{subsection.25.2}%
-\contentsline {subsection}{\numberline {25.3}算法伪代码}{32}{subsection.25.3}%
-\contentsline {subsection}{\numberline {25.4}结果评估指标公式}{32}{subsection.25.4}%
-\contentsline {subsection}{\numberline {25.5}实验设置与参数}{33}{subsection.25.5}%
-\contentsline {subsection}{\numberline {25.6}实验结果}{33}{subsection.25.6}%
-\contentsline {section}{\numberline {26}实验 22：多区域经济调度 MAED-13}{33}{section.26}%
-\contentsline {subsection}{\numberline {26.1}实验说明}{33}{subsection.26.1}%
-\contentsline {subsection}{\numberline {26.2}实验计算公式}{33}{subsection.26.2}%
-\contentsline {subsection}{\numberline {26.3}算法伪代码}{33}{subsection.26.3}%
-\contentsline {subsection}{\numberline {26.4}结果评估指标公式}{33}{subsection.26.4}%
-\contentsline {subsection}{\numberline {26.5}实验设置与参数}{34}{subsection.26.5}%
-\contentsline {subsection}{\numberline {26.6}实验结果}{34}{subsection.26.6}%
-\contentsline {section}{\numberline {27}实验 23：资源-constrained 分布式调度}{34}{section.27}%
-\contentsline {subsection}{\numberline {27.1}实验说明}{34}{subsection.27.1}%
-\contentsline {subsection}{\numberline {27.2}实验计算公式}{34}{subsection.27.2}%
-\contentsline {subsection}{\numberline {27.3}算法伪代码}{34}{subsection.27.3}%
-\contentsline {subsection}{\numberline {27.4}结果评估指标公式}{34}{subsection.27.4}%
-\contentsline {subsection}{\numberline {27.5}实验设置与参数}{34}{subsection.27.5}%
-\contentsline {subsection}{\numberline {27.6}实验结果}{34}{subsection.27.6}%
-\contentsline {section}{\numberline {28}实验 24：电动汽车充放电协调（EV Dispatch）}{34}{section.28}%
-\contentsline {subsection}{\numberline {28.1}实验说明}{34}{subsection.28.1}%
-\contentsline {subsection}{\numberline {28.2}实验计算公式}{35}{subsection.28.2}%
-\contentsline {subsection}{\numberline {28.3}算法伪代码}{35}{subsection.28.3}%
-\contentsline {subsection}{\numberline {28.4}结果评估指标公式}{35}{subsection.28.4}%
-\contentsline {subsection}{\numberline {28.5}实验设置与参数}{35}{subsection.28.5}%
-\contentsline {subsection}{\numberline {28.6}实验结果}{35}{subsection.28.6}%
-\contentsline {section}{\numberline {29}实验 25：IEEE 30/57/118 输电网区域调度}{35}{section.29}%
-\contentsline {subsection}{\numberline {29.1}实验说明}{35}{subsection.29.1}%
-\contentsline {subsection}{\numberline {29.2}实验计算公式}{35}{subsection.29.2}%
-\contentsline {subsection}{\numberline {29.3}算法伪代码}{35}{subsection.29.3}%
-\contentsline {subsection}{\numberline {29.4}结果评估指标公式}{36}{subsection.29.4}%
-\contentsline {subsection}{\numberline {29.5}实验设置与参数}{36}{subsection.29.5}%
-\contentsline {subsection}{\numberline {29.6}实验结果}{36}{subsection.29.6}%
-\contentsline {section}{\numberline {30}实验 26：可扩展性 pilot（F1/F7/F13 + F1S50/S100）}{36}{section.30}%
-\contentsline {subsection}{\numberline {30.1}实验说明}{36}{subsection.30.1}%
-\contentsline {subsection}{\numberline {30.2}实验计算公式}{36}{subsection.30.2}%
-\contentsline {subsection}{\numberline {30.3}算法伪代码}{36}{subsection.30.3}%
-\contentsline {subsection}{\numberline {30.4}结果评估指标公式}{36}{subsection.30.4}%
-\contentsline {subsection}{\numberline {30.5}实验设置与参数}{36}{subsection.30.5}%
-\contentsline {subsection}{\numberline {30.6}实验结果}{37}{subsection.30.6}%
-\contentsline {section}{附录：应用 run 级分布}{37}{section*.9}%
+\contentsline {subsection}{\numberline {18.6}实验结果}{23}{subsection.18.6}%
+\contentsline {section}{\numberline {19}实验 13：F3/F5 单条日志诊断}{23}{section.19}%
+\contentsline {subsection}{\numberline {19.1}实验说明}{23}{subsection.19.1}%
+\contentsline {subsection}{\numberline {19.2}实验计算公式}{23}{subsection.19.2}%
+\contentsline {subsection}{\numberline {19.3}算法伪代码}{23}{subsection.19.3}%
+\contentsline {subsection}{\numberline {19.4}结果评估指标公式}{24}{subsection.19.4}%
+\contentsline {subsection}{\numberline {19.5}实验设置与参数}{24}{subsection.19.5}%
+\contentsline {subsection}{\numberline {19.6}实验结果}{24}{subsection.19.6}%
+\contentsline {section}{\numberline {20}实验 14：和 MASOIE 比（参考）}{24}{section.20}%
+\contentsline {subsection}{\numberline {20.1}实验说明}{24}{subsection.20.1}%
+\contentsline {subsection}{\numberline {20.2}实验计算公式}{24}{subsection.20.2}%
+\contentsline {subsection}{\numberline {20.3}算法伪代码}{25}{subsection.20.3}%
+\contentsline {subsection}{\numberline {20.4}结果评估指标公式}{25}{subsection.20.4}%
+\contentsline {subsection}{\numberline {20.5}实验设置与参数}{25}{subsection.20.5}%
+\contentsline {subsection}{\numberline {20.6}实验结果}{25}{subsection.20.6}%
+\contentsline {section}{\numberline {21}实验 15：换三种调惩罚方式}{25}{section.21}%
+\contentsline {subsection}{\numberline {21.1}实验说明}{25}{subsection.21.1}%
+\contentsline {subsection}{\numberline {21.2}实验计算公式}{25}{subsection.21.2}%
+\contentsline {subsection}{\numberline {21.3}算法伪代码}{25}{subsection.21.3}%
+\contentsline {subsection}{\numberline {21.4}结果评估指标公式}{26}{subsection.21.4}%
+\contentsline {subsection}{\numberline {21.5}实验设置与参数}{26}{subsection.21.5}%
+\contentsline {subsection}{\numberline {21.6}实验结果}{26}{subsection.21.6}%
+\contentsline {section}{\numberline {22}实验 16：门控拆几层哪层关键}{26}{section.22}%
+\contentsline {subsection}{\numberline {22.1}实验说明}{26}{subsection.22.1}%
+\contentsline {subsection}{\numberline {22.2}实验计算公式}{26}{subsection.22.2}%
+\contentsline {subsection}{\numberline {22.3}算法伪代码}{26}{subsection.22.3}%
+\contentsline {subsection}{\numberline {22.4}结果评估指标公式}{26}{subsection.22.4}%
+\contentsline {subsection}{\numberline {22.5}实验设置与参数}{26}{subsection.22.5}%
+\contentsline {subsection}{\numberline {22.6}实验结果}{27}{subsection.22.6}%
+\contentsline {section}{\numberline {23}实验 17：早中晚抽样、更新步长}{27}{section.23}%
+\contentsline {subsection}{\numberline {23.1}实验说明}{27}{subsection.23.1}%
+\contentsline {subsection}{\numberline {23.2}实验计算公式}{27}{subsection.23.2}%
+\contentsline {subsection}{\numberline {23.3}算法伪代码}{27}{subsection.23.3}%
+\contentsline {subsection}{\numberline {23.4}结果评估指标公式}{27}{subsection.23.4}%
+\contentsline {subsection}{\numberline {23.5}实验设置与参数}{28}{subsection.23.5}%
+\contentsline {subsection}{\numberline {23.6}实验结果}{28}{subsection.23.6}%
+\contentsline {section}{\numberline {24}实验 18：换六种强化学习网络}{28}{section.24}%
+\contentsline {subsection}{\numberline {24.1}实验说明}{28}{subsection.24.1}%
+\contentsline {subsection}{\numberline {24.2}实验计算公式}{28}{subsection.24.2}%
+\contentsline {subsection}{\numberline {24.3}算法伪代码}{28}{subsection.24.3}%
+\contentsline {subsection}{\numberline {24.4}结果评估指标公式}{28}{subsection.24.4}%
+\contentsline {subsection}{\numberline {24.5}实验设置与参数}{28}{subsection.24.5}%
+\contentsline {subsection}{\numberline {24.6}实验结果}{28}{subsection.24.6}%
+\contentsline {section}{\numberline {25}实验 19：强化学习过程曲线}{28}{section.25}%
+\contentsline {subsection}{\numberline {25.1}实验说明}{28}{subsection.25.1}%
+\contentsline {subsection}{\numberline {25.2}实验计算公式}{29}{subsection.25.2}%
+\contentsline {subsection}{\numberline {25.3}算法伪代码}{29}{subsection.25.3}%
+\contentsline {subsection}{\numberline {25.4}结果评估指标公式}{29}{subsection.25.4}%
+\contentsline {subsection}{\numberline {25.5}实验设置与参数}{29}{subsection.25.5}%
+\contentsline {subsection}{\numberline {25.6}实验结果}{29}{subsection.25.6}%
+\contentsline {section}{\numberline {26}实验 20：冲突和惩罚的关系}{29}{section.26}%
+\contentsline {subsection}{\numberline {26.1}实验说明}{29}{subsection.26.1}%
+\contentsline {subsection}{\numberline {26.2}实验计算公式}{32}{subsection.26.2}%
+\contentsline {subsection}{\numberline {26.3}算法伪代码}{32}{subsection.26.3}%
+\contentsline {subsection}{\numberline {26.4}结果评估指标公式}{32}{subsection.26.4}%
+\contentsline {subsection}{\numberline {26.5}实验设置与参数}{32}{subsection.26.5}%
+\contentsline {subsection}{\numberline {26.6}实验结果}{32}{subsection.26.6}%
+\contentsline {section}{\numberline {27}实验 21：不联网时参考值漂不漂}{32}{section.27}%
+\contentsline {subsection}{\numberline {27.1}实验说明}{32}{subsection.27.1}%
+\contentsline {subsection}{\numberline {27.2}实验计算公式}{33}{subsection.27.2}%
+\contentsline {subsection}{\numberline {27.3}算法伪代码}{33}{subsection.27.3}%
+\contentsline {subsection}{\numberline {27.4}结果评估指标公式}{33}{subsection.27.4}%
+\contentsline {subsection}{\numberline {27.5}实验设置与参数}{33}{subsection.27.5}%
+\contentsline {subsection}{\numberline {27.6}实验结果}{33}{subsection.27.6}%
+\contentsline {section}{\numberline {28}实验 22：13 台机组发电}{33}{section.28}%
+\contentsline {subsection}{\numberline {28.1}实验说明}{33}{subsection.28.1}%
+\contentsline {subsection}{\numberline {28.2}实验计算公式}{33}{subsection.28.2}%
+\contentsline {subsection}{\numberline {28.3}算法伪代码}{34}{subsection.28.3}%
+\contentsline {subsection}{\numberline {28.4}结果评估指标公式}{34}{subsection.28.4}%
+\contentsline {subsection}{\numberline {28.5}实验设置与参数}{34}{subsection.28.5}%
+\contentsline {subsection}{\numberline {28.6}实验结果}{34}{subsection.28.6}%
+\contentsline {section}{\numberline {29}实验 23：资源调度}{34}{section.29}%
+\contentsline {subsection}{\numberline {29.1}实验说明}{34}{subsection.29.1}%
+\contentsline {subsection}{\numberline {29.2}实验计算公式}{34}{subsection.29.2}%
+\contentsline {subsection}{\numberline {29.3}算法伪代码}{34}{subsection.29.3}%
+\contentsline {subsection}{\numberline {29.4}结果评估指标公式}{35}{subsection.29.4}%
+\contentsline {subsection}{\numberline {29.5}实验设置与参数}{35}{subsection.29.5}%
+\contentsline {subsection}{\numberline {29.6}实验结果}{35}{subsection.29.6}%
+\contentsline {section}{\numberline {30}实验 24：电动车充放电}{35}{section.30}%
+\contentsline {subsection}{\numberline {30.1}实验说明}{35}{subsection.30.1}%
+\contentsline {subsection}{\numberline {30.2}实验计算公式}{35}{subsection.30.2}%
+\contentsline {subsection}{\numberline {30.3}算法伪代码}{35}{subsection.30.3}%
+\contentsline {subsection}{\numberline {30.4}结果评估指标公式}{35}{subsection.30.4}%
+\contentsline {subsection}{\numberline {30.5}实验设置与参数}{35}{subsection.30.5}%
+\contentsline {subsection}{\numberline {30.6}实验结果}{35}{subsection.30.6}%
+\contentsline {section}{\numberline {31}实验 25：IEEE 30/57/118 电网}{35}{section.31}%
+\contentsline {subsection}{\numberline {31.1}实验说明}{36}{subsection.31.1}%
+\contentsline {subsection}{\numberline {31.2}实验计算公式}{36}{subsection.31.2}%
+\contentsline {subsection}{\numberline {31.3}算法伪代码}{36}{subsection.31.3}%
+\contentsline {subsection}{\numberline {31.4}结果评估指标公式}{36}{subsection.31.4}%
+\contentsline {subsection}{\numberline {31.5}实验设置与参数}{36}{subsection.31.5}%
+\contentsline {subsection}{\numberline {31.6}实验结果}{36}{subsection.31.6}%
+\contentsline {section}{\numberline {32}实验 26：参与者变多试探}{37}{section.32}%
+\contentsline {subsection}{\numberline {32.1}实验说明}{37}{subsection.32.1}%
+\contentsline {subsection}{\numberline {32.2}实验计算公式}{37}{subsection.32.2}%
+\contentsline {subsection}{\numberline {32.3}算法伪代码}{37}{subsection.32.3}%
+\contentsline {subsection}{\numberline {32.4}结果评估指标公式}{37}{subsection.32.4}%
+\contentsline {subsection}{\numberline {32.5}实验设置与参数}{37}{subsection.32.5}%
+\contentsline {subsection}{\numberline {32.6}实验结果}{37}{subsection.32.6}%
+\contentsline {section}{附录：应用 每次实验分布}{37}{section*.9}%

@@ -1,4 +1,4 @@
-% 论文实验逐条归纳（中文）— 每条实验独立成节，格式仿 MACPO 电力调度示例
+% 论文实验逐条归纳（中文通俗易懂版）
 \documentclass[11pt,a4paper]{ctexart}
 \usepackage{geometry}
 \usepackage{amsmath,amssymb}
@@ -16,10 +16,8 @@
 \hypersetup{colorlinks=true,linkcolor=blue}
 \setlist{nosep,leftmargin=*}
 
-% 伪代码块后附中文变量说明（伪代码本身仅英文）
-\newcommand{\varnote}[1]{\par\smallskip\noindent\textbf{变量说明（中文）：}#1\par\smallskip}
+\newcommand{\varnote}[1]{\par\smallskip\noindent\textbf{变量说明：}#1\par\smallskip}
 
-% 若图文件存在则嵌入，否则显示路径提示
 \newcommand{\tryfig}[3][0.92\textwidth]{%
   \IfFileExists{#2}{%
     \begin{figure}[htbp]\centering
@@ -28,56 +26,75 @@
   }{%
     \begin{center}\fbox{\parbox{0.92\textwidth}{\centering
     \textbf{【实验结果图】} #3\\[0.3em]
-    \small 图文件：\texttt{#2}（运行对应出图脚本后重新编译即可嵌入）%
+    \small 图文件：\texttt{#2}（运行出图脚本后重新编译可嵌入）%
     }}\end{center}%
   }%
 }
 
-\title{\textbf{RL-MACPO 论文实验归纳（中文阅读版）}\\[0.3em]
-\large 含背景、术语表、公式出处 · 26 条实验逐条说明}
-\author{对应英文稿 \texttt{conference\_new\_ready.tex} · 2026-07-10}
+\title{\textbf{论文实验说明（通俗易懂版）}\\[0.3em]
+\large 尽量说人话 · 26 条实验逐条说明}
+\author{对应英文论文实验部分 · 2026-07-10}
 \date{}
+
+\newcommand{\renhua}[1]{\par\smallskip\noindent\textbf{【人话一句话】}#1\par\smallskip}
 
 \begin{document}
 \maketitle
 
+
 \begin{abstract}
-本文档是对论文 \texttt{conference\_new\_ready.tex}（冲突门控通信 RL-MACPO）中\textbf{全部 26 项实验}的中文归纳，供读论文时对照查阅。\textbf{请先阅读第\ref{sec:background}--\ref{sec:varindex}节}（背景、术语表、变量速查、公式来源），再进入具体实验。伪代码块内仅英文变量名；中文含义见 §2.2 变量速查或各算法后的「变量说明」。每条实验结构：实验目的 $\to$ 公式 $\to$ 流程 $\to$ 指标 $\to$ 设置 $\to$ 结果。
+\noindent\textbf{这份文档是干什么的？}\\
+帮你看懂英文论文里的\textbf{全部 26 个实验}：每个在测什么、怎么测、结果说明什么。按顺序读即可。
+
+\noindent\textbf{怎么读？} 先读\ref{sec:plain_intro}导读 $\to$ \ref{sec:plaindict}词典 $\to$ \ref{sec:paper_experiments}全文解读 $\to$ 需要时再看各条实验的公式。
+
+\noindent\textbf{两个方法：} \textbf{老 MACPO}（每轮必联网） vs \textbf{新方法}（先判断再联网，论文称 Proposed）。
+
+\noindent\textbf{成绩 $F$：} 各组真实任务分之和，\textbf{越小越好}（电动车等场景越负越好）。罚分只是搜索辅助，不算进 $F$。
 \end{abstract}
 
 \tableofcontents
 \newpage
 
 %==============================================================================
+
+\section{大白话导读}\label{sec:plain_intro}
+很多节点一起完成任务，但发消息很贵。老 MACPO 每轮都强制联网；新方法先看分歧大不大——小就不联，大或太久没联再联。实验要证明：联网少很多，分数不变差，往往更好。
+
+\textbf{四个问题：}（1）分数会不会变差？（2）少联了多少网？（3）好结果靠「挑时机联网」还是「调参数」？（4）真实场景行不行？
+
+\textbf{读表注意：} $F_1,\ldots,F_{18}$ 是 18 套题的名字；「配对实验」= 同一随机条件下老方法和新方法各跑一遍；「消融」= 关掉某功能看还灵不灵。
+
+\section{见到词就查这里}\label{sec:plaindict}
+\begin{center}\small
+\begin{longtable}{@{}p{3cm}p{10cm}@{}}
+\toprule
+\textbf{词} & \textbf{意思} \\
+\midrule
+\endhead
+老 MACPO & 每轮必联网，对照组 \\
+新方法 & 先判断再联网（Proposed） \\
+$F$ & 最终成绩单，越小越好 \\
+CI & 共享题差多少，越高越该联网 \\
+eva & 一共算了多少次分 \\
+胜/平/负 & 几道题新方法更好/差不多/更差 \\
+保底联网 & 太久不联就强制联一次 \\
+V0--V3 & 四种联网规则（V0=每轮必联） \\
+\bottomrule
+\end{longtable}
+\end{center}
+
 \section{背景：这篇论文在做什么}\label{sec:background}
-%==============================================================================
 \subsection{问题}
-\textbf{网络分布式黑盒优化（NDO）}：$n$ 个智能体在图结构上各自优化局部目标，但相邻智能体共享一部分决策变量（如电网联络线功率、交通流共享路段）。经典算法 \textbf{MACPO}（Multi-Agent Cooperative Penalty Optimization，见 MACPO 原文） 的做法是：每轮外循环都\textbf{通信并协商}共享变量，用惩罚项把不一致性压下去。
+多个节点一起优化，邻居之间有几道题必须答案一致。老 MACPO 每轮都强制联网对答案；新方法每轮先看值不值得联网。
 
-\textbf{痛点}：很多外循环里冲突其实很小，每轮都协商浪费通信与计算，对最终解质量帮助不大。
+\subsection{四个问题}
+（1）分数会不会变差？（2）少联多少网？（3）好结果靠挑时机联网还是调参数？（4）真实场景行不行？
 
-\textbf{本文核心想法}：在每个外循环先问一句——\emph{这一轮值不值得开通信协商？}——用\textbf{冲突门控}（conflict gating）决定 $g^t\in\{0,1\}$：$g^t{=}0$ 跳过协商、只刷新共识参考；$g^t{=}1$ 才进入 MACPO 原有协商分支。实现体叫 \textbf{RL-MACPO}（在 MACPO 代码栈上加门控；RL 只负责调节惩罚系数，\textbf{不是}主要创新点）。
+\subsection{一轮怎么跑}
+本地搜答案 $\\to$ 算分歧 $\\to$ 决定联不联网 $\\to$ 重复直到改题次数用完。两种方法同一随机种子、同样改题上限，各 25 遍。
 
-\subsection{四个研究问题（后文实验按此组织）}
-\begin{enumerate}
-  \item \textbf{Q1 优化质量}：相同评估预算下，门控版能否不比原始 MACPO 差、甚至更好？
-  \item \textbf{Q2 通信削减}：协商触发率能否从 100\% 降到一小部分？
-  \item \textbf{Q3 机制归因}：增益来自门控还是 RL？门控三层里哪一层必要？
-  \item \textbf{Q4 工程迁移}：经济调度、IEEE 电网等场景是否仍有效？
-\end{enumerate}
-
-\subsection{MACPO 外循环（读懂后文公式的前提）}
-每个外循环 $t$ 大致为：
-\begin{enumerate}[label=\arabic*.]
-  \item 各智能体用局部搜索（LLSO/CSO）优化\textbf{带惩罚的局部目标} $h_i$；
-  \item 计算冲突指标 CI，经\textbf{门控}得 $g^t$；
-  \item 若 $g^t{=}1$：与邻居\textbf{协商}共享变量；若 $g^t{=}0$：\textbf{跳过协商}，仅更新共识参考 $r_d$；
-  \item 重复直至评估次数（eva）用尽。
-\end{enumerate}
-\textbf{评估预算}：两种方法用相同随机种子配对、相同 eva 上限，保证对比公平。
-
-%==============================================================================
-\section{术语表：代码名与中文含义}\label{sec:glossary}
+\section{术语表（进阶：对着代码查）}\label{sec:glossary}
 %==============================================================================
 论文与日志里常出现英文配置名，下表是\textbf{第一次出现时的标准中文叫法}；后文实验优先用中文，括号内保留代码名便于查日志。
 
@@ -87,16 +104,16 @@
 \textbf{代码/论文名} & \textbf{中文名称} & \textbf{含义} \\
 \midrule
 \endhead
-MACPO / always-on &
-\textbf{原始 MACPO（每轮必通信）} &
-门控恒开 $g^t\equiv 1$，每外循环都协商；\emph{always-on} 即“通信常开”，不是算法正式名称。 \\
+MACPO / 每轮必联 &
+\textbf{老 MACPO（每轮必通信）} &
+门控恒开 $g^t\equiv 1$，每外循环都协商；\emph{每轮必联} 即“通信常开”，不是算法正式名称。 \\
 \addlinespace
-RL-MACPO / Full &
-\textbf{完整版 RL-MACPO} &
+新方法 / Full &
+\textbf{新方法} &
 门控 + RL 惩罚调节 + 变量筛选（0.9/0.7/0.5）；论文主表默认配置；\emph{Full} 指“全开栈”，非 “完整实验” 的泛称。 \\
 \addlinespace
 RL Only &
-\textbf{仅 RL 惩罚（无门控）} &
+\textbf{只调惩罚、不挑联网时机} &
 保留 PPO 调 $\alpha_i$，但 $g^t\equiv 1$，\textbf{没有}冲突门控；用于证明“单靠 RL 不够”。 \\
 \addlinespace
 NoGating &
@@ -105,23 +122,23 @@ NoGating &
 \addlinespace
 V0 / V0\_AlwaysOn &
 \textbf{门控变体 0：每轮必通信} &
-门控消融基线，等价于原始 MACPO 通信策略。 \\
+门控消融基线，等价于老 MACPO 通信策略。 \\
 V1 & \textbf{变体 1：固定绝对阈值} & 仅当 CI 超过常数 $\theta$ 才通信；无 fail-safe。 \\
 V2 & \textbf{变体 2：相对阈值} & CI 高于本阶段 EMA 基线 $\lambda$ 倍才通信；无 fail-safe。 \\
 V3 & \textbf{变体 3：相对阈值 + fail-safe} & 本文门控核心；静默超过 $K$ 轮强制通信一次。 \\
 \addlinespace
-Layer1 / Layer2 / Layer3 &
+第1层 / 第2层 / 第3层 &
 \textbf{门控第 1/2/3 层} &
-Layer1=最小间隔 $\Delta_{\min}$；Layer2=相对阈值（+fail-safe）；Layer3=相位随机采样。 \\
+第1层=最小间隔 $\Delta_{\min}$；第2层=相对阈值（+fail-safe）；第3层=相位随机采样。 \\
 \addlinespace
 Periodic-$K$ &
 \textbf{固定周期通信} &
 不看冲突，每 $K$ 轮强制通信一次（无反馈基线）。 \\
 \addlinespace
-$f_{\mathrm{pure}}$ / $F$ &
-\textbf{纯目标 / 全局目标} &
-$f_{\mathrm{pure}}=\sum_i f_i$（\textbf{不含}惩罚，主对比指标，越小越好）；
-$F$ 同义或含惩罚的归档 endpoint，读表时以 caption 为准。 \\
+$F$ / $F$ &
+\textbf{真实任务分 / 全局目标} &
+$F=\sum_i f_i$（\textbf{不含}惩罚，主对比指标，越小越好）；
+$F$ 同义或含惩罚的归档最终值，读表时以 caption 为准。 \\
 \addlinespace
 eva / eva\_count &
 \textbf{评估次数} &
@@ -129,7 +146,7 @@ eva / eva\_count &
 \addlinespace
 $\bar p_{\mathrm{comm}}$ &
 \textbf{通信触发率} &
-外循环中 $g^t{=}1$ 的比例；原始 MACPO 为 100\%。 \\
+外循环中 $g^t{=}1$ 的比例；老 MACPO 为 100\%。 \\
 \addlinespace
 F1--F18 &
 \textbf{MACPO NDO 基准函数族} &
@@ -155,7 +172,7 @@ $g_{\mathrm{global}}^t$ & global gate & 各智能体本地门的最大值（式\
 $T$ & total outer loops & 一次 run 的外循环总数 \\
 $n_{\mathrm{comm}}$ & comm counter & $g_{\mathrm{global}}^t{=}1$ 的外循环个数 \\
 $\bar p_{\mathrm{comm}}$ & mean trigger rate & $n_{\mathrm{comm}}/T$，通信触发率 \\
-$f_{\mathrm{pure}}$ & pure objective & $\sum_i f_i$，\textbf{不含}惩罚，主对比指标 \\
+$F$ & pure objective & $\sum_i f_i$，\textbf{不含}惩罚，主对比指标 \\
 $F$ & global / penalized objective & 全局目标；归档日志有时含惩罚项 \\
 $h_i$ & penalized local objective & $f_i+\alpha_i c_i$，局部搜索实际最小化目标 \\
 $\alpha_i$ & penalty coefficient & 惩罚强度 \\
@@ -169,23 +186,23 @@ $\Delta_{\min}$ & min interval & 两次通信间最少间隔外循环数 \\
 $\beta,\gamma$ & EMA coefficients & CI 平滑系数（0.7）与阶段基线 EMA（0.9） \\
 \addlinespace
 \texttt{run\_id} & run index & 第几次独立重复实验（1--25） \\
-\texttt{MACPO\_PAIR\_SEED} & paired seed & 环境变量：配对随机种子，保证 MACPO 与 RL-MACPO 可比 \\
+\texttt{MACPO\_PAIR\_SEED} & paired seed & 环境变量：配对随机种子，保证 MACPO与新方法可比 \\
 \texttt{eva\_count} & evaluation count & 黑盒目标函数被调用的总次数（评估预算） \\
 \texttt{comm\_rate} & communication rate & 日志中的通信触发率，同 $\bar p_{\mathrm{comm}}$ \\
 \texttt{wall\_clock\_s} & wall-clock seconds & 单次 run 墙钟时间（秒） \\
 \texttt{COST\_STATS} & log footer tag & 轨迹文件\textbf{末尾}的汇总行标记（字面字符串，非注释符） \\
 \addlinespace
-w/t/l & win / tie / loss & 显著性检验下 RL-MACPO 相对 MACPO 的胜/平/负函数个数 \\
-$\Delta_k$ & paired improvement & 第 $k$ 次 run 上 MACPO 与 RL-MACPO 的 $f_{\mathrm{pure}}$ 相对差 \\
-FES$(e)$ & fitness vs evaluations & 累计 eva $\le e$ 时所见最优 $f_{\mathrm{pure}}$ \\
+w/t/l & win / tie / loss & 显著性检验下 新方法相对 MACPO 的胜/平/负函数个数 \\
+$\Delta_k$ & paired improvement & 第 $k$ 次 run 上 MACPO与新方法的 $F$ 相对差 \\
+FES$(e)$ & 目标函数值 vs evaluations & 累计 eva $\le e$ 时所见最优 $F$ \\
 \bottomrule
 \end{longtable}
 \end{center}
 
 %==============================================================================
-\section{核心公式：含义与论文出处}\label{sec:notation}
+\section{核心公式（进阶）}\label{sec:notation}
 %==============================================================================
-下列公式在多篇实验中反复出现。\textbf{左列编号}供后文引用；\textbf{出处}对应 \texttt{conference\_new\_ready.tex} 章节。
+\noindent\textit{只想懂结论可跳过本节。} \texttt{conference\_new\_ready.tex} 章节。
 
 \paragraph{(1) 全局 NDO 问题}\label{eq:global-source}
 \textit{出处：论文 Section~III（NDO Formulation），式 (1)--(2)。}
@@ -243,8 +260,8 @@ $\hat\mu_{\mathrm{CI},i}^t$ 是“本阶段正常冲突水平”；当前 CI 显
 \begin{align}
   \bar p_{\mathrm{comm}} &= \frac{1}{T}\sum_{t=1}^{T} g_{\mathrm{global}}^t,
   \label{eq:pcomm}\\
-  \text{通信削减率} &= \bigl(1-\bar p_{\mathrm{comm}}^{\mathrm{RL-MACPO}}\bigr)\times 100\%
-  \quad\text{（相对原始 MACPO 的 100\%）}
+  \text{通信削减率} &= \bigl(1-\bar p_{\mathrm{comm}}^{\mathrm{Proposed}}\bigr)\times 100\%
+  \quad\text{（相对老 MACPO 的 100\%）}
   \label{eq:comm}
 \end{align}
 
@@ -253,38 +270,24 @@ $\hat\mu_{\mathrm{CI},i}^t$ 是“本阶段正常冲突水平”；当前 CI 显
 $\beta{=}0.7$，$\gamma{=}0.9$，$\lambda{=}1.2$，$\Delta_{\min}{=}10$，$K{=}10$（IEEE 试点 $K{=}2$）；变量筛选比例 0.9/0.7/0.5（按优化阶段取 Top 比例共享维参与协商）。
 
 %==============================================================================
-\section{实验索引：26 条实验与论文问题对应}\label{sec:roadmap}
-%==============================================================================
-\begin{center}\scriptsize
-\begin{longtable}{@{}clp{7.5cm}@{}}
-\toprule
-\textbf{编号} & \textbf{论文问题} & \textbf{一句话在测什么} \\
-\midrule
-\endhead
-1--2 & Q1 & F1--F18 上完整版 vs 原始 MACPO 的最终 $f_{\mathrm{pure}}$ \\
-3 & Q1 补充 & 收敛曲线（FES），定性看是否更快/更低 \\
-4 & 补充 & 墙钟时间（非主指标） \\
-5--6 & Q2 & 通信触发率 + eva 预算是否公平 \\
-7--12 & Q2/Q3 & 门控变体、$\lambda$ 敏感、周期基线、CI 分箱、Pareto \\
-13, 19--21 & Q3 诊断 & 单 run / 25-run 轨迹：CI、$\alpha$、漂移 \\
-14 & 外部参考 & MASOIE 跨范式对比（非公平 matched-budget） \\
-15--18 & Q3 & 惩罚控制器、门控层、相位/$\eta$、RL 网络结构 \\
-22--25 & Q4 & MAED-13、资源调度、EV、IEEE 30/57/118 \\
-26 & 可扩展性 & 智能体数增多时的 pilot（runs 较少，谨慎解读） \\
-\bottomrule
-\end{longtable}
-\end{center}
 
+\section{实验章节全文解读}\label{sec:paper_experiments}
+\textbf{两种分数：} 搜索时 $h_i$ 带罚分；表格里的 $F$ 只加真实任务分。
+
+\textbf{18 套题 F1--F18：} 三档规模（20/40/60 人）。F3、F9、F15 是同一类难题三份拷贝。
+
+\textbf{主结论：} 新方法 18 题全胜；联网多数约 8\%；换调惩罚方式差不多，都远好于每轮必联——\textbf{新意在什么时候联网}。真实场景：发电几乎打平，调度/电动车大约好 10\%。
+
+\section{实验 1：小档六道题：新方法 vs 老 MACPO}\label{sec:exp1}
 %==============================================================================
-\section{实验 1：F1--F6 优化质量主对比（完整版 RL-MACPO vs 原始 MACPO）}
-%==============================================================================
+\renhua{同样改题 25 遍，小档 6 题新方法全赢。}
 \subsection{实验说明}
-\textbf{对应论文 Q1。}在相同 eva 预算下，比较\textbf{完整版 RL-MACPO}（冲突门控 + RL 惩罚 + 变量筛选）与\textbf{原始 MACPO（每轮必通信）}的最终纯目标 $f_{\mathrm{pure}}$。另列\textbf{仅 RL 惩罚（无门控）}、GFPDO$^\dagger$、DPSO$^\dagger$ 作参考（后两者来自 MACPO 论文表格布局，不做显著性检验）。基准：20 智能体链式图，$D{=}905$，函数 F1--F6。
+回答「问题 1」：小档 F1--F6，20 人链状相连。同样改题次数，比最终 $F$（越小越好）。比四组：老 MACPO、新方法、只调惩罚不挑时机、两种别家算法（参考）。25 遍配对，6 题全胜；只调惩罚在 F3/F5 明显不如完整版。
 
 \subsection{实验计算公式}
 \begin{itemize}
   \item 优化问题：式\eqref{eq:global}（Section~\ref{sec:notation}）；
-  \item 门控逻辑：式\eqref{eq:local_gate}--\eqref{eq:gate}；\textbf{原始 MACPO} 等价于恒令 $g^t\equiv 1$；
+  \item 门控逻辑：式\eqref{eq:local_gate}--\eqref{eq:gate}；\textbf{老 MACPO} 等价于恒令 $g^t\equiv 1$；
   \item 门控开启（$g^t{=}1$）时走 MACPO 协商；关闭时只刷新 $r_d$，继续局部 LLSO/CSO。
 \end{itemize}
 
@@ -295,8 +298,8 @@ $\beta{=}0.7$，$\gamma{=}0.9$，$\lambda{=}1.2$，$\Delta_{\min}{=}10$，$K{=}1
 \For{$\textit{run\_id} = 1$ \textbf{to} $25$}
   \State $\textsc{PairSeed} \gets \textit{run\_id}$ \Comment{env \texttt{MACPO\_PAIR\_SEED}}
   \State Run baseline MACPO with $g^t \equiv 1$ until \textit{eva\_limit}
-  \State Run full RL-MACPO until the same \textit{eva\_limit}
-  \State Log final $f_{\mathrm{pure}}$, $\bar p_{\mathrm{comm}}$, \textit{eva\_count}
+  \State Run Proposed method until the same \textit{eva\_limit}
+  \State Log final $F$, $\bar p_{\mathrm{comm}}$, \textit{eva\_count}
 \EndFor
 \State LLSO: paired Wilcoxon test; CSO: Mann--Whitney U test ($\alpha=0.05$)
 \end{algorithmic}
@@ -304,19 +307,19 @@ $\beta{=}0.7$，$\gamma{=}0.9$，$\lambda{=}1.2$，$\Delta_{\min}{=}10$，$K{=}1
 \varnote{
 \texttt{run\_id}：第几次独立 run（1--25）。
 \textsc{PairSeed} / \texttt{MACPO\_PAIR\_SEED}：配对随机种子。
-$g^t\equiv 1$：原始 MACPO，每轮必通信。
+$g^t\equiv 1$：老 MACPO，每轮必通信。
 \textit{eva\_limit}：评估次数上限（两种方法相同）。
-$f_{\mathrm{pure}}$：纯目标；$\bar p_{\mathrm{comm}}$：通信触发率；\textit{eva\_count}：实际调用目标函数的次数。
+$F$：真实任务分；$\bar p_{\mathrm{comm}}$：通信触发率；\textit{eva\_count}：实际调用目标函数的次数。
 }
 
 \subsection{结果评估指标公式}
 \begin{align}
-  f_{\mathrm{pure}} &= \sum_i f_i(\mathbf{X}_i)
-  \quad\text{（纯目标 $f_{\mathrm{pure}}$：不含惩罚项，越小越好）} \label{eq:fpure}\\
+  F &= \sum_i f_i(\mathbf{X}_i)
+  \quad\text{（真实任务分 $F$：不含惩罚项，越小越好）} \label{eq:fpure}\\
   \text{w/t/l} &= n_{\mathrm{win}}/n_{\mathrm{tie}}/n_{\mathrm{loss}}
-  \quad\text{（胜/平/负：RL-MACPO 相对 MACPO 在 0.05 水平下显著更优/无显著差异/显著更差的函数个数）} \label{eq:wtl}
+  \quad\text{（胜/平/负：新方法相对 MACPO 在 0.05 水平下显著更优/无显著差异/显著更差的函数个数）} \label{eq:wtl}
 \end{align}
-配对 Wilcoxon 基于差值 $\Delta_k = f_{\mathrm{pure},k}^{\mathrm{MACPO}} - f_{\mathrm{pure},k}^{\mathrm{RL-MACPO}}$（$\Delta_k>0$ 表示 RL-MACPO 更优）。
+配对 Wilcoxon 基于差值 $\Delta_k = F_k^{\mathrm{MACPO}} - F_k^{\mathrm{Proposed}}$（$\Delta_k>0$ 表示新方法更优）。
 
 \subsection{实验设置与参数}
 \begin{center}\small
@@ -327,7 +330,7 @@ $f_{\mathrm{pure}}$：纯目标；$\bar p_{\mathrm{comm}}$：通信触发率；\
 函数 & F1--F6（同质 F1--F3，异质 F4--F6） \\
 优化器 & LLSO（主）、CSO（次） \\
 Runs & 25 配对独立运行 \\
-RL-MACPO 配置 & 完整版：门控（式\eqref{eq:local_gate}）+ PPO 调 $\alpha$ + 变量筛选 0.9/0.7/0.5 \\
+新方法配置 & 完整版：门控（式\eqref{eq:local_gate}）+ PPO 调 $\alpha$ + 变量筛选 0.9/0.7/0.5 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -336,7 +339,7 @@ RL-MACPO 配置 & 完整版：门控（式\eqref{eq:local_gate}）+ PPO 调 $\al
 \begin{center}\scriptsize
 \begin{tabular}{@{}lccccc@{}}
 \toprule
-函数 & MACPO (LLSO) & RL-MACPO (LLSO) & $p$ 值 & w/t/l & 通信削减 \\
+函数 & 老 MACPO & 新方法 & $p$ 值 & w/t/l & 通信削减 \\
 \midrule
 F1 & $1.98\times10^7$ & $\mathbf{6.43\times10^6}$ & $2.98\times10^{-8}$ & 6/0/0 & 79.2\% \\
 F2 & $5.05\times10^4$ & $\mathbf{3.32\times10^3}$ & $2.98\times10^{-8}$ & — & 77.7\% \\
@@ -347,18 +350,19 @@ F6 & $1.62\times10^8$ & $\mathbf{2.47\times10^3}$ & $2.98\times10^{-8}$ & — & 
 \bottomrule
 \end{tabular}
 \end{center}
-\textbf{解读}：完整版 RL-MACPO 六函数全胜；\textbf{仅 RL 惩罚（无门控）}在 F3/F5 弱于完整版，说明增益主要来自\textbf{冲突门控}，而非单靠 RL 调惩罚。
+\textbf{结果说明}：新方法六函数全胜；\textbf{只调惩罚、不挑联网时机}在 F3/F5 弱于完整版，说明增益主要来自\textbf{冲突门控}，而非单靠 RL 调惩罚。
 
-\tryfig{media/F1_F6_panel.pdf}{实验 1 配套图：F1--F6 单 run 配对 best-so-far 收敛曲线}
+\tryfig{media/F1_F6_panel.pdf}{实验 1 配套图：F1--F6 单次配对实验 到目前最好收敛曲线}
 
 %==============================================================================
-\section{实验 2：F7--F18 优化质量主对比}
+\section{实验 2：中档大档十二题：新方法 vs 老 MACPO}\label{sec:exp2}
 %==============================================================================
+\renhua{12 题继续全赢；F9、F15 差距最大。}
 \subsection{实验说明}
-\textbf{对应论文 Q1 扩展。}将实验 1 推广至 F7--F18（40/60 智能体等更大 NDO 实例），检验门控在大规模上是否仍有效。
+回答「问题 1」：F7--F18 放大版。报运行中出现过的最低 $F$。老 MACPO 在 F9、F15 对不齐共享题，分数差到离谱。12 题 25 遍，全赢。
 
 \subsection{实验计算公式}
-同 Section~\ref{sec:notation}；注意 MACPO 归档 endpoint 有时记为带惩罚的 $F$，RL-MACPO 主表报 $f_{\mathrm{pure}}$（纯目标，式\eqref{eq:global} 右端不含 $\alpha c$）。
+同 Section~\ref{sec:notation}；注意 MACPO 归档 最终有时记为带惩罚的 $F$，新方法主表报 $F$（真实任务分，式\eqref{eq:global} 右端不含 $\alpha c$）。
 
 \subsection{算法伪代码}
 同实验 1，函数集合改为 F7--F18，其余不变。
@@ -369,29 +373,30 @@ F6 & $1.62\times10^8$ & $\mathbf{2.47\times10^3}$ & $2.98\times10^{-8}$ & — & 
 \end{equation}
 
 \subsection{实验设置与参数}
-25 配对 runs；数据源 MACPO\_original（MACPO）+ MACPO2\_deployment（RL）；LLSO/CSO 双优化器。
+25 遍配对；数据源 MACPO\_original（MACPO）+ MACPO2\_deployment（RL）；LLSO/CSO 双优化器。
 
 \subsection{实验结果}
 LLSO 与 CSO 均为 \textbf{12/0/0} 全胜。典型：F9 MACPO $3.05\times10^{11}$ vs RL $1.01\times10^3$；F15 MACPO $1.24\times10^{12}$ vs RL $8.41\times10^2$。高冲突 Rosenbrock 相关实例差距最大。
 
 %==============================================================================
-\section{实验 3：F1--F6 收敛曲线（FES 面板）}
+\section{实验 3：小档六题：成绩随改题次数变化（曲线）}\label{sec:exp3}
 %==============================================================================
+\renhua{曲线图：新方法分数降得更快或更低。}
 \subsection{实验说明}
-从 25-run 批次中各取\textbf{一组配对代表 run}，绘制 best-so-far 纯目标随累计评估次数的收敛轨迹，定性展示 Q1 结论。
+问题 1 补充图：每题挑一组配对记录，横轴改题次数，纵轴到此刻最低 $F$。一眼看出谁搜得更好。
 
 \subsection{实验计算公式}
 \begin{equation}
-  \mathrm{FES}(e) = \min\bigl\{ f_{\mathrm{pure}} \mid \text{累计 eva} \le e \bigr\}
+  \mathrm{FES}(e) = \min\bigl\{ F \mid \text{累计 eva} \le e \bigr\}
 \end{equation}
-其中 $e$ 为累计评估次数，$f_{\mathrm{pure}}$ 为纯目标（见式\eqref{eq:fpure}）。
+其中 $e$ 为累计评估次数，$F$ 为真实任务分（见式\eqref{eq:fpure}）。
 
 \subsection{算法伪代码}
 \begin{algorithm}[H]
 \caption{Extract FES convergence curves}
 \begin{algorithmic}[1]
 \For{each benchmark function $F_k \in \{\mathrm{F1},\ldots,\mathrm{F6}\}$}
-  \State Select one \textit{run\_id} whose MACPO and RL-MACPO logs are both complete
+  \State Select one \textit{run\_id} whose MACPO and Proposed logs are both complete
   \State Build $\mathrm{FES}(e)$ from the \textit{eva} sequence
   \State Interpolate onto a common \textit{eva} grid and plot panel $k$
 \EndFor
@@ -399,7 +404,7 @@ LLSO 与 CSO 均为 \textbf{12/0/0} 全胜。典型：F9 MACPO $3.05\times10^{11
 \end{algorithm}
 \varnote{
 $F_k$：第 $k$ 个基准函数（F1--F6）。
-$\mathrm{FES}(e)$：累计评估次数不超过 $e$ 时所见最优 $f_{\mathrm{pure}}$（见下式）。
+$\mathrm{FES}(e)$：累计评估次数不超过 $e$ 时所见最优 $F$（见下式）。
 \textit{eva}：每次黑盒目标评估对应的累计计数。
 }
 
@@ -413,10 +418,11 @@ $\mathrm{FES}(e)$：累计评估次数不超过 $e$ 时所见最优 $f_{\mathrm{
 \tryfig{media/F1_F6_panel.pdf}{F1--F6 配对代表 run 的 FES 收敛面板}
 
 %==============================================================================
-\section{实验 4：墙钟时间对比（F1--F18）}
+\section{实验 4：跑一遍要多少秒}\label{sec:exp4}
 %==============================================================================
+\renhua{大约慢一倍；主结论看分数不看秒。}
 \subsection{实验说明}
-在开发机上测量单次 run 墙钟时间，\textbf{非主终点}，用于说明 RL 推理与门控 bookkeeping 的 indicative 开销。
+补充：单次运行秒数。新方法多算分歧和强化学习，F1 约 14s vs 27s。开发机参考，非主结论。
 
 \subsection{实验计算公式}
 \begin{equation}
@@ -424,25 +430,26 @@ $\mathrm{FES}(e)$：累计评估次数不超过 $e$ 时所见最优 $f_{\mathrm{
 \end{equation}
 
 \subsection{算法伪代码}
-同实验 1 运行流程；在相同 25-run 批次上额外记录 \texttt{wall\_clock\_s}（硬编码于 tex，非 fitness 日志统一字段）。
+同实验 1 运行流程；在相同 25 遍 批次上额外记录 \texttt{wall\_clock\_s}（硬编码于 tex，非 目标函数值 日志统一字段）。
 
 \subsection{结果评估指标公式}
-报告各函数 mean wall-clock（秒）；F1 LLSO 例：MACPO 14.43\,s，RL-MACPO 26.95\,s（约 1.9$\times$）。
+报告各函数 mean wall-clock（秒）；F1 LLSO 例：MACPO 14.43\,s，新方法 26.95\,s（约 1.9$\times$）。
 
 \subsection{实验设置与参数}
-开发机 indicative 测量；与 Table \texttt{tab:wall\_time\_f1\_f18} 一致。
+开发机 参考性的测量；与 Table \texttt{tab:wall\_time\_f1\_f18} 一致。
 
 \subsection{实验结果}
-F1--F6 上 RL-MACPO 约为 MACPO 的 1.7--2.1 倍；F7--F18 比值类似。通信削减带来的协商次数下降\textbf{未完全抵消} RL 模块开销，但 fitness 主指标仍全胜。
+F1--F6 上 新方法约为 MACPO 的 1.7--2.1 倍；F7--F18 比值类似。通信削减带来的协商次数下降\textbf{未完全抵消} RL 模块开销，但 目标函数值 主指标仍全胜。
 
 %==============================================================================
-\section{实验 5：F1--F18 通信触发率统计}
+\section{实验 5：十八套题：联网占百分之几}\label{sec:exp5}
 %==============================================================================
+\renhua{多数题约 8\%，老方法 100\%。}
 \subsection{实验说明}
-\textbf{对应论文 Q2。}量化\textbf{完整版 RL-MACPO}相对\textbf{原始 MACPO（每轮必通信）}的外循环协商触发比例 $\bar p_{\mathrm{comm}}$（式\eqref{eq:pcomm}--\eqref{eq:comm}），验证通信能否大幅削减且 Q1 质量不降。
+回答「问题 2」：老方法 100\% 联网；新方法 F3--F6 约 8.3\%，F1 约 20.8\%。
 
 \subsection{实验计算公式}
-式\eqref{eq:pcomm}--\eqref{eq:comm}；\textbf{原始 MACPO} 基线 $\bar p_{\mathrm{comm}} = 1$（100\%）。
+式\eqref{eq:pcomm}--\eqref{eq:comm}；\textbf{老 MACPO} 基线 $\bar p_{\mathrm{comm}} = 1$（100\%）。
 
 \subsection{算法伪代码}
 \begin{algorithm}[H]
@@ -471,13 +478,13 @@ $\bar p_{\mathrm{comm}}$：通信触发率（式\eqref{eq:pcomm}）。
 \end{align}
 
 \subsection{实验设置与参数}
-LLSO，25 配对 runs；\textbf{完整版 RL-MACPO}；脚本 \texttt{run\_comm\_rate\_f1\_f18.sh}。
+LLSO，25 遍配对；\textbf{新方法}；脚本 \texttt{run\_comm\_rate\_f1\_f18.sh}。
 
 \subsection{实验结果}
 \begin{center}\small
 \begin{tabular}{@{}lc@{}}
 \toprule
-函数组 & RL-MACPO 触发率 \\
+函数组 & 新方法触发率 \\
 \midrule
 F1 & 20.8\% \\
 F2 & 22.3$\pm$4.1\% \\
@@ -490,10 +497,11 @@ F13 & 7.7$\pm$1.6\% \\
 F3--F18 约每 12 个外循环协商 1 次（fail-safe + 间隔 + 相位采样共同作用）。
 
 %==============================================================================
-\section{实验 6：F1--F6 通信率与 eva 预算一致性}
+\section{实验 6：小档六题：是不是少算题才少联网}\label{sec:exp6}
 %==============================================================================
+\renhua{不是，改题次数差不多。}
 \subsection{实验说明}
-同步报告通信率与评估次数，排除``通信少是因为提前终止''的质疑。
+回答「问题 2」：F1--F6 合并，新方法算分次数还略多 3.2\%。少联网不是因为少算题。
 
 \subsection{实验计算公式}
 \begin{equation}
@@ -519,10 +527,11 @@ F1--F6 pooled：MACPO eva $=145729$，RL eva $=150348$，$\Delta_{\mathrm{eva}}\
 通信削减 77--92\% 的同时，RL 评估次数略\textbf{高于} MACPO（因门控跳过协商后局部搜索路径不同），差异在 3\% 量级，不构成预算不公平。
 
 %==============================================================================
-\section{实验 7：门控变体对比（V0--V3）}
+\section{实验 7：四种联网规则谁最好}\label{sec:exp7}
 %==============================================================================
+\renhua{要和最近平均水平比，且要有保底联网。}
 \subsection{实验说明}
-\textbf{对应论文 Q3（门控设计）。}对比四种门控变体（见术语表），证明\textbf{相对阈值 + fail-safe（变体 3）}的必要性：若只用固定绝对阈值（变体 1），通信率可降为 0，共识参考冻结，优化失败。
+回答「问题 3」：V0 每轮必联；V1 固定线（30 遍全不联，失败）；V2 和平均水平比；V3 加保底联网。
 
 \subsection{实验计算公式}
 在式\eqref{eq:local_gate} 的 $\mathcal{C}_{\mathrm{thr}}$ 上换规则：
@@ -571,10 +580,11 @@ V3 相对+fail-safe & 0/30 & 46.0\% & 6.61 & 54\% \\
 V1 完全静默导致共识冻结；V3 在削减通信的同时保证非零协商。
 
 %==============================================================================
-\section{实验 8：相对阈值 $\lambda$ 敏感性（F3/F5）}
+\section{实验 8：联网灵敏度调大调小影响大吗}\label{sec:exp8}
 %==============================================================================
+\renhua{不会，默认 1.2 不是玄学数字。}
 \subsection{实验说明}
-扫描 $\lambda \in \{0.8,1.0,1.2,1.4\}$，检验默认 $\lambda{=}1.2$ 是否为窄调优最优。
+问题 3：$\lambda$ 从 0.8 到 1.4，F3/F5 各 10 遍。分数没有剧烈变化。
 
 \subsection{实验计算公式}
 式\eqref{eq:local_gate} 中 $\mathcal{C}_{\mathrm{thr}}$ 的 $\lambda$ 为扫描变量；其余与\textbf{完整版默认参数}相同，$K{=}10$。
@@ -586,7 +596,7 @@ V1 完全静默导致共识冻结；V3 在削减通信的同时保证非零协�
 \For{$\lambda \in \{0.8, 1.0, 1.2, 1.4\}$}
   \For{$\textit{run\_id} = 1$ \textbf{to} $10$}
     \State Fix \textsc{PairSeed}; run F3 or F5 with threshold multiplier $\lambda$
-    \State Record $\bar p_{\mathrm{comm}}$ and final $f_{\mathrm{pure}}$
+    \State Record $\bar p_{\mathrm{comm}}$ and final $F$
   \EndFor
 \EndFor
 \end{algorithmic}
@@ -618,10 +628,11 @@ $\lambda$ & F3 通信率 & F5 通信率 \\
 F5 触发率随 $\lambda$ 单调下降；F3 在 $\lambda\ge 1.0$ 时触达 fail-safe 下限 8.3\%。
 
 %==============================================================================
-\section{实验 9：Periodic-$K$ 固定周期通信基线}
+\section{实验 9：固定每隔 K 轮必联}\label{sec:exp9}
 %==============================================================================
+\renhua{不如看分歧再联聪明。}
 \subsection{实验说明}
-与冲突门控对比\textbf{无反馈的固定周期调度}：每 $K$ 个外循环强制通信一次。
+问题 2 对照：每 2/3/5 轮强制联，不看分歧。联网比例相近时新方法分数仍更低。
 
 \subsection{实验计算公式}
 \begin{equation}
@@ -648,20 +659,21 @@ $g^t$：本轮是否进入协商分支。
 }
 
 \subsection{结果评估指标公式}
-通信率 $= 1/K$（理想周期）；final $f_{\mathrm{pure}}$ 均值$\pm$标准差；与\textbf{完整版 RL-MACPO} 比较 Pareto 位置。
+通信率 $= 1/K$（理想周期）；final $F$ 均值$\pm$标准差；与\textbf{新方法} 比较 Pareto 位置。
 
 \subsection{实验设置与参数}
-F1/F2/F5；PeriodicK2/K3/K5；pilot 10-run（F125）或 25-run（F1--F6 扩展）。
+F1/F2/F5；PeriodicK2/K3/K5；10 遍试探（F125）或 25 遍（F1--F6 扩展）。
 
 \subsection{实验结果}
 \tryfig{media/comm_fitness_pareto_f125.pdf}{实验 9/12：通信率--适应度 Pareto 前沿（F1/F2/F5）}
-\textbf{完整版 RL-MACPO}在相近通信预算下 fitness 更低，优于固定周期策略。
+\textbf{新方法}在相近通信预算下 目标函数值 更低，优于固定周期策略。
 
 %==============================================================================
-\section{实验 10：阈值触发通信基线（F1--F6）}
+\section{实验 10：小档六题：换几种联网规则}\label{sec:exp10}
 %==============================================================================
+\renhua{无保底会联不上或结果飘。}
 \subsection{实验说明}
-对比\textbf{完整版}、Periodic-$K$、固定绝对阈值、无 fail-safe、相对阈值+fail-safe 等通信调度策略（均替换式\eqref{eq:local_gate} 中的门控模块，协商与局部搜索不变）。
+问题 2：F1--F6 换几种联网规则。无保底可能 0\% 联网但结果飘。
 
 \subsection{实验计算公式}
 见实验 7--9；额外含 FixedThresholdNoFailSafe（$\bar p_{\mathrm{comm}}$ 可为 0）。
@@ -670,19 +682,20 @@ F1/F2/F5；PeriodicK2/K3/K5；pilot 10-run（F125）或 25-run（F1--F6 扩展�
 在 MACPO 外循环入口替换门控模块，其余局部搜索与协商不变。
 
 \subsection{结果评估指标公式}
-双指标：$\bar p_{\mathrm{comm}}$ 与 final $f_{\mathrm{pure}}$；25 runs/方法/函数。
+双指标：$\bar p_{\mathrm{comm}}$ 与 final $F$；25 runs/方法/函数。
 
 \subsection{实验设置与参数}
 数据源 \texttt{comm\_baselines\_f1\_f6.json}；LLSO。
 
 \subsection{实验结果}
-无 fail-safe 时通信率可为 0、fitness 方差极大；\textbf{完整版}在通信--质量权衡上最优。例：F3 完整版通信 8.3\%，FixedThresholdNoFailSafe 通信 0\% 但结果不稳定。
+无 fail-safe 时通信率可为 0、目标函数值 方差极大；\textbf{完整版}在通信--质量权衡上最优。例：F3 完整版通信 8.3\%，FixedThresholdNoFailSafe 通信 0\% 但结果不稳定。
 
 %==============================================================================
-\section{实验 11：CI 分箱触发概率统计}
+\section{实验 11：分歧大是否更容易联网}\label{sec:exp11}
 %==============================================================================
+\renhua{低分歧更常跳过——合理。}
 \subsection{实验说明}
-检验\textbf{低冲突跳过准则}：冲突代理 CI 越低，触发概率应越低。
+问题 3：按分歧分五档看联网概率。低分歧更常跳过。
 
 \subsection{实验计算公式}
 \begin{equation}
@@ -712,39 +725,40 @@ $\mathrm{bin}_q$：按 CI 五等分位的第 $q$ 箱。
 条件触发概率 $P(\text{trigger}\mid\mathrm{bin}_q)$；期望：$\mathrm{bin}_1 > \mathrm{bin}_2 \approx \mathrm{bin}_3$（低冲突箱触发更少）。
 
 \subsection{实验设置与参数}
-F1--F6，25-run，日志 \texttt{RL-output\_runs25\_rho/}；脚本 \texttt{plot\_ci\_bin\_trigger.py}。
+F1--F6，25 遍，日志 \texttt{RL-output\_runs25\_rho/}；脚本 \texttt{plot\_ci\_bin\_trigger.py}。
 
 \subsection{实验结果}
 \tryfig{media/ci_bin_trigger_F1_F6.pdf}{F1--F6 CI 五等分位条件触发概率}
 
 %==============================================================================
-\section{实验 12：通信--适应度 Pareto 前沿（F1/F2/F5）}
+\section{实验 12：联网多少 vs 分数多少}\label{sec:exp12}
 %==============================================================================
+\renhua{左下角最好；新方法通常在那。}
 \subsection{实验说明}
-在\textbf{预算形式}目标下可视化不同通信策略的 Pareto 位置：
-$\min F(\mathbf{X}^T)$ s.t.\ $\bar p_{\mathrm{comm}} \le B$。
+问题 2：横轴联网比例，纵轴 $F$；左下角最好。
 
 \subsection{实验计算公式}
-横轴 $\bar p_{\mathrm{comm}}$，纵轴 terminal $f_{\mathrm{pure}}$；各方法为 $(\bar p, \overline{f})$ 散点。
+横轴 $\bar p_{\mathrm{comm}}$，纵轴 最终$F$；各方法为 $(\bar p, \overline{f})$ 散点。
 
 \subsection{算法伪代码}
-汇总\textbf{完整版}、PeriodicK2/3/5、原始 MACPO 等方法的 $\bar p_{\mathrm{comm}}$ 与 $f_{\mathrm{pure}}$，绘制 Pareto 图。
+汇总\textbf{完整版}、PeriodicK2/3/5、老 MACPO 等方法的 $\bar p_{\mathrm{comm}}$ 与 $F$，绘制 Pareto 图。
 
 \subsection{结果评估指标公式}
-越靠近\textbf{左下角}（低通信、低 fitness）越优。
+越靠近\textbf{左下角}（低通信、低 目标函数值）越优。
 
 \subsection{实验设置与参数}
-F1/F2/F5 pilot；脚本 \texttt{plot\_comm\_fitness\_pareto.py}。
+F1/F2/F5 试探；脚本 \texttt{plot\_comm\_目标函数值\_pareto.py}。
 
 \subsection{实验结果}
 \tryfig{media/comm_fitness_pareto_f125.pdf}{通信率 vs 最终适应度 Pareto 图}
-\textbf{完整版 RL-MACPO（冲突门控）}占据更优前沿区域。
+\textbf{新方法（冲突门控）}占据更优前沿区域。
 
 %==============================================================================
-\section{实验 13：F3/F5 微观诊断（冲突--惩罚耦合）}
+\section{实验 13：F3/F5 单条日志诊断}\label{sec:exp13}
 %==============================================================================
+\renhua{看冲突和惩罚怎么一起变。}
 \subsection{实验说明}
-单 run 尺度展示冲突代理、惩罚系数 $\alpha$、比率 $\rho$ 的\textbf{时序耦合}，解释 RL 控制器行为（非优越性证明）。
+问题 3 诊断：F3/F5 一条记录，画冲突、惩罚曲线。
 
 \subsection{实验计算公式}
 \begin{equation}
@@ -764,16 +778,17 @@ F1/F2/F5 pilot；脚本 \texttt{plot\_comm\_fitness\_pareto.py}。
 \tryfig{media/f3_f5_conflict_alpha_micro.pdf}{F3/F5 单 run 冲突--$\alpha$ 微观耦合}
 
 %==============================================================================
-\section{实验 14：MASOIE 跨范式外部参考（F3/F5）}
+\section{实验 14：和 MASOIE 比（参考）}\label{sec:exp14}
 %==============================================================================
+\renhua{路线不同，不能严格比；新方法仍强很多。}
 \subsection{实验说明}
-引入 MASOIE（共识型 DBO）作\textbf{跨范式参考}；拓扑与 MACPO 不匹配，非 matched-budget 公平对比。
+外部参考：MASOIE 规则不对齐，不能严格比。F3/F5 新方法仍好一个数量级。
 
 \subsection{实验计算公式}
 同式\eqref{eq:global}；MASOIE 使用作者可执行文件，无 MACPO 式惩罚协商。
 
 \subsection{算法伪代码}
-分别运行\textbf{完整版 RL-MACPO}（25-run）与 MASOIE 官方流程（25-run），比较 final $F$。
+分别运行\textbf{新方法}（25 遍）与 MASOIE 官方流程（25 遍），比较 final $F$。
 
 \subsection{结果评估指标公式}
 final $F$ 均值$\pm$标准差；越低越好；\textbf{不做} Wilcoxon（不同算法栈）。
@@ -787,17 +802,18 @@ F3/F5，LLSO；MAES-CCSA 开源不可用未纳入。
 \toprule
 方法 & F3 final $F$ & F5 final $F$ \\
 \midrule
-RL-MACPO & $\mathbf{6.35\times10^2 \pm 3.12\times10^1}$ & $\mathbf{3.50\times10^6 \pm 1.40\times10^5}$ \\
+新方法 & $\mathbf{6.35\times10^2 \pm 3.12\times10^1}$ & $\mathbf{3.50\times10^6 \pm 1.40\times10^5}$ \\
 MASOIE & $1.04\times10^4 \pm 3.67\times10^3$ & $2.02\times10^7 \pm 1.52\times10^6$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 %==============================================================================
-\section{实验 15：惩罚控制器对比（F3/F5）}
+\section{实验 15：换三种调惩罚方式}\label{sec:exp15}
 %==============================================================================
+\renhua{差不多，都远好于每轮必联——关键在何时联网。}
 \subsection{实验说明}
-\textbf{对应论文 Q3（惩罚控制器）。}在\textbf{门控与变量筛选均固定}为完整版配置的前提下，比较：原始 MACPO 静态惩罚 vs 门控下的 Fixed / EMA / RL 三种 $\alpha_i$ 调节方式。目的：RL 是否必需？——答案应是否定的，门控才是主因。
+问题 3 核心：联网规则固定，换固定表/滑动平均/强化学习调惩罚。三种差不多，都远好于每轮必联。
 
 \subsection{实验计算公式}
 在式\eqref{eq:penalized} 中换 $\alpha_i$ 的来源：
@@ -814,7 +830,7 @@ MASOIE & $1.04\times10^4 \pm 3.67\times10^3$ & $2.02\times10^7 \pm 1.52\times10^
 \State Fix full-stack gate ($\lambda$, $K$, $p_{\mathrm{phase}}$, variable selection)
 \For{each \textit{controller} $\in \{\mathrm{MACPO}, \mathrm{Fixed}, \mathrm{EMA}, \mathrm{RL}\}$}
   \State Run 25 paired trials on F3 and F5
-  \State Log best-so-far $f_{\mathrm{pure}}$ and $\bar p_{\mathrm{comm}}$
+  \State Log 到目前最好$F$ and $\bar p_{\mathrm{comm}}$
 \EndFor
 \State Pairwise Wilcoxon tests among gated controllers
 \end{algorithmic}
@@ -825,7 +841,7 @@ $p_{\mathrm{phase}}$：相位采样通过概率。
 }
 
 \subsection{结果评估指标公式}
-best-so-far $f_{\mathrm{pure}}$ + $\bar p_{\mathrm{comm}}$；gated 组间 Wilcoxon 无显著差异。
+到目前最好$F$ + $\bar p_{\mathrm{comm}}$；gated 组间 Wilcoxon 无显著差异。
 
 \subsection{实验设置与参数}
 25 runs/控制器/函数；LLSO。
@@ -847,59 +863,62 @@ RL & $1.16\times10^3$ & 8.3\% & $6.86\times10^6$ & 15.8\% \\
 \textbf{结论}：门控固定后，惩罚控制器选择\textbf{统计等价}；主要增益来自通信架构。
 
 %==============================================================================
-\section{实验 16：门控层消融（F1--F6）}
+\section{实验 16：门控拆几层哪层关键}\label{sec:exp16}
 %==============================================================================
+\renhua{「和平均水平比」那层缺了会飘。}
 \subsection{实验说明}
-\textbf{对应论文 Q3（门控层消融）。}逐层叠加门控：无门控 $\to$ 仅 Layer1（最小间隔）$\to$ Layer1+2（+相对阈值）$\to$ 完整版（+Layer3 相位采样）。见术语表 Layer1--3 定义。
+问题 3：门控一层层加。缺「和平均水平比」波动大。
 
 \subsection{实验计算公式}
 对应式\eqref{eq:local_gate} 中条件的逐步启用：
 \begin{align}
   \text{无门控}: &\; g^t \equiv 1 \\
-  \text{Layer1}: &\;\mathcal{C}_{\mathrm{int}}^t \\
-  \text{Layer1+2}: &\;\mathcal{C}_{\mathrm{int}}^t \land \mathcal{C}_{\mathrm{thr}}^t \\
+  \text{第1层}: &\;\mathcal{C}_{\mathrm{int}}^t \\
+  \text{第1层+2}: &\;\mathcal{C}_{\mathrm{int}}^t \land \mathcal{C}_{\mathrm{thr}}^t \\
   \text{完整版}: &\;\mathcal{C}_{\mathrm{int}}^t \land \mathcal{C}_{\mathrm{thr}}^t \land \mathcal{C}_{\mathrm{phase}}^t
 \end{align}
 
 \subsection{算法伪代码}
-在\textbf{完整版}栈上开关各层，25-run 批量运行 F1--F6。
+在\textbf{完整版}栈上开关各层，25 遍 批量运行 F1--F6。
 
 \subsection{结果评估指标公式}
-final $F$ 均值/标准差/变异系数 CV；Layer2 缺失时 CV 最高 17.6\%（F1）。
+final $F$ 均值/标准差/变异系数 CV；第2层 缺失时 CV 最高 17.6\%（F1）。
 
 \subsection{实验设置与参数}
 25 runs；数据源 \texttt{补做实验\_25runs/}。
 
 \subsection{实验结果}
-\tryfig{media/fig_gating_ablation.pdf}{门控层消融：F1--F6 各配置最终 fitness}
-Layer1+2 与\textbf{完整版}恢复 Q1 均值（F1 上约 $6.3\times10^6$）；\textbf{Layer2（相对阈值）必要，Layer3（相位采样）边际}。
+\tryfig{media/fig_gating_ablation.pdf}{门控层消融：F1--F6 各配置最终 目标函数值}
+第1层+2 与\textbf{完整版}恢复 问题1 的均值（F1 上约 $6.3\times10^6$）；\textbf{第2层（相对阈值）必要，第3层（相位采样）边际}。
 
 %==============================================================================
-\section{实验 17：相位采样与 $\eta$ 策略消融（F1--F6）}
+\section{实验 17：早中晚抽样、更新步长}\label{sec:exp17}
 %==============================================================================
+\renhua{主要改联网时机，不太改最终分。}
 \subsection{实验说明}
-在 Layer2 已启用前提下，比较\textbf{关闭相位采样（NoPhase）} vs \textbf{完整版相位采样}，以及四种 $\eta$（惩罚更新步长）策略。
+问题 3：关或开早中晚抽样，换更新步长。最终分差别通常 $<5\%$。
 
 \subsection{实验计算公式}
 $\eta$ 为惩罚更新步长/比率；策略 Fixed / Phase / Eta\_RL / Unified 仅改变 $\alpha_i$ 更新规则，门控不变。
 
 \subsection{算法伪代码}
-固定 Layer1+2+变量选择，切换 Phase 或 $\eta$ 模块，25-run $\times$ F1--F6。
+固定 第1层+2+变量选择，切换 Phase 或 $\eta$ 模块，25 遍 $\times$ F1--F6。
 
 \subsection{结果评估指标公式}
-final $F$ 均值$\pm$标准差；期望：各配置 endpoint 接近（差异 $<5\%$）。
+final $F$ 均值$\pm$标准差；期望：各配置 最终接近（差异 $<5\%$）。
 
 \subsection{实验设置与参数}
 25 runs，LLSO；详见 Table \texttt{tab:phase\_eta}（en\_ready 版）。
 
 \subsection{实验结果}
-NoPhase 与\textbf{完整版}、四种 $\eta$ 策略在 F1--F6 上 endpoint 几乎相同；主要影响通信时机，非最终质量。
+NoPhase 与\textbf{完整版}、四种 $\eta$ 策略在 F1--F6 上 最终几乎相同；主要影响通信时机，非最终质量。
 
 %==============================================================================
-\section{实验 18：深度 RL 架构对比（F1--F6）}
+\section{实验 18：换六种强化学习网络}\label{sec:exp18}
 %==============================================================================
+\renhua{分数差通常小于 5\%。}
 \subsection{实验说明}
-替换默认 PPO 头为 SimpleNet/A2C/LSTM/MLP/DQN/Dueling DQN，检验 RL \textbf{架构}是否影响 endpoint。
+问题 3：换六种神经网络。差别 $<5\%$。
 
 \subsection{实验计算公式}
 \begin{equation}
@@ -907,7 +926,7 @@ NoPhase 与\textbf{完整版}、四种 $\eta$ 策略在 F1--F6 上 endpoint 几�
 \end{equation}
 
 \subsection{算法伪代码}
-固定门控与 eva 上限，仅替换 $\pi_\theta$ 网络与训练算法，25-run $\times$ F1--F6。
+固定门控与 eva 上限，仅替换 $\pi_\theta$ 网络与训练算法，25 遍 $\times$ F1--F6。
 
 \subsection{结果评估指标公式}
 final $F$ 均值/标准差；架构间相对差异 $<5\%$ 视为等价。
@@ -916,18 +935,19 @@ final $F$ 均值/标准差；架构间相对差异 $<5\%$ 视为等价。
 25 runs，LLSO；Exp6 DeepRL 目录。
 
 \subsection{实验结果}
-\tryfig{media/fig_deeprl_comparison.pdf}{六种 RL 架构 F1--F6 最终 fitness 对比}
+\tryfig{media/fig_deeprl_comparison.pdf}{六种 RL 架构 F1--F6 最终 目标函数值 对比}
 PPO 非唯一最优；各架构差异小于 5\%，与实验 15 结论一致。
 
 %==============================================================================
-\section{实验 19：RL 轨迹诊断（$\alpha$, $\rho$, conflict, reward）}
+\section{实验 19：强化学习过程曲线}\label{sec:exp19}
 %==============================================================================
+\renhua{诊断用，不是主结论。}
 \subsection{实验说明}
-25-run 均值轨迹展示 PPO 默认控制器\textbf{调整了什么}，非 RL 优于启发式的证据。
+诊断：25 遍平均画惩罚、冲突、奖励曲线。不证明强化学习比查表强。
 
 \subsection{实验计算公式}
 \begin{equation}
-  \mathrm{reward}_t = f(\Delta f_{\mathrm{pure}}, \mathrm{CI}^t, \alpha^t),\quad
+  \mathrm{reward}_t = f(\Delta F, \mathrm{CI}^t, \alpha^t),\quad
   \rho^t = \alpha^t / \alpha^{\mathrm{base}}
 \end{equation}
 
@@ -941,16 +961,17 @@ PPO 非唯一最优；各架构差异小于 5\%，与实验 15 结论一致。
 F1--F6；日志 \texttt{RL-output\_runs25\_rho/}；脚本 \texttt{plot\_rl\_metrics\_runs25\_by\_metric.py}。
 
 \subsection{实验结果}
-\tryfig[0.48\textwidth]{media/rl_metrics_mean25_rho_alpha.pdf}{25-run 均值：$\alpha$ 轨迹}
-\tryfig[0.48\textwidth]{media/rl_metrics_mean25_rho_rho.pdf}{25-run 均值：$\rho$ 轨迹}
-\tryfig[0.48\textwidth]{media/rl_metrics_mean25_rho_conflict.pdf}{25-run 均值：冲突代理轨迹}
-\tryfig[0.48\textwidth]{media/rl_metrics_mean25_rho_reward.pdf}{25-run 均值：RL reward 轨迹}
+\tryfig[0.48\textwidth]{media/rl_metrics_mean25_rho_alpha.pdf}{25 遍 均值：$\alpha$ 轨迹}
+\tryfig[0.48\textwidth]{media/rl_metrics_mean25_rho_rho.pdf}{25 遍 均值：$\rho$ 轨迹}
+\tryfig[0.48\textwidth]{media/rl_metrics_mean25_rho_conflict.pdf}{25 遍 均值：冲突代理轨迹}
+\tryfig[0.48\textwidth]{media/rl_metrics_mean25_rho_reward.pdf}{25 遍 均值：RL reward 轨迹}
 
 %==============================================================================
-\section{实验 20：冲突--$\alpha$ 分箱关系}
+\section{实验 20：冲突和惩罚的关系}\label{sec:exp20}
 %==============================================================================
+\renhua{过程规律，诊断用。}
 \subsection{实验说明}
-汇总 F1--F6 全部 run，按冲突 CI 分箱展示 $\alpha$ 的响应模式。
+诊断：按分歧分档看平均惩罚。
 
 \subsection{实验计算公式}
 \begin{equation}
@@ -959,7 +980,7 @@ F1--F6；日志 \texttt{RL-output\_runs25\_rho/}；脚本 \texttt{plot\_rl\_metr
 即 CI 落在第 $q$ 箱时，惩罚系数 $\alpha$ 的样本均值（原写法 $\mathbb{E}[\alpha \mid \mathrm{CI} \in \mathrm{bin}_q]$ 同义）。
 
 \subsection{算法伪代码}
-脚本 \texttt{plot\_conflict\_alpha\_bins.py}；输入 25-run 轨迹。
+脚本 \texttt{plot\_conflict\_alpha\_bins.py}；输入 25 遍 轨迹。
 
 \subsection{结果评估指标公式}
 各箱 $\bar{\alpha}_q$（条件均值）；横轴为 CI 分箱，纵轴为 $\alpha$。
@@ -971,10 +992,11 @@ F1--F6 pooled；25 runs。
 \tryfig{media/conflict_alpha_bins_F1_F6.pdf}{F1--F6 冲突 CI 分箱 vs $\alpha$ 响应}
 
 %==============================================================================
-\section{实验 21：逐循环归一化漂移验证}
+\section{实验 21：不联网时参考值漂不漂}\label{sec:exp21}
 %==============================================================================
+\renhua{漂移很小，保底联网合理。}
 \subsection{实验说明}
-为 Proposition fail-safe 有界漂移假设提供\textbf{经验支撑}，非 MACPO 收敛证明。
+诊断：不联网轮次参考值单步漂移约 0.004，很小。
 
 \subsection{实验计算公式}
 \begin{align}
@@ -996,7 +1018,7 @@ F1--F6 pooled；25 runs。
 Mean $\bar\varepsilon$，Max $\varepsilon$，p95 $\varepsilon$（F1--F6 pooled）。
 
 \subsection{实验设置与参数}
-F1--F6 headline \textbf{完整版 RL-MACPO}，25 runs/函数。
+F1--F6 headline \textbf{新方法}，25 runs/函数。
 
 \subsection{实验结果}
 \begin{center}\small
@@ -1014,14 +1036,15 @@ F4--F6 & 0.0037--0.0046 & $<0.01$ & $<0.008$ \\
 漂移处于窄带，支持 fail-safe 工程假设。
 
 %==============================================================================
-\section{实验 22：多区域经济调度 MAED-13}
+\section{实验 22：13 台机组发电}\label{sec:exp22}
 %==============================================================================
+\renhua{少联约 88\% 网，成本几乎不变。}
 \subsection{实验说明}
-13 台机组、1800\,MW 总负荷的多区域经济调度；验证门控在\textbf{真实成本结构}下的通信削减与成本保持。
+问题 4：13 台机组，25 遍，联网约 11\%，成本差 0.05\%。
 
 \subsection{实验计算公式}
 \begin{equation}
-  \min \; f_{\mathrm{pure}} = \sum_{i} C_i(P_i),\quad
+  \min \; F = \sum_{i} C_i(P_i),\quad
   C_i(P_i) = a_i P_i^2 + b_i P_i + c_i
 \end{equation}
 subject to 区域功率平衡与联络线一致性（共享变量约束，MACPO 协商）。
@@ -1033,38 +1056,39 @@ subject to 区域功率平衡与联络线一致性（共享变量约束，MACPO 
 \For{$\textit{run\_id} = 1$ \textbf{to} $25$}
   \State $\textsc{PairSeed} \gets \textit{run\_id}$
   \State Run baseline MACPO ($g^t \equiv 1$) until \textit{eva\_limit}
-  \State Run full RL-MACPO with conflict gate until the same \textit{eva\_limit}
-  \State Log best $f_{\mathrm{pure}}$ and $\bar p_{\mathrm{comm}}$
+  \State Run Proposed method with conflict gate until the same \textit{eva\_limit}
+  \State Log best $F$ and $\bar p_{\mathrm{comm}}$
 \EndFor
 \end{algorithmic}
 \end{algorithm}
 \varnote{
-$f_{\mathrm{pure}}=\sum_i C_i(P_i)$：纯发电成本（不含惩罚）。
+$F=\sum_i C_i(P_i)$：纯发电成本（不含惩罚）。
 $\bar p_{\mathrm{comm}}$：外循环协商触发率。
 \textit{eva\_limit}：与 MACPO 相同的评估次数上限。
 }
 
 \subsection{结果评估指标公式}
 \begin{equation}
-  \Delta = \frac{f_{\mathrm{pure}}^{\mathrm{MACPO}} - f_{\mathrm{pure}}^{\mathrm{RL-MACPO}}}{|f_{\mathrm{pure}}^{\mathrm{MACPO}}|}\times 100\%
+  \Delta = \frac{F^{\mathrm{MACPO}} - F^{\mathrm{Proposed}}}{|F^{\mathrm{MACPO}}|}\times 100\%
 \end{equation}
-$\Delta$：RL-MACPO 相对 MACPO 的纯目标改善百分比；$\Delta>0$ 表示 RL-MACPO 更优（$f_{\mathrm{pure}}$ 更低）。EV 场景符号约定见实验 24。
+$\Delta$：新方法相对 MACPO 的真实任务分改善百分比；$\Delta>0$ 表示新方法更优（$F$ 更低）。EV 场景符号约定见实验 24。
 
 \subsection{实验设置与参数}
 25 paired runs；\texttt{run\_maed.sh}；输出 \texttt{maed\_20260622\_114525/}。
 
 \subsection{实验结果}
-RL 通信 11.3\%；MACPO $f_{\mathrm{pure}} = 3.42\times10^4 \pm 38$；RL $3.43\times10^4 \pm 105$；$\Delta \approx -0.05\%$；通信削减 88.7\%。
+RL 通信 11.3\%；MACPO $F = 3.42\times10^4 \pm 38$；RL $3.43\times10^4 \pm 105$；$\Delta \approx -0.05\%$；通信削减 88.7\%。
 
 %==============================================================================
-\section{实验 23：资源-constrained 分布式调度}
+\section{实验 23：资源调度}\label{sec:exp23}
 %==============================================================================
+\renhua{少联约 88\% 网，收益大约好 10\%。}
 \subsection{实验说明}
-资源约束下的分布式任务/资源分配仿真；共享变量为跨节点资源配额。
+问题 4：10 节点资源调度，联网约 11.6\%，收益约好 11\%。
 
 \subsection{实验计算公式}
 \begin{equation}
-  \min \; f_{\mathrm{pure}} = \sum_i \bigl(\text{delay}_i + \text{cost}_i\bigr),\quad
+  \min \; F = \sum_i \bigl(\text{delay}_i + \text{cost}_i\bigr),\quad
   \text{s.t. 共享资源一致性}
 \end{equation}
 
@@ -1072,7 +1096,7 @@ RL 通信 11.3\%；MACPO $f_{\mathrm{pure}} = 3.42\times10^4 \pm 38$；RL $3.43\
 同实验 22 配对流程；场景脚本 \texttt{run\_paper\_scenarios.sh}（RESOURCE）。
 
 \subsection{结果评估指标公式}
-同式 $\Delta$；25-run 均值$\pm$标准差。
+同式 $\Delta$；25 遍 均值$\pm$标准差。
 
 \subsection{实验设置与参数}
 25 paired runs；输出 \texttt{paper\_20260622\_114518/RESOURCE/}。
@@ -1081,15 +1105,16 @@ RL 通信 11.3\%；MACPO $f_{\mathrm{pure}} = 3.42\times10^4 \pm 38$；RL $3.43\
 RL 通信 11.6\%；MACPO $1.33\times10^3 \pm 184$；RL $\mathbf{1.18\times10^3 \pm 167}$；$\Delta = +11.0\%$（RL 更优）；通信削减 88.4\%。
 
 %==============================================================================
-\section{实验 24：电动汽车充放电协调（EV Dispatch）}
+\section{实验 24：电动车充放电}\label{sec:exp24}
 %==============================================================================
+\renhua{这题越负越好；净收益大约好 10\%。}
 \subsection{实验说明}
-EV 集群充放电与电网/站点协调；$f_{\mathrm{pure}}$ 为\textbf{净收益}（含售电收益），越负越好。
+问题 4：10 节点电动车，$F$ 越负越好，净收益约好 10\%。
 
 \subsection{实验计算公式}
 \begin{equation}
-  f_{\mathrm{pure}} = f_{\mathrm{cost}} - f_{\mathrm{gain}},\quad
-  \text{更负的 } f_{\mathrm{pure}} \Rightarrow \text{更高净收益}
+  F = f_{\mathrm{cost}} - f_{\mathrm{gain}},\quad
+  \text{更负的 } F \Rightarrow \text{更高净收益}
 \end{equation}
 
 \subsection{算法伪代码}
@@ -1097,9 +1122,9 @@ EV 集群充放电与电网/站点协调；$f_{\mathrm{pure}}$ 为\textbf{净收
 
 \subsection{结果评估指标公式}
 \begin{equation}
-  \Delta = \frac{f_{\mathrm{pure}}^{\mathrm{MACPO}} - f_{\mathrm{pure}}^{\mathrm{RL}}}{|f_{\mathrm{pure}}^{\mathrm{MACPO}}|}\times 100\%
+  \Delta = \frac{F^{\mathrm{MACPO}} - F^{\mathrm{RL}}}{|F^{\mathrm{MACPO}}|}\times 100\%
 \end{equation}
-正值表示 RL 净收益更高（$f_{\mathrm{pure}}$ 更负）。
+正值表示 RL 净收益更高（$F$ 更负）。
 
 \subsection{实验设置与参数}
 25 paired runs；同 \texttt{paper\_20260622\_114518/EVDISPATCH/}。
@@ -1108,14 +1133,15 @@ EV 集群充放电与电网/站点协调；$f_{\mathrm{pure}}$ 为\textbf{净收
 RL 通信 11.6\%；MACPO $-3.203 \pm 0.579$；RL $\mathbf{-3.534 \pm 0.987}$；$\Delta = +10.3\%$；通信削减 88.4\%。
 
 %==============================================================================
-\section{实验 25：IEEE 30/57/118 输电网区域调度}
+\section{实验 25：IEEE 30/57/118 电网}\label{sec:exp25}
 %==============================================================================
+\renhua{多数打平，118 节点略差 0.6\% 换少联网。}
 \subsection{实验说明}
-IEEE 标准测试系统上的\textbf{分区经济调度}；fail-safe $K{=}2$；检验大规模电网上的通信--成本权衡。
+问题 4：IEEE 30/57/118，联网少 41--60\%，多数打平。
 
 \subsection{实验计算公式}
 \begin{equation}
-  f_{\mathrm{pure}} = \sum_{\mathrm{regions}} \sum_{g \in \mathrm{region}} C_g(P_g),\quad
+  F = \sum_{\mathrm{regions}} \sum_{g \in \mathrm{region}} C_g(P_g),\quad
   \text{共享变量：联络线/区域边界功率}
 \end{equation}
 
@@ -1124,23 +1150,23 @@ IEEE 标准测试系统上的\textbf{分区经济调度}；fail-safe $K{=}2$；�
 \caption{IEEE regional dispatch paired runs}
 \begin{algorithmic}[1]
 \For{$\textit{run\_id} = 1$ \textbf{to} $25$}
-  \State Run MACPO and full RL-MACPO with fail-safe $K=2$
-  \State Log best-so-far $f_{\mathrm{pure}}$ and $\bar p_{\mathrm{comm}}$
+  \State Run MACPO and full 新方法 with fail-safe $K=2$
+  \State Log 到目前最好$F$ and $\bar p_{\mathrm{comm}}$
   \State Compute paired $\Delta_k$; aggregate median and Wilcoxon $p$
-  \State Mark success if $f_{\mathrm{pure}}^{\mathrm{RL}} \le 2 \times f_{\mathrm{pure}}^{\mathrm{MACPO}}$
+  \State Mark success if $F^{\mathrm{RL}} \le 2 \times F^{\mathrm{MACPO}}$
 \EndFor
 \end{algorithmic}
 \end{algorithm}
 \varnote{
-$\Delta_k$：第 $k$ 次 run 上 MACPO 相对 RL-MACPO 的成本变化百分比（见下式）。
+$\Delta_k$：第 $k$ 次 run 上 MACPO相对新方法 的成本变化百分比（见下式）。
 Success：灾难检测——RL 纯成本不超过 MACPO 的 2 倍即视为未崩溃。
 $K=2$：IEEE 试点 fail-safe 周期（主基准默认 $K=10$）。
 }
 
 \subsection{结果评估指标公式}
 \begin{align}
-  \Delta_k &= \frac{f_{\mathrm{pure},k}^{\mathrm{MACPO}} - f_{\mathrm{pure},k}^{\mathrm{RL-MACPO}}}{|f_{\mathrm{pure},k}^{\mathrm{MACPO}}|}\times 100\% \\
-  \text{Median paired } \Delta &= \mathrm{median}_k(\Delta_k) \quad\text{（25 次配对 run 的中位改善）} \\
+  \Delta_k &= \frac{F_k^{\mathrm{MACPO}} - F_k^{\mathrm{Proposed}}}{|F_k^{\mathrm{MACPO}}|}\times 100\% \\
+  \text{Median paired } \Delta &= \mathrm{median}_k(\Delta_k) \quad\text{（25 次配对实验 的中位改善）} \\
   \text{Wilcoxon} &: \text{对 } \{\Delta_k\} \text{ 做双侧符号秩检验}
 \end{align}
 
@@ -1162,22 +1188,23 @@ IEEE-118 & 25/25 & 40.0\% & $-$0.6\% & 0.01 & $-$60.0\% \\
 IEEE-30/57 中位成本近零；118 节点有小幅可检测成本偏移（精度--通信权衡）；30 有两例 LLSO 停滞离群。
 
 %==============================================================================
-\section{实验 26：可扩展性 pilot（F1/F7/F13 + F1S50/S100）}
+\section{实验 26：参与者变多试探}\label{sec:exp26}
 %==============================================================================
+\renhua{只试 5 遍，不能当主结论。}
 \subsection{实验说明}
-随智能体数量增加（20/40/60/50/100），观察通信率与 fitness 变化；\textbf{pilot 规模小于主表}。
+试探：人变多，F1/F7/F13 只 5 遍，不能和 25 遍主表比。
 
 \subsection{实验计算公式}
 同 Section~\ref{sec:notation} 式\eqref{eq:global}--\eqref{eq:gate}；F1S50/S100 为 F1 的 50/100 智能体扩展实例。
 
 \subsection{算法伪代码}
-F1/F7/F13：5-run pilot；F1S50/S100：25-run；MACPO vs RL-MACPO 配对。
+F1/F7/F13：5 遍试探；F1S50/S100：25 遍；MACPO vs 新方法 配对。
 
 \subsection{结果评估指标公式}
-$\bar p_{\mathrm{comm}}$ + final fitness 均值$\pm$标准差。
+$\bar p_{\mathrm{comm}}$ + final 目标函数值 均值$\pm$标准差。
 
 \subsection{实验设置与参数}
-5-run（F1/F7/F13）或 25-run（F1S50/S100）；\textbf{不可与 25-run 主表直接混读}。
+5 遍（F1/F7/F13）或 25 遍（F1S50/S100）；\textbf{不可与 25 遍 主表直接混读}。
 
 \subsection{实验结果}
 \begin{center}\small
@@ -1193,11 +1220,11 @@ F1S100 & 100 & 100\% & 23.3\% & $1.47\times10^7$ & $1.95\times10^7$ \\
 \bottomrule
 \end{tabular}
 \end{center}
-5-run pilot 方差较大；F13 RL 略优于 MACPO；F1S50/S100 需更大 runs 才能与主表同等置信。
+5 遍试探 方差较大；F13 RL 略优于 MACPO；F1S50/S100 需更大 runs 才能与主表同等置信。
 
 %==============================================================================
-\section*{附录：应用案例 run 级 $\Delta$ 分布（实验 22--25 补充）}
-\addcontentsline{toc}{section}{附录：应用 run 级分布}
+\section*{附录：应用案例 每次实验 $\Delta$ 分布（实验 22--25 补充）}
+\addcontentsline{toc}{section}{附录：应用 每次实验分布}
 %==============================================================================
 \begin{center}\small
 \begin{tabular}{@{}lrrr@{}}

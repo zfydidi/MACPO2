@@ -1,22 +1,12 @@
-% Large figures (placed after references).
+% Fig.4: single-run micro-coupling (non-float).
 \clearpage
 \onecolumn
 
-% Fig.4 + Fig.5: stacked on one page (non-float; \captionof must not sit inside figure*).
 \noindent\begin{minipage}{\textwidth}
 \centering
 \includegraphics[width=\textwidth,height=0.44\textheight,keepaspectratio]{media/f3_f5_conflict_alpha_micro.pdf}
 \captionof{figure}{Single-run conflict--$\alpha$ coupling on F3 and F5 (representative runs).}
 \label{fig:f3_f5_micro}
-\end{minipage}
-
-\vspace{0.35em}
-
-\noindent\begin{minipage}{\textwidth}
-\centering
-\includegraphics[width=\textwidth,height=0.44\textheight,keepaspectratio]{media/fig_deeprl_comparison.pdf}
-\captionof{figure}{Visual summary of Table~\ref{tab:deeprl}. Mean final $F$ across F1--F6 for each RL architecture variant.}
-\label{fig:deeprl_comparison}
 \end{minipage}
 
 \clearpage
@@ -31,14 +21,14 @@
 \begin{figure*}[!t]
 \centering
 \makebox[\textwidth][c]{\includegraphics[width=\textwidth]{media/comm_fitness_pareto_f125.pdf}}
-\caption{Communication-budget frontier on F1/F2/F5 (Section~\ref{sec:timing_problem}, budget form). Horizontal axis: average trigger rate $\bar p_{\mathrm{comm}}$ (communication budget). Vertical axis: terminal $F$. Periodic-$K$ points are fixed-interval pilots (10 runs). RL gated (star) uses 25-run headline fitness and communication from Tables~\ref{tab:macpo_style_all} and~\ref{tab:comm_rate_f1_f18}. Lower-left points are preferred.}
+\caption{Communication-budget frontier on F1/F2/F5 (Section~\ref{sec:timing_problem}, budget form). Horizontal axis: average trigger rate $\bar p_{\mathrm{comm}}$ (communication budget). Vertical axis: terminal $F$. Periodic-$K$ points are fixed-interval pilots (10 runs). Proposed (star) uses 25-run fitness and communication from Tables~\ref{tab:macpo_style_all} and~\ref{tab:comm_rate_f1_f18}. Lower-left points are preferred.}
 \label{fig:comm_fitness_pareto}
 \end{figure*}
 
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{media/ci_bin_trigger_F1_F6.pdf}
-\caption{CI-conditioned communication on F1--F6 (25 paired runs with active gating). Each panel pools outer-loop rows, sorts by logged conflict proxy, splits into equal-count quintiles (Q1 = lowest conflict), and plots mean trigger indicator $g^t$ (empirical communication probability). Residual triggers in Q1 reflect fail-safe and minimum-interval paths. Q2--Q3 show reduced rates on all six benchmarks.}
+\caption{CI-conditioned communication on F1--F6 (25 paired runs with active gating). Each panel pools outer-loop rows, sorts by conflict index $\mathrm{CI}_i^t$, splits into equal-count quintiles (Q1 = lowest conflict), and plots mean trigger indicator $g^t$ (empirical communication probability). Residual triggers in Q1 reflect fail-safe and minimum-interval paths. Q2--Q3 show reduced rates on all six benchmarks.}
 \label{fig:ci_bin_trigger}
 \end{figure*}
 
@@ -67,7 +57,7 @@
 \begin{subfigure}[t]{0.49\textwidth}
 \centering
 \includegraphics[width=\linewidth]{media/rl_metrics_mean25_rho_rho.pdf}
-\caption{Mean ratio $\rho$ ($\pm$ std).}
+\caption{Mean penalty ratio $\rho$ ($\pm$ std; Eq.~\eqref{eq:alpha_mapping}).}
 \label{fig:rl_traj_rho}
 \end{subfigure}
 
@@ -76,7 +66,7 @@
 \begin{subfigure}[t]{0.49\textwidth}
 \centering
 \includegraphics[width=\linewidth]{media/rl_metrics_mean25_rho_conflict.pdf}
-\caption{Conflict proxy ($\pm$ std).}
+\caption{Conflict index $\mathrm{CI}$ ($\pm$ std; Eq.~\eqref{eq:ci_agent}).}
 \label{fig:rl_traj_conflict}
 \end{subfigure}\hfill
 \begin{subfigure}[t]{0.49\textwidth}
@@ -85,6 +75,6 @@
 \caption{RL reward ($\pm$ std).}
 \label{fig:rl_traj_reward}
 \end{subfigure}
-\caption{RL-MACPO training diagnostics aggregated over 25 independent runs per benchmark (LLSO; same evaluation budget as the main comparison). Horizontal axis: cumulative evaluations. (a)--(d): mean $\pm$ std of logged $\alpha$, $\rho$, conflict, and reward. Subplot titles F1--F6 follow the MACPO NDO naming \cite{ref_macpo}.}
+\caption{Proposed method training diagnostics aggregated over 25 independent runs per benchmark (Level-Based Learning Swarm Optimizer, LLSO; per-agent cap $3000\times D_i$ as in \cite{ref_macpo}). Horizontal axis: cumulative evaluations. (a)--(d): mean $\pm$ std of $\alpha$, $\rho$, conflict, and RL reward. Subplot titles F1--F6 follow the NDO benchmark naming in \cite{ref_macpo}.}
 \label{fig:rl_traj_metrics}
 \end{figure*}
