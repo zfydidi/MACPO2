@@ -1,200 +1,30 @@
-\contentsline {section}{\numberline {1}大白话导读}{7}{section.1}%
-\contentsline {section}{\numberline {2}术语速查}{7}{section.2}%
-\contentsline {section}{\numberline {3}研究背景}{7}{section.3}%
-\contentsline {subsection}{\numberline {3.1}问题设定}{7}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}待验证问题}{7}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}单轮执行流程}{7}{subsection.3.3}%
-\contentsline {section}{\numberline {4}术语表（进阶：对着代码查）}{8}{section.4}%
-\contentsline {subsection}{\numberline {4.1}变量速查（读伪代码与公式时用）}{8}{subsection.4.1}%
-\contentsline {section}{\numberline {5}核心公式（进阶）}{9}{section.5}%
-\contentsline {paragraph}{(1) 全局 NDO 问题}{9}{paragraph*.2}%
-\contentsline {paragraph}{(2) MACPO 局部惩罚目标}{10}{paragraph*.3}%
-\contentsline {paragraph}{(3) 冲突指标 CI（门控输入）}{10}{paragraph*.4}%
-\contentsline {paragraph}{(4) 阶段基线（相对阈值用）}{10}{paragraph*.5}%
-\contentsline {paragraph}{(5) 冲突门控（本文核心）}{10}{paragraph*.6}%
-\contentsline {paragraph}{(6) 通信触发率与削减率}{10}{paragraph*.7}%
-\contentsline {paragraph}{主实验默认参数}{10}{paragraph*.8}%
-\contentsline {section}{\numberline {6}实验总览}{11}{section.6}%
-\contentsline {section}{\numberline {7}实验 1：小规模六项测试：本文方法 vs MACPO 基线}{11}{section.7}%
-\contentsline {subsection}{\numberline {7.1}实验目的与设计}{11}{subsection.7.1}%
-\contentsline {subsection}{\numberline {7.2}相关公式}{11}{subsection.7.2}%
-\contentsline {subsection}{\numberline {7.3}算法流程}{11}{subsection.7.3}%
-\contentsline {subsection}{\numberline {7.4}评价指标}{12}{subsection.7.4}%
-\contentsline {subsection}{\numberline {7.5}实验设置}{12}{subsection.7.5}%
-\contentsline {subsection}{\numberline {7.6}实验结果与分析}{12}{subsection.7.6}%
-\contentsline {section}{\numberline {8}实验 2：中大规模十二项测试：本文方法 vs MACPO 基线}{12}{section.8}%
-\contentsline {subsection}{\numberline {8.1}实验目的与设计}{12}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}相关公式}{12}{subsection.8.2}%
-\contentsline {subsection}{\numberline {8.3}算法流程}{12}{subsection.8.3}%
-\contentsline {subsection}{\numberline {8.4}评价指标}{13}{subsection.8.4}%
-\contentsline {subsection}{\numberline {8.5}实验设置}{13}{subsection.8.5}%
-\contentsline {subsection}{\numberline {8.6}实验结果与分析}{13}{subsection.8.6}%
-\contentsline {section}{\numberline {9}实验 3：小规模六项：收敛曲线（目标值 vs 评估次数）}{13}{section.9}%
-\contentsline {subsection}{\numberline {9.1}实验目的与设计}{13}{subsection.9.1}%
-\contentsline {subsection}{\numberline {9.2}相关公式}{13}{subsection.9.2}%
-\contentsline {subsection}{\numberline {9.3}算法流程}{14}{subsection.9.3}%
-\contentsline {subsection}{\numberline {9.4}评价指标}{14}{subsection.9.4}%
-\contentsline {subsection}{\numberline {9.5}实验设置}{14}{subsection.9.5}%
-\contentsline {subsection}{\numberline {9.6}实验结果与分析}{14}{subsection.9.6}%
-\contentsline {section}{\numberline {10}实验 4：单次运行耗时分析}{15}{section.10}%
-\contentsline {subsection}{\numberline {10.1}实验目的与设计}{15}{subsection.10.1}%
-\contentsline {subsection}{\numberline {10.2}相关公式}{15}{subsection.10.2}%
-\contentsline {subsection}{\numberline {10.3}算法流程}{15}{subsection.10.3}%
-\contentsline {subsection}{\numberline {10.4}评价指标}{15}{subsection.10.4}%
-\contentsline {subsection}{\numberline {10.5}实验设置}{15}{subsection.10.5}%
-\contentsline {subsection}{\numberline {10.6}实验结果与分析}{15}{subsection.10.6}%
-\contentsline {section}{\numberline {11}实验 5：十八项测试通信触发率统计}{15}{section.11}%
-\contentsline {subsection}{\numberline {11.1}实验目的与设计}{15}{subsection.11.1}%
-\contentsline {subsection}{\numberline {11.2}相关公式}{15}{subsection.11.2}%
-\contentsline {subsection}{\numberline {11.3}算法流程}{16}{subsection.11.3}%
-\contentsline {subsection}{\numberline {11.4}评价指标}{16}{subsection.11.4}%
-\contentsline {subsection}{\numberline {11.5}实验设置}{16}{subsection.11.5}%
-\contentsline {subsection}{\numberline {11.6}实验结果与分析}{16}{subsection.11.6}%
-\contentsline {section}{\numberline {12}实验 6：小档六题：是不是少求值才减少通信}{16}{section.12}%
-\contentsline {subsection}{\numberline {12.1}实验目的与设计}{16}{subsection.12.1}%
-\contentsline {subsection}{\numberline {12.2}相关公式}{17}{subsection.12.2}%
-\contentsline {subsection}{\numberline {12.3}算法流程}{17}{subsection.12.3}%
-\contentsline {subsection}{\numberline {12.4}评价指标}{17}{subsection.12.4}%
-\contentsline {subsection}{\numberline {12.5}实验设置}{17}{subsection.12.5}%
-\contentsline {subsection}{\numberline {12.6}实验结果与分析}{17}{subsection.12.6}%
-\contentsline {section}{\numberline {13}实验 7：四种门控变体对比}{17}{section.13}%
-\contentsline {subsection}{\numberline {13.1}实验目的与设计}{17}{subsection.13.1}%
-\contentsline {subsection}{\numberline {13.2}相关公式}{17}{subsection.13.2}%
-\contentsline {subsection}{\numberline {13.3}算法流程}{18}{subsection.13.3}%
-\contentsline {subsection}{\numberline {13.4}评价指标}{18}{subsection.13.4}%
-\contentsline {subsection}{\numberline {13.5}实验设置}{18}{subsection.13.5}%
-\contentsline {subsection}{\numberline {13.6}实验结果与分析}{18}{subsection.13.6}%
-\contentsline {section}{\numberline {14}实验 8：通信灵敏度参数变化影响大吗}{18}{section.14}%
-\contentsline {subsection}{\numberline {14.1}实验目的与设计}{18}{subsection.14.1}%
-\contentsline {subsection}{\numberline {14.2}相关公式}{18}{subsection.14.2}%
-\contentsline {subsection}{\numberline {14.3}算法流程}{19}{subsection.14.3}%
-\contentsline {subsection}{\numberline {14.4}评价指标}{19}{subsection.14.4}%
-\contentsline {subsection}{\numberline {14.5}实验设置}{19}{subsection.14.5}%
-\contentsline {subsection}{\numberline {14.6}实验结果与分析}{19}{subsection.14.6}%
-\contentsline {section}{\numberline {15}实验 9：固定周期通信基线对比}{19}{section.15}%
-\contentsline {subsection}{\numberline {15.1}实验目的与设计}{19}{subsection.15.1}%
-\contentsline {subsection}{\numberline {15.2}相关公式}{19}{subsection.15.2}%
-\contentsline {subsection}{\numberline {15.3}算法流程}{20}{subsection.15.3}%
-\contentsline {subsection}{\numberline {15.4}评价指标}{20}{subsection.15.4}%
-\contentsline {subsection}{\numberline {15.5}实验设置}{20}{subsection.15.5}%
-\contentsline {subsection}{\numberline {15.6}实验结果与分析}{20}{subsection.15.6}%
-\contentsline {section}{\numberline {16}实验 10：小规模六项：通信规则扩展对比}{20}{section.16}%
-\contentsline {subsection}{\numberline {16.1}实验目的与设计}{20}{subsection.16.1}%
-\contentsline {subsection}{\numberline {16.2}相关公式}{21}{subsection.16.2}%
-\contentsline {subsection}{\numberline {16.3}算法流程}{21}{subsection.16.3}%
-\contentsline {subsection}{\numberline {16.4}评价指标}{21}{subsection.16.4}%
-\contentsline {subsection}{\numberline {16.5}实验设置}{21}{subsection.16.5}%
-\contentsline {subsection}{\numberline {16.6}实验结果与分析}{21}{subsection.16.6}%
-\contentsline {section}{\numberline {17}实验 11：冲突程度与通信触发概率的关系}{21}{section.17}%
-\contentsline {subsection}{\numberline {17.1}实验目的与设计}{21}{subsection.17.1}%
-\contentsline {subsection}{\numberline {17.2}相关公式}{21}{subsection.17.2}%
-\contentsline {subsection}{\numberline {17.3}算法流程}{21}{subsection.17.3}%
-\contentsline {subsection}{\numberline {17.4}评价指标}{22}{subsection.17.4}%
-\contentsline {subsection}{\numberline {17.5}实验设置}{22}{subsection.17.5}%
-\contentsline {subsection}{\numberline {17.6}实验结果与分析}{22}{subsection.17.6}%
-\contentsline {section}{\numberline {18}实验 12：通信触发率 vs 分数多少}{22}{section.18}%
-\contentsline {subsection}{\numberline {18.1}实验目的与设计}{22}{subsection.18.1}%
-\contentsline {subsection}{\numberline {18.2}相关公式}{22}{subsection.18.2}%
-\contentsline {subsection}{\numberline {18.3}算法流程}{22}{subsection.18.3}%
-\contentsline {subsection}{\numberline {18.4}评价指标}{23}{subsection.18.4}%
-\contentsline {subsection}{\numberline {18.5}实验设置}{23}{subsection.18.5}%
-\contentsline {subsection}{\numberline {18.6}实验结果与分析}{23}{subsection.18.6}%
-\contentsline {section}{\numberline {19}实验 13：F3/F5 单次运行轨迹诊断}{23}{section.19}%
-\contentsline {subsection}{\numberline {19.1}实验目的与设计}{23}{subsection.19.1}%
-\contentsline {subsection}{\numberline {19.2}相关公式}{23}{subsection.19.2}%
-\contentsline {subsection}{\numberline {19.3}算法流程}{23}{subsection.19.3}%
-\contentsline {subsection}{\numberline {19.4}评价指标}{23}{subsection.19.4}%
-\contentsline {subsection}{\numberline {19.5}实验设置}{24}{subsection.19.5}%
-\contentsline {subsection}{\numberline {19.6}实验结果与分析}{24}{subsection.19.6}%
-\contentsline {section}{\numberline {20}实验 14：与 MASOIE 方法横向对比（参考）}{24}{section.20}%
-\contentsline {subsection}{\numberline {20.1}实验目的与设计}{24}{subsection.20.1}%
-\contentsline {subsection}{\numberline {20.2}相关公式}{24}{subsection.20.2}%
-\contentsline {subsection}{\numberline {20.3}算法流程}{24}{subsection.20.3}%
-\contentsline {subsection}{\numberline {20.4}评价指标}{25}{subsection.20.4}%
-\contentsline {subsection}{\numberline {20.5}实验设置}{25}{subsection.20.5}%
-\contentsline {subsection}{\numberline {20.6}实验结果与分析}{25}{subsection.20.6}%
-\contentsline {section}{\numberline {21}实验 15：换三种调节惩罚方式}{25}{section.21}%
-\contentsline {subsection}{\numberline {21.1}实验目的与设计}{25}{subsection.21.1}%
-\contentsline {subsection}{\numberline {21.2}相关公式}{25}{subsection.21.2}%
-\contentsline {subsection}{\numberline {21.3}算法流程}{25}{subsection.21.3}%
-\contentsline {subsection}{\numberline {21.4}评价指标}{25}{subsection.21.4}%
-\contentsline {subsection}{\numberline {21.5}实验设置}{26}{subsection.21.5}%
-\contentsline {subsection}{\numberline {21.6}实验结果与分析}{26}{subsection.21.6}%
-\contentsline {section}{\numberline {22}实验 16：门控分层消融实验}{26}{section.22}%
-\contentsline {subsection}{\numberline {22.1}实验目的与设计}{26}{subsection.22.1}%
-\contentsline {subsection}{\numberline {22.2}相关公式}{26}{subsection.22.2}%
-\contentsline {subsection}{\numberline {22.3}算法流程}{26}{subsection.22.3}%
-\contentsline {subsection}{\numberline {22.4}评价指标}{26}{subsection.22.4}%
-\contentsline {subsection}{\numberline {22.5}实验设置}{26}{subsection.22.5}%
-\contentsline {subsection}{\numberline {22.6}实验结果与分析}{27}{subsection.22.6}%
-\contentsline {section}{\numberline {23}实验 17：阶段采样与步长策略分析}{27}{section.23}%
-\contentsline {subsection}{\numberline {23.1}实验目的与设计}{27}{subsection.23.1}%
-\contentsline {subsection}{\numberline {23.2}相关公式}{27}{subsection.23.2}%
-\contentsline {subsection}{\numberline {23.3}算法流程}{27}{subsection.23.3}%
-\contentsline {subsection}{\numberline {23.4}评价指标}{27}{subsection.23.4}%
-\contentsline {subsection}{\numberline {23.5}实验设置}{28}{subsection.23.5}%
-\contentsline {subsection}{\numberline {23.6}实验结果与分析}{28}{subsection.23.6}%
-\contentsline {section}{\numberline {24}实验 18：六种 RL 网络架构对比}{28}{section.24}%
-\contentsline {subsection}{\numberline {24.1}实验目的与设计}{28}{subsection.24.1}%
-\contentsline {subsection}{\numberline {24.2}相关公式}{28}{subsection.24.2}%
-\contentsline {subsection}{\numberline {24.3}算法流程}{28}{subsection.24.3}%
-\contentsline {subsection}{\numberline {24.4}评价指标}{28}{subsection.24.4}%
-\contentsline {subsection}{\numberline {24.5}实验设置}{28}{subsection.24.5}%
-\contentsline {subsection}{\numberline {24.6}实验结果与分析}{28}{subsection.24.6}%
-\contentsline {section}{\numberline {25}实验 19：RL 训练过程诊断曲线}{28}{section.25}%
-\contentsline {subsection}{\numberline {25.1}实验目的与设计}{28}{subsection.25.1}%
-\contentsline {subsection}{\numberline {25.2}相关公式}{28}{subsection.25.2}%
-\contentsline {subsection}{\numberline {25.3}算法流程}{29}{subsection.25.3}%
-\contentsline {subsection}{\numberline {25.4}评价指标}{29}{subsection.25.4}%
-\contentsline {subsection}{\numberline {25.5}实验设置}{29}{subsection.25.5}%
-\contentsline {subsection}{\numberline {25.6}实验结果与分析}{29}{subsection.25.6}%
-\contentsline {section}{\numberline {26}实验 20：冲突-惩罚响应关系分析}{29}{section.26}%
-\contentsline {subsection}{\numberline {26.1}实验目的与设计}{29}{subsection.26.1}%
-\contentsline {subsection}{\numberline {26.2}相关公式}{29}{subsection.26.2}%
-\contentsline {subsection}{\numberline {26.3}算法流程}{32}{subsection.26.3}%
-\contentsline {subsection}{\numberline {26.4}评价指标}{32}{subsection.26.4}%
-\contentsline {subsection}{\numberline {26.5}实验设置}{32}{subsection.26.5}%
-\contentsline {subsection}{\numberline {26.6}实验结果与分析}{32}{subsection.26.6}%
-\contentsline {section}{\numberline {27}实验 21：不通信网时参考值是否漂移}{32}{section.27}%
-\contentsline {subsection}{\numberline {27.1}实验目的与设计}{32}{subsection.27.1}%
-\contentsline {subsection}{\numberline {27.2}相关公式}{33}{subsection.27.2}%
-\contentsline {subsection}{\numberline {27.3}算法流程}{33}{subsection.27.3}%
-\contentsline {subsection}{\numberline {27.4}评价指标}{33}{subsection.27.4}%
-\contentsline {subsection}{\numberline {27.5}实验设置}{33}{subsection.27.5}%
-\contentsline {subsection}{\numberline {27.6}实验结果与分析}{33}{subsection.27.6}%
-\contentsline {section}{\numberline {28}实验 22：工程验证——13 机组阀点经济调度}{33}{section.28}%
-\contentsline {subsection}{\numberline {28.1}实验目的与设计}{33}{subsection.28.1}%
-\contentsline {subsection}{\numberline {28.2}相关公式}{33}{subsection.28.2}%
-\contentsline {subsection}{\numberline {28.3}算法流程}{34}{subsection.28.3}%
-\contentsline {subsection}{\numberline {28.4}评价指标}{34}{subsection.28.4}%
-\contentsline {subsection}{\numberline {28.5}实验设置}{34}{subsection.28.5}%
-\contentsline {subsection}{\numberline {28.6}实验结果与分析}{34}{subsection.28.6}%
-\contentsline {section}{\numberline {29}实验 23：工程验证——资源约束调度}{34}{section.29}%
-\contentsline {subsection}{\numberline {29.1}实验目的与设计}{34}{subsection.29.1}%
-\contentsline {subsection}{\numberline {29.2}相关公式}{34}{subsection.29.2}%
-\contentsline {subsection}{\numberline {29.3}算法流程}{34}{subsection.29.3}%
-\contentsline {subsection}{\numberline {29.4}评价指标}{35}{subsection.29.4}%
-\contentsline {subsection}{\numberline {29.5}实验设置}{35}{subsection.29.5}%
-\contentsline {subsection}{\numberline {29.6}实验结果与分析}{35}{subsection.29.6}%
-\contentsline {section}{\numberline {30}实验 24：工程验证——电动车充放电协同调度}{35}{section.30}%
-\contentsline {subsection}{\numberline {30.1}实验目的与设计}{35}{subsection.30.1}%
-\contentsline {subsection}{\numberline {30.2}相关公式}{35}{subsection.30.2}%
-\contentsline {subsection}{\numberline {30.3}算法流程}{35}{subsection.30.3}%
-\contentsline {subsection}{\numberline {30.4}评价指标}{35}{subsection.30.4}%
-\contentsline {subsection}{\numberline {30.5}实验设置}{35}{subsection.30.5}%
-\contentsline {subsection}{\numberline {30.6}实验结果与分析}{35}{subsection.30.6}%
-\contentsline {section}{\numberline {31}实验 25：工程验证——IEEE 标准电网算例}{35}{section.31}%
-\contentsline {subsection}{\numberline {31.1}实验目的与设计}{36}{subsection.31.1}%
-\contentsline {subsection}{\numberline {31.2}相关公式}{36}{subsection.31.2}%
-\contentsline {subsection}{\numberline {31.3}算法流程}{36}{subsection.31.3}%
-\contentsline {subsection}{\numberline {31.4}评价指标}{36}{subsection.31.4}%
-\contentsline {subsection}{\numberline {31.5}实验设置}{36}{subsection.31.5}%
-\contentsline {subsection}{\numberline {31.6}实验结果与分析}{36}{subsection.31.6}%
-\contentsline {section}{\numberline {32}实验 26：可扩展性试探实验}{37}{section.32}%
-\contentsline {subsection}{\numberline {32.1}实验目的与设计}{37}{subsection.32.1}%
-\contentsline {subsection}{\numberline {32.2}相关公式}{37}{subsection.32.2}%
-\contentsline {subsection}{\numberline {32.3}算法流程}{37}{subsection.32.3}%
-\contentsline {subsection}{\numberline {32.4}评价指标}{37}{subsection.32.4}%
-\contentsline {subsection}{\numberline {32.5}实验设置}{37}{subsection.32.5}%
-\contentsline {subsection}{\numberline {32.6}实验结果与分析}{37}{subsection.32.6}%
-\contentsline {section}{附录：应用 每次实验分布}{37}{section*.9}%
+\contentsline {section}{\numberline {1}论文背景与术语}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1}研究问题}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}常用术语}{3}{subsection.1.2}%
+\contentsline {section}{\numberline {2}实验设置（Section V-A）}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}NDO 基准函数 F1--F18}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}实验参数}{4}{subsection.2.2}%
+\contentsline {section}{\numberline {3}冲突门控通信的有效性验证（Section V-B）}{4}{section.3}%
+\contentsline {subsection}{\numberline {3.1}门控设计验证}{4}{subsection.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.1}门控变体对比}{4}{subsubsection.3.1.1}%
+\contentsline {subsubsection}{\numberline {3.1.2}阈值灵敏度}{5}{subsubsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.2}惩罚控制器对比}{5}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}架构与门控消融}{5}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}门控层级消融}{5}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}变量筛选}{5}{subsubsection.3.3.2}%
+\contentsline {subsubsection}{\numberline {3.3.3}阶段采样与更新步长}{5}{subsubsection.3.3.3}%
+\contentsline {section}{\numberline {4}与始终通信方法的对比（Section V-C）}{6}{section.4}%
+\contentsline {subsection}{\numberline {4.1}F1--F6 小规模测试}{6}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}F7--F18 中大规模测试}{6}{subsection.4.2}%
+\contentsline {section}{\numberline {5}通信效率分析（Section V-D）}{6}{section.5}%
+\contentsline {subsection}{\numberline {5.1}通信触发率统计}{6}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}评估次数一致性}{7}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}通信分析}{7}{subsection.5.3}%
+\contentsline {section}{\numberline {6}与现有分布式设置的对比（Section V-E）}{7}{section.6}%
+\contentsline {subsection}{\numberline {6.1}MACPO 风格仿真场景}{7}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}IEEE 标准节点电力系统}{7}{subsection.6.2}%
+\contentsline {section}{\numberline {7}补充实验与附录}{8}{section.7}%
+\contentsline {subsection}{\numberline {7.1}与 MASOIE 的外部参照}{8}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}运行耗时}{8}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}RL 训练诊断}{8}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}保底通信的结构性界}{8}{subsection.7.4}%
