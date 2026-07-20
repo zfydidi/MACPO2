@@ -32,6 +32,8 @@ def setup_cjk_font() -> str:
             matplotlib.rcParams["font.family"] = "sans-serif"
             matplotlib.rcParams["font.sans-serif"] = [name, "DejaVu Sans"]
             matplotlib.rcParams["axes.unicode_minus"] = False
+            # 让 mathtext（$...$）也回退到可用字体，避免希腊字母/负号缺字形
+            matplotlib.rcParams["mathtext.fontset"] = "dejavusans"
             return name
     raise RuntimeError(
         "No CJK-capable font found in this environment. Install a Noto/SimHei/PingFang font "
