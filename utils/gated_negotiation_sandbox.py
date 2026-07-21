@@ -228,6 +228,54 @@ def sweep_trigger_vs_error(
     return np.array(ps)[order], np.array(ms)[order], np.array(ss)[order]
 
 
+def measure_skip_bound(
+    rule: str,
+    *,
+    n: int = 12,
+    d: int = 4,
+    steps: int = 5000,
+    sigma: float = 0.25,
+    seed: int = 0,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """有效性验证 (B1 / Proposition skip)：测量"跳过一轮协商所放弃的惩罚改进"
+
+    对每个 agent、每个访问到的状态：
+      * 冲突 CI_i = 归一化 gap 的每维均值  δ̄_i = (1/d)Σ_d |x_d-r_d|/R   （对齐 Eq. ci_agent，线性聚合）
+      * 实测放弃改进  ΔP_i = P_i(x) - P_i(𝒩x)，惩罚 P_i=Σ_d δ_d（φ(e)=e, L=1）
+      * 理论上界      L|D_i|·CI_i = d·δ̄_i = Σ_d δ_d = P_i(x)
+    命题断言 0 ≤ ΔP_i ≤ L|D_i|·CI_i，即所有点落在 y=d·CI 直线之下，且 ΔP→0 当 CI→0。
+
+    通过随机突发扫出宽范围的 CI，再对同一状态施加一轮协商算子 𝒩(rule) 测实际惩罚下降。
+    返回 (ci, realized_drop, bound)，均为按 (状态×agent) 展平的一维数组。
+    """
+    rng = np.random.default_rng(seed)
+    W = _metropolis_mixing(n)
+    g2, gN = spectral_gap(W)
+    lam = 2.0 / (g2 + gN)
+    R = 6.0
+    x = rng.standard_normal((n, d)) * 3.0
+    shock_rate, shock_mag, base_sig = 0.06, sigma * 8.0, sigma * 0.1
+    ci_all, drop_all, bound_all = [], [], []
+    for t in range(steps):
+        x = x + base_sig * rng.standard_normal(x.shape)
+        if rng.random() < shock_rate:
+            k = rng.integers(0, n)
+            x[k] = x[k] + shock_mag * rng.standard_normal(d)
+        r = x.mean(axis=0, keepdims=True)           # consensus target = global mean (disagreement)
+        e = np.abs(x - r) / R                       # per-dim normalized gap δ_d (n×d)
+        ci = e.mean(axis=1)                          # CI_i = mean over dims (linear aggregation)
+        P_before = e.sum(axis=1)                     # penalty P_i = Σ_d δ_d = d·CI_i
+        x_next, _ = negotiate(rule, x, W, lam, rng)  # one non-expansive negotiation round 𝒩
+        e_next = np.abs(x_next - r) / R              # gap to the SAME consensus target
+        P_after = e_next.sum(axis=1)
+        drop = P_before - P_after                    # realized forgone penalty improvement ΔP_i
+        ci_all.append(ci)
+        drop_all.append(drop)
+        bound_all.append(P_before)                   # bound = L|D_i|·CI_i (L=1)
+        x = x_next
+    return (np.concatenate(ci_all), np.concatenate(drop_all), np.concatenate(bound_all))
+
+
 def sweep_gate_frontier(
     rule: str,
     *,
