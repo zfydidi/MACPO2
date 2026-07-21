@@ -58,30 +58,26 @@ def negotiate(rule: str, x: np.ndarray, W: np.ndarray, lam: float,
     if rule == "average":
         x_next = x - lam * ((np.eye(n) - W) @ x)
     elif rule == "gossip":
-        # 随机成对 gossip：本轮只激活一条随机边，双方向中点靠拢
+        # 随机成对 gossip：一次"通信事件"= 随机打乱所有边各激活一次（一整轮 gossip）。
+        # 与 average/nash 一样每事件做一整轮，使"每事件混合力度"可比，隔离出时序变量。
         x_next = x.copy()
         idx = np.flatnonzero(np.triu(W, 1).ravel())
-        if idx.size:
-            e = rng.choice(idx)
+        rng.shuffle(idx)
+        for e in idx:
             i, j = divmod(int(e), n)
             mid = 0.5 * (x_next[i] + x_next[j])
             x_next[i] = (1 - lam) * x_next[i] + lam * mid
             x_next[j] = (1 - lam) * x_next[j] + lam * mid
     elif rule == "nash":
-        # Nash 双边比较简化版：仅向"更接近共识参考"的邻居非对称靠拢
+        # Nash 双边最佳响应（简化版）：非对称、分布式可算、单调改进。
+        # 各 agent 以邻域均值 r_i=(Wx)_i 为局部共识参考；仅"偏离超过群体中位数"的
+        # 冲突 agent 才向 r_i 移动一步，其余保持不动。区别于对称平均（全员移动），
+        # 是只让更差一方让步的最佳响应动态（每步严格降低该 agent 的邻域分歧→稳定）。
         x_next = x.copy()
-        for i in range(n):
-            nbrs = np.flatnonzero(W[i] > 0)
-            nbrs = nbrs[nbrs != i]
-            if nbrs.size == 0:
-                continue
-            # 以"离全局均值更近"作为更优的黑箱代理（无梯度）
-            gmean = x.mean(axis=0, keepdims=True)
-            my_gap = np.linalg.norm(x[i] - gmean)
-            better = [j for j in nbrs if np.linalg.norm(x[j] - gmean) < my_gap]
-            if better:
-                target = x[better].mean(axis=0)
-                x_next[i] = (1 - lam) * x[i] + lam * target
+        dev = np.linalg.norm(x - r, axis=1)
+        thr = np.median(dev)
+        move = dev > thr
+        x_next[move] = (1 - lam) * x[move] + lam * r[move]
     else:
         raise ValueError(f"unknown negotiation rule: {rule!r}")
     return x_next, r
@@ -222,6 +218,39 @@ def sweep_trigger_vs_error(
         prs, ers = [], []
         for s in range(n_seeds):
             res = run_sandbox(rule, gate=ConflictGate(lam_thr=float(lt), K=30),
+                              seed=s, **kw)
+            prs.append(res.trigger_rate)
+            ers.append(res.steady_error)
+        ps.append(np.mean(prs))
+        ms.append(np.mean(ers))
+        ss.append(np.std(ers))
+    order = np.argsort(ps)
+    return np.array(ps)[order], np.array(ms)[order], np.array(ss)[order]
+
+
+def sweep_gate_frontier(
+    rule: str,
+    *,
+    K_grid: np.ndarray | None = None,
+    lam_thr: float = 1.2,
+    n_seeds: int = 12,
+    **kw,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """门控可达前沿：以 fail-safe K 为主控杆平滑扫触发率（配合固定相对阈值 lam_thr）。
+
+    相较 sweep_trigger_vs_error（扫 lam_thr，因 CI 双峰而只在 1/K 地板与高触发两端聚集、
+    中段留空导致绘图直线插值假象），本函数用 K 连续调节 fail-safe 地板 1/K，
+    在论文真实工作区（通信稀缺，约 1/12）稠密采样，得到公平可比的门控权衡曲线。
+
+    返回按触发率升序的 (p_comm, mean_err, std_err)。
+    """
+    if K_grid is None:
+        K_grid = np.array([2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 25, 30, 40])
+    ps, ms, ss = [], [], []
+    for K in K_grid:
+        prs, ers = [], []
+        for s in range(n_seeds):
+            res = run_sandbox(rule, gate=ConflictGate(lam_thr=lam_thr, K=int(K)),
                               seed=s, **kw)
             prs.append(res.trigger_rate)
             ers.append(res.steady_error)

@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1783631751.02808 "conference_new_ready.tex" "conference_new_ready.pdf" "conference_new_ready" 1783631751.93156 0
+["pdflatex"] 1784564799.37509 "conference_new_ready.tex" "conference_new_ready.pdf" "conference_new_ready" 1784564800.21587 0
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1136768653 2172 fd0c924230362ff848a33632ed45dc23 ""
@@ -218,9 +218,9 @@
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1766052087 3345744 8adf899fcafa05f0ecdc5f357ef29050 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
   "IEEEtran.cls" 1773770546 281957 5b2e4fa15b0f7eabb840ebf67df4c0f7 ""
-  "conference_new_ready.aux" 1783631751.81186 55423 4287c50c7c2bf23365d588ff218b5aa2 "pdflatex"
-  "conference_new_ready.tex" 1783631748.14312 89076 501939ccbfa8a8942f3e5e2d449417cb ""
-  "conference_new_ready_deferred_floats.tex" 1783631656.31372 3749 60a0cb60cdb73d6d1892abddf5fab5c0 ""
+  "conference_new_ready.aux" 1784564800.10153 59365 6a7f79a79bd0dee666a4a22afb5604fc "pdflatex"
+  "conference_new_ready.tex" 1784564791.29497 103187 4499f89d2c4c6acea73b574a0bcefb6b ""
+  "conference_new_ready_deferred_floats.tex" 1784562314.19176 3749 60a0cb60cdb73d6d1892abddf5fab5c0 ""
   "conference_new_ready_supplement_scenarios.tex" 1783631674.12984 13300 fc61a914c04aa14b50b4ce7c8d1eaa4d ""
   "media/F1_F6_panel.pdf" 1783331692.69918 54553 c29d9d3eae7e81c33015ebbe55966381 ""
   "media/ci_bin_trigger_F1_F6.pdf" 1782898167.3001 16940 ea0053fcf93b9332fb3997dead5dc8db ""
@@ -230,6 +230,8 @@
   "media/fig1.png" 1783330997.07854 37869 7e22dc47c5552502dc230eb8d0a9a03e ""
   "media/fig2.pdf" 1783328910.21079 104958 ff14e1f876e19ac946de43f782585006 ""
   "media/fig_gating_ablation.pdf" 1773910756.142 17075 b3d4ecb471226d9717435da29e0449c9 ""
+  "media/gated_convergence.pdf" 1784564755.85062 30075 8c7c31acfa67e8ca8c642e261c3f6aa9 ""
+  "media/gated_universality.pdf" 1784563874.43123 36087 9124768feacbeebff87fd700654b9fd9 ""
   "media/rl_metrics_mean25_rho_alpha.pdf" 1775090689.97953 45748 c2ce67ec214cc584e8917d1a81818d60 ""
   "media/rl_metrics_mean25_rho_conflict.pdf" 1775090691.22241 48660 8c47b0205277da3304ee047dd8670286 ""
   "media/rl_metrics_mean25_rho_reward.pdf" 1775090691.67682 42562 04faa3e14f1f00fc3e158a06c0b8c3b2 ""
