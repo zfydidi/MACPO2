@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1784639566.65687 "conference_new_ready.tex" "conference_new_ready.pdf" "conference_new_ready" 1784639567.53877 0
+["pdflatex"] 1784697476.94394 "conference_new_ready.tex" "conference_new_ready.pdf" "conference_new_ready" 1784697477.78379 0
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1136768653 2172 fd0c924230362ff848a33632ed45dc23 ""
@@ -218,8 +218,8 @@
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1766052087 3345744 8adf899fcafa05f0ecdc5f357ef29050 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
   "IEEEtran.cls" 1773770546 281957 5b2e4fa15b0f7eabb840ebf67df4c0f7 ""
-  "conference_new_ready.aux" 1784639567.41893 60516 e9a7b96666cafef3c8f0df7733387422 "pdflatex"
-  "conference_new_ready.tex" 1784639443.27032 104858 c7468085d780aaedad413f0d28965d0c ""
+  "conference_new_ready.aux" 1784697477.66741 63437 c42b3f1b916a1c4db27772565f29caf9 "pdflatex"
+  "conference_new_ready.tex" 1784697466.44942 114102 46c0b9dfaba1a4f66141184b4b7585ef ""
   "conference_new_ready_deferred_floats.tex" 1784562314.19176 3749 60a0cb60cdb73d6d1892abddf5fab5c0 ""
   "conference_new_ready_supplement_scenarios.tex" 1783631674.12984 13300 fc61a914c04aa14b50b4ce7c8d1eaa4d ""
   "media/F1_F6_panel.pdf" 1783331692.69918 54553 c29d9d3eae7e81c33015ebbe55966381 ""

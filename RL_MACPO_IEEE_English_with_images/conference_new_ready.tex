@@ -26,6 +26,7 @@
 \usepackage{hyperref}
 \usepackage{bookmark}
 \newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
 \newtheorem{remark}{Remark}
 \newtheorem{empiricalcriterion}{Empirical Criterion}
 \tikzset{
@@ -241,6 +242,24 @@ Since $\phi$ is $L$-Lipschitz, $|\phi(a)-\phi(b)|\le L|a-b|$; with $\delta_d(\ma
 \end{proof}
 \begin{remark}
 Proposition~\ref{prop:skip} upgrades Empirical Criterion~\ref{crit:skip} from an engineering test to a bounded statement: skipping a low-conflict round cannot forgo more penalized-objective improvement than $\alpha_i L|\mathcal{D}_i|\lambda\hat{\mu}_{\mathrm{CI},i}^t$, so this quality loss vanishes linearly as conflict falls. It bounds the penalized local objective $h_i$ that the gate monitors, not the pure global objective $F$; together with the fail-safe drift bound (Proposition~\ref{prop:failsafe}), the two results limit both what a skip forgoes within a silent stretch and how far reference staleness can grow before communication is forced. The non-expansiveness assumption on $\mathcal{N}$ holds for consensus/best-response negotiation; Fig.~\ref{fig:skip_bound} in Section~\ref{sec:exp_comm} verifies the bound numerically and shows $\Delta h_i\propto\mathrm{CI}_i$, so low-conflict skips forgo vanishing improvement.
+\end{remark}
+
+Proposition~\ref{prop:skip} bounds one skipped loop. Chaining it over a full silent stretch, together with the fail-safe horizon and the drift assumption of Proposition~\ref{prop:failsafe}, bounds the total quality forgone between two communications.
+
+\begin{corollary}[Cumulative skip suboptimality over a silent stretch]\label{cor:skip_cumulative}
+Consider a silent stretch $s=t_{\mathrm{last}},\dots,t_{\mathrm{last}}+\tau-1$ of length $\tau=t-t_{\mathrm{last}}\le K-1$ (guaranteed by fail-safe). Suppose the relative-threshold skip rule holds at every skipped loop, $\mathrm{CI}_i^s\le\lambda\hat{\mu}_{\mathrm{CI},i}^s$, and the smoothed gap drifts by at most $\varepsilon_{\max}$ per silent loop (the assumption of Proposition~\ref{prop:failsafe}), so that $\hat{\mu}_{\mathrm{CI},i}^s\le\hat{\mu}_{\mathrm{CI},i}^{t_{\mathrm{last}}}+(s-t_{\mathrm{last}})\varepsilon_{\max}$. Then the total penalized-objective improvement forgone across the stretch is bounded:
+\begin{align}
+\sum_{s=t_{\mathrm{last}}}^{t_{\mathrm{last}}+\tau-1}\!\!\big[h_i(\mathbf{x}^s)-h_i(\mathcal{N}\mathbf{x}^s)\big]
+&\le \alpha_i L\,|\mathcal{D}_i|\,\lambda\sum_{s}\hat{\mu}_{\mathrm{CI},i}^s \nonumber\\
+&\hspace{-6.5em}\le\ \alpha_i L\,|\mathcal{D}_i|\,\lambda\Big[(K{-}1)\,\hat{\mu}_{\mathrm{CI},i}^{t_{\mathrm{last}}}+\tfrac{(K{-}1)(K{-}2)}{2}\varepsilon_{\max}\Big].
+\label{eq:skip_cumulative}
+\end{align}
+\end{corollary}
+\begin{proof}
+Apply Eq.~\eqref{eq:skip_bound_gate} at each skipped loop $s$ and sum: $\sum_s[h_i(\mathbf{x}^s)-h_i(\mathcal{N}\mathbf{x}^s)]\le\alpha_i L|\mathcal{D}_i|\lambda\sum_s\hat{\mu}_{\mathrm{CI},i}^s$. Substituting $\hat{\mu}_{\mathrm{CI},i}^s\le\hat{\mu}_{\mathrm{CI},i}^{t_{\mathrm{last}}}+(s-t_{\mathrm{last}})\varepsilon_{\max}$ and $\sum_{j=0}^{\tau-1}j=\tau(\tau-1)/2$ with $\tau\le K-1$ gives Eq.~\eqref{eq:skip_cumulative}.
+\end{proof}
+\begin{remark}
+The cumulative cost grows linearly in the threshold $\lambda\hat{\mu}$ and at most quadratically in the fail-safe horizon $K$: a shorter $K$ or smaller $\lambda$ tightens the guarantee, quantifying the communication--quality knob that $(\lambda,K)$ expose. The leading term $\alpha_i L|\mathcal{D}_i|\lambda(K{-}1)\hat{\mu}_{\mathrm{CI},i}^{t_{\mathrm{last}}}$ vanishes as conflict falls, so a long silent stretch is cheap precisely when it is triggered by low conflict.
 \end{remark}
 
 While Propositions~\ref{prop:failsafe} and~\ref{prop:skip} bound single-loop staleness and skip cost, a natural follow-up question is whether repeatedly skipping still lets shared variables converge. For the standard linearization of the consensus/negotiation step this can be answered exactly, and the answer reuses the gate's own trigger rate.
@@ -689,6 +708,59 @@ F18 & \textbf{8.0} & 92.0\% \\
 \caption{Validation of the intermittent gated-consensus rate (Proposition~\ref{prop:intermittent}). Measured per-loop expected-error decay of Bernoulli-gated consensus (markers) matches the predicted $\rho(p\lambda_c)$ (line) on a ring and a random graph, using the Chebyshev gain $\lambda_c^\star$. Convergence holds while $p\lambda_c<2/\gamma_N$.}
 \label{fig:gated_convergence}
 \end{figure}
+
+\subsection{Cross-Paradigm Gating on MASOIE}\label{sec:exp_masoie_gated}
+The sandbox and the linearized analysis argue that the gate is protocol-agnostic; we now attach it to a real solver whose negotiation is structurally unlike MACPO. MASOIE~\cite{ref_masoie_2024} coordinates subswarms not through a penalty but through an \emph{external-learning velocity} that, on every outer loop, pulls each agent toward its neighbors' solutions. We insert the three-layer conflict gate of Eq.~\eqref{eq:local_gate} before this exchange-and-external-learning step, so negotiation runs only when the conflict index crosses the relative threshold or the fail-safe fires. A global lockstep decision $g_{\mathrm{global}}^t=\max_i g_i^t$ computed by one all-reduce keeps the message passing deadlock-free. The always-on and gated arms use the same binary and evaluation budget, isolating the effect of the gate.
+
+Table~\ref{tab:masoie_gated} reports F1--F6 (25-dimensional, 20 agents, 10 runs). At the paper's default gate ($\lambda{=}1.2$, $K{=}10$), gating cuts communication by 36--85\% while matching or improving terminal fitness on four functions; on F6 fitness improves by more than an order of magnitude at a $77\%$ communication cut. On F2 and F4, whose always-on runs reach near-exact consensus (disagreement $\sim\!10^{-4}$ and $\sim\!10^{-6}$), the default gate is too aggressive and fitness degrades.
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\caption{Conflict-gated MASOIE vs.\ always-on MASOIE (same binary, matched budget, 10 runs). Default gate $\lambda{=}1.2$, $K{=}10$. Lower fitness is better. Comm.\ drop is relative to always-on.}
+\label{tab:masoie_gated}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Func.} & \textbf{Always-on $F$} & \textbf{Gated $F$} & \textbf{Trigger} & \textbf{Comm.\ drop} \\
+\midrule
+F1 & 6.87E+5 & \textbf{6.61E+5} & 21.9\% & $-$62.6\% \\
+F3 & 1.28E+4 & \textbf{4.43E+3} & 12.3\% & $-$85.0\% \\
+F5 & 2.26E+7 & \textbf{5.41E+6} & 37.7\% & $-$52.0\% \\
+F6 & 4.69E+6 & \textbf{8.42E+4} & 15.6\% & $-$76.8\% \\
+F2 & \textbf{8.03E+4} & 6.79E+6 & 42.5\% & $-$46.5\% \\
+F4 & \textbf{2.44E+1} & 6.36E+1 & 55.8\% & $-$35.9\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These two functions are exactly where Propositions~\ref{prop:skip} and~\ref{prop:intermittent} predict trouble: near-exact consensus makes the penalized objective steep in residual disagreement (large effective Lipschitz $L$), so both the per-skip cost $\alpha_i L|\mathcal{D}_i|\lambda\hat{\mu}$ (Proposition~\ref{prop:skip}) and the residual left by intermittent consensus (Proposition~\ref{prop:intermittent} requires a larger $1-\rho(p\lambda_c)$, hence a higher $p$) grow. The remedy is the operating-point knob the theory exposes: a shorter fail-safe $K$ raises the trigger rate. Sweeping $K$ confirms this. On F2, $K{=}2$ (trigger $53\%$) restores fitness to $3.70\times10^4$, below the always-on $8.03\times10^4$, while still cutting communication by $47\%$; the degradation appears only for $K\ge 3$. On F4, fitness improves monotonically from $63.6$ ($K{=}10$) to $37.6$ ($K{=}2$) as the trigger rate rises toward the always-on regime. The consensus-tolerant F6, by contrast, stays more than an order of magnitude below always-on across all $K$. The gate thus transfers to MASOIE's external-learning paradigm, and consensus-critical problems need only a gentler setting, consistent with the $\lambda/K$ sensitivity documented for the main method (Table~\ref{tab:lambda_sensitivity}).
+
+\subsection{Cross-Paradigm Gating on MASOIE}\label{sec:exp_masoie_gated}
+The sandbox in Fig.~\ref{fig:gated_universality} exercises the gate on abstract negotiation rules. We now attach the \emph{same} three-layer gate to a real solver whose coordination is structurally unlike MACPO's penalty scheme. MASOIE~\cite{ref_masoie_2024} couples subswarms not through a penalty but through an external-learning velocity that pulls each agent toward its neighbors' solutions on every outer loop. We insert the conflict gate (Eq.~\eqref{eq:local_gate}) before this exchange-and-external-learning step, so negotiation runs only when $\mathrm{CI}$ crosses the relative threshold or the fail-safe fires; a global lockstep decision $g_{\mathrm{global}}^t=\max_i g_i^t$ (one all-reduce per loop) keeps the message passing deadlock-free. The always-on and gated arms use the same binary and evaluation budget, isolating the gate.
+
+At the default gate ($\lambda{=}1.2$, $K{=}10$), Table~\ref{tab:masoie_gated} shows communication falling by 36--85\% while terminal fitness matches or improves on four of six functions (F1, F3, F5, F6; F6 improves by more than an order of magnitude). On F2 and F4 the default gate is too aggressive and fitness degrades. These are precisely the functions whose always-on runs reach near-exact consensus (disagreement $\approx 10^{-4}$ and $10^{-6}$): the penalized objective is then steep in residual disagreement (large effective $L$), so both the per-skip cost $\alpha_i L|\mathcal{D}_i|\lambda\hat{\mu}$ of Proposition~\ref{prop:skip} and the residual left by intermittent consensus (a smaller $1-\rho(p\lambda_c)$ tolerance in Proposition~\ref{prop:intermittent}) grow. The theory therefore predicts that consensus-critical problems need a higher trigger rate, and the operating-point knob is exactly the fail-safe $K$. Sweeping $K$ confirms this: on F2, $K{=}2$ (trigger $53\%$) restores fitness to $3.7\times10^4$, below the always-on $8.0\times10^4$, while still cutting communication by $47\%$; on F4, fitness improves monotonically from $63.6$ ($K{=}10$) toward the always-on $24.4$ as the trigger rate rises, reaching $37.6$ at $K{=}2$. Gating thus transfers to MASOIE's external-learning paradigm, and consensus-critical instances simply require a gentler setting, consistent with the $\lambda/K$ sensitivity documented for the main method in Section~\ref{sec:exp_main}.
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\caption{Conflict-gated MASOIE vs.\ always-on MASOIE on F1--F6 (same binary, 20 agents, matched evaluation budget, 10 runs each; default gate $\lambda{=}1.2$, $K{=}10$). $F$: mean terminal fitness (lower is better). Comm.\ drop is relative to always-on. F2/F4 recover under a gentler gate (see text).}
+\label{tab:masoie_gated}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Func.} & \textbf{Always-on $F$} & \textbf{Gated $F$} & \textbf{Trigger} & \textbf{Comm.\ drop} \\
+\midrule
+F1 & 6.87E+5 & \textbf{6.61E+5} & 21.9\% & $-$62.6\% \\
+F3 & 1.28E+4 & \textbf{4.43E+3} & 12.3\% & $-$85.0\% \\
+F5 & 2.26E+7 & \textbf{5.41E+6} & 37.7\% & $-$52.0\% \\
+F6 & 4.69E+6 & \textbf{8.42E+4} & 15.6\% & $-$76.8\% \\
+\midrule
+F2 & \textbf{8.03E+4} & 6.79E+6 & 42.5\% & $-$46.5\% \\
+F4 & \textbf{2.44E+1} & 6.36E+1 & 55.8\% & $-$35.9\% \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Comparison with Existing Distributed Settings}\label{sec:applications}\label{sec:exp_q4}
 Beyond the synthetic F1--F18 suite, we evaluate conflict-gated communication on six network-structured dispatch pilots drawn from the MACPO supplementary application line and MATPOWER IEEE regional economic dispatch~\cite{ref_macpo}: resource scheduling (Supplementary Part~V), EV dispatch (Part~VI), MAED-13 valve-point ED, and IEEE~30/57/118. Each pilot uses the NDO template in Eq.~\eqref{eq:global_objective} with 25 paired MACPO vs.\ proposed complete runs (LLSO, matched evaluation caps and seeds). Scenario modeling, partition maps, algorithms, and parameters are given in Supplementary Material Secs.~\ref{app:resource}--\ref{app:scenario_experiments} (after the references).

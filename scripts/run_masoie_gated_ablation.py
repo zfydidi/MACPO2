@@ -82,23 +82,29 @@ def parse(text: str) -> dict:
     return out
 
 
-def run_one(arm: str, func: str, seed_idx: int, resume: bool = True,
-            timeout: int = 300) -> dict:
-    log = OUT_DIR / "raw" / f"{arm}_{func}_run{seed_idx:02d}.log"
+def run_env(tag: str, env_params: dict, func: str, seed_idx: int,
+            resume: bool = True, timeout: int = 300) -> dict:
+    """Run one gated-MASOIE trial with arbitrary gate env params. tag names the log."""
+    log = OUT_DIR / "raw" / f"{tag}_{func}_run{seed_idx:02d}.log"
     if resume and log.is_file():
         m = parse(log.read_text(encoding="utf-8", errors="replace"))
         if "fitness" in m and "comm" in m:
             return m  # already done, reuse
     env = dict(os.environ)
-    env.update(ARMS[arm])
+    env.update(env_params)
     cmd = ["mpirun", "-np", str(NP), "--oversubscribe", str(GATED_EXE), func]
     r = subprocess.run(cmd, cwd=str(RUN_CWD), text=True, capture_output=True,
                        env=env, timeout=timeout)
     log.parent.mkdir(parents=True, exist_ok=True)
     log.write_text(f"# EXIT {r.returncode}\n{r.stdout}\n--- STDERR ---\n{r.stderr}\n", encoding="utf-8")
     if r.returncode != 0:
-        raise RuntimeError(f"run failed {arm} {func} #{seed_idx}: see {log}")
+        raise RuntimeError(f"run failed {tag} {func} #{seed_idx}: see {log}")
     return parse(r.stdout + "\n" + r.stderr)
+
+
+def run_one(arm: str, func: str, seed_idx: int, resume: bool = True,
+            timeout: int = 300) -> dict:
+    return run_env(arm, ARMS[arm], func, seed_idx, resume=resume, timeout=timeout)
 
 
 def agg(vals):
@@ -111,8 +117,21 @@ def main() -> None:
     ap.add_argument("--runs", type=int, default=10)
     ap.add_argument("--funcs", type=str, default=",".join(FUNCS))
     ap.add_argument("--no-build", action="store_true")
+    ap.add_argument("--ksweep", type=str, default="",
+                    help="comma-separated fail-safe K grid; enables operating-point sweep mode (lambda=1.2)")
+    ap.add_argument("--out-name", type=str, default="masoie_gated_ablation",
+                    help="basename for the output JSON")
     args = ap.parse_args()
     funcs = [f.strip() for f in args.funcs.split(",") if f.strip()]
+
+    # operating-point sweep mode: gate at fixed lambda=1.2, varying fail-safe K
+    if args.ksweep.strip():
+        ARMS.clear()
+        for k in [int(x) for x in args.ksweep.split(",") if x.strip()]:
+            ARMS[f"gated_K{k}"] = {"MASOIE_LAMBDA": "1.2", "MASOIE_K": str(k)}
+        ARMS["always_on"] = {"MASOIE_LAMBDA": "0", "MASOIE_K": "1"}
+
+    json_out = JSON_OUT.parent / f"{args.out_name}.json"
 
     if not args.no_build:
         build()
@@ -140,10 +159,10 @@ def main() -> None:
         "experiment": "conflict-gated MASOIE vs always-on MASOIE (same binary, matched budget)",
         "runs_target": args.runs, "np": NP, "arms": ARMS, "functions": results,
     }
-    (OUT_DIR / "summary.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    JSON_OUT.parent.mkdir(parents=True, exist_ok=True)
-    JSON_OUT.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    print(f"Wrote {JSON_OUT}")
+    (OUT_DIR / f"{args.out_name}.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    json_out.parent.mkdir(parents=True, exist_ok=True)
+    json_out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    print(f"Wrote {json_out}")
 
 
 if __name__ == "__main__":
