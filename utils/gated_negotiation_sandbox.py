@@ -261,12 +261,12 @@ def measure_skip_bound(
         if rng.random() < shock_rate:
             k = rng.integers(0, n)
             x[k] = x[k] + shock_mag * rng.standard_normal(d)
-        r = x.mean(axis=0, keepdims=True)           # consensus target = global mean (disagreement)
-        e = np.abs(x - r) / R                       # per-dim normalized gap δ_d (n×d)
+        r = W @ x                                   # neighbourhood consensus reference r_d=(Wx)_d (Eq. ci_dim)
+        e = np.abs(x - r) / R                       # per-dim normalized gap δ_d to negotiation target (n×d)
         ci = e.mean(axis=1)                          # CI_i = mean over dims (linear aggregation)
         P_before = e.sum(axis=1)                     # penalty P_i = Σ_d δ_d = d·CI_i
-        x_next, _ = negotiate(rule, x, W, lam, rng)  # one non-expansive negotiation round 𝒩
-        e_next = np.abs(x_next - r) / R              # gap to the SAME consensus target
+        x_next, _ = negotiate(rule, x, W, lam, rng)  # one negotiation round 𝒩 toward that reference
+        e_next = np.abs(x_next - r) / R              # gap to the SAME pre-round reference
         P_after = e_next.sum(axis=1)
         drop = P_before - P_after                    # realized forgone penalty improvement ΔP_i
         ci_all.append(ci)
