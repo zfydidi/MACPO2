@@ -33,17 +33,19 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 TXT = {
     "zh": {
-        "pred": "理论 $\\rho(p\\lambda)$", "emp": "间歇共识实测",
-        "xlabel": "触发率 $p=\\bar p_{\\mathrm{comm}}$", "ylabel": "每轮期望误差衰减率",
+        "pred": "一阶矩理论 $\\rho(p\\lambda)$", "emp": "一阶矩实测 $\\|\\mathbb{E}e\\|$",
+        "pred_ms": "均方理论 $\\rho_{\\mathrm{ms}}$", "emp_ms": "均方实测 $\\mathbb{E}\\|e\\|^2$",
+        "xlabel": "触发率 $p=\\bar p_{\\mathrm{comm}}$", "ylabel": "每轮误差衰减率",
         "thr": "稳定阈值 $p=2/(\\lambda\\gamma_N)$",
-        "sup": "B2: 间歇门控共识的期望误差衰减率——实测与理论 $\\rho(p\\lambda)$ 吻合",
+        "sup": "B2: 间歇门控共识的一阶矩与均方衰减率——实测均与理论 $\\rho(p\\lambda)$、$\\rho_{\\mathrm{ms}}$ 吻合",
         "ring": "环形网络 (病态稀疏)", "er": "随机图 (Erdős–Rényi)",
     },
     "en": {
-        "pred": "Theory $\\rho(p\\lambda)$", "emp": "Intermittent consensus (measured)",
-        "xlabel": "Trigger rate $p=\\bar p_{\\mathrm{comm}}$", "ylabel": "Per-loop expected-error decay rate",
-        "thr": "Stability limit $p=2/(\\lambda\\gamma_N)$",
-        "sup": "Intermittent gated consensus: measured expected-error decay matches theory $\\rho(p\\lambda)$",
+        "pred": "First moment $\\rho(p\\lambda)$", "emp": "First moment $\\|\\mathbb{E}e\\|$ (meas.)",
+        "pred_ms": "Mean square $\\rho_{\\mathrm{ms}}$", "emp_ms": "Mean square $\\mathbb{E}\\|e\\|^2$ (meas.)",
+        "xlabel": "Trigger rate $p=\\bar p_{\\mathrm{comm}}$", "ylabel": "Per-loop error decay rate",
+        "thr": "First-moment limit $p=2/(\\lambda\\gamma_N)$",
+        "sup": "Intermittent gated consensus: measured first-moment and mean-square decay match theory $\\rho(p\\lambda)$ and $\\rho_{\\mathrm{ms}}$",
         "ring": "Ring graph (ill-conditioned)", "er": "Random graph (Erdos-Renyi)",
     },
 }
@@ -108,14 +110,45 @@ def empirical_rate(W: np.ndarray, lam: float, p: float, *, T: int = 300,
     return float(np.exp(slope))
 
 
+def empirical_ms_rate(W: np.ndarray, lam: float, p: float, *, T: int = 300,
+                      reps: int = 8000, seed: int = 1) -> float:
+    """真实 Bernoulli 间歇共识的均方 E‖e_t‖^2 几何衰减率。"""
+    n = W.shape[0]
+    L = np.eye(n) - W
+    rng = np.random.default_rng(seed)
+    e0 = rng.standard_normal(n)
+    e0 -= e0.mean()
+    e0 /= np.linalg.norm(e0)
+    S = np.zeros(T)
+    for _ in range(reps):
+        e = e0.copy()
+        for t in range(T):
+            S[t] += e @ e
+            if rng.random() < p:
+                e = e - lam * (L @ e)
+    S /= reps
+    valid = S > 1e-12
+    idx = np.flatnonzero(valid)
+    if idx.size < 5:
+        return float("nan")
+    lo, hi = idx[len(idx) // 4], idx[-1]
+    slope = (np.log(S[hi]) - np.log(S[lo])) / (hi - lo)
+    return float(np.exp(slope))
+
+
 def panel(ax, W, name, txt, ps):
     g2, gN = spectral_gap(W)
     lam = chebyshev_optimal_gain(g2, gN)
+    rho = spectral_radius(lam, g2, gN)
     pred = [spectral_radius(p * lam, g2, gN) for p in ps]
     emp = [empirical_rate(W, lam, p) for p in ps]
+    pred_ms = [(1 - p) + p * rho ** 2 for p in ps]
+    emp_ms = [empirical_ms_rate(W, lam, p) for p in ps]
     p_thr = 2.0 / (lam * gN)
     ax.plot(ps, pred, "-", color="tab:blue", lw=2, label=txt["pred"])
-    ax.plot(ps, emp, "o", color="tab:green", ms=5, label=txt["emp"])
+    ax.plot(ps, emp, "o", color="tab:blue", ms=5, mfc="none", label=txt["emp"])
+    ax.plot(ps, pred_ms, "-", color="tab:green", lw=2, label=txt["pred_ms"])
+    ax.plot(ps, emp_ms, "s", color="tab:green", ms=5, mfc="none", label=txt["emp_ms"])
     ax.axhline(1.0, ls="--", color="gray", alpha=0.7)
     if p_thr <= ps[-1]:
         ax.axvline(p_thr, ls=":", color="tab:red", label=txt["thr"])
@@ -125,7 +158,8 @@ def panel(ax, W, name, txt, ps):
     ax.set_ylabel(txt["ylabel"])
     ax.grid(alpha=0.3)
     ax.legend(fontsize=8)
-    print(f"[{name}] max|pred-emp|={np.nanmax(np.abs(np.array(pred)-np.array(emp))):.4f}")
+    print(f"[{name}] 1st-moment max|pred-emp|={np.nanmax(np.abs(np.array(pred)-np.array(emp))):.4f}  "
+          f"MS max|pred-emp|={np.nanmax(np.abs(np.array(pred_ms)-np.array(emp_ms))):.4f}")
 
 
 def main():

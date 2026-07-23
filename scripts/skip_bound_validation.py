@@ -25,18 +25,20 @@ from utils.gated_negotiation_sandbox import measure_skip_bound  # noqa: E402
 setup_cjk_font()
 import matplotlib.pyplot as plt  # noqa: E402
 
-# 命题假设 N 非扩张。average/nash 的线性化单轮满足（朝邻域参考做收缩步）；
-# 随机成对 gossip 单遍扫描相对过时参考会越过、非扩张性不成立，故不纳入该界的验证
-# （其聚合行为已在协议无关性图 fig:gated_universality 覆盖）。
-RULES_ZH = [("average", "Metropolis 平均共识"), ("nash", "Nash 双边最佳响应(简化)")]
-RULES_EN = [("average", "Metropolis averaging"), ("nash", "Best-response (simplified)")]
+# 系统级 L1-到全局均值度量下，average / gossip / best-response 均非扩张（三角不等式），
+# 故三种结构不同的协商规则（含随机成对 gossip）都可统一纳入 skip 界的验证。
+RULES_ZH = [("average", "Metropolis 平均共识"), ("gossip", "随机成对 gossip"),
+            ("nash", "Nash 双边最佳响应(简化)")]
+RULES_EN = [("average", "Metropolis averaging"), ("gossip", "Randomized gossip"),
+            ("nash", "Best-response (simplified)")]
+N_AGENTS, D_DIMS = 12, 4  # sandbox size; aggregate bound slope = N*|D|
 TXT = {
-    "zh": {"xlabel": "冲突指数 $\\mathrm{CI}_i$", "ylabel": "实测放弃的惩罚改进 $\\Delta P_i$",
-           "bound": "理论上界 $L|\\mathcal{D}_i|\\,\\mathrm{CI}_i$", "pts": "实测(每状态×每 agent)",
-           "sup": "B1 有效性验证：跳过一轮协商的实测次优性 $\\Delta P_i$ 恒在理论界 $L|\\mathcal{D}_i|\\mathrm{CI}_i$ 之下，且随 CI→0 消失"},
-    "en": {"xlabel": "Conflict index $\\mathrm{CI}_i$", "ylabel": "Realized forgone improvement $\\Delta P_i$",
-           "bound": "Theory bound $L|\\mathcal{D}_i|\\,\\mathrm{CI}_i$", "pts": "Measured (per state $\\times$ agent)",
-           "sup": "Validation of the skip bound: realized skip suboptimality $\\Delta P_i$ stays below $L|\\mathcal{D}_i|\\mathrm{CI}_i$ and vanishes as CI$\\to$0"},
+    "zh": {"xlabel": "平均冲突 $\\overline{\\mathrm{CI}}$", "ylabel": "系统级实测放弃改进 $\\Delta P$",
+           "bound": "理论上界 $L\\,N|\\mathcal{D}|\\,\\overline{\\mathrm{CI}}$", "pts": "实测(每状态)",
+           "sup": "B1 有效性验证(系统级)：三种协商规则(含 gossip)跳过一轮的实测次优性 $\\Delta P$ 恒在界 $L\\,N|\\mathcal{D}|\\,\\overline{\\mathrm{CI}}$ 之下、随冲突→0 消失"},
+    "en": {"xlabel": "Mean conflict $\\overline{\\mathrm{CI}}$", "ylabel": "System-level forgone improvement $\\Delta P$",
+           "bound": "Theory bound $L\\,N|\\mathcal{D}|\\,\\overline{\\mathrm{CI}}$", "pts": "Measured (per state)",
+           "sup": "Validation of the skip bound (system level): across three rules incl.\\ gossip, realized $\\Delta P$ stays below $L\\,N|\\mathcal{D}|\\,\\overline{\\mathrm{CI}}$ and vanishes as conflict$\\to$0"},
 }
 
 
@@ -49,21 +51,21 @@ def main():
     rules = RULES_EN if args.lang == "en" else RULES_ZH
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.6))
+    fig, axes = plt.subplots(1, 3, figsize=(16, 4.6))
+    slope = N_AGENTS * D_DIMS  # aggregate bound slope: ΔP ≤ L·N|D|·CĪ
     for ax, (rule, name) in zip(axes, rules):
-        ci, drop, bound = measure_skip_bound(rule)
+        ci, drop, bound = measure_skip_bound(rule, aggregate=True)
         # 界成立比例（容一点浮点误差）
         holds = np.mean(drop <= bound + 1e-9)
         # 抽样绘散点避免过密
         idx = np.random.default_rng(0).choice(ci.size, size=min(4000, ci.size), replace=False)
-        ax.scatter(ci[idx], drop[idx], s=4, alpha=0.25, color="tab:green", label=txt["pts"])
+        ax.scatter(ci[idx], drop[idx], s=5, alpha=0.3, color="tab:green", label=txt["pts"])
         ax.axhline(0.0, color="gray", lw=0.8, alpha=0.7)
         xline = np.linspace(0, ci.max(), 100)
-        d_dims = 4  # sandbox dimension |D_i|
-        ax.plot(xline, d_dims * xline, "-", color="tab:red", lw=2, label=txt["bound"])
+        ax.plot(xline, slope * xline, "-", color="tab:red", lw=2, label=txt["bound"])
         neg = float(np.mean(drop < 0))
         ax.set_xlim(0, ci.max() * 1.02)
-        ax.set_ylim(min(0, drop.min()), d_dims * ci.max() * 1.02)
+        ax.set_ylim(min(0, drop.min()), slope * ci.max() * 1.02)
         ax.set_title(f"{name}\n" + (f"界成立 {holds*100:.1f}%" if args.lang == "zh"
                                     else f"bound holds {holds*100:.1f}\\%"), fontsize=10)
         ax.set_xlabel(txt["xlabel"])

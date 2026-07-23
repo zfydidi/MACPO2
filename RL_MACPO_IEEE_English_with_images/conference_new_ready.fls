@@ -425,6 +425,11 @@ INPUT ./media/gated_convergence.pdf
 INPUT ./media/gated_convergence.pdf
 INPUT ./media/gated_convergence.pdf
 INPUT ./media/gated_convergence.pdf
+INPUT ./media/masoie_gated_recovery.pdf
+INPUT ./media/masoie_gated_recovery.pdf
+INPUT ./media/masoie_gated_recovery.pdf
+INPUT ./media/masoie_gated_recovery.pdf
+INPUT ./media/masoie_gated_recovery.pdf
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/vf/adobe/times/ptmri7t.vf
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/times/ptmri8r.tfm
 INPUT ./conference_new_ready_supplement_scenarios.tex

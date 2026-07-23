@@ -236,17 +236,21 @@ def measure_skip_bound(
     steps: int = 5000,
     sigma: float = 0.25,
     seed: int = 0,
+    aggregate: bool = False,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """有效性验证 (B1 / Proposition skip)：测量"跳过一轮协商所放弃的惩罚改进"
+    """有效性验证 (B1 / Proposition skip)：测量"跳过一轮协商所放弃的惩罚改进"。
 
-    对每个 agent、每个访问到的状态：
-      * 冲突 CI_i = 归一化 gap 的每维均值  δ̄_i = (1/d)Σ_d |x_d-r_d|/R   （对齐 Eq. ci_agent，线性聚合）
-      * 实测放弃改进  ΔP_i = P_i(x) - P_i(𝒩x)，惩罚 P_i=Σ_d δ_d（φ(e)=e, L=1）
-      * 理论上界      L|D_i|·CI_i = d·δ̄_i = Σ_d δ_d = P_i(x)
-    命题断言 0 ≤ ΔP_i ≤ L|D_i|·CI_i，即所有点落在 y=d·CI 直线之下，且 ΔP→0 当 CI→0。
+    两种度量：
+      * aggregate=False（per-agent）：参考取邻域共识 r_d=(Wx)_d（Eq. ci_dim），
+        对朝该参考做收缩的 average/nash 天然非扩张（ΔP_i≥0）；不适用随机成对 gossip。
+      * aggregate=True（系统级）：参考取全局共识均值 x̄，惩罚为系统级 L1 分歧
+        P=Σ_{i,d}|x_{i,d}-x̄_d|/R。由三角不等式 |x_i-x̄|+|x_j-x̄|≥2|m-x̄|，
+        average / gossip / best-response 在该度量下均非扩张，可统一验证三规则（含 gossip）。
+        x 轴用平均冲突 CĪ=(1/N)Σ_i CI_i。
 
-    通过随机突发扫出宽范围的 CI，再对同一状态施加一轮协商算子 𝒩(rule) 测实际惩罚下降。
-    返回 (ci, realized_drop, bound)，均为按 (状态×agent) 展平的一维数组。
+    命题断言 0 ≤ ΔP ≤ L·(Σδ)，即所有点落在界线之下，且 ΔP→0 当冲突→0。
+    通过随机突发扫出宽范围的冲突，再对同一状态施加一轮协商算子 𝒩(rule) 测实际惩罚下降。
+    返回 (ci, realized_drop, bound)：per-agent 模式按 (状态×agent) 展平；aggregate 模式按状态。
     """
     rng = np.random.default_rng(seed)
     W = _metropolis_mixing(n)
@@ -261,18 +265,21 @@ def measure_skip_bound(
         if rng.random() < shock_rate:
             k = rng.integers(0, n)
             x[k] = x[k] + shock_mag * rng.standard_normal(d)
-        r = W @ x                                   # neighbourhood consensus reference r_d=(Wx)_d (Eq. ci_dim)
-        e = np.abs(x - r) / R                       # per-dim normalized gap δ_d to negotiation target (n×d)
-        ci = e.mean(axis=1)                          # CI_i = mean over dims (linear aggregation)
-        P_before = e.sum(axis=1)                     # penalty P_i = Σ_d δ_d = d·CI_i
-        x_next, _ = negotiate(rule, x, W, lam, rng)  # one negotiation round 𝒩 toward that reference
+        r = x.mean(axis=0, keepdims=True) if aggregate else (W @ x)
+        e = np.abs(x - r) / R                        # per-dim normalized gap δ_d (n×d)
+        x_next, _ = negotiate(rule, x, W, lam, rng)  # one negotiation round 𝒩
         e_next = np.abs(x_next - r) / R              # gap to the SAME pre-round reference
-        P_after = e_next.sum(axis=1)
-        drop = P_before - P_after                    # realized forgone penalty improvement ΔP_i
-        ci_all.append(ci)
-        drop_all.append(drop)
-        bound_all.append(P_before)                   # bound = L|D_i|·CI_i (L=1)
+        if aggregate:
+            ci_all.append(e.mean())                  # mean conflict CĪ over all agents/dims
+            drop_all.append(e.sum() - e_next.sum())  # system-level ΔP = Σ_{i,d} δ drop
+            bound_all.append(e.sum())                # bound = L·Σδ = L·N|D|·CĪ
+        else:
+            ci_all.append(e.mean(axis=1))            # CI_i per agent
+            drop_all.append(e.sum(axis=1) - e_next.sum(axis=1))
+            bound_all.append(e.sum(axis=1))          # bound = L|D_i|·CI_i
         x = x_next
+    if aggregate:
+        return np.asarray(ci_all), np.asarray(drop_all), np.asarray(bound_all)
     return (np.concatenate(ci_all), np.concatenate(drop_all), np.concatenate(bound_all))
 
 
