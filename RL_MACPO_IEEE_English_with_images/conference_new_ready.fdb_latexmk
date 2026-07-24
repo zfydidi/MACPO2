@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1784697476.94394 "conference_new_ready.tex" "conference_new_ready.pdf" "conference_new_ready" 1784697477.78379 0
+["pdflatex"] 1784870214.63351 "conference_new_ready.tex" "conference_new_ready.pdf" "conference_new_ready" 1784870215.60275 0
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1136768653 2172 fd0c924230362ff848a33632ed45dc23 ""
@@ -218,9 +218,9 @@
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1766052087 3345744 8adf899fcafa05f0ecdc5f357ef29050 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
   "IEEEtran.cls" 1773770546 281957 5b2e4fa15b0f7eabb840ebf67df4c0f7 ""
-  "conference_new_ready.aux" 1784697477.66741 63437 c42b3f1b916a1c4db27772565f29caf9 "pdflatex"
-  "conference_new_ready.tex" 1784697466.44942 114102 46c0b9dfaba1a4f66141184b4b7585ef ""
-  "conference_new_ready_deferred_floats.tex" 1784562314.19176 3749 60a0cb60cdb73d6d1892abddf5fab5c0 ""
+  "conference_new_ready.aux" 1784870215.48508 64313 3a51d059efdca86388f932ba30c6d162 "pdflatex"
+  "conference_new_ready.tex" 1784869828.032 116771 f7e8e67fc8dc14318a29c29eedd4097c ""
+  "conference_new_ready_deferred_floats.tex" 1784865812.47957 3749 60a0cb60cdb73d6d1892abddf5fab5c0 ""
   "conference_new_ready_supplement_scenarios.tex" 1783631674.12984 13300 fc61a914c04aa14b50b4ce7c8d1eaa4d ""
   "media/F1_F6_panel.pdf" 1783331692.69918 54553 c29d9d3eae7e81c33015ebbe55966381 ""
   "media/ci_bin_trigger_F1_F6.pdf" 1782898167.3001 16940 ea0053fcf93b9332fb3997dead5dc8db ""
@@ -230,13 +230,14 @@
   "media/fig1.png" 1783330997.07854 37869 7e22dc47c5552502dc230eb8d0a9a03e ""
   "media/fig2.pdf" 1783328910.21079 104958 ff14e1f876e19ac946de43f782585006 ""
   "media/fig_gating_ablation.pdf" 1773910756.142 17075 b3d4ecb471226d9717435da29e0449c9 ""
-  "media/gated_convergence.pdf" 1784564755.85062 30075 8c7c31acfa67e8ca8c642e261c3f6aa9 ""
-  "media/gated_universality.pdf" 1784563874.43123 36087 9124768feacbeebff87fd700654b9fd9 ""
+  "media/gated_convergence.pdf" 1784870165.28148 44875 91464d2a49c2f823e62214d7ee6c83cd ""
+  "media/gated_universality.pdf" 1784870050.87814 50970 fafa71a86d1ce4244d081a10cb76457c ""
+  "media/masoie_gated_recovery.pdf" 1784870053.71951 33535 4b108f9d796a8fdfc3b2ff4a8766fe59 ""
   "media/rl_metrics_mean25_rho_alpha.pdf" 1775090689.97953 45748 c2ce67ec214cc584e8917d1a81818d60 ""
   "media/rl_metrics_mean25_rho_conflict.pdf" 1775090691.22241 48660 8c47b0205277da3304ee047dd8670286 ""
   "media/rl_metrics_mean25_rho_reward.pdf" 1775090691.67682 42562 04faa3e14f1f00fc3e158a06c0b8c3b2 ""
   "media/rl_metrics_mean25_rho_rho.pdf" 1775090690.43413 44732 1c9ef77fd99b7a99557502d16c7ba441 ""
-  "media/skip_bound_validation.pdf" 1784639396.22626 141833 e764cf62e81e5eecf383dfca55b3019a ""
+  "media/skip_bound_validation.pdf" 1784870052.69753 112436 271edefe9302311f0b7bc1feadb42131 ""
   (generated)
   "conference_new_ready.aux"
   "conference_new_ready.log"
