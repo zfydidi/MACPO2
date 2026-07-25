@@ -1,0 +1,69 @@
+# Exemplar Learning Dossier
+
+## Scope and evidence boundary
+
+- **Scene:** journal; **tier:** pro; **target:** IEEE journal (specific title not yet fixed).
+- **Manuscript studied in full:** `conference_new_ready.tex` (REF013).
+- **Scene guidance used:** PaperSpine `scenario-journal.md`, which calls for a journal narrative that narrows from field problem to a precise gap, justifies method choices, orders results as benchmark/comparison/robustness/interpretation, and returns to motivation and limitations in the Discussion.
+- **Local exemplar pool:** the indexed PDFs under `references_intro/` plus the bibliography embedded in REF013. The nine PDFs have no usable machine-readable text layer in the current environment. Their titles, venues, years, and topical roles are recoverable from REF013, but detailed section-level claims about those PDFs are therefore deliberately not made.
+- **Learning rule:** examples below teach venue structure, positioning, and rhetorical discipline only. No claim, result, number, or theorem from an exemplar is transferred into the manuscript.
+
+## Exemplar Inventory
+
+### A. Target-scene / journal exemplars (6 required, 6 selected)
+
+| ID | Source | Title | Venue / Year | Why selected and transferable lesson |
+|---|---|---|---|---|
+| J1 | REF016 | *Distributed Secondary Optimal Control With Fast Voltage Recovery and Minimum Generation Cost for Islanded DC Microgrids* | IEEE Transactions on Smart Grid, 2025 | Recent IEEE Transactions paper combining a method claim with two explicit engineering objectives. It is a useful venue analogue for connecting an optimization mechanism to operational constraints and for keeping application metrics subordinate to the method contribution. |
+| J2 | REF017 | *Dynamic Estimation Over Distributed Sensing Network With Communication Delays* | IEEE Transactions on Industrial Informatics, 2024 | A recent networked-systems journal example whose title directly states the distributed task and the communication impairment. It supports a title and opening strategy that make the system constraint—not merely the algorithm name—visible immediately. |
+| J3 | REF022 | *Fully Distributed Task Offloading in Vehicular Edge Computing* | IEEE Transactions on Vehicular Technology, 2024 | A strong application-facing IEEE Transactions exemplar. It motivates translating the abstract communication budget into physical consequences such as contact windows, bandwidth, and coordination latency, while retaining a formal optimization core. |
+| J4 | REF024 | *A Distributed Gradient Approach for System Optimal Dynamic Traffic Assignment* | IEEE Transactions on Intelligent Transportation Systems, 2022 | An applied distributed-optimization exemplar. It is relevant for showing how a journal paper can introduce the application model, formulate the distributed problem, and then evaluate the algorithm against application-specific objectives. |
+| J5 | REF018 | *Distributed Economic Dispatch With Dynamic Power Demand: An Implicit Dual Gradient Tracking Algorithm Under Random-Triggered Transmission Protocol* | IEEE Transactions on Power Systems, 2025 | The closest scene analogue for “optimization under reduced communication”: its title binds task, algorithm, and transmission protocol. It suggests foregrounding the communication rule as the primary mechanism and treating dispatch experiments as validation rather than as an unrelated extension. |
+| J6 | REF019 | *Distributed State Estimation for Linear Time-Invariant Systems With Aperiodic Sampled Measurement* | IEEE Transactions on Control of Network Systems, 2024 | A recent IEEE Transactions exemplar centered on intermittency. It supports a reviewer-friendly pattern in which assumptions and timing conditions are stated before guarantees, and guarantees are followed by experiments tied to those conditions. |
+
+### B. Same-field / SOTA exemplars (6 required, 6 selected)
+
+| ID | Local evidence | Title | Venue / Year | Why selected and transferable lesson |
+|---|---|---|---|---|
+| S1 | REF013 bibliography (`ref_macpo`) | *A Multiagent Co-evolutionary Algorithm With Penalty-Based Objective for Network-Based Distributed Optimization* | IEEE Transactions on Systems, Man, and Cybernetics: Systems, 2024 | Direct baseline and software lineage. It defines the penalty-negotiation paradigm against which the manuscript must state the missing communication-timing layer without implying that the full optimizer is newly invented. |
+| S2 | REF013 bibliography (`ref_masoie_2024`) | *Multiagent Swarm Optimization With Adaptive Internal and External Learning for Complex Consensus-Based Distributed Optimization* | IEEE Transactions on Evolutionary Computation, 2024 | Closest recent alternative black-box distributed solver. It is especially useful for transfer validation: the manuscript should explain exactly what remains unchanged when the gate is attached to MASOIE and where interaction semantics differ from MACPO. |
+| S3 | REF013 bibliography (`ref_maes_ccsa_2025`) | *Multiagent Evolution Strategy With Cooperative and Cumulative Step Adaptation for Black-Box Distributed Optimization* | IEEE Transactions on Evolutionary Computation, early access 2025 | Recent SOTA in the same black-box NDO line. It sharpens the novelty boundary: the paper is not primarily about another local search or step-adaptation rule, but about an explicit, interpretable decision layer for when shared-variable negotiation occurs. Metadata only is locally available; no structural inference is made. |
+| S4 | REF013 bibliography (`ref_et_nonconvex_tac_2023`) | *Distributed Nonconvex Optimization With Event-Triggered Communication* | IEEE Transactions on Automatic Control, 2024 | Nearest communication-efficient optimization comparator. It teaches the importance of separating the shared objective (fewer transmissions) from the decisive setting difference (gradient/model/consensus-error triggers versus a black-box conflict proxy). Metadata only is locally available. |
+| S5 | REF013 bibliography (`ref_daaet_tac_2024`) | *Distributed Optimization With Asynchronous Computation and Event-Triggered Communication* | IEEE Transactions on Automatic Control, 2025 | Recent event-triggered and asynchronous SOTA. It is useful for articulating the current boundary: the manuscript studies gated shared-variable negotiation and does not yet solve fully asynchronous, time-varying-network execution. Metadata only is locally available. |
+| S6 | REF013 bibliography (`ref_cc_dist_accel_2024`) | *Cooperative Coevolution for Non-separable Large-Scale Black-Box Optimization: Convergence Analyses and Distributed Accelerations* | Applied Soft Computing, 2024 | Connects cooperative coevolution, large-scale black-box search, convergence analysis, and distributed acceleration. It suggests presenting theoretical results with exact scope labels and avoiding promotion of gate-level or linearized guarantees into global convergence claims. Metadata only is locally available. |
+
+**Coverage note.** The pro-tier numerical requirement is met: six journal-scene exemplars and six same-field/SOTA exemplars are inventoried. Only six of the journal-scene items have local article PDFs, and those PDFs are not text-extractable here; four SOTA items are available locally only through verified bibliography records in REF013. Consequently, the dossier learns conservative cross-paper patterns and does not attribute unobserved paragraph structures or empirical findings to individual papers.
+
+## Structural Patterns
+
+1. **Journal funnel anchored in a system constraint.** The reusable sequence is: physical/network constraint → distributed optimization setting → why existing communication-efficient methods do not transfer to black-box shared-variable negotiation → precise timing gap → proposed gate and bounded claim scope. REF013 already contains all five elements, but its Introduction repeats the application motivation in several places. A journal rewrite should make the funnel cumulative: one compact application paragraph, one paradigm comparison, then the gap and contribution list.
+
+2. **Contribution-first method architecture.** The manuscript’s durable organizing axis is the communication gate. The preferred journal order is: formal NDO problem and communication-budget objective; gate definition and assumptions; guarantee statements with scope; post-gate variable selection and negotiation; auxiliary penalty controller. This prevents the RL component from competing with the main contribution and matches the SOTA boundary learned from S1–S3.
+
+3. **Results ordered as validation, not as an inventory of tables.** A journal results arc should move from mechanism isolation to matched-budget comparison, then communication–quality trade-off, guarantee validation, cross-paradigm transfer, and application pilots. Every subsection should open with the contribution promise being tested and close with the bounded conclusion. REF013 largely follows this order, but the main benchmark comparison should precede or more clearly frame secondary implementation diagnostics, and supplementary RL trajectories should remain visibly secondary.
+
+4. **Discussion is a distinct synthesis layer.** The journal scenario expects interpretation and limitations, whereas REF013 moves directly from experiments to a combined conclusion/limitations passage. A separate Discussion should reconcile the main gains with the two visible costs: roughly doubled wall time in parts of the benchmark study and loss of quality under overly aggressive gating on consensus-critical cases. It should also distinguish gate-level theory, linearized consensus theory, and empirical full-optimizer behavior.
+
+5. **Primary paper versus supplement.** Keep the main article focused on the smallest evidence set necessary to validate each contribution. Detailed benchmark construction, extended tables, implementation diagnostics, drift summaries, and scenario specifications belong in appendices or supplementary material. The current 1,000+ line conference-form source is evidence-rich but journal conversion should improve hierarchy, not simply retain every artifact in the main narrative.
+
+## Rhetorical Patterns
+
+1. **Opening technique: constraint before novelty.** The strongest opening does not begin with a broad claim that distributed optimization is important. It starts from the measurable design constraint—communication is budgeted, intermittent, or energy-expensive—and immediately exposes the mismatch with always-on negotiation. Application examples then establish breadth, but one sentence should state their common mechanism: communication should be spent when shared variables materially conflict.
+
+2. **Gap technique: compare decision layers.** Position prior work by the decision it makes. Gradient/event-triggered work decides when to exchange gradients, models, or consensus states; MACPO-like black-box NDO decides how to negotiate but generally not whether the current negotiation is worth opening. This is more precise than saying prior methods “cannot be applied” without qualification.
+
+3. **Contribution technique: promise–evidence pairs.** Each contribution bullet should contain the artifact and its validation: gate design ↔ ablations; scoped guarantees ↔ dedicated numerical checks; matched-budget gains ↔ F1–F18 and dispatch; protocol transfer ↔ sandbox plus MASOIE; penalty controller ↔ ablation showing it is auxiliary. Avoid five bullets that read as five separate algorithms.
+
+4. **Closing technique: calibrated achievement plus operating envelope.** The conclusion should state what the gate enables, then name where it needs a gentler operating point and what remains unproved. The present limitations are valuable journal material and should not be hidden: asynchronous/time-varying networks, global convergence of black-box search, and matched-code comparison with unavailable methods remain open.
+
+## Language Patterns
+
+- Use a formal, compact IEEE journal register: direct subject–verb sentences, defined symbols before use, and one technical purpose per paragraph.
+- Prefer **“communication trigger rate,” “negotiation round,” “shared-variable conflict,”** and **“matched evaluation budget”** consistently. Do not alternate loosely among communication, synchronization, exchange, and negotiation when they denote different operations.
+- Mark scope in the noun phrase itself: **“gate-level fail-safe drift bound,” “single-round penalized-objective skip bound,” “linearized intermittent-consensus rate.”** Avoid an unqualified **“convergence guarantee”** for the complete black-box optimizer.
+- Use restrained novelty verbs: **“introduces,” “formulates,” “separates,” “validates,”** and **“shows under the tested protocol.”** Avoid universal forms such as **“solves,” “guarantees optimality,” “works unchanged everywhere,”** or **“always improves.”**
+- Report comparisons with the denominator and condition attached: **“reduces triggers by 91.7% relative to always-on MACPO under the matched evaluation cap.”** Keep fitness direction (“lower is better”) and whether values include penalties explicit.
+- Prefer evidence-linked transitions: **“To isolate the gate…,” “To test the bound…,” “To assess transfer beyond penalty negotiation….”** Avoid generic transitions such as **“Furthermore”** when the new subsection has a distinct validation role.
+- Keep RL linguistically subordinate: **“the auxiliary RL controller adapts penalty weight after the gate opens.”** Do not use “RL-MACPO” as the dominant paper identity if the publishable contribution is conflict-gated communication.
+- For limitations, use exact contrasts rather than defensive prose: **“The bound controls \(h_i\), not the global black-box objective \(F\)”** and **“The MASOIE study tests transfer under its external-learning interaction, not a matched full-platform comparison.”**
+

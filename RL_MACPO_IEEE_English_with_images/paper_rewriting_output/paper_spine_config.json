@@ -1,25 +1,25 @@
 {
   "workflow": "rewrite_existing",
-  "scene": "conference",
+  "scene": "journal",
   "tier": "pro",
   "output_language": "en",
-  "target_name": "IEEE conference — conflict-gated NDO communication",
-  "materials_dir": "/Users/zhangyingjie/Project/MACPO2/RL_MACPO_IEEE_English_with_images/media",
-  "draft_path": "/Users/zhangyingjie/Project/MACPO2/RL_MACPO_IEEE_English_with_images/conference_new_ready.tex",
-  "user_motivation": "Physical NDO systems waste communication on always-on penalty negotiation; need interpretable when-to-negotiate scheduling under budget with theory and cross-paradigm evidence.",
+  "target_name": "IEEE journal (target TBD)",
+  "materials_dir": ".",
+  "draft_path": "conference_new_ready.tex",
+  "user_motivation": "",
   "official_urls": [],
-  "special_requirements": [
-    "Preserve existing LaTeX labels, equations, figures, and experimental numbers",
-    "Contribution-first rewrite; strengthen intro ladder and results-validation mapping",
-    "Do not fabricate metrics or citations"
-  ],
-  "word_output": "none",
-  "translation_package": "none",
   "reference_mode": "local_first",
   "reference_paths": [
-    "/Users/zhangyingjie/Project/MACPO2/RL_MACPO_IEEE_English_with_images",
-    "/Users/zhangyingjie/Project/MACPO2"
+    "."
   ],
   "citation_target_count": 20,
-  "humanize_tier": "light"
+  "special_requirements": [
+    "Preserve all verified numerical results; do not fabricate experiments, metrics, citations, or theoretical claims.",
+    "Improve the manuscript as a journal article rather than merely polishing language."
+  ],
+  "word_output": "docx",
+  "translation_package": "none",
+  "humanize_tier": "medium",
+  "detection_platform": "general",
+  "ui_language": "zh"
 }

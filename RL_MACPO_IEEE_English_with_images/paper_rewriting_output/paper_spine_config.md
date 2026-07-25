@@ -1,14 +1,20 @@
-# PaperSpine Configuration
+# PaperSpine Config
 
-| Field | Value |
-|---|---|
-| workflow | rewrite_existing |
-| scene | conference |
-| tier | pro |
-| output_language | en |
-| target_name | IEEE conference — conflict-gated NDO communication |
-| draft_path | conference_new_ready.tex |
-| user_motivation | Physical NDO systems waste communication on always-on penalty negotiation |
-| word_output | none |
-
-See `paper_spine_config.json` for full JSON.
+- **workflow**: rewrite_existing
+- **scene**: journal
+- **tier**: pro
+- **output_language**: en
+- **target_name**: IEEE journal (target TBD)
+- **materials_dir**: .
+- **draft_path**: conference_new_ready.tex
+- **user_motivation**: 
+- **official_urls**: 
+- **reference_mode**: local_first
+- **reference_paths**: .
+- **citation_target_count**: 20
+- **special_requirements**: Preserve all verified numerical results; do not fabricate experiments, metrics, citations, or theoretical claims., Improve the manuscript as a journal article rather than merely polishing language.
+- **word_output**: docx
+- **translation_package**: none
+- **humanize_tier**: medium
+- **detection_platform**: general
+- **ui_language**: zh
