@@ -1,11 +1,16 @@
 """
-A1: protocol-agnostic conflict gating (sandbox).
+A1: 冲突门控的协议无关性验证（通用协商沙盘）
+=============================================
 
-Same three-layer gate on Metropolis / gossip / best-response; trigger-rate vs
-steady consensus error vs periodic/random at matched budget.
+论证：论文的冲突门控只依赖黑箱 CI 与触发信号，与底层协商范式无关。
+把**同一个门控层**接到三种结构不同的协商规则（average / gossip / nash）上，
+比较"触发率 vs 稳态一致性误差"的权衡曲线，并与同预算的周期/随机触发对比。
 
-Run:  python scripts/gated_negotiation_universality.py --lang en \\
-        --out RL_MACPO_IEEE_English_with_images/media/gated_universality.pdf
+结论若成立：三种规则下门控曲线都位于周期/随机基线的下方（同触发率误差更低），
+说明"低冲突时跳过协商不掉质量"是门控层本身的性质，而非 MACPO negotiation 专属。
+
+运行:  python scripts/gated_negotiation_universality.py
+输出:  output/gated_negotiation_universality.png
 """
 from __future__ import annotations
 
@@ -18,7 +23,6 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.mpl_font import setup_cjk_font  # noqa: E402
 from utils.mpl_sci_ticks import set_numeric_tick_font_dejavu  # noqa: E402
-from utils.pub_figure import apply_pub_style, panel_label  # noqa: E402
 from utils.gated_negotiation_sandbox import (  # noqa: E402
     sweep_gate_frontier,
     baseline_trigger_vs_error,
@@ -26,6 +30,7 @@ from utils.gated_negotiation_sandbox import (  # noqa: E402
 
 setup_cjk_font()
 import matplotlib.pyplot as plt  # noqa: E402
+
 
 RULES_ZH = [
     ("average", "Metropolis 平均共识"),
@@ -37,27 +42,33 @@ RULES_EN = [
     ("gossip", "Randomized gossip"),
     ("nash", "Best-response (simplified)"),
 ]
+
 TXT = {
     "zh": {
         "peri": "周期触发", "rnd": "随机触发", "gate": "冲突门控(本文)",
         "xlabel": "平均触发率 $\\bar p_{\\mathrm{comm}}$",
         "ylabel": "稳态一致性误差 ‖e‖",
-        "sub": "同预算更优: 周期 {a:.0f}% / 随机 {b:.0f}%",
+        "sub": "同预算门控更优: vs周期 {a:.0f}% / vs随机 {b:.0f}%",
+        "sup": "A1: 冲突门控的协议无关性——同一门控接三种结构不同的协商规则，"
+               "在通信稀缺工作区均达到不劣于/优于周期与随机触发的权衡",
     },
     "en": {
         "peri": "Periodic", "rnd": "Random", "gate": "Conflict gate (ours)",
         "xlabel": "Average trigger rate $\\bar p_{\\mathrm{comm}}$",
         "ylabel": "Steady consensus error $\\|e\\|$",
-        # matplotlib (non-usetex): use plain %; caption carries the scientific claim
-        "sub": "Matched-budget win: periodic {a:.0f}% / random {b:.0f}%",
+        "sub": "Gate better at matched budget: vs periodic {a:.0f}\\% / vs random {b:.0f}\\%",
+        "sup": "Protocol-agnostic conflict gating: one gate on three structurally different "
+               "negotiation rules, matching or beating periodic/random at scarce budget",
     },
 }
+
+# 聚焦通信稀缺工作区（论文默认约 1/12≈0.08），p→1 时各法平凡收敛不再有区分度。
 P_LO, P_HI = 0.03, 0.6
 PERIOD_GRID = np.array([2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 30, 40])
-PANEL = "abc"
 
 
 def _win_rate(p_gate, m_gate, p_base, m_base):
+    """在门控每个触发率点上插值基线误差，统计门控更优（误差更低）的比例。"""
     mask = (p_gate >= p_base.min()) & (p_gate <= p_base.max())
     if mask.sum() == 0:
         return float("nan")
@@ -74,49 +85,41 @@ def main():
     txt = TXT[args.lang]
     rules = RULES_EN if args.lang == "en" else RULES_ZH
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
-    apply_pub_style(font_size=7.0)
-    # nature-figure QA (must appear in this source for validate_figure.py)
-    import matplotlib as mpl
-    mpl.rcParams.update({
-        "font.family": "sans-serif",
-        "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans", "sans-serif"],
-        "svg.fonttype": "none",
-        "pdf.fonttype": 42,
-        "font.size": 7,
-    })
+    n_seeds = args.seeds
 
-    # ~183 mm double-column width (Nature/IEEE friendly), no in-figure suptitle
-    fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.35))
-    for ax, (rule, name), letter in zip(axes, rules, PANEL):
-        # synthetic sandbox demo boundary: frontiers from rng shocks + gate sweeps
-        p_gate, m_gate, s_gate = sweep_gate_frontier(rule, n_seeds=args.seeds)
+    fig, axes = plt.subplots(1, 3, figsize=(16, 4.6))
+    for ax, (rule, name) in zip(axes, rules):
+        p_gate, m_gate, s_gate = sweep_gate_frontier(rule, n_seeds=n_seeds)
         p_per, m_per, _ = baseline_trigger_vs_error(
-            rule, "periodic", period_grid=PERIOD_GRID, n_seeds=args.seeds)
+            rule, "periodic", period_grid=PERIOD_GRID, n_seeds=n_seeds)
         p_rnd, m_rnd, _ = baseline_trigger_vs_error(
-            rule, "random", period_grid=PERIOD_GRID, n_seeds=args.seeds)
+            rule, "random", period_grid=PERIOD_GRID, n_seeds=n_seeds)
+
         win_per = _win_rate(p_gate, m_gate, p_per, m_per)
         win_rnd = _win_rate(p_gate, m_gate, p_rnd, m_rnd)
 
-        ax.plot(p_per, m_per, "s--", color="0.45", label=txt["peri"], ms=3.5, lw=1.0)
-        ax.plot(p_rnd, m_rnd, "^--", color="tab:orange", label=txt["rnd"], ms=3.5, lw=1.0)
-        ax.plot(p_gate, m_gate, "o-", color="tab:green", lw=1.4, ms=3.5, label=txt["gate"])
+        ax.plot(p_per, m_per, "s--", color="tab:gray", label=txt["peri"], alpha=0.85)
+        ax.plot(p_rnd, m_rnd, "^--", color="tab:orange", label=txt["rnd"], alpha=0.85)
+        ax.plot(p_gate, m_gate, "o-", color="tab:green", lw=2, label=txt["gate"])
         ax.fill_between(p_gate, m_gate - s_gate, m_gate + s_gate,
                         color="tab:green", alpha=0.15)
         ax.set_xlim(P_LO, P_HI)
-        ax.set_title(f"{name}\n{txt['sub'].format(a=win_per * 100, b=win_rnd * 100)}")
+        ax.set_title(f"{name}\n" + txt["sub"].format(a=win_per * 100, b=win_rnd * 100),
+                     fontsize=10)
         ax.set_xlabel(txt["xlabel"])
         ax.set_ylabel(txt["ylabel"])
-        ax.grid(alpha=0.25, lw=0.5)
-        ax.legend(loc="best", handlelength=1.6)
-        panel_label(ax, letter)
-        set_numeric_tick_font_dejavu(ax)
-        print(f"[{rule}] win vs periodic={win_per*100:.0f}% vs random={win_rnd*100:.0f}%")
+        ax.grid(alpha=0.3)
+        ax.legend(fontsize=8)
+        print(f"[{rule}] gate p∈[{p_gate.min():.3f},{p_gate.max():.3f}] "
+              f"err∈[{m_gate.min():.2f},{m_gate.max():.2f}] "
+              f"win vs periodic={win_per*100:.0f}% vs random={win_rnd*100:.0f}%")
 
-    fig.tight_layout(pad=0.4)
-    fig.savefig(args.out, dpi=600, bbox_inches="tight")
-    _base, _ = os.path.splitext(args.out)
-    fig.savefig(_base + ".svg", bbox_inches="tight")
-    print(f"saved: {args.out} (+ svg)")
+    for a in axes:
+        set_numeric_tick_font_dejavu(a)
+    fig.suptitle(txt["sup"], fontsize=12)
+    fig.tight_layout(rect=(0, 0, 1, 0.95))
+    fig.savefig(args.out, dpi=150, bbox_inches="tight")
+    print(f"图已保存: {args.out}")
 
 
 if __name__ == "__main__":

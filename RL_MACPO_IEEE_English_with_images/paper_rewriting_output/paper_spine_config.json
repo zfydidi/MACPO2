@@ -1,0 +1,25 @@
+{
+  "workflow": "rewrite_existing",
+  "scene": "conference",
+  "tier": "pro",
+  "output_language": "en",
+  "target_name": "IEEE conference — conflict-gated NDO communication",
+  "materials_dir": "/Users/zhangyingjie/Project/MACPO2/RL_MACPO_IEEE_English_with_images/media",
+  "draft_path": "/Users/zhangyingjie/Project/MACPO2/RL_MACPO_IEEE_English_with_images/conference_new_ready.tex",
+  "user_motivation": "Physical NDO systems waste communication on always-on penalty negotiation; need interpretable when-to-negotiate scheduling under budget with theory and cross-paradigm evidence.",
+  "official_urls": [],
+  "special_requirements": [
+    "Preserve existing LaTeX labels, equations, figures, and experimental numbers",
+    "Contribution-first rewrite; strengthen intro ladder and results-validation mapping",
+    "Do not fabricate metrics or citations"
+  ],
+  "word_output": "none",
+  "translation_package": "none",
+  "reference_mode": "local_first",
+  "reference_paths": [
+    "/Users/zhangyingjie/Project/MACPO2/RL_MACPO_IEEE_English_with_images",
+    "/Users/zhangyingjie/Project/MACPO2"
+  ],
+  "citation_target_count": 20,
+  "humanize_tier": "light"
+}

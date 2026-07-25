@@ -8,11 +8,7 @@ converging iff p*lambda < 2/gamma_N. This script checks that the empirical
 first-moment decay rate of real Bernoulli-gated consensus runs matches rho(p*lambda),
 on two structurally different graphs. Spectral quantities reuse utils/spectral_consensus.
 
-Run:  python scripts/gated_consensus_convergence.py --lang en \\
-        --out RL_MACPO_IEEE_English_with_images/media/gated_convergence.pdf
-
-Synthetic validation (demo_mode): Bernoulli-gated consensus on ring/ER graphs;
-not production NDO/MACPO runs.
+Run:  python scripts/gated_consensus_convergence.py [--lang en] [--out PATH]
 """
 from __future__ import annotations
 
@@ -22,12 +18,9 @@ import sys
 
 import numpy as np
 
-demo_mode = True  # synthetic rate validation; keep out of production data paths
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.mpl_font import setup_cjk_font  # noqa: E402
 from utils.mpl_sci_ticks import set_numeric_tick_font_dejavu  # noqa: E402
-from utils.pub_figure import apply_pub_style, panel_label  # noqa: E402
 from utils.spectral_consensus import (  # noqa: E402
     spectral_gap,
     spectral_radius,
@@ -40,18 +33,20 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 TXT = {
     "zh": {
-        "pred": "一阶矩理论 $\\rho(p\\lambda)$", "emp": "一阶矩实测",
-        "pred_ms": "均方理论 $\\rho_{\\mathrm{ms}}$", "emp_ms": "均方实测",
+        "pred": "一阶矩理论 $\\rho(p\\lambda)$", "emp": "一阶矩实测 $\\|\\mathbb{E}e\\|$",
+        "pred_ms": "均方理论 $\\rho_{\\mathrm{ms}}$", "emp_ms": "均方实测 $\\mathbb{E}\\|e\\|^2$",
         "xlabel": "触发率 $p=\\bar p_{\\mathrm{comm}}$", "ylabel": "每轮误差衰减率",
-        "thr": "一阶矩阈值",
-        "ring": "环形网络", "er": "随机图 (ER)",
+        "thr": "稳定阈值 $p=2/(\\lambda\\gamma_N)$",
+        "sup": "B2: 间歇门控共识的一阶矩与均方衰减率——实测均与理论 $\\rho(p\\lambda)$、$\\rho_{\\mathrm{ms}}$ 吻合",
+        "ring": "环形网络 (病态稀疏)", "er": "随机图 (Erdős–Rényi)",
     },
     "en": {
-        "pred": "First moment $\\rho(p\\lambda)$", "emp": "First moment (meas.)",
-        "pred_ms": "Mean square $\\rho_{\\mathrm{ms}}$", "emp_ms": "Mean square (meas.)",
+        "pred": "First moment $\\rho(p\\lambda)$", "emp": "First moment $\\|\\mathbb{E}e\\|$ (meas.)",
+        "pred_ms": "Mean square $\\rho_{\\mathrm{ms}}$", "emp_ms": "Mean square $\\mathbb{E}\\|e\\|^2$ (meas.)",
         "xlabel": "Trigger rate $p=\\bar p_{\\mathrm{comm}}$", "ylabel": "Per-loop error decay rate",
-        "thr": "First-moment limit",
-        "ring": "Ring graph", "er": "Random graph (ER)",
+        "thr": "First-moment limit $p=2/(\\lambda\\gamma_N)$",
+        "sup": "Intermittent gated consensus: measured first-moment and mean-square decay match theory $\\rho(p\\lambda)$ and $\\rho_{\\mathrm{ms}}$",
+        "ring": "Ring graph (ill-conditioned)", "er": "Random graph (Erdos-Renyi)",
     },
 }
 
@@ -141,7 +136,7 @@ def empirical_ms_rate(W: np.ndarray, lam: float, p: float, *, T: int = 300,
     return float(np.exp(slope))
 
 
-def panel(ax, W, name, txt, ps, letter: str):
+def panel(ax, W, name, txt, ps):
     g2, gN = spectral_gap(W)
     lam = chebyshev_optimal_gain(g2, gN)
     rho = spectral_radius(lam, g2, gN)
@@ -150,20 +145,23 @@ def panel(ax, W, name, txt, ps, letter: str):
     pred_ms = [(1 - p) + p * rho ** 2 for p in ps]
     emp_ms = [empirical_ms_rate(W, lam, p) for p in ps]
     p_thr = 2.0 / (lam * gN)
-    ax.plot(ps, pred, "-", color="tab:blue", lw=1.4, label=txt["pred"])
-    ax.plot(ps, emp, "o", color="tab:blue", ms=4, mfc="none", label=txt["emp"])
-    ax.plot(ps, pred_ms, "-", color="tab:green", lw=1.4, label=txt["pred_ms"])
-    ax.plot(ps, emp_ms, "s", color="tab:green", ms=4, mfc="none", label=txt["emp_ms"])
-    ax.axhline(1.0, ls="--", color="0.5", lw=0.7)
+    ax.plot(ps, pred, "-", color="tab:blue", lw=2, label=txt["pred"])
+    ax.plot(ps, emp, "o", color="tab:blue", ms=5, mfc="none", label=txt["emp"])
+    ax.plot(ps, pred_ms, "-", color="tab:green", lw=2, label=txt["pred_ms"])
+    ax.plot(ps, emp_ms, "s", color="tab:green", ms=5, mfc="none", label=txt["emp_ms"])
+    ax.axhline(1.0, ls="--", color="gray", alpha=0.7)
     if p_thr <= ps[-1]:
-        ax.axvline(p_thr, ls=":", color="tab:red", lw=0.9, label=txt["thr"])
-    ax.set_title(f"{name}  ($\\gamma_2$={g2:.3f}, $\\gamma_N$={gN:.3f}, $\\lambda^\\star$={lam:.2f})")
+        ax.axvline(p_thr, ls=":", color="tab:red", label=txt["thr"])
+    ax.set_title(
+        f"{name}\n"
+        rf"$\gamma_2={g2:.3f},\ \gamma_N={gN:.3f},\ \lambda^\star={lam:.2f}$",
+        fontsize=10,
+    )
     ax.set_xlabel(txt["xlabel"])
     ax.set_ylabel(txt["ylabel"])
-    ax.grid(alpha=0.25, lw=0.5)
-    ax.legend(loc="best", handlelength=1.5)
-    panel_label(ax, letter)
-    print(f"[{name}] 1st max|pred-emp|={np.nanmax(np.abs(np.array(pred)-np.array(emp))):.4f}  "
+    ax.grid(alpha=0.3)
+    ax.legend(fontsize=8)
+    print(f"[{name}] 1st-moment max|pred-emp|={np.nanmax(np.abs(np.array(pred)-np.array(emp))):.4f}  "
           f"MS max|pred-emp|={np.nanmax(np.abs(np.array(pred_ms)-np.array(emp_ms))):.4f}")
 
 
@@ -174,28 +172,17 @@ def main():
     args = ap.parse_args()
     txt = TXT[args.lang]
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
-    apply_pub_style(font_size=7.0)
-    import matplotlib as mpl
-    mpl.rcParams.update({
-        "font.family": "sans-serif",
-        "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans", "sans-serif"],
-        "svg.fonttype": "none",
-        "pdf.fonttype": 42,
-        "font.size": 7,
-    })
 
     ps = np.linspace(0.05, 1.0, 12)
-    # synthetic graph demo boundary: Bernoulli intermittent consensus on ring/ER
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.55))
-    panel(axes[0], ring_mixing(12), txt["ring"], txt, ps, "a")
-    panel(axes[1], er_mixing(16), txt["er"], txt, ps, "b")
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.6))
+    panel(axes[0], ring_mixing(12), txt["ring"], txt, ps)
+    panel(axes[1], er_mixing(16), txt["er"], txt, ps)
     for a in axes:
         set_numeric_tick_font_dejavu(a)
-    fig.tight_layout(pad=0.4)
-    fig.savefig(args.out, dpi=600, bbox_inches="tight")
-    _base, _ = os.path.splitext(args.out)
-    fig.savefig(_base + ".svg", bbox_inches="tight")
-    print(f"saved: {args.out} (+ svg)")
+    fig.suptitle(txt["sup"], fontsize=12)
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    fig.savefig(args.out, dpi=150, bbox_inches="tight")
+    print(f"图已保存: {args.out}")
 
 
 if __name__ == "__main__":

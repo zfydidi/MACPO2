@@ -1,0 +1,12 @@
+# Writing Rationale Matrix
+
+| Row ID | Manuscript Unit | Original Problem or Planned Function | Motivation Link | Reference/SOTA Pattern Learned | Target Scene or Venue Norm | User Evidence or Citation Anchor | Planned Change | Final Text Check |
+|---|---|---|---|---|---|---|---|---|
+| R0 | Whole paper framework | Contribution buried in long intro paragraph; reviewer cannot scan claims | RQ: when to negotiate under budget with bounded skip cost | IEEE TEVC-style numbered contributions after problem/gap | IEEE conference: 3–5 crisp bullets, theory paired with validation fig | All tables/figs in media/; Props 1–3 + Cor 1–2 | Restructure intro contributions + abstract + results roadmap | PASS after edit |
+| R1 | Abstract | Strong on apps but vague on theory/protocol scope | Physical comm limits → need scheduling | Leading ML systems papers state method + one proof + one transfer experiment | ≤250 words; no new numbers | Existing 90% trigger stat; three props | Add explicit three-guarantee clause; soften universal MASOIE | PASS after edit |
+| R2 | Intro ¶1–3 (motivation) | Good physical examples | UAV/VEC/grid comm cost | Standard applied-optimization opening | Keep narrative examples | ref_dopt_* , ref_ndo_dispatch | No change | PASS |
+| R3 | Intro contribution block | Single 8-line sentence block | Core gate + theory + MASOIE | Numbered `\begin{itemize}` contribution list | IEEE bullet contributions | confirmed_contribution.md C1–C7 | Replace paragraph with itemized list | PASS after edit |
+| R4 | Experiments opening | Lists subsections but not claim mapping | Results must validate promises | Nature/ML "we test X with Y" roadmap sentence | Short roadmap before settings | results_validation.md | Insert validation roadmap paragraph | PASS after edit |
+| R5 | Protocol-agnostic paragraph + caption | Caption previously overclaimed gossip | C4 cross-paradigm | Honest win-rate reporting | Caption matches panel annotations | Fig gated_universality | Already fixed caption; intro bullet bounds claim | PASS |
+| R6 | MASOIE subsection | Theory-linked operating point | C7 external paradigm | Report failure + recovery, not hide F2/F4 | Single subsection, one table, recovery fig | tab:masoie_gated, fig:masoie_recovery | Duplicate removed earlier; intro bullet mentions K recovery | PASS |
+| R7 | Conclusion | Dense but aligned | Recap limits | Mirror intro bullets briefly | 2–3 paragraphs | Same evidence | Light sync with intro list wording | PASS after edit |
